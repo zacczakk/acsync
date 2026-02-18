@@ -7,12 +7,12 @@ Agent-driven sync across Claude Code, OpenCode, Gemini CLI, and Codex.
 
 1. Clone the repo:
    ```bash
-   git clone https://github.com/zacczakk/agents.git ~/Repos/agents
+   git clone https://github.com/zacczakk/agents.git
+   cd agents
    ```
 
 2. Copy `.env.example` to `.env` and fill in secrets:
    ```bash
-   cd ~/Repos/agents
    cp .env.example .env
    # Edit .env with your API keys
    ```
@@ -22,14 +22,14 @@ Agent-driven sync across Claude Code, OpenCode, Gemini CLI, and Codex.
    **For Claude Code:**
    ```bash
    mkdir -p ~/.claude/commands/zz
-   cp ~/Repos/agents/configs/common/commands/zz-sync-agent-configs.md \
+   cp configs/common/commands/zz-sync-agent-configs.md \
       ~/.claude/commands/zz/sync-agent-configs.md
    ```
 
    **For OpenCode:**
    ```bash
    mkdir -p ~/.config/opencode/command
-   cp ~/Repos/agents/configs/common/commands/zz-sync-agent-configs.md \
+   cp configs/common/commands/zz-sync-agent-configs.md \
       ~/.config/opencode/command/zz-sync-agent-configs.md
    ```
 
