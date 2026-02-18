@@ -181,6 +181,8 @@ Body content copied verbatim.
 
 #### OpenCode — Rebuild Frontmatter + Translate Tools
 
+Keep `zz-` prefix in filename (e.g., `zz-planner.md`).
+
 Canonical agent frontmatter:
 ```yaml
 ---
@@ -202,6 +204,7 @@ tools:
 ```
 
 Rules:
+- Keep `zz-` prefix in filename.
 - Drop `name` (OpenCode derives it from filename).
 - Drop `allowed-tools` and translate to `tools` map using the same
   translation table as commands (section 2.1).
