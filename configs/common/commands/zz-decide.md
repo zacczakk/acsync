@@ -1,5 +1,5 @@
 ---
-description: Capture a decision to the central .tasks/DECISIONS.md log.
+description: Capture a decision to the central docs/plans/DECISIONS.md log.
 argument-hint: <decision>
 allowed-tools: [Read, Write, Bash]
 ---
@@ -11,7 +11,7 @@ READ ~/Repos/agents/AGENTS.md BEFORE ANYTHING ELSE. Follow all rules there. Skip
 ## Purpose
 
 Quick decision capture during work. Not an interview — just logs a decision
-with context and timestamp to `.tasks/DECISIONS.md`.
+with context and timestamp to `docs/plans/DECISIONS.md`.
 
 ## Arguments
 
@@ -27,7 +27,7 @@ If no arguments provided, prompt:
 
 ## Procedure
 
-### Step 1: Ensure .tasks/ directory exists
+### Step 1: Ensure docs/plans/ directory exists
 
 ```bash
 mkdir -p .tasks
@@ -35,17 +35,17 @@ mkdir -p .tasks
 
 ### Step 2: Read existing decisions log
 
-Read `.tasks/DECISIONS.md` if it exists. If not, it will be created.
+Read `docs/plans/DECISIONS.md` if it exists. If not, it will be created.
 
 ### Step 3: Determine context tag
 
-Check `.tasks/STATE.md` for an active task slug:
+Check `docs/plans/STATE.md` for an active task slug:
 - If found: use the task slug as context (e.g., `auth-refactor`)
 - If not found: use `general`
 
 ### Step 4: Append decision entry
 
-Append to `.tasks/DECISIONS.md`:
+Append to `docs/plans/DECISIONS.md`:
 
 ```markdown
 ### YYYY-MM-DD — [First ~60 chars of decision text]
@@ -66,4 +66,4 @@ If the file doesn't exist yet, create it with a header first:
 ### Step 5: Confirm
 
 Output:
-> Decision logged to `.tasks/DECISIONS.md`
+> Decision logged to `docs/plans/DECISIONS.md`

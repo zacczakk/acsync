@@ -119,9 +119,9 @@ If NO config exists: flag only egregious issues (inconsistent indentation, mixed
 ### Task Cross-Reference
 Check for task definitions:
 ```bash
-ls .tasks/*/TASK.md 2>/dev/null
+ls docs/plans/*/PLAN.md 2>/dev/null
 ```
-If found, read the TASK.md and cross-reference:
+If found, read the PLAN.md and cross-reference:
 - Does the change satisfy the stated acceptance criteria?
 - Are there acceptance criteria not addressed by the changes?
 - Does the change introduce scope beyond what the task requires?
@@ -154,7 +154,7 @@ Return findings in this exact format:
 | 3 | info     | src/utils.ts:88 | Commented-out debug block (12 lines) | Delete the block |
 
 ### Task Alignment
-[Only if .tasks/*/TASK.md was found]
+[Only if docs/plans/*/PLAN.md was found]
 - [ ] Criteria X: satisfied / not addressed / partially addressed
 - [ ] Criteria Y: ...
 
@@ -194,5 +194,5 @@ Return findings in this exact format:
 - [ ] Every finding has actionable fix suggestion
 - [ ] No false positives from formatting or auto-generated code
 - [ ] Style issues skipped when formatter/linter configured
-- [ ] Task alignment checked if .tasks/*/TASK.md exists
+- [ ] Task alignment checked if docs/plans/*/PLAN.md exists
 - [ ] Summary gives clear ship / fix-first / needs-discussion verdict

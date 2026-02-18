@@ -15,10 +15,10 @@ the single best next action.
 ### Step 1 — Read state sources (in priority order)
 
 Try each; use the first that exists:
-1. `.tasks/STATE.md` → read active task slug → read `.tasks/{slug}/TASK.md`
+1. `docs/plans/STATE.md` → read active task slug → read `docs/plans/{slug}/PLAN.md`
 2. `.continue-here.md` at repo root
-3. `TASK.md` at repo root (legacy)
-4. `TASK.md` at repo root (legacy, lowercase variant)
+3. `PLAN.md` at repo root (legacy)
+4. `PLAN.md` at repo root (legacy, lowercase variant)
 
 If none exist, say so and skip to git state.
 

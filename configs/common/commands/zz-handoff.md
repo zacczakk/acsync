@@ -17,8 +17,8 @@ open questions, blockers, and next steps so the next session can resume without 
 Run these in parallel:
 - `git diff --stat` — what files changed
 - `git log -5 --oneline` — recent commits
-- Check `.tasks/STATE.md` for active task slug
-- If active task exists, read `.tasks/{slug}/TASK.md`
+- Check `docs/plans/STATE.md` for active task slug
+- If active task exists, read `docs/plans/{slug}/PLAN.md`
 
 ### Step 2 — Summarize changes
 
@@ -38,11 +38,11 @@ Be specific: "Need to decide whether auth tokens expire" not "auth TBD".
 
 ### Step 5 — Write continuation file
 
-**If `.tasks/` directory exists and there's an active task:**
-- Update `.tasks/{active-slug}/TASK.md` — append a `## Session Notes` section
+**If `docs/plans/` directory exists and there's an active task:**
+- Update `docs/plans/{active-slug}/PLAN.md` — append a `## Session Notes` section
   (or update existing one) with date and summary.
 
-**If no `.tasks/` directory:**
+**If no `docs/plans/` directory:**
 - Write `.continue-here.md` at repo root with the full handoff.
 
 ### Step 6 — Propose next steps

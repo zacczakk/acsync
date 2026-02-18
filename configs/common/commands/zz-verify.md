@@ -20,11 +20,11 @@ Run verification checks. Either scoped to a specific area or full gate.
 Detect available checks by looking for:
 - `package.json` scripts: `test`, `lint`, `typecheck`, `build`
 - `Makefile` / `justfile` targets
-- `.tasks/{active}/TASK.md` verification criteria
+- `docs/plans/{active}/PLAN.md` verification criteria
 - AGENTS.md "Build / Test" section for repo-specific gates
 - CI config (`.github/workflows/`) for the canonical check list
 
-Prioritize the TASK.md criteria if they exist — those are the acceptance tests
+Prioritize the PLAN.md criteria if they exist — those are the acceptance tests
 for the current work.
 
 ## Spawn zz-verifier agent
@@ -32,7 +32,7 @@ for the current work.
 Pass to the zz-verifier:
 - Discovered check commands
 - Scope constraints (if any)
-- TASK.md verification criteria (if any)
+- PLAN.md verification criteria (if any)
 - Instruction: run each check, capture output, report pass/fail
 
 ## Present results

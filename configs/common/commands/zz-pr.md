@@ -52,7 +52,7 @@ Build the description from commit messages:
 - List of key changes derived from diffs
 
 ## Checklist
-<!-- If .tasks/*/TASK.md files exist -->
+<!-- If docs/plans/*/PLAN.md files exist -->
 - [x] Completed item from task checklist
 - [ ] Remaining item from task checklist
 
