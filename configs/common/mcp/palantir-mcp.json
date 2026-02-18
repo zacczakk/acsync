@@ -1,0 +1,11 @@
+{
+  "description": "Palantir Foundry data access MCP server",
+  "transport": "stdio",
+  "command": "npx",
+  "args": ["-y", "palantir-mcp", "--foundry-api-url", "${FOUNDRY_HOST}"],
+  "env_vars": ["PALANTIR_FOUNDRY_TOKEN"],
+  "env": {
+    "FOUNDRY_TOKEN": "${PALANTIR_FOUNDRY_TOKEN}"
+  },
+  "disabled_for": ["codex"]
+}

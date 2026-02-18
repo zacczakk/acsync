@@ -1,0 +1,7 @@
+{
+  "description": "Liquid Carbon component library MCP server",
+  "transport": "stdio",
+  "command": "liquid-carbon-mcp",
+  "args": [],
+  "disabled_for": ["codex"]
+}

@@ -1,0 +1,85 @@
+{
+  "provider": {
+    "uptimize-bedrock": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Uptimize",
+      "options": {
+        "baseURL": "${UPTIMIZE_BASE_URL_PROD}/model/",
+        "apiKey": "${UPTIMIZE_BEDROCK_API_KEY}",
+        "headers": {
+          "openai-standard": "True"
+        }
+      },
+      "models": {
+        "eu.anthropic.claude-sonnet-4-5-20250929-v1:0": {
+          "name": "Claude Sonnet 4.5"
+        },
+        "eu.anthropic.claude-haiku-4-5-20251001-v1:0": {
+          "name": "Claude Haiku 4.5"
+        },
+        "eu.anthropic.claude-opus-4-5-20251101-v1:0": {
+          "name": "Claude Opus 4.5 (experimental)"
+        }
+      }
+    },
+    "uptimize-foundry": {
+      "npm": "@ai-sdk/anthropic",
+      "name": "Foundry",
+      "options": {
+        "baseURL": "{env:ANTHROPIC_BASE_URL}/v1",
+        "apiKey": "{env:ANTHROPIC_AUTH_TOKEN}",
+        "headers": {
+          "Authorization": "Bearer {env:ANTHROPIC_AUTH_TOKEN}"
+        }
+      },
+      "models": {
+        "claude-opus-4-6": {
+          "name": "Claude Opus 4.6",
+          "limit": {
+            "context": 180000,
+            "output": 8192
+          }
+        },
+        "claude-opus-4-5-20251101": {
+          "name": "Claude Opus 4.5",
+          "limit": {
+            "context": 180000,
+            "output": 8192
+          }
+        },
+        "claude-sonnet-4-5-20250929": {
+          "name": "Claude Sonnet 4.5",
+          "limit": {
+            "context": 180000,
+            "output": 8192
+          }
+        },
+        "claude-haiku-4-5-20251001": {
+          "name": "Claude Haiku 4.5",
+          "limit": {
+            "context": 180000,
+            "output": 8192
+          }
+        }
+      }
+    }
+  },
+  "plugin": [
+    "opencode-agent-browser"
+  ],
+  "permission": {
+    "*": "allow",
+    "bash": {
+      "*": "allow",
+      "rm *": "deny",
+      "git push *": "ask",
+      "git reset --hard *": "deny"
+    },
+    "external_directory": "ask"
+  },
+  "model": "uptimize-foundry/claude-opus-4-6",
+  "instructions": [
+    "~/Repos/agents/AGENTS.md",
+    "~/.config/opencode/OPENCODE.md"
+  ]
+}
