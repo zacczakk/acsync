@@ -1,5 +1,3 @@
-READ ~/Repos/agents/AGENTS.md BEFORE ANYTHING (skip if missing).
-
 # Claude Code Addendum
 
 ## Paths

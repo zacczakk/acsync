@@ -274,13 +274,16 @@ that CLI, warn the user and offer to force-enable it.
 
 ### 2.4 Instruction Addendums
 
-Each CLI has a global instruction file that serves as a CLI-specific addendum
-to the canonical `AGENTS.md`. These files point to the canonical rules and
-add CLI-specific notes (paths, quirks, restrictions).
+Each CLI has a global instruction file that is auto-injected into the system
+prompt at startup. During sync push, this file is built by concatenating
+the canonical `AGENTS.md` (the ground truth rules) with the CLI-specific
+addendum. This ensures models always receive the full rules without needing
+to voluntarily issue a Read tool call.
 
 #### Canonical Sources
 
 ```
+AGENTS.md (root)                        — ground truth rules (prepended to all)
 configs/common/instructions/claude.md   -> ~/.claude/CLAUDE.md
 configs/common/instructions/opencode.md -> ~/.config/opencode/OPENCODE.md
 configs/common/instructions/gemini.md   -> ~/.gemini/GEMINI.md
@@ -296,14 +299,44 @@ configs/common/instructions/codex.md    -> ~/.codex/AGENTS.md
 | Gemini | `~/.gemini/GEMINI.md` | Via `context.fileName` setting |
 | Codex | `~/.codex/AGENTS.md` | Auto-discovered by filename |
 
+#### Concatenation Format
+
+The rendered system file is built as:
+
+```
+{contents of ~/Repos/agents/AGENTS.md}
+
+{contents of configs/common/instructions/{cli}.md}
+```
+
+Two newlines separate AGENTS.md from the addendum. The addendum files in
+the repo contain only the CLI-specific content (no `READ` directive).
+
 #### Push
 
-Copy canonical to system path verbatim. No secret injection needed (these
-files contain no secrets). No format transformation.
+1. Read `~/Repos/agents/AGENTS.md`.
+2. Read the canonical CLI addendum (`configs/common/instructions/{cli}.md`).
+3. Concatenate: AGENTS.md content + `"\n\n"` + addendum content.
+4. Write the combined result to the system instruction file.
+
+No secret injection needed (these files contain no secrets).
 
 #### Pull
 
-Copy system file back to canonical. Compare and show diff.
+1. Read the system instruction file.
+2. Split at the CLI addendum header marker:
+   - Claude: `# Claude Code Addendum`
+   - OpenCode: `# OpenCode Addendum`
+   - Gemini: `# Gemini Addendum`
+   - Codex: `# Codex Addendum`
+3. Content before the marker → diff against canonical `AGENTS.md`.
+4. Content from the marker onward → diff against the canonical addendum.
+
+Report drift for each portion independently.
+
+#### Check
+
+Same split logic as pull. Report drift for both portions independently.
 
 ### 2.5 MCP Servers
 
