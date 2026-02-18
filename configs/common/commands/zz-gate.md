@@ -39,7 +39,7 @@ The zz-verifier must run ALL of these steps (skip if not applicable):
 
 ### 3. Collect task checklist status (if applicable)
 
-If `.tasks/*/TASK.md` files exist:
+If `docs/plans/*/PLAN.md` files exist:
 - Parse each for checklist items (`- [x]` and `- [ ]`)
 - Count completed vs total
 - Include in verdict output

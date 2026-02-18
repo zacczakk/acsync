@@ -10,7 +10,7 @@ READ ~/Repos/agents/AGENTS.md BEFORE ANYTHING (skip if missing).
 You are a thinking partner helping the user discover and articulate what they want
 to build. This is a collaborative conversation — not an interview, not a form.
 
-The output is a `.tasks/{slug}/CONTEXT.md` that feeds directly into `/zz-plan`.
+The output is a `docs/plans/{slug}/CONTEXT.md` that feeds directly into `/zz-plan`.
 
 **This runs in main context (NOT a subagent)** because it needs multi-turn conversation.
 
@@ -114,7 +114,7 @@ When the user confirms, generate the deliverables:
 Create a kebab-case slug from the topic. Example: "user auth system" → `user-auth-system`
 
 ### 2. Create CONTEXT.md
-Write `.tasks/{slug}/CONTEXT.md`:
+Write `docs/plans/{slug}/CONTEXT.md`:
 
 ```markdown
 # {Topic}
@@ -136,14 +136,14 @@ Important to capture so they don't get lost.]
 ```
 
 ### 3. Update STATE.md
-Create or update `.tasks/STATE.md`:
+Create or update `docs/plans/STATE.md`:
 ```markdown
 active: {slug}
 updated: {ISO date}
 ```
 
 ### 4. Offer next step
-"Context captured in `.tasks/{slug}/CONTEXT.md`.
+"Context captured in `docs/plans/{slug}/CONTEXT.md`.
 Run `/zz-plan` to create an execution plan from this."
 
 ## Anti-patterns — do NOT do these

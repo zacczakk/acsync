@@ -9,7 +9,7 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 - 3rd-party/OSS (non-zacczakk): clone under `~/Repos/oss`.
 - Files: repo or `~/Repos/agents`.
 - PRs: use `gh pr view/diff` (no URLs).
-- “Make a note” => edit `AGENTS.md` and/or `TASK.md` (shortcut; not a blocker).
+- “Make a note” => edit `AGENTS.md` and/or active plan in `docs/plans/` (shortcut; not a blocker).
 - No `./runner`. Guardrails: use `trash` for deletes.
 - Need upstream file: stage in `/tmp/`, then cherry-pick; never overwrite tracked.
 - Bugs: add regression test when it fits.
@@ -35,13 +35,13 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 2. **Verify before done**: Tests > manual checks > "looks right". If you cannot run tests, say why.
 3. **Fix root cause**: No band-aids. Hacky? Stop + ask.
 4. **Small, reviewable changes**: Small diffs; explicit steps.
-5. **Compound knowledge**: Mistakes: add rule here or TASK.md. No repeats.
+5. **Compound knowledge**: Mistakes: add rule here or docs/plans/active/{slug}/PLAN.md. No repeats.
 
 ## Flow & Runtime
 - Enter plan mode for non-trivial tasks.
-- Update `TASK.md`: goals, steps, verification.
+- Update active plan in `docs/plans/`: goals, steps, verification.
 - Ask for missing info before executing.
-- New rules/pitfalls: update here or `TASK.md`.
+- New rules/pitfalls: update here or active plan in `docs/plans/`.
 - GSD upkeep: run `npx get-shit-done-cc@latest --all --global` often (before major work / weekly).
 - GSD patch: `model_overrides` in `gsd-tools.js` (3 edits: `loadConfig`, `cmdResolveModel`, `resolveModelInternal`). Re-apply after GSD updates. Config: `"model_overrides": { "agent-type": "opus" }` in `.planning/config.json`.
 - One task per session.
@@ -69,11 +69,42 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 - Replace asset; keep dimensions; commit; run gate; verify CI.
 
 ## Docs
-- Start: run `python scripts/generate-docs.py`; open docs before coding.
-- Follow links until domain makes sense; honor `Read when` hints.
-- Keep notes short; update docs when behavior/API changes (no ship w/o docs).
-- Add `read_when` hints on cross-cutting docs.
+- System of record: `docs/` in each repo. AGENTS.md = index, not encyclopedia.
+- Progressive disclosure: AGENTS.md points to deeper docs; agent loads on demand.
+- Repo knowledge > chat knowledge. Slack/thread decision? Encode in docs/ or it doesn't exist.
+- Staleness: dead links / stale refs = bugs. Run `/zz-groom-docs` periodically.
+- Front-matter: run `python scripts/generate-docs.py`; honor `read_when` hints.
 - Search Context7 MCP for library documentation.
+
+### Structure (create dirs as needed per repo)
+
+#### `docs/architecture.md`
+- Domain map: modules, packages, layers, dependency direction.
+- Create on first non-trivial setup. Update when boundaries change.
+- Map, not novel. Diagram-like bullets preferred.
+
+#### `docs/design/`
+- One file per design decision (`docs/design/{slug}.md`). Add `index.md` w/ one-line summaries.
+- Create when: choosing between approaches, adopting patterns, rejecting alternatives.
+- Format: context, options considered, decision, consequences, verification status.
+
+#### `docs/plans/`
+- Execution plans. Replaces `TASK.md` / `.tasks/`.
+- `active/{slug}/PLAN.md` — goals, steps, verification criteria, progress log.
+- `active/{slug}/CONTEXT.md` — discovery context from `/zz-discuss`.
+- `completed/{slug}/` — archived plans; move here when done.
+- `STATE.md` — active plan pointer (managed by `/zz-plan`).
+- `DECISIONS.md` — cross-plan decision log (managed by `/zz-decide`).
+- Complex work → plan in repo, not ephemeral chat.
+
+#### `docs/references/`
+- Vendored external docs: llms.txt, API specs, library guides.
+- Add when adopting a dep whose docs agent needs at coding time.
+- Concise extracts over full dumps. Link to source in header comment.
+
+#### `docs/generated/`
+- Auto-generated: DB schemas, API docs, type inventories.
+- Gitignore or CI-refresh. Never hand-edit.
 
 ## PR Feedback
 - Active PR: `gh pr view --json number,title,url --jq '"PR #\\(.number): \\(.title)\\n\\(.url)"'`.
@@ -109,7 +140,7 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 - Big review: `git --no-pager diff --color=never`.
 - Multi-agent coordination:
   - Check `git status/diff` before edits; ship small commits.
-  - Claim scope: note owned files/modules in `TASK.md` before editing.
+  - Claim scope: note owned files/modules in active plan in `docs/plans/` before editing.
   - Pull before edit, commit immediately after.
   - Conflict detected: stop, show diff, ask user.
   - Don't revert or modify another agent's recent commits w/o consent.

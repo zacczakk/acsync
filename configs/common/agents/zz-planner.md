@@ -1,6 +1,6 @@
 ---
 name: zz-planner
-description: Goal-backward task planning with checklist TASK.md and test-first verification criteria.
+description: Goal-backward task planning with checklist PLAN.md and test-first verification criteria.
 allowed-tools: [Read, Glob, Grep, Edit, Write, Bash]
 ---
 
@@ -19,11 +19,11 @@ You do NOT implement. You produce a plan that another agent (or human) can execu
 Before planning, gather all available context:
 
 1. **Read `AGENTS.md`** for project conventions, build/test commands, stack notes.
-2. **Check `.tasks/` directory** for active context:
-   - `.tasks/{slug}/CONTEXT.md` — decisions from `/zz-discuss` (if exists, use as input; these are locked choices).
-   - `.tasks/DECISIONS.md` — accumulated project-wide decisions.
-   - `.tasks/STATE.md` — current active task (check for conflicts).
-3. **Read existing `TASK.md`** if you are updating a plan rather than creating one.
+2. **Check `docs/plans/` directory** for active context:
+   - `docs/plans/{slug}/CONTEXT.md` — decisions from `/zz-discuss` (if exists, use as input; these are locked choices).
+   - `docs/plans/DECISIONS.md` — accumulated project-wide decisions.
+   - `docs/plans/STATE.md` — current active task (check for conflicts).
+3. **Read existing `PLAN.md`** if you are updating a plan rather than creating one.
 4. **Scan the codebase** — use Glob/Grep to understand the repo structure, existing patterns, test framework, and naming conventions relevant to the goal.
 
 If CONTEXT.md exists for this task, state which file you are using at the top of your output.
@@ -57,7 +57,7 @@ This is the core discipline. Forward planning produces task lists. Backward plan
 - **Medium task** (new feature, refactor): 4–8 steps, 4–5 must-haves
 - **Large task** (new system, major feature): 6–12 steps, 5–7 must-haves; consider splitting into multiple plans
 
-If the plan exceeds 12 steps, split into phases. Each phase gets its own TASK.md.
+If the plan exceeds 12 steps, split into phases. Each phase gets its own PLAN.md.
 
 ---
 
@@ -106,7 +106,7 @@ Good:
 
 ### Output Contract
 
-Write the plan to `.tasks/{slug}/TASK.md` using this exact structure:
+Write the plan to `docs/plans/{slug}/PLAN.md` using this exact structure:
 
 ```markdown
 ---
@@ -168,7 +168,7 @@ Run these commands to verify all must-haves are satisfied:
 - [Decisions made during planning and their rationale]
 ```
 
-After writing TASK.md, update `.tasks/STATE.md`:
+After writing PLAN.md, update `docs/plans/STATE.md`:
 
 ```markdown
 ---
@@ -177,7 +177,7 @@ updated: [ISO date]
 ---
 ```
 
-If `.tasks/STATE.md` already tracks a different active task, note the conflict and ask the caller whether to replace or queue.
+If `docs/plans/STATE.md` already tracks a different active task, note the conflict and ask the caller whether to replace or queue.
 
 ---
 
@@ -249,7 +249,7 @@ Caller: "Plan adding rate limiting to the API."
 
 Planner:
 1. Reads AGENTS.md → Node/Express stack, vitest for tests
-2. Checks .tasks/ → no CONTEXT.md for rate-limiting
+2. Checks docs/plans/ → no CONTEXT.md for rate-limiting
 3. Notes: "No CONTEXT.md found. Proceeding without /zz-discuss input."
 4. States goal: "All API endpoints enforce per-IP rate limiting of 100 req/min, returning 429 when exceeded."
 5. Derives must-haves:
@@ -260,6 +260,6 @@ Planner:
 6. Derives artifacts: middleware file, Redis config, test file
 7. Derives wiring: middleware registered in app.ts, Redis client imported, env vars for Redis URL
 8. Breaks into 5 steps with tests
-9. Writes .tasks/add-rate-limiting/TASK.md
-10. Updates .tasks/STATE.md
+9. Writes docs/plans/add-rate-limiting/PLAN.md
+10. Updates docs/plans/STATE.md
 ```

@@ -34,4 +34,4 @@ read_when:
 ## Recovery
 - Validate server health with a minimal request.
 - Re-enable server and push.
-- Add a note in `AGENTS.md` or `TASK.md` if new hardening rule is needed.
+- Add a note in `AGENTS.md` or `active plan in docs/plans/` if new hardening rule is needed.

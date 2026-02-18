@@ -19,7 +19,7 @@ $ARGUMENTS is the research question. If empty, ask the user what to research.
 Before spawning the zz-researcher, gather repo context that might be relevant:
 - Tech stack: check `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, etc.
 - Current patterns: grep for relevant imports or usage if the question relates to a library
-- Existing decisions: check `.tasks/DECISIONS.md` for prior choices on the topic
+- Existing decisions: check `docs/plans/DECISIONS.md` for prior choices on the topic
 
 This helps the zz-researcher give answers that fit the actual project.
 
