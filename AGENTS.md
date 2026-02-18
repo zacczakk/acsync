@@ -23,25 +23,25 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 - Web: search early; quote exact errors; prefer 2025–2026 sources; fallback Tavily MCP.
 - WebFetch: blocked in Claude Code (corporate proxy); works fine in OpenCode. Use Tavily for search regardless (better structured results).
 - Style: telegraph. Drop filler/grammar. Min tokens (global AGENTS + replies).
-- **No breadcrumbs**. If you delete or move code, do not leave a comment in the old place. No "// moved to X", no "relocated". Just remove it.
-- Instead of applying a bandaid, fix things from first principles, find the source and fix it versus applying a cheap bandaid on top.
-- Write idiomatic, simple, maintainable code. Always ask yourself if this is the most simple intuitive solution to the problem.
-- Leave each repo better than how you found it. If something is giving a code smell, fix it for the next person.
-- Clean up unused code ruthlessly. If a function no longer needs a parameter or a helper is dead, delete it and update the callers instead of letting the junk linger.
-- **Search before pivoting**. If you are stuck or uncertain, do a quick web search for official docs or specs, then continue with the current approach. Do not change direction unless asked.
+- **No breadcrumbs**. Delete/move code = no residual comments. No `// moved to X`. Just remove.
+- Fix root cause, not bandaids.
+- Idiomatic, simple, maintainable. Simplest intuitive solution wins.
+- Leave repos better than found. Fix code smells.
+- Kill dead code. Unused params/helpers: delete + update callers.
+- **Search before pivoting**. Stuck? Search official docs first. No direction change unless asked.
 
 ## Core Principles
-1. **Plan first**: For any non-trivial task, create a plan and get alignment before execution.
+1. **Plan first**: Non-trivial: plan + align before executing.
 2. **Verify before done**: Tests > manual checks > "looks right". If you cannot run tests, say why.
-3. **Fix root cause**: No band-aids. If it feels hacky, stop and ask for a better approach.
-4. **Small, reviewable changes**: Prefer small diffs and explicit steps.
-5. **Compound knowledge**: After mistakes, add a rule here or in TASK.md so it does not happen again.
+3. **Fix root cause**: No band-aids. Hacky? Stop + ask.
+4. **Small, reviewable changes**: Small diffs; explicit steps.
+5. **Compound knowledge**: Mistakes: add rule here or TASK.md. No repeats.
 
 ## Flow & Runtime
 - Enter plan mode for non-trivial tasks.
-- Create or update `TASK.md` with goals, steps, and verification criteria.
+- Update `TASK.md`: goals, steps, verification.
 - Ask for missing info before executing.
-- Update this file or `TASK.md` with new rules, commands, or pitfalls.
+- New rules/pitfalls: update here or `TASK.md`.
 - GSD upkeep: run `npx get-shit-done-cc@latest --all --global` often (before major work / weekly).
 - GSD patch: `model_overrides` in `gsd-tools.js` (3 edits: `loadConfig`, `cmdResolveModel`, `resolveModelInternal`). Re-apply after GSD updates. Config: `"model_overrides": { "agent-type": "opus" }` in `.planning/config.json`.
 - One task per session.
@@ -51,15 +51,15 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 - Use slash commands to enforce zz-plan/zz-verify/zz-handoff discipline.
 - Use subagents for deep work (planning, research, verification, refactor).
 - Prefer deterministic formatting hooks when available to avoid CI churn.
-- Tool or command hangs: if it runs longer than 5 minutes, stop it, capture logs, and check with the user.
-- Adding a dependency: research well-maintained options and confirm fit with the user before adding.
+- Hangs >5 min: stop, capture logs, ask user.
+- New dep: research health + fit; confirm w/ user.
 - Repo helpers (`scripts/`): keep byte-identical across repos; use `/zz-sync-agent-helpers` to distribute.
 - When taking on new work, follow this order:
-  1. Think about the architecture.
-  2. Research official docs, blogs, or papers on the best architecture.
-  3. Review the existing codebase.
-  4. Compare the research with the codebase to choose the best fit.
-  5. Implement the fix or ask about the tradeoffs the user is willing to make.
+  1. Think architecture.
+  2. Research: official docs, blogs, papers.
+  3. Review codebase.
+  4. Compare research vs codebase; pick best fit.
+  5. Implement or ask about tradeoffs.
 
 ## Screenshots (“use a screenshot”)
 - Pick newest PNG in `~/Desktop` or `~/Downloads`.
@@ -91,8 +91,8 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
   - Feature: tests + docs updated + CI green.
   - Refactor: behavior unchanged + tests pass + CI green.
   - Docs: render/preview if available + links valid.
-- Avoid mock tests; do unit or e2e instead. Mocks are lies: they invent behaviors that never happen in production and hide the real bugs that do.
-- Test everything with rigor. Our intent is ensuring a new person contributing to the same code base cannot break our stuff and that nothing slips by. We love rigour.
+- No mocks; unit or e2e. Mocks invent fake behaviors, hide real bugs.
+- Test rigorously. New contributor can't break things; nothing slips by.
 
 ## Git
 - Safe by default: `git status/diff/log`. Push only when user asks.
@@ -103,8 +103,8 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 - Commit helper on PATH: `committer` (bash). Prefer it; if repo has `./scripts/committer`, use that.
 - Don’t delete/rename unexpected stuff; stop + ask.
 - No repo-wide S/R scripts; keep edits small/reviewable.
-- Avoid manual `git stash`; if Git auto-stashes during pull/rebase, that’s fine (hint, not hard guardrail).
-- If user types a command (“pull and push”), that’s consent for that command.
+- Avoid manual `git stash`; auto-stash during pull/rebase OK (soft rule).
+- User types command = consent.
 - No amend unless asked.
 - Big review: `git --no-pager diff --color=never`.
 - Multi-agent coordination:

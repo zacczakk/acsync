@@ -19,9 +19,9 @@ READ ~/Repos/agents/AGENTS.md BEFORE ANYTHING (skip if missing).
 - Provider env vars: `{env:VAR_NAME}` syntax (OpenCode resolves at startup).
 
 ## Web Access
-- WebFetch works in OpenCode (not blocked by corporate proxy, unlike Claude Code).
-- Still prefer Tavily MCP for search (structured results, topic/date filtering).
-- Use WebFetch for fetching specific URLs.
+- WebFetch works (no proxy block unlike Claude Code).
+- Still prefer Tavily MCP for search (structured results; topic/date filters).
+- WebFetch for specific URLs.
 
 ## Config Management
 - Global configs are managed in `~/Repos/agents`.
