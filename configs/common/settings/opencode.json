@@ -79,7 +79,6 @@
   },
   "model": "uptimize-foundry/claude-opus-4-6",
   "instructions": [
-    "~/Repos/agents/AGENTS.md",
     "~/.config/opencode/OPENCODE.md"
   ]
 }

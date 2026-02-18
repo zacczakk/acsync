@@ -1,6 +1,8 @@
 ---
-description: System overview — architecture, data flow, and design decisions.
-read_when: First time working in this repo, or after a long break.
+summary: System overview — architecture, data flow, and design decisions.
+read_when:
+  - First time working in this repo
+  - After a long break
 ---
 
 # Overview

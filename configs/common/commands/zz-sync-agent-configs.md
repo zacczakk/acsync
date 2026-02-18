@@ -116,8 +116,8 @@ Check skill-MCP dependencies per SYNC.md section 2.3:
 
 #### 3d. Instruction Addendums
 
-Compare canonical instruction files (`configs/common/instructions/`) against
-system instruction files per SYNC.md section 2.4.
+Build rendered instruction files by concatenating `AGENTS.md` + CLI addendum
+per SYNC.md section 2.4.
 
 System locations:
 - Claude: `~/.claude/CLAUDE.md`
@@ -125,8 +125,15 @@ System locations:
 - Gemini: `~/.gemini/GEMINI.md`
 - Codex: `~/.codex/AGENTS.md`
 
-For push: copy canonical verbatim. For pull: copy system file back.
-Show diff; ask before each write.
+For **push**: Read `~/Repos/agents/AGENTS.md` and the canonical addendum
+(`configs/common/instructions/{cli}.md`). Concatenate with `"\n\n"` separator.
+Write the combined result to the system instruction file.
+Show diff of rendered output vs current system file; ask before each write.
+
+For **pull**: Read the system instruction file. Split at the CLI addendum
+header (e.g., `# Claude Code Addendum`). Diff each portion independently
+against `AGENTS.md` and the canonical addendum. Show diffs; ask before
+writing back to repo.
 
 #### 3e. MCP Servers
 

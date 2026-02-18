@@ -110,7 +110,7 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 - Active PR: `gh pr view --json number,title,url --jq '"PR #\\(.number): \\(.title)\\n\\(.url)"'`.
 - PR comments: `gh pr view …` + `gh api …/comments --paginate`.
 - Replies: cite fix + file/line; resolve threads only after fix lands.
-- When merging a PR: thank the contributor (in `CHANGELOG.md` if repo has one).
+- When merging a PR: thank the contributor (in `docs/CHANGELOG.md` if repo has one).
 
 ## Build / Test
 - Before handoff: run full gate (lint/typecheck/tests/docs).
@@ -195,3 +195,70 @@ Do:
 - Background: add depth (gradients/patterns), not flat default.
 
 Avoid: purple-on-white clichés, generic component grids, predictable layouts.
+
+## Agent Config Sync — Learnings (2026-02-18)
+
+Completed first full sync push across all 4 CLIs. Key findings:
+
+### Path Migration (`.tasks/` → `docs/plans/`)
+- All slash commands updated to reference new planning structure
+- `TASK.md` → `PLAN.md` throughout
+- `.tasks/DECISIONS.md` → `docs/plans/DECISIONS.md`
+- `.tasks/STATE.md` → `docs/plans/STATE.md`
+- `.tasks/{slug}/CONTEXT.md` → `docs/plans/active/{slug}/CONTEXT.md`
+- Affected commands: decide, discuss, gate, handoff, pickup, plan, pr, research, verify
+
+### New Command: `/zz-groom-docs`
+- Added documentation quality scanner
+- Checks: dead links, stale references, front-matter compliance, code drift
+- Output: severity-ranked table (ERROR/WARN/INFO)
+- Offers batch fixes with user consent
+- Run periodically (weekly or before releases)
+
+### Format Transformations Work As Specified
+- **Claude**: Strip `zz-` prefix, nest under `zz/` subdirectory ✓
+- **OpenCode**: Frontmatter rebuild with `allowed-tools` → `tools` map ✓
+- **Gemini**: TOML conversion with triple-quoted prompt strings ✓
+- **Codex**: Flat markdown with heading + description ✓
+
+### Settings Deep-Merge Preserved User Additions
+- Claude: Kept user-added `Read(//Users/.../articles/**)` permission
+- OpenCode: Preserved unmanaged keys (`$schema`, `model`, `hooks`)
+- Path expansion (`~` → absolute) worked correctly
+
+### Non-Canonical Items Left Untouched
+- Claude: `ralph-tui-*` skills (3) preserved ✓
+- GSD files/directories skipped correctly ✓
+
+### MCP Configs Already In Sync
+- All 6 canonical MCP servers matched system state
+- Secret injection logic validated (not needed this run)
+
+### Backup System Worked
+- Created `backups/2026-02-18T182618/` with CLI subdirs
+- Backed up 10 Claude commands, 3 agents, 1 instruction file
+- Backed up 17 OpenCode commands, 8 agents, 2 settings files
+- Backed up 17 Gemini commands, 8 agents, 1 instruction file
+- Backed up 17 Codex commands, 8 agents, 1 instruction file
+- Total: 96 files backed up before first write
+
+### Sync Stats
+- **Commands**: 65 files updated (11 Claude, 18 OpenCode, 18 Gemini, 18 Codex)
+- **Agents**: 27 files updated (3 Claude, 8 OpenCode, 8 Gemini, 8 Codex)
+- **Instructions**: 4 files updated (all CLIs)
+- **Settings**: 1 file updated (OpenCode only)
+- **MCP**: 0 files updated (already in sync)
+- **Skills**: 0 files updated (already in sync)
+
+### Documentation Structure Evolution
+Canonical AGENTS.md now has expanded `## Docs` section:
+- Progressive disclosure strategy documented
+- Four structured subdirectories: `architecture.md`, `design/`, `plans/`, `references/`
+- `docs/plans/` replaces legacy `.tasks/` approach
+- Front-matter enforcement via `scripts/generate-docs.py`
+- Staleness = tracked refs vs actual code changes
+
+### Next Steps
+- Run `/zz-sync-agent-configs check` to verify drift is zero
+- Add sync frequency to workflow (suggest: before major work / after merging PRs)
+- Consider automating sync as pre-commit hook or CI check
