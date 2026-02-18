@@ -215,6 +215,8 @@ Rules:
 
 #### Gemini CLI — Add `kind: local`
 
+Keep `zz-` prefix in filename (e.g., `zz-planner.md`).
+
 Canonical agent frontmatter:
 ```yaml
 ---
@@ -234,7 +236,10 @@ kind: local
 ---
 ```
 
-Rule: Add `kind: local` to frontmatter. Keep everything else as-is.
+Rules:
+- Keep `zz-` prefix in filename.
+- Add `kind: local` to frontmatter.
+- Keep everything else as-is.
 
 #### Codex — Flat Markdown in `prompts/agent-{name}.md`
 
