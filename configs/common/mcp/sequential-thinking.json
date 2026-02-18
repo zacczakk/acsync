@@ -1,0 +1,7 @@
+{
+  "description": "Sequential thinking and reasoning MCP server",
+  "transport": "stdio",
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+  "disabled_for": ["codex"]
+}
