@@ -30,7 +30,7 @@ If no arguments provided, prompt:
 ### Step 1: Ensure docs/plans/ directory exists
 
 ```bash
-mkdir -p .tasks
+mkdir -p docs/plans
 ```
 
 ### Step 2: Read existing decisions log
