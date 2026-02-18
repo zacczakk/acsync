@@ -23,7 +23,7 @@ Read this file in full before performing any sync operation.
 
 | CLI | Commands | Agents | Skills |
 |-----|----------|--------|--------|
-| Claude | `~/.claude/commands/zz/*.md` | `~/.claude/agents/*.md` | `~/.claude/skills/` |
+| Claude | `~/.claude/commands/zz/*.md` | `~/.claude/agents/zz/*.md` | `~/.claude/skills/` |
 | OpenCode | `~/.config/opencode/command/*.md` | `~/.config/opencode/agents/*.md` | `~/.config/opencode/skill/` |
 | Gemini | `~/.gemini/commands/*.toml` | `~/.gemini/agents/*.md` | `~/.gemini/skills/` |
 | Codex | `~/.codex/prompts/*.md` | `~/.codex/prompts/agent-*.md` | `~/.codex/skills/` |
@@ -170,9 +170,14 @@ Rules:
 
 ### 2.2 Agents
 
-#### Claude Code — Verbatim Copy
+#### Claude Code — Nest Under `zz/` Subdirectory
 
-Copy canonical `.md` files directly.
+Strip `zz-` prefix and place in `~/.claude/agents/zz/` subdirectory (same pattern as commands).
+
+- Canonical: `configs/common/agents/zz-planner.md`
+- Claude system: `~/.claude/agents/zz/planner.md`
+
+Body content copied verbatim.
 
 #### OpenCode — Rebuild Frontmatter + Translate Tools
 
