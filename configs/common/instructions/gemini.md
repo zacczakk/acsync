@@ -11,9 +11,9 @@ READ ~/Repos/agents/AGENTS.md BEFORE ANYTHING (skip if missing).
 - Helper scripts: `~/Repos/agents/scripts`
 
 ## Notes
-- Subagents require `experimental.enableAgents = true` in `~/.gemini/settings.json`.
-- Context compatibility policy: prefer `AGENTS.md` as canonical and keep `GEMINI.md` as fallback (`context.fileName = ["AGENTS.md", "GEMINI.md"]`).
-- Import behavior: when global rules are missing from local context, import `@~/Repos/agents/AGENTS.md`.
+- Subagents: `experimental.enableAgents = true` in `~/.gemini/settings.json`.
+- Context: `AGENTS.md` canonical; `GEMINI.md` fallback (`context.fileName = ["AGENTS.md", "GEMINI.md"]`).
+- Missing local context: import `@~/Repos/agents/AGENTS.md`.
 
 ## Config Management
 - Global configs are managed in `~/Repos/agents`.
