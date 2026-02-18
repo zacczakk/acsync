@@ -3,9 +3,41 @@
 Single source of truth for AI coding assistant configurations.
 Agent-driven sync across Claude Code, OpenCode, Gemini CLI, and Codex.
 
+## First-Time Setup
+
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/zacczakk/agents.git ~/Repos/agents
+   ```
+
+2. Copy `.env.example` to `.env` and fill in secrets:
+   ```bash
+   cd ~/Repos/agents
+   cp .env.example .env
+   # Edit .env with your API keys
+   ```
+
+3. **Bootstrap sync**: Since slash commands aren't installed yet, manually copy one command to your CLI:
+
+   **For Claude Code:**
+   ```bash
+   mkdir -p ~/.claude/commands/zz
+   cp ~/Repos/agents/configs/common/commands/zz-sync-agent-configs.md \
+      ~/.claude/commands/zz/sync-agent-configs.md
+   ```
+
+   **For OpenCode:**
+   ```bash
+   mkdir -p ~/.config/opencode/command
+   cp ~/Repos/agents/configs/common/commands/zz-sync-agent-configs.md \
+      ~/.config/opencode/command/zz-sync-agent-configs.md
+   ```
+
+4. Restart your CLI, then run `/zz-sync-agent-configs push` to install everything else.
+
 ## Quick Start
 
-From any of the four CLIs, run:
+After setup, from any of the four CLIs, run:
 
 ```
 /zz-sync-agent-configs push    # repo -> system
