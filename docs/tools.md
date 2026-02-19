@@ -21,6 +21,17 @@ read_when:
 - `scripts/generate-docs.py`: Lists `docs/` catalog and enforces front-matter.
 - `scripts/browser-tools.ts`: Lightweight Chrome DevTools helper.
 
+## Evaluated (not adopted)
+
+### oracle (@steipete/oracle)
+- CLI tool: bundles prompt + files → sends to AI model for one-shot answer.
+- Supports custom `ANTHROPIC_BASE_URL` and `ANTHROPIC_API_KEY`.
+- **Does NOT work with Foundry LMS** out of the box (two blockers):
+  1. Hardcodes `x-api-key` header; Foundry requires `Authorization: Bearer`.
+  2. Mangles model names (`claude-4.5-sonnet` → `claude-sonnet-4-5`); Foundry needs exact names like `claude-sonnet-4-5-20250929`.
+- Fixable: add `x-api-key` → `Bearer` header translation in throttle-proxy (~5 LOC) + use exact Foundry model names. Not implemented; low priority.
+- Evaluated: 2026-02-19.
+
 ## Common CLI
 - `git`, `rg`, `bun`, `node`, `python3`, `pytest`
 
