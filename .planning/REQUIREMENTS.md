@@ -44,20 +44,20 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **FILE-01**: Atomic write (write to temp, fsync, rename)
 - [x] **FILE-02**: Backup target file before overwrite (timestamped copy)
-- [ ] **FILE-03**: Dry-run mode (compute diff, show plan, write nothing)
+- [x] **FILE-03**: Dry-run mode (compute diff, show plan, write nothing)
 - [x] **FILE-04**: Rollback on push failure (track written files, restore all to pre-push state on first error; replaces Phase 1 backup-only approach)
 
 ### CLI Interface
 
-- [ ] **CLI-01**: `render` subcommand — render a canonical config to a specific target format, output to stdout or file
-- [ ] **CLI-02**: `diff` subcommand — show what would change for one or all targets
-- [ ] **CLI-03**: `push` subcommand — render + write to target locations
-- [ ] **CLI-04**: `check` subcommand — diff-only, exit non-zero if drift detected
-- [ ] **CLI-05**: `--json` flag on all subcommands for structured output
-- [ ] **CLI-06**: `--dry-run` flag on push (compute + display, no writes)
-- [ ] **CLI-07**: `--target` flag to scope to specific CLI (e.g., `--target claude`)
-- [ ] **CLI-08**: `--type` flag to scope to config type (e.g., `--type commands`, `--type mcp`)
-- [ ] **CLI-09**: Exit codes: 0=success, 1=error, 2=drift-detected
+- [x] **CLI-01**: `render` subcommand — render a canonical config to a specific target format, output to stdout or file
+- [x] **CLI-02**: `diff` subcommand — show what would change for one or all targets
+- [x] **CLI-03**: `push` subcommand — render + write to target locations
+- [x] **CLI-04**: `check` subcommand — diff-only, exit non-zero if drift detected
+- [x] **CLI-05**: `--json` flag on all subcommands for structured output
+- [x] **CLI-06**: `--dry-run` flag on push (compute + display, no writes)
+- [x] **CLI-07**: `--target` flag to scope to specific CLI (e.g., `--target claude`)
+- [x] **CLI-08**: `--type` flag to scope to config type (e.g., `--type commands`, `--type mcp`)
+- [x] **CLI-09**: Exit codes: 0=success, 1=error, 2=drift-detected
 
 ### Exclusions
 
@@ -131,17 +131,17 @@ Deferred to future release. Tracked but not in current roadmap.
 | DIFF-03 | Phase 3 | Complete |
 | DIFF-04 | Phase 3 | Complete |
 | DIFF-05 | Phase 3 | Complete |
-| FILE-03 | Phase 3 | Pending |
+| FILE-03 | Phase 3 | Complete |
 | FILE-04 | Phase 3 | Complete |
-| CLI-01 | Phase 3 | Pending |
-| CLI-02 | Phase 3 | Pending |
-| CLI-03 | Phase 3 | Pending |
-| CLI-04 | Phase 3 | Pending |
-| CLI-05 | Phase 3 | Pending |
-| CLI-06 | Phase 3 | Pending |
-| CLI-07 | Phase 3 | Pending |
-| CLI-08 | Phase 3 | Pending |
-| CLI-09 | Phase 3 | Pending |
+| CLI-01 | Phase 3 | Complete |
+| CLI-02 | Phase 3 | Complete |
+| CLI-03 | Phase 3 | Complete |
+| CLI-04 | Phase 3 | Complete |
+| CLI-05 | Phase 3 | Complete |
+| CLI-06 | Phase 3 | Complete |
+| CLI-07 | Phase 3 | Complete |
+| CLI-08 | Phase 3 | Complete |
+| CLI-09 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 37 total
