@@ -104,48 +104,48 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RNDR-01 | TBD | Pending |
-| RNDR-02 | TBD | Pending |
-| RNDR-03 | TBD | Pending |
-| RNDR-04 | TBD | Pending |
-| RNDR-05 | TBD | Pending |
-| RNDR-06 | TBD | Pending |
-| RNDR-07 | TBD | Pending |
-| RNDR-08 | TBD | Pending |
-| RNDR-09 | TBD | Pending |
-| RNDR-10 | TBD | Pending |
-| RNDR-11 | TBD | Pending |
-| RNDR-12 | TBD | Pending |
-| RNDR-13 | TBD | Pending |
-| RNDR-14 | TBD | Pending |
-| DIFF-01 | TBD | Pending |
-| DIFF-02 | TBD | Pending |
-| DIFF-03 | TBD | Pending |
-| DIFF-04 | TBD | Pending |
-| DIFF-05 | TBD | Pending |
-| SECR-01 | TBD | Pending |
-| SECR-02 | TBD | Pending |
-| SECR-03 | TBD | Pending |
-| FILE-01 | TBD | Pending |
-| FILE-02 | TBD | Pending |
-| FILE-03 | TBD | Pending |
-| CLI-01 | TBD | Pending |
-| CLI-02 | TBD | Pending |
-| CLI-03 | TBD | Pending |
-| CLI-04 | TBD | Pending |
-| CLI-05 | TBD | Pending |
-| CLI-06 | TBD | Pending |
-| CLI-07 | TBD | Pending |
-| CLI-08 | TBD | Pending |
-| CLI-09 | TBD | Pending |
-| EXCL-01 | TBD | Pending |
-| EXCL-02 | TBD | Pending |
+| DIFF-01 | Phase 1 | Pending |
+| FILE-01 | Phase 1 | Pending |
+| FILE-02 | Phase 1 | Pending |
+| EXCL-01 | Phase 1 | Pending |
+| EXCL-02 | Phase 1 | Pending |
+| RNDR-01 | Phase 2 | Pending |
+| RNDR-02 | Phase 2 | Pending |
+| RNDR-03 | Phase 2 | Pending |
+| RNDR-04 | Phase 2 | Pending |
+| RNDR-05 | Phase 2 | Pending |
+| RNDR-06 | Phase 2 | Pending |
+| RNDR-07 | Phase 2 | Pending |
+| RNDR-08 | Phase 2 | Pending |
+| RNDR-09 | Phase 2 | Pending |
+| RNDR-10 | Phase 2 | Pending |
+| RNDR-11 | Phase 2 | Pending |
+| RNDR-12 | Phase 2 | Pending |
+| RNDR-13 | Phase 2 | Pending |
+| RNDR-14 | Phase 2 | Pending |
+| SECR-01 | Phase 2 | Pending |
+| SECR-02 | Phase 2 | Pending |
+| SECR-03 | Phase 2 | Pending |
+| DIFF-02 | Phase 3 | Pending |
+| DIFF-03 | Phase 3 | Pending |
+| DIFF-04 | Phase 3 | Pending |
+| DIFF-05 | Phase 3 | Pending |
+| FILE-03 | Phase 3 | Pending |
+| CLI-01 | Phase 3 | Pending |
+| CLI-02 | Phase 3 | Pending |
+| CLI-03 | Phase 3 | Pending |
+| CLI-04 | Phase 3 | Pending |
+| CLI-05 | Phase 3 | Pending |
+| CLI-06 | Phase 3 | Pending |
+| CLI-07 | Phase 3 | Pending |
+| CLI-08 | Phase 3 | Pending |
+| CLI-09 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 36 total
-- Mapped to phases: 0
-- Unmapped: 36 ⚠️
+- Mapped to phases: 36 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-20 after initial definition*
+*Last updated: 2026-02-20 after roadmap phase mapping*
