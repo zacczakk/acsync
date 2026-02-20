@@ -88,7 +88,7 @@ export class AdapterPathResolver {
   private rawMCPConfigPath(): string {
     switch (this.target) {
       case 'claude-code': return '~/.claude.json';
-      case 'opencode':    return '~/.config/opencode/opencode.jsonc';
+      case 'opencode':    return '~/.config/opencode/opencode.json';
       case 'gemini':      return '~/.gemini/settings.json';
       case 'codex':       return '~/.codex/config.toml';
     }
