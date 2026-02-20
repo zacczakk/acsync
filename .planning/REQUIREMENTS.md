@@ -11,14 +11,14 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Rendering
 
-- [ ] **RNDR-01**: Render canonical command → Claude Code format (strip `zz-` prefix, nest in `zz/` subdir, body verbatim)
-- [ ] **RNDR-02**: Render canonical command → OpenCode format (rebuild frontmatter, `allowed-tools` → `tools` map, keep `zz-` prefix)
-- [ ] **RNDR-03**: Render canonical command → Gemini format (convert to TOML, `prompt = """..."""`)
-- [ ] **RNDR-04**: Render canonical command → Codex format (flat markdown, `# /{name}` heading + description)
-- [ ] **RNDR-05**: Render canonical agent → Claude Code format (nest in `zz/` subdir, body verbatim)
-- [ ] **RNDR-06**: Render canonical agent → OpenCode format (rebuild frontmatter, add `mode: subagent`)
-- [ ] **RNDR-07**: Render canonical agent → Gemini format (add `kind: local` to frontmatter)
-- [ ] **RNDR-08**: Render canonical agent → Codex format (flat markdown, `# Agent: {name}` heading)
+- [x] **RNDR-01**: Render canonical command → Claude Code format (strip `zz-` prefix, nest in `zz/` subdir, body verbatim)
+- [x] **RNDR-02**: Render canonical command → OpenCode format (rebuild frontmatter, `allowed-tools` → `tools` map, keep `zz-` prefix)
+- [x] **RNDR-03**: Render canonical command → Gemini format (convert to TOML, `prompt = """..."""`)
+- [x] **RNDR-04**: Render canonical command → Codex format (flat markdown, `# /{name}` heading + description)
+- [x] **RNDR-05**: Render canonical agent → Claude Code format (nest in `zz/` subdir, body verbatim)
+- [x] **RNDR-06**: Render canonical agent → OpenCode format (rebuild frontmatter, add `mode: subagent`)
+- [x] **RNDR-07**: Render canonical agent → Gemini format (add `kind: local` to frontmatter)
+- [x] **RNDR-08**: Render canonical agent → Codex format (flat markdown, `# Agent: {name}` heading)
 - [ ] **RNDR-09**: Render canonical MCP server → Claude Code format (JSON, `mcpServers` key, inject secrets)
 - [ ] **RNDR-10**: Render canonical MCP server → OpenCode format (JSONC, `mcp` key, `local`/`remote` types, `environment` key, command as array)
 - [ ] **RNDR-11**: Render canonical MCP server → Gemini format (JSON, `mcpServers` key, inject secrets)
@@ -109,14 +109,14 @@ Deferred to future release. Tracked but not in current roadmap.
 | FILE-02 | Phase 1 | Complete |
 | EXCL-01 | Phase 1 | Complete |
 | EXCL-02 | Phase 1 | Complete |
-| RNDR-01 | Phase 2 | Pending |
-| RNDR-02 | Phase 2 | Pending |
-| RNDR-03 | Phase 2 | Pending |
-| RNDR-04 | Phase 2 | Pending |
-| RNDR-05 | Phase 2 | Pending |
-| RNDR-06 | Phase 2 | Pending |
-| RNDR-07 | Phase 2 | Pending |
-| RNDR-08 | Phase 2 | Pending |
+| RNDR-01 | Phase 2 | Complete |
+| RNDR-02 | Phase 2 | Complete |
+| RNDR-03 | Phase 2 | Complete |
+| RNDR-04 | Phase 2 | Complete |
+| RNDR-05 | Phase 2 | Complete |
+| RNDR-06 | Phase 2 | Complete |
+| RNDR-07 | Phase 2 | Complete |
+| RNDR-08 | Phase 2 | Complete |
 | RNDR-09 | Phase 2 | Pending |
 | RNDR-10 | Phase 2 | Pending |
 | RNDR-11 | Phase 2 | Pending |
