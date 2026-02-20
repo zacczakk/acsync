@@ -18,8 +18,8 @@
 
 ## Web Access
 - WebFetch works (no proxy block unlike Claude Code).
-- Still prefer Tavily MCP for search (structured results; topic/date filters).
-- WebFetch for specific URLs.
+- Use WebFetch for specific URLs; Tavily search tool for broad queries.
+- No native Tavily MCP (Claude-only); use the search tool directly.
 
 ## Config Management
 - Global configs are managed in `~/Repos/agents`.

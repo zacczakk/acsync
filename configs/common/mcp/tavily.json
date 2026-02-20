@@ -6,5 +6,6 @@
   "env_vars": ["TAVILY_API_KEY"],
   "env": {
     "TAVILY_API_KEY": "${TAVILY_API_KEY}"
-  }
+  },
+  "disabled_for": ["opencode", "gemini", "codex"]
 }

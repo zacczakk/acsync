@@ -20,7 +20,7 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 - CI: `gh run list/view` (rerun/fix til green).
 - Prefer end-to-end verify; if blocked, say what’s missing.
 - New deps: quick health check (recent releases/commits, adoption).
-- Web: search early; quote exact errors; prefer 2025–2026 sources; fallback Tavily MCP.
+- Web: search early; prefer 2025–2026 sources. Claude: Tavily MCP; others: WebFetch + Tavily search tool.
 - WebFetch: blocked in Claude Code (corporate proxy); works fine in OpenCode. Use Tavily for search regardless (better structured results).
 - Style: telegraph. Drop filler/grammar. Min tokens (global AGENTS + replies).
 - **No breadcrumbs**. Delete/move code = no residual comments. No `// moved to X`. Just remove.
@@ -184,6 +184,13 @@ Read `~/Repos/agents/docs/tools.md` for the full tool catalog if it exists.
 ### tmux
 - Use only when you need persistence/interaction (debugger/server).
 - Quick refs: `tmux new -d -s codex-shell`, `tmux attach -t codex-shell`, `tmux list-sessions`, `tmux kill-session -t codex-shell`.
+
+### mcporter
+- MCP launcher for non-native servers. Keeps chrome-devtools warm via daemon.
+- Usage: `mcporter call <server>.<tool> <args>` or `mcporter list <server>`
+- Servers: chrome-devtools (daemon), palantir-mcp, liquid-carbon, shadcn.
+- Config: `~/.mcporter/mcporter.json`
+- Daemon: auto-starts on first keep-alive call; `mcporter daemon stop` to tear down.
 
 ## Frontend Aesthetics
 Avoid “AI slop” UI. Be opinionated + distinctive.

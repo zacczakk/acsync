@@ -1,7 +1,0 @@
-{
-  "description": "Chrome DevTools for browser automation and debugging",
-  "transport": "stdio",
-  "command": "npx",
-  "args": ["-y", "chrome-devtools-mcp@latest"],
-  "disabled_for": ["codex"]
-}
