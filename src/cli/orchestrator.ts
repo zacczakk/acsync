@@ -291,10 +291,14 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
       }
     }
 
-    // MCP
+    // MCP — one source item per server (share aggregate hash + target path)
     if (!options.types || options.types.includes('mcp')) {
       if (caps.mcp && mcpServers.length > 0) {
         const mcpPath = adapter.getPaths().getMCPConfigPath();
+        // Filter to servers enabled for this target
+        const enabledServers = mcpServers.filter(
+          (s) => !s.disabledFor?.includes(target),
+        );
         let existingContent: string | undefined;
         try {
           const file = Bun.file(mcpPath);
@@ -309,19 +313,21 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
         const sourceHash = hashRendered(rendered);
         const targetHash = await hashTargetFile(mcpPath);
 
-        sourceItems.push({
-          type: 'mcp',
-          name: 'servers',
-          hash: sourceHash,
-          targetPath: mcpPath,
-        });
-        if (targetHash !== null) {
-          targetHashes.set('mcp/servers', targetHash);
+        for (const server of enabledServers) {
+          sourceItems.push({
+            type: 'mcp',
+            name: server.name,
+            hash: sourceHash,
+            targetPath: mcpPath,
+          });
+          if (targetHash !== null) {
+            targetHashes.set(`mcp/${server.name}`, targetHash);
+          }
         }
       }
     }
 
-    // Instructions
+    // Instructions — one source item per contributing file
     if (!options.types || options.types.includes('instruction')) {
       if (caps.instructions) {
         const instructions = await readCanonicalInstructions(projectDir, target);
@@ -331,14 +337,29 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
           const instructionsPath = adapter.getPaths().getInstructionsPath();
           const targetHash = await hashTargetFile(instructionsPath);
 
+          // Base file (AGENTS.md)
           sourceItems.push({
             type: 'instruction',
-            name: 'config',
+            name: 'AGENTS.md',
             hash: sourceHash,
             targetPath: instructionsPath,
           });
           if (targetHash !== null) {
-            targetHashes.set('instruction/config', targetHash);
+            targetHashes.set('instruction/AGENTS.md', targetHash);
+          }
+
+          // Addendum file (if it exists)
+          if (instructions.addendum) {
+            const addendumName = target === 'claude-code' ? 'claude' : target;
+            sourceItems.push({
+              type: 'instruction',
+              name: `${addendumName}.md`,
+              hash: sourceHash,
+              targetPath: instructionsPath,
+            });
+            if (targetHash !== null) {
+              targetHashes.set(`instruction/${addendumName}.md`, targetHash);
+            }
           }
         }
       }
@@ -440,64 +461,72 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
     const targetBackups: BackupInfo[] = [];
     let targetFailed = false;
     let errorMsg: string | undefined;
+    // Track paths already written (MCP/instructions share a path across ops)
+    const writtenPaths = new Set<string>();
 
     try {
       for (const op of ops) {
         if (!op.targetPath) continue;
 
-        // Backup existing file
-        const backup = await createBackup(op.targetPath);
-        targetBackups.push(backup);
-        allBackups.push(backup);
+        // Skip if already written (multiple ops share one aggregate file)
+        const alreadyWritten = writtenPaths.has(op.targetPath);
 
-        // Render content
-        let content: string;
+        if (!alreadyWritten) {
+          // Backup existing file
+          const backup = await createBackup(op.targetPath);
+          targetBackups.push(backup);
+          allBackups.push(backup);
 
-        if (op.itemType === 'command') {
-          const item = commands.find((c) => c.name === op.name);
-          if (!item) continue;
-          content = adapter.renderCommand(item).content;
-        } else if (op.itemType === 'agent') {
-          const item = agents.find((a) => a.name === op.name);
-          if (!item) continue;
-          content = adapter.renderAgent(item).content;
-        } else if (op.itemType === 'mcp') {
-          let existingContent: string | undefined;
-          if (backup.existed) {
-            try {
-              existingContent = await readFile(backup.backupPath, 'utf-8');
-            } catch {
-              // Use no existing content
+          // Render content
+          let content: string;
+
+          if (op.itemType === 'command') {
+            const item = commands.find((c) => c.name === op.name);
+            if (!item) continue;
+            content = adapter.renderCommand(item).content;
+          } else if (op.itemType === 'agent') {
+            const item = agents.find((a) => a.name === op.name);
+            if (!item) continue;
+            content = adapter.renderAgent(item).content;
+          } else if (op.itemType === 'mcp') {
+            let existingContent: string | undefined;
+            if (backup.existed) {
+              try {
+                existingContent = await readFile(backup.backupPath, 'utf-8');
+              } catch {
+                // Use no existing content
+              }
             }
+            content = adapter.renderMCPServers(mcpServers, existingContent);
+          } else if (op.itemType === 'instruction') {
+            const instructions = await readCanonicalInstructions(projectDir, target);
+            if (!instructions) continue;
+            content = adapter.renderInstructions(instructions.base, instructions.addendum);
+          } else if (op.itemType === 'skill') {
+            if (!caps.skills || !('renderSkill' in adapter)) continue;
+            const item = skills.find((s) => s.name === op.name);
+            if (!item) continue;
+            const renderSkill = (adapter as { renderSkill: (item: CanonicalItem) => import('../types').RenderedFile }).renderSkill;
+            content = renderSkill(item).content;
+          } else {
+            continue;
           }
-          content = adapter.renderMCPServers(mcpServers, existingContent);
-        } else if (op.itemType === 'instruction') {
-          const instructions = await readCanonicalInstructions(projectDir, target);
-          if (!instructions) continue;
-          content = adapter.renderInstructions(instructions.base, instructions.addendum);
-        } else if (op.itemType === 'skill') {
-          if (!caps.skills || !('renderSkill' in adapter)) continue;
-          const item = skills.find((s) => s.name === op.name);
-          if (!item) continue;
-          const renderSkill = (adapter as { renderSkill: (item: CanonicalItem) => import('../types').RenderedFile }).renderSkill;
-          content = renderSkill(item).content;
-        } else {
-          continue;
+
+          // Inject secrets
+          const injected = injectSecrets(content, secrets);
+          content = injected.result;
+
+          // Write atomically
+          const backupDir = join(projectDir, '.acsync', 'backups');
+          await atomicWrite(op.targetPath, content, backupDir);
+          writtenPaths.add(op.targetPath);
+          totalWritten++;
         }
 
-        // Inject secrets
-        const injected = injectSecrets(content, secrets);
-        content = injected.result;
-
-        // Write atomically
-        const backupDir = join(projectDir, '.acsync', 'backups');
-        await atomicWrite(op.targetPath, content, backupDir);
-
-        // Update manifest
-        const sourceHash = op.newHash ?? hashContent(content);
-        const targetHash = hashContent(content);
+        // Update manifest for each logical item (even if file write was deduplicated)
+        const sourceHash = op.newHash ?? hashContent(op.targetPath);
+        const targetHash = sourceHash;
         updateManifestItem(manifest, op.itemType, op.name, sourceHash, target, targetHash);
-        totalWritten++;
       }
 
       pushResults.push({ target, operations: diff.operations, success: true });
