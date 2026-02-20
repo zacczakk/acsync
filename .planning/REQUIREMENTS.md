@@ -28,7 +28,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Diff Engine
 
-- [ ] **DIFF-01**: Compute SHA-256 content hash for any file or directory
+- [x] **DIFF-01**: Compute SHA-256 content hash for any file or directory
 - [ ] **DIFF-02**: Read/write manifest file (JSON, tracks last-synced hashes per target)
 - [ ] **DIFF-03**: Compare source vs target vs manifest to produce operations (create/update/skip)
 - [ ] **DIFF-04**: Output diff as structured JSON (for agent consumption)
@@ -42,8 +42,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### File Operations
 
-- [ ] **FILE-01**: Atomic write (write to temp, fsync, rename)
-- [ ] **FILE-02**: Backup target file before overwrite (timestamped copy)
+- [x] **FILE-01**: Atomic write (write to temp, fsync, rename)
+- [x] **FILE-02**: Backup target file before overwrite (timestamped copy)
 - [ ] **FILE-03**: Dry-run mode (compute diff, show plan, write nothing)
 
 ### CLI Interface
@@ -60,8 +60,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Exclusions
 
-- [ ] **EXCL-01**: Skip `gsd-*` files and directories during sync
-- [ ] **EXCL-02**: Skip non-canonical items in targets (don't delete, don't touch)
+- [x] **EXCL-01**: Skip `gsd-*` files and directories during sync
+- [x] **EXCL-02**: Skip non-canonical items in targets (don't delete, don't touch)
 
 ## v2 Requirements
 
@@ -104,11 +104,11 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DIFF-01 | Phase 1 | Pending |
-| FILE-01 | Phase 1 | Pending |
-| FILE-02 | Phase 1 | Pending |
-| EXCL-01 | Phase 1 | Pending |
-| EXCL-02 | Phase 1 | Pending |
+| DIFF-01 | Phase 1 | Complete |
+| FILE-01 | Phase 1 | Complete |
+| FILE-02 | Phase 1 | Complete |
+| EXCL-01 | Phase 1 | Complete |
+| EXCL-02 | Phase 1 | Complete |
 | RNDR-01 | Phase 2 | Pending |
 | RNDR-02 | Phase 2 | Pending |
 | RNDR-03 | Phase 2 | Pending |
