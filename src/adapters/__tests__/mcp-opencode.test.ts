@@ -168,4 +168,20 @@ describe('OpenCodeAdapter.renderMCPServers', () => {
     const names = adapter.getRenderedServerNames([stdioServer, excluded]);
     expect(names).toEqual(['context7']);
   });
+
+  test('parseExistingMCPServerNames extracts mcp keys (not mcpServers)', () => {
+    const content = JSON.stringify({
+      mcp: { context7: {}, tavily: {}, 'chrome-devtools': {} },
+    });
+    const names = adapter.parseExistingMCPServerNames(content);
+    expect(names).toEqual(['context7', 'tavily', 'chrome-devtools']);
+  });
+
+  test('parseExistingMCPServerNames returns empty for no mcp key', () => {
+    expect(adapter.parseExistingMCPServerNames('{}')).toEqual([]);
+  });
+
+  test('removesNonCanonicalOnPush returns true (mcp object reset)', () => {
+    expect(adapter.removesNonCanonicalOnPush()).toBe(true);
+  });
 });

@@ -41,10 +41,16 @@ export interface Operation {
   targetPath?: string; // rendered target file
 }
 
+export interface MCPWarning {
+  serverNames: string[];
+  action: 'remove' | 'orphan'; // remove = overwritten on push; orphan = left behind
+}
+
 export interface DiffResult {
   target: TargetName;
   operations: Operation[]; // all ops for this target (create + update + skip)
   summary: { create: number; update: number; skip: number };
+  mcpWarning?: MCPWarning;
 }
 
 export interface ExclusionResult {

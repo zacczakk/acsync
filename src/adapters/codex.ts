@@ -1,5 +1,5 @@
 import { BaseAdapter } from './base';
-import { writeToml } from '../formats/toml';
+import { readToml, writeToml } from '../formats/toml';
 import type {
   CanonicalItem,
   MCPServer,
@@ -56,6 +56,17 @@ export class CodexAdapter extends BaseAdapter {
       relativePath: this.paths.getAgentFilePath(item.name),
       content,
     };
+  }
+
+  /** Codex uses mcp_servers in TOML */
+  override parseExistingMCPServerNames(content: string): string[] {
+    try {
+      const parsed = readToml<Record<string, unknown>>(content);
+      const servers = parsed.mcp_servers as Record<string, unknown> | undefined;
+      return servers ? Object.keys(servers) : [];
+    } catch {
+      return [];
+    }
   }
 
   /** Codex only renders HTTP servers */

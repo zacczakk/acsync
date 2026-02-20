@@ -1,5 +1,5 @@
 import pc from 'picocolors';
-import type { DiffResult, Operation, TargetName } from '../types';
+import type { DiffResult, MCPWarning, Operation, TargetName } from '../types';
 
 export interface PushTargetResult {
   target: TargetName;
@@ -21,7 +21,7 @@ function displayTarget(target: TargetName): string {
 export function formatDiffJson(results: DiffResult[]): string {
   const targets: Record<
     string,
-    { create: number; update: number; skip: number; operations: Operation[] }
+    { create: number; update: number; skip: number; operations: Operation[]; mcpWarning?: MCPWarning }
   > = {};
 
   let totalCreate = 0;
@@ -29,12 +29,14 @@ export function formatDiffJson(results: DiffResult[]): string {
   let totalSkip = 0;
 
   for (const result of results) {
-    targets[displayTarget(result.target)] = {
+    const entry: (typeof targets)[string] = {
       create: result.summary.create,
       update: result.summary.update,
       skip: result.summary.skip,
       operations: result.operations,
     };
+    if (result.mcpWarning) entry.mcpWarning = result.mcpWarning;
+    targets[displayTarget(result.target)] = entry;
     totalCreate += result.summary.create;
     totalUpdate += result.summary.update;
     totalSkip += result.summary.skip;
@@ -85,6 +87,20 @@ export function formatDiffPretty(results: DiffResult[]): string {
 
     if (result.operations.length === 0) {
       lines.push(`    ${pc.dim('(no items)')}`);
+    }
+
+    if (result.mcpWarning) {
+      const w = result.mcpWarning;
+      const names = w.serverNames.join(', ');
+      if (w.action === 'remove') {
+        lines.push(
+          `    ${pc.yellow('⚠')} ${pc.yellow(`${w.serverNames.length} non-canonical server(s) will be removed on push: ${names}`)}`,
+        );
+      } else {
+        lines.push(
+          `    ${pc.yellow('⚠')} ${pc.yellow(`${w.serverNames.length} non-canonical server(s) will remain as orphans: ${names}`)}`,
+        );
+      }
     }
 
     lines.push('');
@@ -175,6 +191,8 @@ export function formatDryRunJson(results: DiffResult[]): string {
     path: string;
   }> = [];
 
+  const warnings: Array<{ target: string; mcpWarning: MCPWarning }> = [];
+
   for (const result of results) {
     for (const op of result.operations) {
       if (op.type === 'skip') continue;
@@ -186,20 +204,22 @@ export function formatDryRunJson(results: DiffResult[]): string {
         path: op.targetPath ?? '',
       });
     }
+    if (result.mcpWarning) {
+      warnings.push({ target: displayTarget(result.target), mcpWarning: result.mcpWarning });
+    }
   }
 
-  return JSON.stringify(
-    {
-      dryRun: true,
-      actions,
-      summary: {
-        create: actions.filter((a) => a.action === 'create').length,
-        update: actions.filter((a) => a.action === 'update').length,
-      },
+  const output: Record<string, unknown> = {
+    dryRun: true,
+    actions,
+    summary: {
+      create: actions.filter((a) => a.action === 'create').length,
+      update: actions.filter((a) => a.action === 'update').length,
     },
-    null,
-    2,
-  ) + '\n';
+  };
+  if (warnings.length > 0) output.warnings = warnings;
+
+  return JSON.stringify(output, null, 2) + '\n';
 }
 
 export function formatDryRunPretty(results: DiffResult[]): string {
@@ -223,6 +243,20 @@ export function formatDryRunPretty(results: DiffResult[]): string {
 
       if (op.type === 'create') totalCreate++;
       else totalUpdate++;
+    }
+
+    if (result.mcpWarning) {
+      const w = result.mcpWarning;
+      const names = w.serverNames.join(', ');
+      if (w.action === 'remove') {
+        lines.push(
+          `    ${pc.yellow('⚠')} ${pc.yellow(`${w.serverNames.length} non-canonical server(s) will be removed: ${names}`)}`,
+        );
+      } else {
+        lines.push(
+          `    ${pc.yellow('⚠')} ${pc.yellow(`${w.serverNames.length} non-canonical server(s) will remain as orphans: ${names}`)}`,
+        );
+      }
     }
 
     lines.push('');

@@ -26,6 +26,12 @@ export interface ToolAdapter {
   /** Return names of servers that will be rendered (for diff display) */
   getRenderedServerNames(servers: MCPServer[]): string[];
 
+  /** Parse server names from existing target MCP config content */
+  parseExistingMCPServerNames(content: string): string[];
+
+  /** Whether push overwrites the MCP section (true) or merges keys (false) */
+  removesNonCanonicalOnPush(): boolean;
+
   /** Render instructions by concatenating base + addendum */
   renderInstructions(baseMd: string, addendumMd: string): string;
 
@@ -54,6 +60,22 @@ export abstract class BaseAdapter implements ToolAdapter {
     return servers
       .filter((s) => !s.disabledFor?.includes(this.target) && s.enabled !== false)
       .map((s) => s.name);
+  }
+
+  /** Default: parse mcpServers keys from JSON config */
+  parseExistingMCPServerNames(content: string): string[] {
+    try {
+      const parsed = JSON.parse(content) as Record<string, unknown>;
+      const servers = parsed.mcpServers as Record<string, unknown> | undefined;
+      return servers ? Object.keys(servers) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  /** Default: push overwrites mcpServers entirely (Claude/Gemini behavior) */
+  removesNonCanonicalOnPush(): boolean {
+    return true;
   }
 
   /** Default: concatenate base + addendum with double-newline separator */
