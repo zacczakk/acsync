@@ -55,20 +55,36 @@ Plans:
 - [ ] 02-03-PLAN.md — MCP rendering (4 targets) + instructions + skills
 
 ### Phase 3: Diff Engine + CLI
-**Goal**: End-to-end CLI works — diff, render, push, check with proper output and exit codes
+**Goal**: End-to-end CLI works — diff, render, push, check with proper output and exit codes. Rollback replaces Phase 1's backup-only approach with full restore-on-failure semantics.
+**Approach**: vsync has a battle-tested diff/manifest/planner stack at `~/Repos/oss/vsync/cli/src/`. Borrow the core logic, strip the things we don't need (i18n, parallel sync, symlinks, adapter registry, prune mode). Key vsync modules to port:
+  - `types/manifest.ts` — `Manifest`, `ManifestItem`, `TargetStatus` types (rename `ToolName` → `TargetName`)
+  - `types/plan.ts` — `Operation`, `OperationType`, `DiffResult` types
+  - `core/manifest-manager.ts` — `loadManifest`, `saveManifest`, `createEmptyManifest` (swap vsync's `~/.vsync/cache/<hash>/` path to a fixed project-local path; reuse Phase 1's `atomicWrite` for saves)
+  - `core/diff.ts` — `compareHashes` (3-way: source hash / target hash / manifest hash → create/update/skip) and `calculateDiff` (inner `processSourceItems`/`processTargetItems` pattern). Drop `SyncMode`/prune (not needed v1) and `targetCapabilities` filtering (our renderers handle this already via `disabledFor`)
+  - `core/planner.ts` — `generatePlan` (thin per-target loop calling `calculateDiff`), `formatPlan` (grouped colored output for DIFF-05), `validatePlan` (safety checks on large/delete ops)
+  - `core/rollback.ts` — `createBackup`/`restoreBackup`/`cleanupBackup` pattern. Port as replacement for Phase 1's `src/infra/backup.ts` (which only copies files but never restores). vsync's rollback tracks `BackupInfo[]` per push, restores all on first error, cleans up on success
+  - `commands/sync.ts` — push orchestration loop pattern: render → createBackup → atomicWrite → updateManifest per item, with rollback on failure
+  - `commands/status.ts` — `formatStatus` pattern for `check` subcommand (colored ✓/⚠ output, `hasChanges` boolean for exit code)
+  - `cli-setup.ts` — Commander.js registration + `exitOverride` handler
+  - `utils/error-formatter.ts` — `formatError` with category + suggestion pattern (simplify: no i18n, no class hierarchy)
+  **New dep**: `chalk` (or `picocolors`) for colored terminal output — vsync uses chalk throughout
+  **MCPorter context**: See `MCPORTER_ANALYSIS.md` for the hybrid native+MCPorter MCP strategy. Phase 3 implements the operational steps: trim canonical MCP configs to 3, set up `~/.mcporter/mcporter.json` for the remaining 4 servers, update AGENTS.md/docs. This is a config-level task that exercises the push pipeline end-to-end.
 **Depends on**: Phase 2
-**Requirements**: DIFF-02, DIFF-03, DIFF-04, DIFF-05, FILE-03, CLI-01, CLI-02, CLI-03, CLI-04, CLI-05, CLI-06, CLI-07, CLI-08, CLI-09
+**Requirements**: DIFF-02, DIFF-03, DIFF-04, DIFF-05, FILE-03, FILE-04, CLI-01, CLI-02, CLI-03, CLI-04, CLI-05, CLI-06, CLI-07, CLI-08, CLI-09
 **Success Criteria** (what must be TRUE):
   1. `check` subcommand detects drift between canonical and target configs, exits with code 2
-  2. `push` subcommand renders + writes all configs to target locations with backup
+  2. `push` subcommand renders + writes all configs to target locations with rollback on failure
   3. `--dry-run` flag shows execution plan without writing any files
-  4. `--json` flag produces structured output; default produces human-readable colored text
+  4. JSON is the default output (agent-first); `--pretty` flag produces human-readable colored text
   5. `--target` and `--type` flags scope operations; exit codes are 0=success, 1=error, 2=drift
-**Plans**: TBD
+  6. Push failure triggers full rollback — all files written in that run are restored to pre-push state
+  7. MCPorter hybrid setup is operational: 3 native MCP servers rendered, 4 servers routed through mcporter
+**Plans:** 3 plans
 
 Plans:
-- [ ] 03-01: Manifest + 3-way diff engine (manifest read/write, source vs target vs manifest compare)
-- [ ] 03-02: CLI shell (commander.js subcommands, flags, exit codes, dual output)
+- [ ] 03-01-PLAN.md — Manifest manager + 3-way diff engine + rollback + output formatters (types, compareHashes/calculateDiff, BackupInfo/restoreAll, JSON+pretty formatters via picocolors)
+- [ ] 03-02-PLAN.md — CLI shell + sync orchestrator (Commander.js acsync check/push, --pretty/--dry-run/--force/--target/--type, push orchestration with rollback, exit codes 0/1/2)
+- [ ] 03-03-PLAN.md — MCPorter hybrid setup + E2E verification (trim canonical MCP to 3 servers, update AGENTS.md + addendums, exercise full acsync check→push pipeline)
 
 ## Progress
 
@@ -79,4 +95,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete   | 2026-02-20 |
 | 2. Renderers + Secrets | 0/3 | Not started | - |
-| 3. Diff Engine + CLI | 0/2 | Not started | - |
+| 3. Diff Engine + CLI | 0/3 | Not started | - |
