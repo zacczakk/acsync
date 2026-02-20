@@ -3,6 +3,5 @@
   "transport": "stdio",
   "command": "npx",
   "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-  "enabled": false,
-  "disabled_for": ["codex"]
+  "enabled": false
 }

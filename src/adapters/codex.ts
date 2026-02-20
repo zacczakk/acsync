@@ -58,10 +58,17 @@ export class CodexAdapter extends BaseAdapter {
     };
   }
 
+  /** Codex only renders HTTP servers */
+  override getRenderedServerNames(servers: MCPServer[]): string[] {
+    return servers
+      .filter((s) => s.transport === 'http' && !s.disabledFor?.includes('codex') && s.enabled !== false)
+      .map((s) => s.name);
+  }
+
   renderMCPServers(servers: MCPServer[], _existingContent?: string): string {
-    // Codex supports HTTP-only — skip all stdio servers
+    // Codex supports HTTP-only — skip all stdio servers and globally disabled
     const filtered = servers.filter(
-      (s) => s.transport === 'http' && !s.disabledFor?.includes('codex'),
+      (s) => s.transport === 'http' && !s.disabledFor?.includes('codex') && s.enabled !== false,
     );
 
     if (filtered.length === 0) return '';
