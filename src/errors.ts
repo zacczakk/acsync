@@ -104,6 +104,54 @@ export class SecretError extends SyncError {
   }
 }
 
+export class DiffError extends SyncError {
+  public readonly operation: string;
+  public readonly path: string;
+
+  constructor(message: string, context: ErrorContext) {
+    super(message, ErrorSeverity.RECOVERABLE, {
+      operation: context.operation,
+      path: context.path,
+    });
+    this.name = 'DiffError';
+    this.operation = context.operation;
+    this.path = context.path;
+    this.cause = context.cause;
+  }
+}
+
+export class ManifestError extends SyncError {
+  public readonly operation: string;
+  public readonly path: string;
+
+  constructor(message: string, context: ErrorContext) {
+    super(message, ErrorSeverity.RECOVERABLE, {
+      operation: context.operation,
+      path: context.path,
+    });
+    this.name = 'ManifestError';
+    this.operation = context.operation;
+    this.path = context.path;
+    this.cause = context.cause;
+  }
+}
+
+export class RollbackError extends SyncError {
+  public readonly operation: string;
+  public readonly path: string;
+
+  constructor(message: string, context: ErrorContext) {
+    super(message, ErrorSeverity.FATAL, {
+      operation: context.operation,
+      path: context.path,
+    });
+    this.name = 'RollbackError';
+    this.operation = context.operation;
+    this.path = context.path;
+    this.cause = context.cause;
+  }
+}
+
 export function shouldRollback(error: unknown): boolean {
   return getErrorSeverity(error) === ErrorSeverity.FATAL;
 }
