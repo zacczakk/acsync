@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { formatDiffJson, formatDiffPretty, formatPushResult, formatCheckResult } from '../formatter';
+import { formatDiffJson, formatDiffPretty, formatPushResult, formatCheckResult, formatDryRunJson, formatDryRunPretty, formatDryRunResult } from '../formatter';
 import type { DiffResult, Operation } from '../../types';
 
 function makeOp(
@@ -196,5 +196,106 @@ describe('formatCheckResult', () => {
   test('hasDrift=false for empty results', () => {
     const { hasDrift } = formatCheckResult([], false);
     expect(hasDrift).toBe(false);
+  });
+});
+
+describe('formatDryRunJson', () => {
+  test('produces valid JSON with dryRun flag', () => {
+    const results = [makeResult('claude-code', [makeOp('create', 'cmd1')])];
+    const parsed = JSON.parse(formatDryRunJson(results));
+    expect(parsed.dryRun).toBe(true);
+  });
+
+  test('only includes create/update actions, not skips', () => {
+    const results = [makeResult('claude-code', [
+      makeOp('create', 'new-cmd'),
+      makeOp('skip', 'existing-cmd'),
+      makeOp('update', 'changed-cmd'),
+    ])];
+    const parsed = JSON.parse(formatDryRunJson(results));
+    expect(parsed.actions).toHaveLength(2);
+    expect(parsed.actions[0].action).toBe('create');
+    expect(parsed.actions[1].action).toBe('update');
+  });
+
+  test('includes target path in actions', () => {
+    const op = { ...makeOp('create', 'cmd1'), targetPath: '/home/user/.claude/commands/cmd1.md' };
+    const results = [makeResult('claude-code', [op])];
+    const parsed = JSON.parse(formatDryRunJson(results));
+    expect(parsed.actions[0].path).toBe('/home/user/.claude/commands/cmd1.md');
+  });
+
+  test('uses display target name', () => {
+    const results = [makeResult('claude-code', [makeOp('create', 'cmd1')])];
+    const parsed = JSON.parse(formatDryRunJson(results));
+    expect(parsed.actions[0].target).toBe('claude');
+  });
+
+  test('summary counts create and update separately', () => {
+    const results = [makeResult('claude-code', [
+      makeOp('create', 'a'),
+      makeOp('create', 'b'),
+      makeOp('update', 'c'),
+      makeOp('skip', 'd'),
+    ])];
+    const parsed = JSON.parse(formatDryRunJson(results));
+    expect(parsed.summary.create).toBe(2);
+    expect(parsed.summary.update).toBe(1);
+  });
+});
+
+describe('formatDryRunPretty', () => {
+  test('contains dry-run header', () => {
+    const results = [makeResult('claude-code', [makeOp('create', 'cmd1')])];
+    const output = formatDryRunPretty(results);
+    expect(output).toContain('acsync push --dry-run');
+  });
+
+  test('shows arrow and path for actionable items', () => {
+    const op = { ...makeOp('create', 'cmd1'), targetPath: '/tmp/test/cmd1.md' };
+    const results = [makeResult('claude-code', [op])];
+    const output = formatDryRunPretty(results);
+    expect(output).toContain('→');
+    expect(output).toContain('/tmp/test/cmd1.md');
+  });
+
+  test('omits targets with only skip operations', () => {
+    const results = [makeResult('claude-code', [makeOp('skip', 'cmd1')])];
+    const output = formatDryRunPretty(results);
+    expect(output).toContain('Nothing to push');
+    expect(output).not.toContain('claude');
+  });
+
+  test('shows Would write summary', () => {
+    const results = [makeResult('claude-code', [makeOp('create', 'x'), makeOp('update', 'y')])];
+    const output = formatDryRunPretty(results);
+    expect(output).toContain('Would write');
+  });
+});
+
+describe('formatDryRunResult', () => {
+  test('hasDrift=true when actions exist', () => {
+    const results = [makeResult('claude-code', [makeOp('create', 'x')])];
+    const { hasDrift } = formatDryRunResult(results, false);
+    expect(hasDrift).toBe(true);
+  });
+
+  test('hasDrift=false when only skips', () => {
+    const results = [makeResult('claude-code', [makeOp('skip', 'x')])];
+    const { hasDrift } = formatDryRunResult(results, false);
+    expect(hasDrift).toBe(false);
+  });
+
+  test('returns JSON when pretty=false', () => {
+    const results = [makeResult('claude-code', [makeOp('create', 'x')])];
+    const { output } = formatDryRunResult(results, false);
+    expect(() => JSON.parse(output)).not.toThrow();
+    expect(JSON.parse(output).dryRun).toBe(true);
+  });
+
+  test('returns pretty output when pretty=true', () => {
+    const results = [makeResult('claude-code', [makeOp('create', 'x')])];
+    const { output } = formatDryRunResult(results, true);
+    expect(output).toContain('acsync push --dry-run');
   });
 });
