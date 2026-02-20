@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** Make config sync fast and cheap by moving mechanical transforms into deterministic code
-**Current focus:** Phase 1: Foundation
+**Current focus:** Phase 2: Renderers + Secrets
 
 ## Current Position
 
@@ -61,5 +61,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 01-02-PLAN.md (Phase 1 complete)
-Resume file: None
+Stopped at: Phase 2 context gathered
+Resume file: .planning/phases/02-renderers-secrets/02-CONTEXT.md
