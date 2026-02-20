@@ -17,7 +17,7 @@ import { OpenCodeAdapter } from '../adapters/opencode';
 import { GeminiAdapter } from '../adapters/gemini';
 import { CodexAdapter } from '../adapters/codex';
 import type { ToolAdapter } from '../adapters/base';
-import type { TargetName, ItemType, CanonicalItem, MCPServer } from '../types';
+import type { TargetName, ItemType, CanonicalItem, MCPServer, MCPWarning } from '../types';
 import type { SourceItem } from '../core/diff';
 import type { BackupInfo } from '../core/rollback';
 
@@ -292,6 +292,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
     }
 
     // MCP — one source item per server (share aggregate hash + target path)
+    let mcpWarning: MCPWarning | undefined;
     if (!options.types || options.types.includes('mcp')) {
       if (caps.mcp && mcpServers.length > 0) {
         const mcpPath = adapter.getPaths().getMCPConfigPath();
@@ -305,6 +306,18 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
           }
         } catch {
           // Ignore
+        }
+
+        // Detect non-canonical servers in existing target config
+        if (existingContent) {
+          const existingNames = adapter.parseExistingMCPServerNames(existingContent);
+          const nonCanonical = existingNames.filter((n) => !renderedNames.has(n));
+          if (nonCanonical.length > 0) {
+            mcpWarning = {
+              serverNames: nonCanonical,
+              action: adapter.removesNonCanonicalOnPush() ? 'remove' : 'orphan',
+            };
+          }
         }
 
         const rendered = adapter.renderMCPServers(mcpServers, existingContent);
@@ -386,6 +399,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
     }
 
     const diff = calculateDiff(sourceItems, targetHashes, manifest, target);
+    if (mcpWarning) diff.mcpWarning = mcpWarning;
     diffs.push(diff);
   }
 

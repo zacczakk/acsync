@@ -144,4 +144,18 @@ describe('CodexAdapter.renderMCPServers', () => {
     const names = adapter.getRenderedServerNames([httpServer, stdioServer, disabled]);
     expect(names).toEqual(['tavily']);
   });
+
+  test('parseExistingMCPServerNames extracts mcp_servers keys from TOML', () => {
+    const content = '[mcp_servers.context7]\nurl = "https://example.com"\n';
+    const names = adapter.parseExistingMCPServerNames(content);
+    expect(names).toEqual(['context7']);
+  });
+
+  test('parseExistingMCPServerNames returns empty for no mcp_servers', () => {
+    expect(adapter.parseExistingMCPServerNames('model = "gpt-5"')).toEqual([]);
+  });
+
+  test('removesNonCanonicalOnPush returns true', () => {
+    expect(adapter.removesNonCanonicalOnPush()).toBe(true);
+  });
 });

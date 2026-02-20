@@ -273,6 +273,81 @@ describe('formatDryRunPretty', () => {
   });
 });
 
+describe('MCP warnings', () => {
+  function makeResultWithWarning(
+    target: 'claude-code' | 'opencode',
+    action: 'remove' | 'orphan',
+    serverNames: string[],
+  ): DiffResult {
+    return {
+      target,
+      operations: [{ ...makeOp('update', 'context7', target), itemType: 'mcp' }],
+      summary: { create: 0, update: 1, skip: 0 },
+      mcpWarning: { serverNames, action },
+    };
+  }
+
+  test('formatDiffJson includes mcpWarning when present', () => {
+    const results = [makeResultWithWarning('claude-code', 'remove', ['old-server', 'stale'])];
+    const parsed = JSON.parse(formatDiffJson(results));
+    expect(parsed.targets.claude.mcpWarning).toEqual({
+      serverNames: ['old-server', 'stale'],
+      action: 'remove',
+    });
+  });
+
+  test('formatDiffJson omits mcpWarning when absent', () => {
+    const results = [makeResult('claude-code', [makeOp('update', 'x')])];
+    const parsed = JSON.parse(formatDiffJson(results));
+    expect(parsed.targets.claude.mcpWarning).toBeUndefined();
+  });
+
+  test('formatDiffPretty shows remove warning', () => {
+    const results = [makeResultWithWarning('claude-code', 'remove', ['chrome-devtools', 'shadcn'])];
+    const output = formatDiffPretty(results);
+    expect(output).toContain('non-canonical');
+    expect(output).toContain('removed on push');
+    expect(output).toContain('chrome-devtools');
+    expect(output).toContain('shadcn');
+  });
+
+  test('formatDiffPretty shows orphan warning when action is orphan', () => {
+    // Hypothetical adapter that merges instead of overwrites
+    const result: DiffResult = {
+      target: 'opencode',
+      operations: [{ ...makeOp('update', 'context7', 'opencode'), itemType: 'mcp' }],
+      summary: { create: 0, update: 1, skip: 0 },
+      mcpWarning: { serverNames: ['old-mcp'], action: 'orphan' },
+    };
+    const output = formatDiffPretty([result]);
+    expect(output).toContain('non-canonical');
+    expect(output).toContain('orphans');
+    expect(output).toContain('old-mcp');
+  });
+
+  test('formatDryRunPretty shows remove warning', () => {
+    const results = [makeResultWithWarning('claude-code', 'remove', ['legacy'])];
+    const output = formatDryRunPretty(results);
+    expect(output).toContain('non-canonical');
+    expect(output).toContain('removed');
+    expect(output).toContain('legacy');
+  });
+
+  test('formatDryRunJson includes warnings array', () => {
+    const results = [makeResultWithWarning('claude-code', 'remove', ['old'])];
+    const parsed = JSON.parse(formatDryRunJson(results));
+    expect(parsed.warnings).toHaveLength(1);
+    expect(parsed.warnings[0].target).toBe('claude');
+    expect(parsed.warnings[0].mcpWarning.serverNames).toEqual(['old']);
+  });
+
+  test('formatDryRunJson omits warnings when none present', () => {
+    const results = [makeResult('claude-code', [makeOp('create', 'x')])];
+    const parsed = JSON.parse(formatDryRunJson(results));
+    expect(parsed.warnings).toBeUndefined();
+  });
+});
+
 describe('formatDryRunResult', () => {
   test('hasDrift=true when actions exist', () => {
     const results = [makeResult('claude-code', [makeOp('create', 'x')])];

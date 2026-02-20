@@ -140,4 +140,21 @@ describe('ClaudeCodeAdapter.renderMCPServers', () => {
     const names = adapter.getRenderedServerNames([stdioServer, disabled]);
     expect(names).toEqual(['context7']);
   });
+
+  test('parseExistingMCPServerNames extracts mcpServers keys', () => {
+    const content = JSON.stringify({
+      mcpServers: { context7: {}, tavily: {}, 'chrome-devtools': {} },
+    });
+    const names = adapter.parseExistingMCPServerNames(content);
+    expect(names).toEqual(['context7', 'tavily', 'chrome-devtools']);
+  });
+
+  test('parseExistingMCPServerNames returns empty for no mcpServers', () => {
+    expect(adapter.parseExistingMCPServerNames('{}')).toEqual([]);
+    expect(adapter.parseExistingMCPServerNames('invalid')).toEqual([]);
+  });
+
+  test('removesNonCanonicalOnPush returns true', () => {
+    expect(adapter.removesNonCanonicalOnPush()).toBe(true);
+  });
 });

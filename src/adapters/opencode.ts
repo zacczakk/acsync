@@ -1,6 +1,6 @@
 import { BaseAdapter } from './base';
 import { stringifyFrontmatter } from '../formats/markdown';
-import { modifyJsonc } from '../formats/jsonc';
+import { modifyJsonc, readJsonc } from '../formats/jsonc';
 import { EnvVarTransformer } from '../secrets/env-var-transformer';
 import type {
   CanonicalItem,
@@ -42,6 +42,22 @@ export class OpenCodeAdapter extends BaseAdapter {
       relativePath: this.paths.getAgentFilePath(item.name),
       content,
     };
+  }
+
+  /** OpenCode uses mcp key (not mcpServers) */
+  override parseExistingMCPServerNames(content: string): string[] {
+    try {
+      const parsed = readJsonc<Record<string, unknown>>(content);
+      const mcp = parsed.mcp as Record<string, unknown> | undefined;
+      return mcp ? Object.keys(mcp) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  /** OpenCode resets mcp object then re-adds canonical — non-canonical removed */
+  override removesNonCanonicalOnPush(): boolean {
+    return true;
   }
 
   /** OpenCode renders enabled: false servers (with disabled flag) */
