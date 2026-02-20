@@ -19,12 +19,12 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **RNDR-06**: Render canonical agent → OpenCode format (rebuild frontmatter, add `mode: subagent`)
 - [x] **RNDR-07**: Render canonical agent → Gemini format (add `kind: local` to frontmatter)
 - [x] **RNDR-08**: Render canonical agent → Codex format (flat markdown, `# Agent: {name}` heading)
-- [ ] **RNDR-09**: Render canonical MCP server → Claude Code format (JSON, `mcpServers` key, inject secrets)
-- [ ] **RNDR-10**: Render canonical MCP server → OpenCode format (JSONC, `mcp` key, `local`/`remote` types, `environment` key, command as array)
-- [ ] **RNDR-11**: Render canonical MCP server → Gemini format (JSON, `mcpServers` key, inject secrets)
-- [ ] **RNDR-12**: Render canonical MCP server → Codex format (TOML, `mcp_servers` key, HTTP-only, skip stdio servers)
-- [ ] **RNDR-13**: Render instructions per CLI (concatenate AGENTS.md + CLI-specific addendum)
-- [ ] **RNDR-14**: Copy skill directories verbatim (directory copy with support files)
+- [x] **RNDR-09**: Render canonical MCP server → Claude Code format (JSON, `mcpServers` key, inject secrets)
+- [x] **RNDR-10**: Render canonical MCP server → OpenCode format (JSONC, `mcp` key, `local`/`remote` types, `environment` key, command as array)
+- [x] **RNDR-11**: Render canonical MCP server → Gemini format (JSON, `mcpServers` key, inject secrets)
+- [x] **RNDR-12**: Render canonical MCP server → Codex format (TOML, `mcp_servers` key, HTTP-only, skip stdio servers)
+- [x] **RNDR-13**: Render instructions per CLI (concatenate AGENTS.md + CLI-specific addendum)
+- [x] **RNDR-14**: Copy skill directories verbatim (directory copy with support files)
 
 ### Diff Engine
 
@@ -117,12 +117,12 @@ Deferred to future release. Tracked but not in current roadmap.
 | RNDR-06 | Phase 2 | Complete |
 | RNDR-07 | Phase 2 | Complete |
 | RNDR-08 | Phase 2 | Complete |
-| RNDR-09 | Phase 2 | Pending |
-| RNDR-10 | Phase 2 | Pending |
-| RNDR-11 | Phase 2 | Pending |
-| RNDR-12 | Phase 2 | Pending |
-| RNDR-13 | Phase 2 | Pending |
-| RNDR-14 | Phase 2 | Pending |
+| RNDR-09 | Phase 2 | Complete |
+| RNDR-10 | Phase 2 | Complete |
+| RNDR-11 | Phase 2 | Complete |
+| RNDR-12 | Phase 2 | Complete |
+| RNDR-13 | Phase 2 | Complete |
+| RNDR-14 | Phase 2 | Complete |
 | SECR-01 | Phase 2 | Complete |
 | SECR-02 | Phase 2 | Complete |
 | SECR-03 | Phase 2 | Complete |
