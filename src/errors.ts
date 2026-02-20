@@ -88,6 +88,22 @@ export class ParseError extends SyncError {
   }
 }
 
+export class SecretError extends SyncError {
+  public readonly operation: string;
+  public readonly path: string;
+
+  constructor(message: string, context: ErrorContext) {
+    super(message, ErrorSeverity.WARNING, {
+      operation: context.operation,
+      path: context.path,
+    });
+    this.name = 'SecretError';
+    this.operation = context.operation;
+    this.path = context.path;
+    this.cause = context.cause;
+  }
+}
+
 export function shouldRollback(error: unknown): boolean {
   return getErrorSeverity(error) === ErrorSeverity.FATAL;
 }
