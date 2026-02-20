@@ -1,10 +1,17 @@
 import { BaseAdapter } from './base';
+import { writeToml } from '../formats/toml';
 import type {
   CanonicalItem,
   MCPServer,
   RenderedFile,
   AdapterCapabilities,
 } from '../types';
+
+/** Extract bare variable name from "Bearer ${VAR_NAME}" Authorization header value */
+function extractBearerTokenVar(authHeader: string): string | undefined {
+  const match = /^Bearer\s+\$\{([A-Za-z0-9_]+)\}$/.exec(authHeader.trim());
+  return match ? match[1] : undefined;
+}
 
 export class CodexAdapter extends BaseAdapter {
   constructor() {
@@ -51,7 +58,34 @@ export class CodexAdapter extends BaseAdapter {
     };
   }
 
-  renderMCPServers(_servers: MCPServer[], _existingContent?: string): string {
-    throw new Error('Not implemented — see Plan 03');
+  renderMCPServers(servers: MCPServer[], _existingContent?: string): string {
+    // Codex supports HTTP-only — skip all stdio servers
+    const filtered = servers.filter(
+      (s) => s.transport === 'http' && !s.disabledFor?.includes('codex'),
+    );
+
+    if (filtered.length === 0) return '';
+
+    const mcp_servers: Record<string, unknown> = {};
+    for (const server of filtered) {
+      const cfg: Record<string, unknown> = { url: server.url };
+
+      // env_vars: array of bare variable names
+      if (server.envVars && server.envVars.length > 0) {
+        cfg.env_vars = server.envVars;
+      }
+
+      // bearer_token_env_var: extracted from Authorization header
+      if (server.headers?.Authorization) {
+        const bearerVar = extractBearerTokenVar(server.headers.Authorization);
+        if (bearerVar) {
+          cfg.bearer_token_env_var = bearerVar;
+        }
+      }
+
+      mcp_servers[server.name] = cfg;
+    }
+
+    return writeToml({ mcp_servers });
   }
 }

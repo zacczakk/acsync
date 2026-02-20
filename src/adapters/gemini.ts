@@ -1,5 +1,6 @@
 import { BaseAdapter } from './base';
 import { stringifyFrontmatter } from '../formats/markdown';
+import { readJson, writeJson } from '../formats/json';
 import type {
   CanonicalItem,
   MCPServer,
@@ -48,7 +49,27 @@ export class GeminiAdapter extends BaseAdapter {
     };
   }
 
-  renderMCPServers(_servers: MCPServer[], _existingContent?: string): string {
-    throw new Error('Not implemented — see Plan 03');
+  renderMCPServers(servers: MCPServer[], existingContent?: string): string {
+    const filtered = servers.filter((s) => !s.disabledFor?.includes('gemini'));
+
+    const mcpServers: Record<string, unknown> = {};
+    for (const server of filtered) {
+      if (server.transport === 'stdio') {
+        const cfg: Record<string, unknown> = { command: server.command, args: server.args ?? [] };
+        if (server.env && Object.keys(server.env).length > 0) cfg.env = server.env;
+        mcpServers[server.name] = cfg;
+      } else {
+        const cfg: Record<string, unknown> = { url: server.url };
+        if (server.headers && Object.keys(server.headers).length > 0) cfg.headers = server.headers;
+        mcpServers[server.name] = cfg;
+      }
+    }
+
+    let base: Record<string, unknown> = {};
+    if (existingContent) {
+      base = readJson<Record<string, unknown>>(existingContent);
+    }
+
+    return writeJson({ ...base, mcpServers });
   }
 }
