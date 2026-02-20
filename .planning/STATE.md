@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 2 of 3 (Renderers + Secrets)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-20 — Completed 02-02-PLAN.md
+Plan: 3 of 3 in current phase
+Status: Complete
+Last activity: 2026-02-20 — Completed 02-03-PLAN.md
 
-Progress: [█████████░] 55%
+Progress: [██████████] 100% (Phase 2 complete)
 
 ## Performance Metrics
 
@@ -28,10 +28,10 @@ Progress: [█████████░] 55%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 2 | 14min | 7min |
-| 02-renderers-secrets | 2 | 3min | 1.5min |
+| 02-renderers-secrets | 3 | 5min | 1.7min |
 
 **Recent Trend:**
-- Last 5 plans: 6min, 8min, 2min, 1min
+- Last 5 plans: 6min, 8min, 2min, 1min, 2min
 - Trend: stable
 
 *Updated after each plan completion*
@@ -58,6 +58,9 @@ Recent decisions affecting current work:
 - Gemini TOML hand-crafted for triple-quoted prompt strings (smol-toml can't produce them)
 - gray-matter omits frontmatter delimiters when data object is empty
 - Codex commands and agents both go to ~/.codex/prompts/ directory
+- Gemini MCP identical to Claude Code (JSON mcpServers, ${VAR} format)
+- Codex MCP TOML HTTP-only with bearer_token_env_var extraction
+- OpenCode MCP uses modifyJsonc for comment preservation + {env:VAR} conversion
 
 ### Pending Todos
 
@@ -71,5 +74,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 02-02-PLAN.md
+Stopped at: Completed 02-03-PLAN.md (Phase 2 complete)
 Resume file: None
