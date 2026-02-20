@@ -32,7 +32,13 @@ Plans:
 - [ ] 01-02-PLAN.md — Format parsers (JSON, JSONC, TOML, Markdown frontmatter) + round-trip tests
 
 ### Phase 2: Renderers + Secrets
-**Goal**: Any canonical config renders correctly to any target format, with secrets injected
+**Goal**: Lightweight rendering — pure functions that transform canonical configs to target formats. Borrow proven logic from vsync (`~/Repos/oss/vsync/cli/src/`) wherever applicable; do NOT re-derive what vsync already solved.
+**Approach**: vsync has a full adapter class hierarchy (registry, plugin system, rollback, i18n, parallel sync). We don't need any of that. Extract only the transformation logic into standalone render functions. Key vsync modules to borrow from:
+  - `utils/env-var-transformer.ts` — normalize-then-convert pattern for `${VAR}` / `{env:VAR}` / `${env:VAR}` (SECR-03)
+  - `utils/mcp-utils.ts` — MCP type inference + field population helpers (RNDR-09–12)
+  - `adapters/claude-code.ts`, `opencode.ts`, `codex.ts` — format-specific serialization logic for MCP, commands, agents
+  - JSONC-preserving edit pattern via `jsonc-parser` (already used in Phase 1)
+  - `gray-matter` for frontmatter parse/stringify (commands + agents)
 **Depends on**: Phase 1
 **Requirements**: RNDR-01, RNDR-02, RNDR-03, RNDR-04, RNDR-05, RNDR-06, RNDR-07, RNDR-08, RNDR-09, RNDR-10, RNDR-11, RNDR-12, RNDR-13, RNDR-14, SECR-01, SECR-02, SECR-03
 **Success Criteria** (what must be TRUE):
@@ -40,12 +46,13 @@ Plans:
   2. Secrets from `.env` are loaded and injected into rendered output (placeholders replaced with real values)
   3. Env var syntax matches target conventions (`${VAR}` for Claude/Gemini, `{env:VAR}` for OpenCode, none for Codex)
   4. Format integrity preserved: JSONC comments survive, TOML types are correct, frontmatter round-trips cleanly
-**Plans**: TBD
+  5. Renderers are pure functions (input → output string), no class hierarchies or adapter registries
+**Plans:** 3 plans
 
 Plans:
-- [ ] 02-01: Secret handling (load .env, inject/redact, env var syntax conversion)
-- [ ] 02-02: Command + agent renderers (all 4 targets × 2 config types = 8 renderers)
-- [ ] 02-03: MCP + instruction + skill renderers (4 MCP targets + instructions concat + skill copy)
+- [ ] 02-01-PLAN.md — Secrets (env-loader, injector, EnvVarTransformer) + types + BaseAdapter/PathResolver
+- [ ] 02-02-PLAN.md — Command + agent renderers (4 adapters × 2 methods = 8 render functions)
+- [ ] 02-03-PLAN.md — MCP rendering (4 targets) + instructions + skills
 
 ### Phase 3: Diff Engine + CLI
 **Goal**: End-to-end CLI works — diff, render, push, check with proper output and exit codes
