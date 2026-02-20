@@ -4,6 +4,49 @@ export interface ErrorContext {
   cause: Error;
 }
 
+// Config item types synced by acsync
+export type ItemType = 'command' | 'agent' | 'mcp' | 'instruction' | 'skill';
+
+// Operation types (no 'delete' — we never delete non-canonical items per EXCL-02)
+export type OperationType = 'create' | 'update' | 'skip';
+
+export interface TargetStatus {
+  hash: string;
+  lastSynced: string; // ISO 8601
+}
+
+export interface ManifestItem {
+  type: ItemType;
+  name: string;
+  sourceHash: string;
+  lastSynced: string;
+  targets: Partial<Record<TargetName, TargetStatus>>;
+}
+
+export interface Manifest {
+  version: '1.0.0';
+  lastSynced: string;
+  items: Record<string, ManifestItem>; // key = "type/name"
+}
+
+export interface Operation {
+  type: OperationType;
+  itemType: ItemType;
+  name: string;
+  target: TargetName;
+  reason: string;
+  oldHash?: string;
+  newHash?: string;
+  sourcePath?: string; // canonical source file
+  targetPath?: string; // rendered target file
+}
+
+export interface DiffResult {
+  target: TargetName;
+  operations: Operation[]; // all ops for this target (create + update + skip)
+  summary: { create: number; update: number; skip: number };
+}
+
 export interface ExclusionResult {
   excluded: boolean;
   reason?: string;
