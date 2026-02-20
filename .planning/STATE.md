@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 3 of 3 (Diff Engine + CLI)
-Plan: 1 of 2 in current phase
+Plan: 2 of 3 in current phase
 Status: In Progress
-Last activity: 2026-02-20 — Completed 03-01-PLAN.md
+Last activity: 2026-02-20 — Completed 03-02-PLAN.md
 
-Progress: [████████░░] 79% (Phase 3 started, 1/2 plans done)
+Progress: [█████████░] 88% (Phase 3, 2/3 plans done)
 
 ## Performance Metrics
 
@@ -29,10 +29,10 @@ Progress: [████████░░] 79% (Phase 3 started, 1/2 plans done)
 |-------|-------|-------|----------|
 | 01-foundation | 2 | 14min | 7min |
 | 02-renderers-secrets | 3 | 5min | 1.7min |
-| 03-diff-engine-cli | 1 | 3min | 3min |
+| 03-diff-engine-cli | 2 | 13min | 6.5min |
 
 **Recent Trend:**
-- Last 5 plans: 8min, 2min, 1min, 2min, 3min
+- Last 5 plans: 2min, 1min, 2min, 3min, 10min
 - Trend: stable
 
 *Updated after each plan completion*
@@ -67,6 +67,9 @@ Recent decisions affecting current work:
 - saveManifest uses .acsync/backups as backupDir to satisfy atomicWrite signature
 - picocolors over chalk — lighter, no dependencies
 - restoreAll processes in reverse order — last written restored first
+- getPaths() added to BaseAdapter (needed for orchestrator path resolution)
+- Orchestrator hashes rendered content (not source files) for diff comparison
+- Per-test unique salts in integration tests (push writes to real filesystem)
 
 ### Pending Todos
 
@@ -80,5 +83,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 03-01-PLAN.md
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
