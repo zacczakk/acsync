@@ -95,4 +95,30 @@ describe('GeminiAdapter.renderMCPServers', () => {
     const parsed = JSON.parse(result);
     expect(parsed.mcpServers.bare.env).toBeUndefined();
   });
+
+  test('excludes servers with enabled: false (no native disabled support)', () => {
+    const disabled: MCPServer = {
+      name: 'thinking',
+      transport: 'stdio',
+      command: 'npx',
+      args: ['-y', '@mcp/thinking'],
+      enabled: false,
+    };
+    const result = adapter.renderMCPServers([stdioServer, disabled]);
+    const parsed = JSON.parse(result);
+
+    expect(parsed.mcpServers.context7).toBeDefined();
+    expect(parsed.mcpServers.thinking).toBeUndefined();
+  });
+
+  test('getRenderedServerNames excludes enabled: false servers', () => {
+    const disabled: MCPServer = {
+      name: 'thinking',
+      transport: 'stdio',
+      command: 'npx',
+      enabled: false,
+    };
+    const names = adapter.getRenderedServerNames([stdioServer, disabled]);
+    expect(names).toEqual(['context7']);
+  });
 });

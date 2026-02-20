@@ -295,10 +295,8 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
     if (!options.types || options.types.includes('mcp')) {
       if (caps.mcp && mcpServers.length > 0) {
         const mcpPath = adapter.getPaths().getMCPConfigPath();
-        // Filter to servers enabled for this target
-        const enabledServers = mcpServers.filter(
-          (s) => !s.disabledFor?.includes(target),
-        );
+        // Use adapter's own filter to determine which servers appear in diff
+        const renderedNames = new Set(adapter.getRenderedServerNames(mcpServers));
         let existingContent: string | undefined;
         try {
           const file = Bun.file(mcpPath);
@@ -313,7 +311,8 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
         const sourceHash = hashRendered(rendered);
         const targetHash = await hashTargetFile(mcpPath);
 
-        for (const server of enabledServers) {
+        for (const server of mcpServers) {
+          if (!renderedNames.has(server.name)) continue;
           sourceItems.push({
             type: 'mcp',
             name: server.name,

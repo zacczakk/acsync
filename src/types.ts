@@ -86,6 +86,7 @@ export interface MCPServer {
   headers?: Record<string, string>;
   env?: Record<string, string>;
   envVars?: string[];
+  enabled?: boolean;       // false = render but mark disabled in target config
   disabledFor?: TargetName[];
 }
 

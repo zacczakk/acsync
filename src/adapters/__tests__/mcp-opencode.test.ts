@@ -122,4 +122,50 @@ describe('OpenCodeAdapter.renderMCPServers', () => {
     const parsed = readJsonc<Record<string, unknown>>(result);
     expect(parsed.mcp).toEqual({});
   });
+
+  test('renders enabled: true for normal servers', () => {
+    const result = adapter.renderMCPServers([stdioServer]);
+    const parsed = readJsonc<Record<string, unknown>>(result);
+    const mcp = parsed.mcp as Record<string, Record<string, unknown>>;
+    expect(mcp.context7.enabled).toBe(true);
+  });
+
+  test('renders enabled: false servers with disabled flag', () => {
+    const disabled: MCPServer = {
+      name: 'thinking',
+      transport: 'stdio',
+      command: 'npx',
+      args: ['-y', '@mcp/thinking'],
+      enabled: false,
+    };
+    const result = adapter.renderMCPServers([stdioServer, disabled]);
+    const parsed = readJsonc<Record<string, unknown>>(result);
+    const mcp = parsed.mcp as Record<string, Record<string, unknown>>;
+
+    expect(mcp.context7.enabled).toBe(true);
+    expect(mcp.thinking).toBeDefined();
+    expect(mcp.thinking.enabled).toBe(false);
+  });
+
+  test('getRenderedServerNames includes enabled: false servers', () => {
+    const disabled: MCPServer = {
+      name: 'thinking',
+      transport: 'stdio',
+      command: 'npx',
+      enabled: false,
+    };
+    const names = adapter.getRenderedServerNames([stdioServer, disabled]);
+    expect(names).toEqual(['context7', 'thinking']);
+  });
+
+  test('getRenderedServerNames excludes disabledFor servers', () => {
+    const excluded: MCPServer = {
+      name: 'excluded',
+      transport: 'stdio',
+      command: 'tool',
+      disabledFor: ['opencode'],
+    };
+    const names = adapter.getRenderedServerNames([stdioServer, excluded]);
+    expect(names).toEqual(['context7']);
+  });
 });

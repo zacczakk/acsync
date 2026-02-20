@@ -44,7 +44,15 @@ export class OpenCodeAdapter extends BaseAdapter {
     };
   }
 
+  /** OpenCode renders enabled: false servers (with disabled flag) */
+  override getRenderedServerNames(servers: MCPServer[]): string[] {
+    return servers
+      .filter((s) => !s.disabledFor?.includes('opencode'))
+      .map((s) => s.name);
+  }
+
   renderMCPServers(servers: MCPServer[], existingContent?: string): string {
+    // Filter out servers disabled for this target (but keep enabled: false — render as disabled)
     const filtered = servers.filter((s) => !s.disabledFor?.includes('opencode'));
 
     let text = existingContent ?? '{}';
@@ -66,6 +74,9 @@ export class OpenCodeAdapter extends BaseAdapter {
       if (server.env && Object.keys(server.env).length > 0) {
         cfg.environment = EnvVarTransformer.toOpenCode(server.env) as Record<string, string>;
       }
+
+      // OpenCode natively supports enabled: false
+      cfg.enabled = server.enabled !== false;
 
       text = modifyJsonc(text, ['mcp', server.name], cfg) as string;
     }

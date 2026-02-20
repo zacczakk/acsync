@@ -50,7 +50,11 @@ export class GeminiAdapter extends BaseAdapter {
   }
 
   renderMCPServers(servers: MCPServer[], existingContent?: string): string {
-    const filtered = servers.filter((s) => !s.disabledFor?.includes('gemini'));
+    // Filter out servers disabled for this target OR globally disabled
+    // (Gemini has no native disabled mechanism)
+    const filtered = servers.filter(
+      (s) => !s.disabledFor?.includes('gemini') && s.enabled !== false,
+    );
 
     const mcpServers: Record<string, unknown> = {};
     for (const server of filtered) {

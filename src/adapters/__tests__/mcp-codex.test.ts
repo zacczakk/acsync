@@ -118,4 +118,30 @@ describe('CodexAdapter.renderMCPServers', () => {
     const mcp = parsed.mcp_servers as Record<string, unknown>;
     expect(Object.keys(mcp)).toHaveLength(2);
   });
+
+  test('excludes HTTP servers with enabled: false', () => {
+    const disabled: MCPServer = {
+      name: 'disabled-http',
+      transport: 'http',
+      url: 'https://example.com/mcp',
+      enabled: false,
+    };
+    const result = adapter.renderMCPServers([httpServer, disabled]);
+    const parsed = readToml<Record<string, unknown>>(result);
+    const mcp = parsed.mcp_servers as Record<string, unknown>;
+
+    expect(mcp.tavily).toBeDefined();
+    expect(mcp['disabled-http']).toBeUndefined();
+  });
+
+  test('getRenderedServerNames excludes stdio, disabledFor, and enabled: false', () => {
+    const disabled: MCPServer = {
+      name: 'disabled-http',
+      transport: 'http',
+      url: 'https://example.com/mcp',
+      enabled: false,
+    };
+    const names = adapter.getRenderedServerNames([httpServer, stdioServer, disabled]);
+    expect(names).toEqual(['tavily']);
+  });
 });

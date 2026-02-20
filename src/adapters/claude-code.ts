@@ -39,7 +39,11 @@ export class ClaudeCodeAdapter extends BaseAdapter {
   }
 
   renderMCPServers(servers: MCPServer[], existingContent?: string): string {
-    const filtered = servers.filter((s) => !s.disabledFor?.includes('claude-code'));
+    // Filter out servers disabled for this target OR globally disabled
+    // (Claude Code has no native disabled mechanism)
+    const filtered = servers.filter(
+      (s) => !s.disabledFor?.includes('claude-code') && s.enabled !== false,
+    );
 
     const mcpServers: Record<string, unknown> = {};
     for (const server of filtered) {
