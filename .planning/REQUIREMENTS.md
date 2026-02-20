@@ -36,9 +36,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Secret Handling
 
-- [ ] **SECR-01**: Load secrets from `.env` file
-- [ ] **SECR-02**: Inject secrets into rendered configs on push (replace `${VAR}` placeholders with values)
-- [ ] **SECR-03**: Convert env var syntax per target (`${VAR}` ↔ `${env:VAR}` ↔ `{env:VAR}`)
+- [x] **SECR-01**: Load secrets from `.env` file
+- [x] **SECR-02**: Inject secrets into rendered configs on push (replace `${VAR}` placeholders with values)
+- [x] **SECR-03**: Convert env var syntax per target (`${VAR}` ↔ `${env:VAR}` ↔ `{env:VAR}`)
 
 ### File Operations
 
@@ -123,9 +123,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | RNDR-12 | Phase 2 | Pending |
 | RNDR-13 | Phase 2 | Pending |
 | RNDR-14 | Phase 2 | Pending |
-| SECR-01 | Phase 2 | Pending |
-| SECR-02 | Phase 2 | Pending |
-| SECR-03 | Phase 2 | Pending |
+| SECR-01 | Phase 2 | Complete |
+| SECR-02 | Phase 2 | Complete |
+| SECR-03 | Phase 2 | Complete |
 | DIFF-02 | Phase 3 | Pending |
 | DIFF-03 | Phase 3 | Pending |
 | DIFF-04 | Phase 3 | Pending |
