@@ -42,7 +42,7 @@ describe('formatDiffJson', () => {
       makeResult('opencode', [makeOp('skip', 'cmd2', 'opencode')]),
     ];
     const parsed = JSON.parse(formatDiffJson(results));
-    expect(parsed.targets['claude-code']).toBeDefined();
+    expect(parsed.targets['claude']).toBeDefined();
     expect(parsed.targets['opencode']).toBeDefined();
   });
 
@@ -66,8 +66,8 @@ describe('formatDiffJson', () => {
   test('includes operations array in each target', () => {
     const results = [makeResult('claude-code', [makeOp('create', 'cmd1')])];
     const parsed = JSON.parse(formatDiffJson(results));
-    expect(Array.isArray(parsed.targets['claude-code'].operations)).toBe(true);
-    expect(parsed.targets['claude-code'].operations).toHaveLength(1);
+    expect(Array.isArray(parsed.targets['claude'].operations)).toBe(true);
+    expect(parsed.targets['claude'].operations).toHaveLength(1);
   });
 
   test('empty results produce valid JSON with zero counts', () => {
@@ -85,7 +85,8 @@ describe('formatDiffPretty', () => {
       makeResult('opencode', [makeOp('skip', 'cmd2', 'opencode')]),
     ];
     const output = formatDiffPretty(results);
-    expect(output).toContain('claude-code');
+    expect(output).toContain('claude');
+    expect(output).not.toContain('claude-code');
     expect(output).toContain('opencode');
   });
 
@@ -150,7 +151,8 @@ describe('formatPushResult', () => {
 
   test('pretty mode contains target names', () => {
     const output = formatPushResult(pushResults, true);
-    expect(output).toContain('claude-code');
+    expect(output).toContain('claude');
+    expect(output).not.toContain('claude-code');
     expect(output).toContain('opencode');
   });
 
