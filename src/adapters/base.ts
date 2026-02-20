@@ -25,6 +25,9 @@ export interface ToolAdapter {
 
   /** Render instructions by concatenating base + addendum */
   renderInstructions(baseMd: string, addendumMd: string): string;
+
+  /** Expose path resolver for orchestrator use */
+  getPaths(): AdapterPathResolver;
 }
 
 export abstract class BaseAdapter implements ToolAdapter {
@@ -46,6 +49,11 @@ export abstract class BaseAdapter implements ToolAdapter {
   /** Default: concatenate base + addendum with double-newline separator */
   renderInstructions(baseMd: string, addendumMd: string): string {
     return baseMd + '\n\n' + addendumMd + '\n';
+  }
+
+  /** Expose path resolver for orchestrator use */
+  getPaths(): AdapterPathResolver {
+    return this.paths;
   }
 
   /** Expand ~ in content strings */
