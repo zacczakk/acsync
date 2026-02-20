@@ -25,11 +25,11 @@ Build a deterministic CLI that renders canonical agent configs to 4 target CLI f
   2. File writes are atomic (write to temp → fsync → rename into place)
   3. Timestamped backup copy is created before any file overwrite
   4. `gsd-*` files/directories and non-canonical items are excluded from processing
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 01-01: Types + infra utilities (hash, atomic write, backup, exclusion filter)
-- [ ] 01-02: Format parsers (JSON, JSONC, TOML, Markdown frontmatter) with round-trip tests
+- [ ] 01-01-PLAN.md — Types, errors, exclusion filter, hash, backup, atomic write + tests
+- [ ] 01-02-PLAN.md — Format parsers (JSON, JSONC, TOML, Markdown frontmatter) + round-trip tests
 
 ### Phase 2: Renderers + Secrets
 **Goal**: Any canonical config renders correctly to any target format, with secrets injected
