@@ -29,10 +29,10 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Diff Engine
 
 - [x] **DIFF-01**: Compute SHA-256 content hash for any file or directory
-- [ ] **DIFF-02**: Read/write manifest file (JSON, tracks last-synced hashes per target)
-- [ ] **DIFF-03**: Compare source vs target vs manifest to produce operations (create/update/skip)
-- [ ] **DIFF-04**: Output diff as structured JSON (for agent consumption)
-- [ ] **DIFF-05**: Output diff as human-readable colored text (for terminal)
+- [x] **DIFF-02**: Read/write manifest file (JSON, tracks last-synced hashes per target)
+- [x] **DIFF-03**: Compare source vs target vs manifest to produce operations (create/update/skip)
+- [x] **DIFF-04**: Output diff as structured JSON (for agent consumption)
+- [x] **DIFF-05**: Output diff as human-readable colored text (for terminal)
 
 ### Secret Handling
 
@@ -45,6 +45,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **FILE-01**: Atomic write (write to temp, fsync, rename)
 - [x] **FILE-02**: Backup target file before overwrite (timestamped copy)
 - [ ] **FILE-03**: Dry-run mode (compute diff, show plan, write nothing)
+- [x] **FILE-04**: Rollback on push failure (track written files, restore all to pre-push state on first error; replaces Phase 1 backup-only approach)
 
 ### CLI Interface
 
@@ -126,11 +127,12 @@ Deferred to future release. Tracked but not in current roadmap.
 | SECR-01 | Phase 2 | Complete |
 | SECR-02 | Phase 2 | Complete |
 | SECR-03 | Phase 2 | Complete |
-| DIFF-02 | Phase 3 | Pending |
-| DIFF-03 | Phase 3 | Pending |
-| DIFF-04 | Phase 3 | Pending |
-| DIFF-05 | Phase 3 | Pending |
+| DIFF-02 | Phase 3 | Complete |
+| DIFF-03 | Phase 3 | Complete |
+| DIFF-04 | Phase 3 | Complete |
+| DIFF-05 | Phase 3 | Complete |
 | FILE-03 | Phase 3 | Pending |
+| FILE-04 | Phase 3 | Complete |
 | CLI-01 | Phase 3 | Pending |
 | CLI-02 | Phase 3 | Pending |
 | CLI-03 | Phase 3 | Pending |
@@ -142,8 +144,8 @@ Deferred to future release. Tracked but not in current roadmap.
 | CLI-09 | Phase 3 | Pending |
 
 **Coverage:**
-- v1 requirements: 36 total
-- Mapped to phases: 36 ✓
+- v1 requirements: 37 total
+- Mapped to phases: 37 ✓
 - Unmapped: 0
 
 ---

@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** Make config sync fast and cheap by moving mechanical transforms into deterministic code
-**Current focus:** Phase 2: Renderers + Secrets
+**Current focus:** Phase 3: Diff Engine + CLI
 
 ## Current Position
 
-Phase: 2 of 3 (Renderers + Secrets)
-Plan: 3 of 3 in current phase
-Status: Complete
-Last activity: 2026-02-20 — Completed 02-03-PLAN.md
+Phase: 3 of 3 (Diff Engine + CLI)
+Plan: 1 of 2 in current phase
+Status: In Progress
+Last activity: 2026-02-20 — Completed 03-01-PLAN.md
 
-Progress: [██████████] 100% (Phase 2 complete)
+Progress: [████████░░] 79% (Phase 3 started, 1/2 plans done)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 6min
-- Total execution time: 0.3 hours
+- Total plans completed: 5
+- Average duration: 5min
+- Total execution time: ~0.4 hours
 
 **By Phase:**
 
@@ -29,9 +29,10 @@ Progress: [██████████] 100% (Phase 2 complete)
 |-------|-------|-------|----------|
 | 01-foundation | 2 | 14min | 7min |
 | 02-renderers-secrets | 3 | 5min | 1.7min |
+| 03-diff-engine-cli | 1 | 3min | 3min |
 
 **Recent Trend:**
-- Last 5 plans: 6min, 8min, 2min, 1min, 2min
+- Last 5 plans: 8min, 2min, 1min, 2min, 3min
 - Trend: stable
 
 *Updated after each plan completion*
@@ -61,6 +62,11 @@ Recent decisions affecting current work:
 - Gemini MCP identical to Claude Code (JSON mcpServers, ${VAR} format)
 - Codex MCP TOML HTTP-only with bearer_token_env_var extraction
 - OpenCode MCP uses modifyJsonc for comment preservation + {env:VAR} conversion
+- Manifest path: .acsync/manifest.json in project root (simpler than vsync's ~/.vsync/cache/<hash>/)
+- No delete operation type — safe mode only per EXCL-02
+- saveManifest uses .acsync/backups as backupDir to satisfy atomicWrite signature
+- picocolors over chalk — lighter, no dependencies
+- restoreAll processes in reverse order — last written restored first
 
 ### Pending Todos
 
@@ -74,5 +80,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-diff-engine-cli/03-CONTEXT.md
+Stopped at: Completed 03-01-PLAN.md
+Resume file: None
