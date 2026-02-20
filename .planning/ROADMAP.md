@@ -11,8 +11,8 @@ Build a deterministic CLI that renders canonical agent configs to 4 target CLI f
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Foundation** - Types, infra (atomic writes, backup, hashing), format parsers, exclusion filters (completed 2026-02-20)
-- [ ] **Phase 2: Renderers + Secrets** - All config rendering for 4 targets + secret injection + env var conversion
-- [ ] **Phase 3: Diff Engine + CLI** - Manifest, 3-way diff, CLI subcommands, output formats, dry-run
+- [x] **Phase 2: Renderers + Secrets** - All config rendering for 4 targets + secret injection + env var conversion (completed 2026-02-20)
+- [x] **Phase 3: Diff Engine + CLI** - Manifest, 3-way diff, CLI subcommands, output formats, dry-run (completed 2026-02-20)
 
 ## Phase Details
 
@@ -93,6 +93,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 2/2 | Complete   | 2026-02-20 |
-| 2. Renderers + Secrets | 0/3 | Not started | - |
-| 3. Diff Engine + CLI | 0/3 | Not started | - |
+| 1. Foundation | 2/2 | Complete | 2026-02-20 |
+| 2. Renderers + Secrets | 3/3 | Complete | 2026-02-20 |
+| 3. Diff Engine + CLI | 3/3 | Complete | 2026-02-20 |
