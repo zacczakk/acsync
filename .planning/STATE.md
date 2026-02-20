@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 2 of 3 (Renderers + Secrets)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-20 — Completed 02-01-PLAN.md
+Last activity: 2026-02-20 — Completed 02-02-PLAN.md
 
-Progress: [████████░░] 44%
+Progress: [█████████░] 55%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
+- Total plans completed: 4
 - Average duration: 6min
 - Total execution time: 0.3 hours
 
@@ -28,10 +28,10 @@ Progress: [████████░░] 44%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 2 | 14min | 7min |
-| 02-renderers-secrets | 1 | 2min | 2min |
+| 02-renderers-secrets | 2 | 3min | 1.5min |
 
 **Recent Trend:**
-- Last 5 plans: 6min, 8min, 2min
+- Last 5 plans: 6min, 8min, 2min, 1min
 - Trend: stable
 
 *Updated after each plan completion*
@@ -55,6 +55,9 @@ Recent decisions affecting current work:
 - gemini format identical to claude-code (${VAR})
 - AdapterPathResolver fully expands ~ at construction time
 - Claude command naming: strip zz- prefix, nest under zz/ subdir
+- Gemini TOML hand-crafted for triple-quoted prompt strings (smol-toml can't produce them)
+- gray-matter omits frontmatter delimiters when data object is empty
+- Codex commands and agents both go to ~/.codex/prompts/ directory
 
 ### Pending Todos
 
@@ -68,5 +71,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 02-01-PLAN.md
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
