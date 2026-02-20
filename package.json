@@ -1,4 +1,7 @@
 {
+  "bin": {
+    "acsync": "./src/cli/index.ts"
+  },
   "dependencies": {
     "commander": "^14.0.3",
     "gray-matter": "^4",
