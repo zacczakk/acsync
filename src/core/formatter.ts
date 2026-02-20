@@ -13,6 +13,11 @@ export interface CheckResult {
   hasDrift: boolean;
 }
 
+/** Map internal TargetName to user-facing display name */
+function displayTarget(target: TargetName): string {
+  return target === 'claude-code' ? 'claude' : target;
+}
+
 export function formatDiffJson(results: DiffResult[]): string {
   const targets: Record<
     string,
@@ -24,7 +29,7 @@ export function formatDiffJson(results: DiffResult[]): string {
   let totalSkip = 0;
 
   for (const result of results) {
-    targets[result.target] = {
+    targets[displayTarget(result.target)] = {
       create: result.summary.create,
       update: result.summary.update,
       skip: result.summary.skip,
@@ -55,7 +60,7 @@ export function formatDiffPretty(results: DiffResult[]): string {
   let totalSkip = 0;
 
   for (const result of results) {
-    lines.push(`  ${pc.bold(result.target)}`);
+    lines.push(`  ${pc.bold(displayTarget(result.target))}`);
 
     const creates = result.operations.filter((op) => op.type === 'create');
     const updates = result.operations.filter((op) => op.type === 'update');
@@ -120,7 +125,7 @@ export function formatPushResult(
       if (r.error !== undefined) {
         entry.error = r.error;
       }
-      targets[r.target] = entry;
+      targets[displayTarget(r.target)] = entry;
     }
 
     return (
@@ -142,7 +147,7 @@ export function formatPushResult(
 
   for (const r of results) {
     const status = r.success ? pc.green('✓') : pc.red('✗');
-    lines.push(`  ${status} ${pc.bold(r.target)}`);
+    lines.push(`  ${status} ${pc.bold(displayTarget(r.target))}`);
     if (!r.success && r.error) {
       lines.push(`    ${pc.red(r.error)}`);
     }
