@@ -10,7 +10,7 @@ Build a deterministic CLI that renders canonical agent configs to 4 target CLI f
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Foundation** - Types, infra (atomic writes, backup, hashing), format parsers, exclusion filters
+- [x] **Phase 1: Foundation** - Types, infra (atomic writes, backup, hashing), format parsers, exclusion filters (completed 2026-02-20)
 - [ ] **Phase 2: Renderers + Secrets** - All config rendering for 4 targets + secret injection + env var conversion
 - [ ] **Phase 3: Diff Engine + CLI** - Manifest, 3-way diff, CLI subcommands, output formats, dry-run
 
@@ -25,7 +25,7 @@ Build a deterministic CLI that renders canonical agent configs to 4 target CLI f
   2. File writes are atomic (write to temp → fsync → rename into place)
   3. Timestamped backup copy is created before any file overwrite
   4. `gsd-*` files/directories and non-canonical items are excluded from processing
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 01-01-PLAN.md — Types, errors, exclusion filter, hash, backup, atomic write + tests
@@ -70,6 +70,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/2 | Not started | - |
+| 1. Foundation | 2/2 | Complete   | 2026-02-20 |
 | 2. Renderers + Secrets | 0/3 | Not started | - |
 | 3. Diff Engine + CLI | 0/2 | Not started | - |
