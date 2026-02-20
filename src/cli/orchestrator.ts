@@ -311,12 +311,12 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
 
         sourceItems.push({
           type: 'mcp',
-          name: target,
+          name: 'servers',
           hash: sourceHash,
           targetPath: mcpPath,
         });
         if (targetHash !== null) {
-          targetHashes.set(`mcp/${target}`, targetHash);
+          targetHashes.set('mcp/servers', targetHash);
         }
       }
     }
@@ -333,12 +333,12 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
 
           sourceItems.push({
             type: 'instruction',
-            name: target,
+            name: 'config',
             hash: sourceHash,
             targetPath: instructionsPath,
           });
           if (targetHash !== null) {
-            targetHashes.set(`instruction/${target}`, targetHash);
+            targetHashes.set('instruction/config', targetHash);
           }
         }
       }
