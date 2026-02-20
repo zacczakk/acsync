@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 import { loadManifest, saveManifest, updateManifestItem } from '../core/manifest';
 import { calculateDiff } from '../core/diff';
 import { createBackup, restoreAll, cleanupAll } from '../core/rollback';
-import { formatCheckResult, formatPushResult } from '../core/formatter';
+import { formatCheckResult, formatDryRunResult, formatPushResult } from '../core/formatter';
 import type { PushTargetResult } from '../core/formatter';
 import { atomicWrite } from '../infra/atomic-write';
 import { createExclusionFilter } from '../infra/exclusion';
@@ -431,13 +431,14 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
   }
 
   if (options.dryRun) {
+    const { output, hasDrift } = formatDryRunResult(checkResult.diffs, options.pretty ?? false);
     return {
       diffs: checkResult.diffs,
-      hasDrift: checkResult.hasDrift,
+      hasDrift,
       written: 0,
       failed: 0,
       rolledBack: false,
-      output: checkResult.output,
+      output,
     };
   }
 
