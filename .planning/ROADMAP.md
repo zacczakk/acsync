@@ -13,6 +13,8 @@ Build a deterministic CLI that renders canonical agent configs to 4 target CLI f
 - [x] **Phase 1: Foundation** - Types, infra (atomic writes, backup, hashing), format parsers, exclusion filters (completed 2026-02-20)
 - [x] **Phase 2: Renderers + Secrets** - All config rendering for 4 targets + secret injection + env var conversion (completed 2026-02-20)
 - [x] **Phase 3: Diff Engine + CLI** - Manifest, 3-way diff, CLI subcommands, output formats, dry-run (completed 2026-02-20)
+- [ ] **Phase 4: CLI Subcommands + Test Fixes** - Add render/diff subcommands, --json flag, fix test failures (gap closure)
+- [ ] **Phase 5: Dead Code Cleanup + Integration Hygiene** - Remove dead exports, eliminate double-backup, wire atomicWrite into pull, split orchestrator (gap closure)
 
 ## Phase Details
 
@@ -86,6 +88,37 @@ Plans:
 - [ ] 03-02-PLAN.md — CLI shell + sync orchestrator (Commander.js acsync check/push, --pretty/--dry-run/--force/--target/--type, push orchestration with rollback, exit codes 0/1/2)
 - [ ] 03-03-PLAN.md — MCPorter hybrid setup + E2E verification (trim canonical MCP to 3 servers, update AGENTS.md + addendums, exercise full acsync check→push pipeline)
 
+### Phase 4: CLI Subcommands + Test Fixes
+**Goal**: All CLI interface requirements satisfied — named subcommands exist, flags match spec, tests pass
+**Depends on**: Phase 3
+**Requirements**: CLI-01, CLI-02, CLI-05
+**Gap Closure**: Closes requirement gaps from v1 audit
+**Success Criteria** (what must be TRUE):
+  1. `acsync render` subcommand renders a single canonical config to stdout in target format
+  2. `acsync diff` subcommand exists (alias for check) showing what would change
+  3. `--json` flag accepted on all subcommands (no-op since JSON is default; documents intent)
+  4. Date.now() collision in rollback createBackup fixed (no test failures in tight loops)
+  5. skills.test.ts uses temp directory instead of depending on host environment
+  6. All tests pass: 0 failures
+
+Plans:
+- [ ] 04-01-PLAN.md — Add render + diff subcommands, --json flag, fix 3 test failures
+
+### Phase 5: Dead Code Cleanup + Integration Hygiene
+**Goal**: No dead exports, no redundant operations, orchestrator under 500 LOC, consistent safety guarantees
+**Depends on**: Phase 4
+**Requirements**: None (integration/tech debt closure)
+**Gap Closure**: Closes integration gaps from v1 audit
+**Success Criteria** (what must be TRUE):
+  1. No dead exports remain: pruneBackups, createBackupDir, hashFile, hashDirectory, loadSecrets, injectSecrets, redactSecrets, SecretError, shouldRollback, isSyncError, getErrorSeverity, DiffError all removed or wired in
+  2. Single backup strategy per push (no double-backup)
+  3. pull uses atomicWrite (same crash-safety as push)
+  4. orchestrator.ts split into modules, each <500 LOC
+  5. All tests pass after cleanup
+
+Plans:
+- [ ] 05-01-PLAN.md — Remove dead exports, eliminate double-backup, wire atomicWrite into pull, split orchestrator
+
 ## Progress
 
 **Execution Order:**
@@ -95,4 +128,6 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete | 2026-02-20 |
 | 2. Renderers + Secrets | 3/3 | Complete | 2026-02-20 |
-| 3. Diff Engine + CLI | 5/5 | Complete   | 2026-02-21 |
+| 3. Diff Engine + CLI | 5/5 | Complete | 2026-02-21 |
+| 4. CLI Subcommands + Test Fixes | 0/1 | Pending | — |
+| 5. Dead Code Cleanup + Integration Hygiene | 0/1 | Pending | — |
