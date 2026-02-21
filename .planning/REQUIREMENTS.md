@@ -147,8 +147,8 @@ Deferred to future release. Tracked but not in current roadmap.
 - v1 requirements: 37 total
 - Mapped to phases: 37 ✓
 - Unmapped: 0
-- Satisfied: 34 / Pending: 3 (CLI-01, CLI-02, CLI-05 → Phase 4)
+- Satisfied: 37 / Pending: 0
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-21 after gap closure phase creation*
+*Last updated: 2026-02-22 — all 37 v1 requirements satisfied, milestone complete*
