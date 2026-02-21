@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** Make config sync fast and cheap by moving mechanical transforms into deterministic code
-**Current focus:** Phase 4 — CLI subcommands test fixes (gap closure)
+**Current focus:** Phase 4 complete — CLI subcommands + test fixes (gap closure)
 
 ## Current Position
 
@@ -30,10 +30,10 @@ Progress: [██████████] 100% (All 4 phases complete)
 | 01-foundation | 2 | 14min | 7min |
 | 02-renderers-secrets | 3 | 5min | 1.7min |
 | 03-diff-engine-cli | 5 | 33min | 6.6min |
-| 04-cli-subcommands-test-fixes | 2 | ~8min | 4min |
+| 04-cli-subcommands-test-fixes | 2 | ~23min | 11.5min |
 
 **Recent Trend:**
-- Last 5 plans: 2min, 3min, 10min, 5min, 4min
+- Last 5 plans: 3min, 10min, 5min, 4min, 15min
 - Trend: stable
 
 *Updated after each plan completion*
@@ -76,6 +76,8 @@ Recent decisions affecting current work:
 - [Phase 03-diff-engine-cli]: Write ${VAR} placeholders as-is; no injectSecrets in runPush — each CLI reads env vars natively; manifest hashes match on-disk hashes
 - [Phase 04-cli-subcommands-test-fixes]: Module-level counter for collision-safe backup filenames
 - [Phase 04-cli-subcommands-test-fixes]: Adapter tests use temp fixtures via getPaths() override, not host filesystem
+- [Phase 04-cli-subcommands-test-fixes]: Exported orchestrator internals (createAdapter, read*) for render/diff subcommands
+- [Phase 04-cli-subcommands-test-fixes]: LCS-based unified diff instead of npm diff package
 
 ### Pending Todos
 
@@ -89,5 +91,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed 04-02-PLAN.md. All phases + gap closure complete. 435/435 tests pass.
+Stopped at: Completed 04-01-PLAN.md (render + diff subcommands, --json flag). 448/448 tests pass.
 Resume file: None
