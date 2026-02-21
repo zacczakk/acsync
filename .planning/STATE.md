@@ -6,14 +6,14 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** Make config sync fast and cheap by moving mechanical transforms into deterministic code
 **Core value:** Make config sync fast and cheap by moving mechanical transforms into deterministic code
-**Current focus:** Phase 3 complete — all phases done
+**Current focus:** Phase 3 complete — all phases done (gap closure plans included)
 
 ## Current Position
 
 Phase: 3 of 3 (Diff Engine + CLI)
-Plan: 3 of 3 in current phase
+Plan: 5 of 5 in current phase (includes gap closure 03-04, 03-05)
 Status: Complete
-Last activity: 2026-02-20 — Completed 03-03-PLAN.md (enabled:false + E2E)
+Last activity: 2026-02-21 — Completed 03-04-PLAN.md (Claude path fix + push --delete)
 
 Progress: [██████████] 100% (All 3 phases complete)
 
@@ -30,11 +30,11 @@ Progress: [██████████] 100% (All 3 phases complete)
 |-------|-------|-------|----------|
 | 01-foundation | 2 | 14min | 7min |
 | 02-renderers-secrets | 3 | 5min | 1.7min |
-| 03-diff-engine-cli | 3 | 28min | 9.3min |
+| 03-diff-engine-cli | 5 | 33min | 6.6min |
 
 **Recent Trend:**
-- Last 5 plans: 1min, 2min, 3min, 10min, 15min
-- Trend: increasing (integration + E2E verification costs)
+- Last 5 plans: 1min, 2min, 3min, 10min, 5min
+- Trend: stable (gap closure plan)
 
 *Updated after each plan completion*
 
@@ -71,6 +71,9 @@ Recent decisions affecting current work:
 - getPaths() added to BaseAdapter (needed for orchestrator path resolution)
 - Orchestrator hashes rendered content (not source files) for diff comparison
 - Per-test unique salts in integration tests (push writes to real filesystem)
+- [Phase 03-diff-engine-cli]: Claude commands go to ~/.claude/commands/{name}.md — no zz/ nesting, no prefix logic
+- [Phase 03-diff-engine-cli]: Stale deletion opt-in via --delete flag; omitting skips deletes (safe default)
+- [Phase 03-diff-engine-cli]: Write ${VAR} placeholders as-is; no injectSecrets in runPush — each CLI reads env vars natively; manifest hashes match on-disk hashes
 
 ### Pending Todos
 
@@ -83,6 +86,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-20
-Stopped at: All phases complete. Milestone done.
+Last session: 2026-02-21
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None
