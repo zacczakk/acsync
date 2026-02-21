@@ -2,6 +2,8 @@
 import { Command } from 'commander';
 import { checkCommand } from './check';
 import { pushCommand } from './push';
+import { pullCommand } from './pull';
+import { renderCommand } from './render';
 
 const program = new Command()
   .name('acsync')
@@ -10,6 +12,8 @@ const program = new Command()
 
 program.addCommand(checkCommand);
 program.addCommand(pushCommand);
+program.addCommand(pullCommand);
+program.addCommand(renderCommand);
 
 // Allow proper exit codes from subcommands (don't let Commander swallow process.exit)
 program.exitOverride();
