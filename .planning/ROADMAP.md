@@ -13,8 +13,8 @@ Build a deterministic CLI that renders canonical agent configs to 4 target CLI f
 - [x] **Phase 1: Foundation** - Types, infra (atomic writes, backup, hashing), format parsers, exclusion filters (completed 2026-02-20)
 - [x] **Phase 2: Renderers + Secrets** - All config rendering for 4 targets + secret injection + env var conversion (completed 2026-02-20)
 - [x] **Phase 3: Diff Engine + CLI** - Manifest, 3-way diff, CLI subcommands, output formats, dry-run (completed 2026-02-20)
-- [ ] **Phase 4: CLI Subcommands + Test Fixes** - Add render/diff subcommands, --json flag, fix test failures (gap closure)
-- [ ] **Phase 5: Dead Code Cleanup + Integration Hygiene** - Remove dead exports, eliminate double-backup, wire atomicWrite into pull, split orchestrator (gap closure)
+- [x] **Phase 4: CLI Subcommands + Test Fixes** - Add render/diff subcommands, --json flag, fix test failures (gap closure) (completed 2026-02-21)
+- [x] **Phase 5: Dead Code Cleanup + Integration Hygiene** - Remove dead exports, eliminate double-backup, wire atomicWrite into pull, split orchestrator (gap closure) (completed 2026-02-22)
 
 ## Phase Details
 
@@ -134,5 +134,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | 1. Foundation | 2/2 | Complete | 2026-02-20 |
 | 2. Renderers + Secrets | 3/3 | Complete | 2026-02-20 |
 | 3. Diff Engine + CLI | 5/5 | Complete | 2026-02-21 |
-| 4. CLI Subcommands + Test Fixes | 0/1 | Pending | — |
-| 5. Dead Code Cleanup + Integration Hygiene | 0/2 | Pending | — |
+| 4. CLI Subcommands + Test Fixes | 2/2 | Complete | 2026-02-21 |
+| 5. Dead Code Cleanup + Integration Hygiene | 2/2 | Complete | 2026-02-22 |
