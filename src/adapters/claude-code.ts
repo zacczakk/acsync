@@ -20,7 +20,6 @@ export class ClaudeCodeAdapter extends BaseAdapter {
   renderCommand(item: CanonicalItem): RenderedFile {
     // All frontmatter keys pass through verbatim (description, argument-hint, allowed-tools)
     // Body is verbatim — no modifications
-    // Path naming: strip zz- prefix, nest under zz/ (handled by PathResolver)
     const content = stringifyFrontmatter(item.content, item.metadata);
     return {
       relativePath: this.paths.getCommandFilePath(item.name),

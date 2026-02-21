@@ -18,9 +18,9 @@ const baseItem = {
 };
 
 describe('ClaudeCodeAdapter.renderCommand', () => {
-  it('strips zz- prefix and nests under zz/ directory', () => {
+  it('nests directly under commands/ directory', () => {
     const result = adapter.renderCommand(baseItem);
-    const expected = path.join(HOME, '.claude/commands/zz/plan.md');
+    const expected = path.join(HOME, '.claude/commands/zz-plan.md');
     expect(result.relativePath).toBe(expected);
   });
 
@@ -39,7 +39,7 @@ describe('ClaudeCodeAdapter.renderCommand', () => {
   it('handles item without zz- prefix', () => {
     const item = { ...baseItem, name: 'mycommand' };
     const result = adapter.renderCommand(item);
-    expect(result.relativePath).toBe(path.join(HOME, '.claude/commands/zz/mycommand.md'));
+    expect(result.relativePath).toBe(path.join(HOME, '.claude/commands/mycommand.md'));
   });
 
   it('produces valid frontmatter wrapped output', () => {
