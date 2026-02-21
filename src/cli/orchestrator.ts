@@ -69,6 +69,7 @@ export interface OrchestratorPullResult {
   pulled: number;
   skipped: number;
   dryRun: boolean;
+  rolledBack: boolean;
   output: string;
 }
 
@@ -765,13 +766,12 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
 
   const items: PullItem[] = [];
 
-  // Pull commands
+  // Collect items to pull (discovery pass)
   const commandNames = await adapter.listExistingCommandNames();
   for (const name of commandNames) {
     if (isExcluded(name)) continue;
     if (options.onlyKeys && !options.onlyKeys.has(`command/${name}`)) continue;
 
-    const filePath = paths.getCommandFilePath(name);
     const targetPath = join(projectDir, 'configs', 'common', 'commands', `${name}.md`);
 
     if (!options.force && existingCommandNames.has(name)) {
@@ -780,23 +780,13 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
     }
 
     items.push({ type: 'command', name, action: 'create', targetPath });
-
-    if (!options.dryRun) {
-      const content = await readFile(filePath, 'utf-8');
-      const canonical = adapter.parseCommand(name, content);
-      const output = stringifyFrontmatter(canonical.content, canonical.metadata);
-      await mkdir(join(projectDir, 'configs', 'common', 'commands'), { recursive: true });
-      await Bun.write(targetPath, output);
-    }
   }
 
-  // Pull agents
   const agentNames = await adapter.listExistingAgentNames();
   for (const name of agentNames) {
     if (isExcluded(name)) continue;
     if (options.onlyKeys && !options.onlyKeys.has(`agent/${name}`)) continue;
 
-    const filePath = paths.getAgentFilePath(name);
     const targetPath = join(projectDir, 'configs', 'common', 'agents', `${name}.md`);
 
     if (!options.force && existingAgentNames.has(name)) {
@@ -805,17 +795,8 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
     }
 
     items.push({ type: 'agent', name, action: 'create', targetPath });
-
-    if (!options.dryRun) {
-      const content = await readFile(filePath, 'utf-8');
-      const canonical = adapter.parseAgent(name, content);
-      const output = stringifyFrontmatter(canonical.content, canonical.metadata);
-      await mkdir(join(projectDir, 'configs', 'common', 'agents'), { recursive: true });
-      await Bun.write(targetPath, output);
-    }
   }
 
-  // Pull skills (if target supports them)
   const caps = adapter.getCapabilities();
   if (caps.skills) {
     const skillNames = await adapter.listExistingSkillNames();
@@ -831,27 +812,65 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
       }
 
       items.push({ type: 'skill', name, action: 'create', targetPath });
-
-      if (!options.dryRun) {
-        const skill = await adapter.readSkill(name);
-        const output = stringifyFrontmatter(skill.content, skill.metadata);
-        const skillDir = join(projectDir, 'configs', 'common', 'skills', name);
-        await mkdir(skillDir, { recursive: true });
-        await Bun.write(join(skillDir, 'SKILL.md'), output);
-        if (skill.supportFiles && skill.supportFiles.length > 0) {
-          await writeSupportFiles(skillDir, skill.supportFiles);
-        }
-      }
     }
   }
 
   const pulled = items.filter((i) => i.action === 'create').length;
   const skipped = items.filter((i) => i.action === 'skip').length;
 
-  // Format output
-  const output = formatPullResult(items, options.source, options.pretty ?? false, options.dryRun ?? false);
+  // Dry-run: skip writes
+  if (options.dryRun) {
+    const output = formatPullResult(items, options.source, options.pretty ?? false, true);
+    return { items, pulled, skipped, dryRun: true, rolledBack: false, output };
+  }
 
-  return { items, pulled, skipped, dryRun: options.dryRun ?? false, output };
+  // Write pass with rollback
+  const allBackups: BackupInfo[] = [];
+  let rolledBack = false;
+
+  try {
+    for (const item of items) {
+      if (item.action !== 'create') continue;
+
+      const backup = await createBackup(item.targetPath);
+      allBackups.push(backup);
+
+      if (item.type === 'command') {
+        const filePath = paths.getCommandFilePath(item.name);
+        const content = await readFile(filePath, 'utf-8');
+        const canonical = adapter.parseCommand(item.name, content);
+        const rendered = stringifyFrontmatter(canonical.content, canonical.metadata);
+        await mkdir(join(projectDir, 'configs', 'common', 'commands'), { recursive: true });
+        await atomicWrite(item.targetPath, rendered);
+      } else if (item.type === 'agent') {
+        const filePath = paths.getAgentFilePath(item.name);
+        const content = await readFile(filePath, 'utf-8');
+        const canonical = adapter.parseAgent(item.name, content);
+        const rendered = stringifyFrontmatter(canonical.content, canonical.metadata);
+        await mkdir(join(projectDir, 'configs', 'common', 'agents'), { recursive: true });
+        await atomicWrite(item.targetPath, rendered);
+      } else if (item.type === 'skill') {
+        const skill = await adapter.readSkill(item.name);
+        const rendered = stringifyFrontmatter(skill.content, skill.metadata);
+        const skillDir = join(projectDir, 'configs', 'common', 'skills', item.name);
+        await mkdir(skillDir, { recursive: true });
+        await atomicWrite(join(skillDir, 'SKILL.md'), rendered);
+        if (skill.supportFiles && skill.supportFiles.length > 0) {
+          await writeSupportFiles(skillDir, skill.supportFiles);
+        }
+      }
+    }
+
+    await cleanupAll(allBackups);
+  } catch (err) {
+    console.error(`Pull failed: ${err instanceof Error ? err.message : String(err)}`);
+    console.error('Rolling back...');
+    await restoreAll(allBackups);
+    rolledBack = true;
+  }
+
+  const output = formatPullResult(items, options.source, options.pretty ?? false, false);
+  return { items, pulled, skipped, dryRun: false, rolledBack, output };
 }
 
 export interface PullAllOptions {
@@ -910,7 +929,7 @@ export async function runPullAll(options: PullAllOptions = {}): Promise<Orchestr
   // Dry-run: just format and return
   if (options.dryRun) {
     const output = formatPullAllResult(allItems, options.pretty ?? false, true);
-    return { items: allItems, pulled: totalPulled, skipped: totalSkipped, dryRun: true, output };
+    return { items: allItems, pulled: totalPulled, skipped: totalSkipped, dryRun: true, rolledBack: false, output };
   }
 
   // Write pass: pull each target's winners only via onlyKeys filter.
@@ -927,7 +946,7 @@ export async function runPullAll(options: PullAllOptions = {}): Promise<Orchestr
   }
 
   const output = formatPullAllResult(allItems, options.pretty ?? false, false);
-  return { items: allItems, pulled: totalPulled, skipped: totalSkipped, dryRun: false, output };
+  return { items: allItems, pulled: totalPulled, skipped: totalSkipped, dryRun: false, rolledBack: false, output };
 }
 
 function formatPullAllResult(
