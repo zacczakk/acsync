@@ -49,11 +49,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### CLI Interface
 
-- [x] **CLI-01**: `render` subcommand — render a canonical config to a specific target format, output to stdout or file
-- [x] **CLI-02**: `diff` subcommand — show what would change for one or all targets
+- [ ] **CLI-01**: `render` subcommand — render a canonical config to a specific target format, output to stdout or file
+- [ ] **CLI-02**: `diff` subcommand — show what would change for one or all targets
 - [x] **CLI-03**: `push` subcommand — render + write to target locations
 - [x] **CLI-04**: `check` subcommand — diff-only, exit non-zero if drift detected
-- [x] **CLI-05**: `--json` flag on all subcommands for structured output
+- [ ] **CLI-05**: `--json` flag on all subcommands for structured output
 - [x] **CLI-06**: `--dry-run` flag on push (compute + display, no writes)
 - [x] **CLI-07**: `--target` flag to scope to specific CLI (e.g., `--target claude`)
 - [x] **CLI-08**: `--type` flag to scope to config type (e.g., `--type commands`, `--type mcp`)
@@ -133,11 +133,11 @@ Deferred to future release. Tracked but not in current roadmap.
 | DIFF-05 | Phase 3 | Complete |
 | FILE-03 | Phase 3 | Complete |
 | FILE-04 | Phase 3 | Complete |
-| CLI-01 | Phase 3 | Complete |
-| CLI-02 | Phase 3 | Complete |
+| CLI-01 | Phase 4 | Pending |
+| CLI-02 | Phase 4 | Pending |
 | CLI-03 | Phase 3 | Complete |
 | CLI-04 | Phase 3 | Complete |
-| CLI-05 | Phase 3 | Complete |
+| CLI-05 | Phase 4 | Pending |
 | CLI-06 | Phase 3 | Complete |
 | CLI-07 | Phase 3 | Complete |
 | CLI-08 | Phase 3 | Complete |
@@ -147,7 +147,8 @@ Deferred to future release. Tracked but not in current roadmap.
 - v1 requirements: 37 total
 - Mapped to phases: 37 ✓
 - Unmapped: 0
+- Satisfied: 34 / Pending: 3 (CLI-01, CLI-02, CLI-05 → Phase 4)
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-20 after roadmap phase mapping*
+*Last updated: 2026-02-21 after gap closure phase creation*
