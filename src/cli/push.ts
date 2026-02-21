@@ -21,6 +21,7 @@ export const pushCommand = new Command('push')
   .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills', collect, [] as string[])
   .option('--dry-run', 'Show execution plan without writing')
   .option('--force', 'Skip confirmation prompt')
+  .option('--delete', 'Delete stale target files not in canonical source (default: skip)')
   .action(
     async (options: {
       pretty?: boolean;
@@ -28,6 +29,7 @@ export const pushCommand = new Command('push')
       type: string[];
       dryRun?: boolean;
       force?: boolean;
+      delete?: boolean;
     }) => {
       try {
         validateTargets(options.target);
@@ -39,6 +41,7 @@ export const pushCommand = new Command('push')
           dryRun: options.dryRun,
           force: options.force,
           pretty: options.pretty,
+          deleteStale: options.delete,
         };
 
         // Dry-run: show plan without confirmation or writing
@@ -69,7 +72,7 @@ export const pushCommand = new Command('push')
           }
         }
 
-        const result = await runPush({ ...syncOpts, force: true });
+        const result = await runPush({ ...syncOpts, force: true, deleteStale: options.delete });
         process.stdout.write(result.output + '\n');
         process.exit(result.failed > 0 ? 1 : 0);
       } catch (err) {
