@@ -17,6 +17,7 @@ async function confirm(question: string): Promise<boolean> {
 export const pushCommand = new Command('push')
   .description('Render and write configs to target locations')
   .option('--pretty', 'Human-readable colored output (default: JSON)')
+  .option('--json', 'Output JSON (default behavior, explicit for scripts)')
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
   .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills', collect, [] as string[])
   .option('--dry-run', 'Show execution plan without writing')
