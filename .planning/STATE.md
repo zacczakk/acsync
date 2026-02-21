@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** Make config sync fast and cheap by moving mechanical transforms into deterministic code
-**Current focus:** Phase 4 complete — CLI subcommands + test fixes (gap closure)
+**Current focus:** Phase 5 in progress — dead code cleanup + integration consolidation
 
 ## Current Position
 
-Phase: 4 of 4 (CLI Subcommands Test Fixes)
-Plan: 2 of 2 in current phase
-Status: Complete
-Last activity: 2026-02-21 — Completed 04-02-PLAN.md (test fixes: rollback collision + skills host dependency)
+Phase: 5 of 5 (Dead Code Cleanup Integration)
+Plan: 1 of 2 in current phase
+Status: In Progress
+Last activity: 2026-02-21 — Completed 05-01-PLAN.md (dead code removal + backup consolidation)
 
-Progress: [██████████] 100% (All 4 phases complete)
+Progress: [█████████▒] 93% (13 of 14 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
+- Total plans completed: 13
 - Average duration: 5min
-- Total execution time: ~0.8 hours
+- Total execution time: ~0.9 hours
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: [██████████] 100% (All 4 phases complete)
 | 02-renderers-secrets | 3 | 5min | 1.7min |
 | 03-diff-engine-cli | 5 | 33min | 6.6min |
 | 04-cli-subcommands-test-fixes | 2 | ~23min | 11.5min |
+| 05-dead-code-cleanup-integration | 1 | 7min | 7min |
 
 **Recent Trend:**
-- Last 5 plans: 3min, 10min, 5min, 4min, 15min
+- Last 5 plans: 10min, 5min, 4min, 15min, 7min
 - Trend: stable
 
 *Updated after each plan completion*
@@ -46,8 +47,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 - Ported vsync ErrorSeverity/SyncError pattern with operation+path context
-- hashFile uses raw bytes — diverges from vsync's model-level hashing
-- atomicWrite ported from vsync with backup-first addition
+- atomicWrite is pure atomic (temp+fsync+rename, no backup side-effect)
 - Format parsers are pure string-in/string-out (no file I/O)
 - JSONC comment preservation via jsonc-parser modify+applyEdits
 - smol-toml over @iarna/toml (TOML 1.1, smaller)
@@ -65,7 +65,7 @@ Recent decisions affecting current work:
 - OpenCode MCP uses modifyJsonc for comment preservation + {env:VAR} conversion
 - Manifest path: .acsync/manifest.json in project root (simpler than vsync's ~/.vsync/cache/<hash>/)
 - No delete operation type — safe mode only per EXCL-02
-- saveManifest uses .acsync/backups as backupDir to satisfy atomicWrite signature
+- Rollback backups use os.tmpdir() (not .acsync/backups/)
 - picocolors over chalk — lighter, no dependencies
 - restoreAll processes in reverse order — last written restored first
 - getPaths() added to BaseAdapter (needed for orchestrator path resolution)
@@ -78,6 +78,8 @@ Recent decisions affecting current work:
 - [Phase 04-cli-subcommands-test-fixes]: Adapter tests use temp fixtures via getPaths() override, not host filesystem
 - [Phase 04-cli-subcommands-test-fixes]: Exported orchestrator internals (createAdapter, read*) for render/diff subcommands
 - [Phase 04-cli-subcommands-test-fixes]: LCS-based unified diff instead of npm diff package
+- [Phase 05-dead-code-cleanup-integration]: Deleted backup.ts entirely — backupFile had no remaining callers
+- [Phase 05-dead-code-cleanup-integration]: DiffError confirmed dead (zero imports) — removed
 
 ### Pending Todos
 
@@ -91,5 +93,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed 04-01-PLAN.md (render + diff subcommands, --json flag). 448/448 tests pass.
+Stopped at: Completed 05-01-PLAN.md (dead code removal + backup consolidation). 414/414 tests pass.
 Resume file: None
