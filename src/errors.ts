@@ -88,38 +88,6 @@ export class ParseError extends SyncError {
   }
 }
 
-export class SecretError extends SyncError {
-  public readonly operation: string;
-  public readonly path: string;
-
-  constructor(message: string, context: ErrorContext) {
-    super(message, ErrorSeverity.WARNING, {
-      operation: context.operation,
-      path: context.path,
-    });
-    this.name = 'SecretError';
-    this.operation = context.operation;
-    this.path = context.path;
-    this.cause = context.cause;
-  }
-}
-
-export class DiffError extends SyncError {
-  public readonly operation: string;
-  public readonly path: string;
-
-  constructor(message: string, context: ErrorContext) {
-    super(message, ErrorSeverity.RECOVERABLE, {
-      operation: context.operation,
-      path: context.path,
-    });
-    this.name = 'DiffError';
-    this.operation = context.operation;
-    this.path = context.path;
-    this.cause = context.cause;
-  }
-}
-
 export class ManifestError extends SyncError {
   public readonly operation: string;
   public readonly path: string;
@@ -152,17 +120,4 @@ export class RollbackError extends SyncError {
   }
 }
 
-export function shouldRollback(error: unknown): boolean {
-  return getErrorSeverity(error) === ErrorSeverity.FATAL;
-}
 
-export function isSyncError(error: unknown): error is SyncError {
-  return error instanceof SyncError;
-}
-
-export function getErrorSeverity(error: unknown): ErrorSeverity {
-  if (isSyncError(error)) {
-    return error.severity;
-  }
-  return ErrorSeverity.FATAL;
-}
