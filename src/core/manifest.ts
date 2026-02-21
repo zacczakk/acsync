@@ -1,5 +1,4 @@
-import { readFile } from 'node:fs/promises';
-import { mkdir } from 'node:fs/promises';
+import { readFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { cwd } from 'node:process';
 import { atomicWrite } from '../infra/atomic-write';
@@ -56,14 +55,13 @@ export async function loadManifest(projectDir?: string): Promise<Manifest> {
 export async function saveManifest(manifest: Manifest, projectDir?: string): Promise<void> {
   const manifestPath = getManifestPath(projectDir);
   const acsyncDir = join(projectDir ?? cwd(), '.acsync');
-  const backupDir = join(acsyncDir, 'backups');
 
   manifest.lastSynced = new Date().toISOString();
   const content = JSON.stringify(manifest, null, 2) + '\n';
 
   try {
     await mkdir(acsyncDir, { recursive: true });
-    await atomicWrite(manifestPath, content, backupDir);
+    await atomicWrite(manifestPath, content);
   } catch (error) {
     if (error instanceof ManifestError) throw error;
     throw new ManifestError(

@@ -643,8 +643,7 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
           }
 
           // Write atomically
-          const backupDir = join(projectDir, '.acsync', 'backups');
-          await atomicWrite(op.targetPath, content, backupDir);
+          await atomicWrite(op.targetPath, content);
           writtenPaths.add(op.targetPath);
           totalWritten++;
         }
