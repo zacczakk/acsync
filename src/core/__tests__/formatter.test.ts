@@ -302,17 +302,16 @@ describe('MCP warnings', () => {
     expect(parsed.targets.claude.mcpWarning).toBeUndefined();
   });
 
-  test('formatDiffPretty shows remove warning', () => {
+  test('formatDiffPretty shows per-server removal lines', () => {
     const results = [makeResultWithWarning('claude-code', 'remove', ['chrome-devtools', 'shadcn'])];
     const output = formatDiffPretty(results);
-    expect(output).toContain('non-canonical');
-    expect(output).toContain('removed on push');
+    expect(output).toContain('[mcp]');
     expect(output).toContain('chrome-devtools');
     expect(output).toContain('shadcn');
+    expect(output).toContain('(removed)');
   });
 
-  test('formatDiffPretty shows orphan warning when action is orphan', () => {
-    // Hypothetical adapter that merges instead of overwrites
+  test('formatDiffPretty shows orphan lines', () => {
     const result: DiffResult = {
       target: 'opencode',
       operations: [{ ...makeOp('update', 'context7', 'opencode'), itemType: 'mcp' }],
@@ -320,17 +319,22 @@ describe('MCP warnings', () => {
       mcpWarning: { serverNames: ['old-mcp'], action: 'orphan' },
     };
     const output = formatDiffPretty([result]);
-    expect(output).toContain('non-canonical');
-    expect(output).toContain('orphans');
     expect(output).toContain('old-mcp');
+    expect(output).toContain('(orphaned)');
   });
 
-  test('formatDryRunPretty shows remove warning', () => {
+  test('formatDiffPretty summary includes removal count', () => {
+    const results = [makeResultWithWarning('claude-code', 'remove', ['a', 'b', 'c'])];
+    const output = formatDiffPretty(results);
+    expect(output).toContain('3 to remove');
+  });
+
+  test('formatDryRunPretty shows per-server removal lines', () => {
     const results = [makeResultWithWarning('claude-code', 'remove', ['legacy'])];
     const output = formatDryRunPretty(results);
-    expect(output).toContain('non-canonical');
-    expect(output).toContain('removed');
+    expect(output).toContain('[mcp]');
     expect(output).toContain('legacy');
+    expect(output).toContain('remove');
   });
 
   test('formatDryRunJson includes warnings array', () => {

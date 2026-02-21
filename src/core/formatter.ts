@@ -60,6 +60,7 @@ export function formatDiffPretty(results: DiffResult[]): string {
   let totalCreate = 0;
   let totalUpdate = 0;
   let totalSkip = 0;
+  let totalRemove = 0;
 
   for (const result of results) {
     lines.push(`  ${pc.bold(displayTarget(result.target))}`);
@@ -90,15 +91,11 @@ export function formatDiffPretty(results: DiffResult[]): string {
     }
 
     if (result.mcpWarning) {
-      const w = result.mcpWarning;
-      const names = w.serverNames.join(', ');
-      if (w.action === 'remove') {
+      const suffix = result.mcpWarning.action === 'remove' ? 'removed' : 'orphaned';
+      for (const name of result.mcpWarning.serverNames) {
+        const label = '[mcp]'.padEnd(14);
         lines.push(
-          `    ${pc.yellow('⚠')} ${pc.yellow(`${w.serverNames.length} non-canonical server(s) will be removed on push: ${names}`)}`,
-        );
-      } else {
-        lines.push(
-          `    ${pc.yellow('⚠')} ${pc.yellow(`${w.serverNames.length} non-canonical server(s) will remain as orphans: ${names}`)}`,
+          `    ${pc.red('−')} ${label} ${name.padEnd(30)} ${pc.dim(`(${suffix})`)}`,
         );
       }
     }
@@ -108,6 +105,7 @@ export function formatDiffPretty(results: DiffResult[]): string {
     totalCreate += result.summary.create;
     totalUpdate += result.summary.update;
     totalSkip += result.summary.skip;
+    totalRemove += result.mcpWarning?.serverNames.length ?? 0;
   }
 
   const summaryParts: string[] = [];
@@ -115,6 +113,8 @@ export function formatDiffPretty(results: DiffResult[]): string {
     summaryParts.push(pc.green(`${totalCreate} to create`));
   if (totalUpdate > 0)
     summaryParts.push(pc.yellow(`${totalUpdate} to update`));
+  if (totalRemove > 0)
+    summaryParts.push(pc.red(`${totalRemove} to remove`));
   if (totalSkip > 0) summaryParts.push(pc.dim(`${totalSkip} up to date`));
 
   lines.push(`  Summary: ${summaryParts.join(', ')}`);
@@ -246,16 +246,12 @@ export function formatDryRunPretty(results: DiffResult[]): string {
     }
 
     if (result.mcpWarning) {
-      const w = result.mcpWarning;
-      const names = w.serverNames.join(', ');
-      if (w.action === 'remove') {
-        lines.push(
-          `    ${pc.yellow('⚠')} ${pc.yellow(`${w.serverNames.length} non-canonical server(s) will be removed: ${names}`)}`,
-        );
-      } else {
-        lines.push(
-          `    ${pc.yellow('⚠')} ${pc.yellow(`${w.serverNames.length} non-canonical server(s) will remain as orphans: ${names}`)}`,
-        );
+      const suffix = result.mcpWarning.action === 'remove' ? 'remove' : 'orphan';
+      for (const name of result.mcpWarning.serverNames) {
+        const label = '[mcp]'.padEnd(14);
+        const path = result.operations.find((op) => op.itemType === 'mcp')?.targetPath;
+        const pathStr = path ? pc.dim(tildify(path)) : '';
+        lines.push(`    ${pc.red('−')} ${label} ${name.padEnd(24)} ${pc.dim(suffix)}  → ${pathStr}`);
       }
     }
 
