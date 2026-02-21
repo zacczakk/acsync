@@ -79,7 +79,7 @@ Plans:
   5. `--target` and `--type` flags scope operations; exit codes are 0=success, 1=error, 2=drift
   6. Push failure triggers full rollback — all files written in that run are restored to pre-push state
   7. MCPorter hybrid setup is operational: 3 native MCP servers rendered, 4 servers routed through mcporter
-**Plans:** 3 plans
+**Plans:** 5/5 plans complete
 
 Plans:
 - [ ] 03-01-PLAN.md — Manifest manager + 3-way diff engine + rollback + output formatters (types, compareHashes/calculateDiff, BackupInfo/restoreAll, JSON+pretty formatters via picocolors)
@@ -95,4 +95,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete | 2026-02-20 |
 | 2. Renderers + Secrets | 3/3 | Complete | 2026-02-20 |
-| 3. Diff Engine + CLI | 3/3 | Complete | 2026-02-20 |
+| 3. Diff Engine + CLI | 5/5 | Complete   | 2026-02-21 |
