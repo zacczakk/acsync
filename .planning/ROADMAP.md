@@ -118,9 +118,11 @@ Plans:
   3. pull uses atomicWrite (same crash-safety as push)
   4. orchestrator.ts split into modules, each <500 LOC
   5. All tests pass after cleanup
+**Plans:** 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Remove dead exports, eliminate double-backup, wire atomicWrite into pull, split orchestrator
+- [ ] 05-01-PLAN.md — Dead code removal + backup consolidation (remove 12 dead exports, strip backup from atomicWrite, single rollback strategy)
+- [ ] 05-02-PLAN.md — Pull safety + orchestrator split (wire atomicWrite/rollback into pull, split orchestrator into canonical.ts/sync-check.ts/sync-push.ts/sync-pull.ts)
 
 ## Progress
 
@@ -133,4 +135,4 @@ Phases execute in numeric order: 1 → 2 → 3
 | 2. Renderers + Secrets | 3/3 | Complete | 2026-02-20 |
 | 3. Diff Engine + CLI | 5/5 | Complete | 2026-02-21 |
 | 4. CLI Subcommands + Test Fixes | 0/1 | Pending | — |
-| 5. Dead Code Cleanup + Integration Hygiene | 0/1 | Pending | — |
+| 5. Dead Code Cleanup + Integration Hygiene | 0/2 | Pending | — |
