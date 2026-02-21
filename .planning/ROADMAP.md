@@ -101,8 +101,11 @@ Plans:
   5. skills.test.ts uses temp directory instead of depending on host environment
   6. All tests pass: 0 failures
 
+**Plans:** 2 plans
+
 Plans:
-- [ ] 04-01-PLAN.md — Add render + diff subcommands, --json flag, fix 3 test failures
+- [ ] 04-01-PLAN.md — Add render + diff subcommands, --json flag
+- [ ] 04-02-PLAN.md — Fix Date.now() collision in rollback + skills.test.ts host dependency
 
 ### Phase 5: Dead Code Cleanup + Integration Hygiene
 **Goal**: No dead exports, no redundant operations, orchestrator under 500 LOC, consistent safety guarantees
