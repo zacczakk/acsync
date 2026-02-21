@@ -72,9 +72,9 @@ export interface OrchestratorPullResult {
   output: string;
 }
 
-const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'gemini', 'codex'];
+export const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'gemini', 'codex'];
 
-function createAdapter(target: TargetName): ToolAdapter {
+export function createAdapter(target: TargetName): ToolAdapter {
   switch (target) {
     case 'claude-code': return new ClaudeCodeAdapter();
     case 'opencode':    return new OpenCodeAdapter();
@@ -91,7 +91,7 @@ function hashContent(content: string): string {
  * Read canonical commands from configs/common/commands/*.md
  * Returns CanonicalItem[] with name from filename (without .md)
  */
-async function readCanonicalCommands(
+export async function readCanonicalCommands(
   projectDir: string,
   isExcluded: (name: string) => boolean,
 ): Promise<CanonicalItem[]> {
@@ -119,7 +119,7 @@ async function readCanonicalCommands(
 /**
  * Read canonical agents from configs/common/agents/*.md
  */
-async function readCanonicalAgents(
+export async function readCanonicalAgents(
   projectDir: string,
   isExcluded: (name: string) => boolean,
 ): Promise<CanonicalItem[]> {
@@ -147,7 +147,7 @@ async function readCanonicalAgents(
 /**
  * Read canonical MCP servers from configs/common/mcp/*.json
  */
-async function readCanonicalMCPServers(projectDir: string): Promise<MCPServer[]> {
+export async function readCanonicalMCPServers(projectDir: string): Promise<MCPServer[]> {
   const dir = join(projectDir, 'configs', 'common', 'mcp');
   let entries: string[];
   try {
@@ -177,7 +177,7 @@ async function readCanonicalMCPServers(projectDir: string): Promise<MCPServer[]>
 /**
  * Read canonical instructions: base AGENTS.md + CLI-specific addendum
  */
-async function readCanonicalInstructions(
+export async function readCanonicalInstructions(
   projectDir: string,
   target: TargetName,
 ): Promise<{ base: string; addendum: string } | null> {
@@ -205,7 +205,7 @@ async function readCanonicalInstructions(
  * Read canonical skills from configs/common/skills/ directories
  * Each skill is a directory with a SKILL.md file
  */
-async function readCanonicalSkills(
+export async function readCanonicalSkills(
   projectDir: string,
   isExcluded: (name: string) => boolean,
 ): Promise<CanonicalItem[]> {
