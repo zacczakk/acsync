@@ -4,6 +4,8 @@ import { dirname, join, basename } from 'node:path';
 import { atomicWrite } from '../infra/atomic-write';
 import { RollbackError } from '../errors';
 
+let backupCounter = 0;
+
 export interface BackupInfo {
   originalPath: string;
   backupPath: string; // empty if file didn't exist
@@ -28,7 +30,7 @@ export async function createBackup(filePath: string): Promise<BackupInfo> {
 
   const dir = dirname(filePath);
   const file_ = basename(filePath);
-  const backupFileName = `.acsync-backup-${Date.now()}-${file_}`;
+  const backupFileName = `.acsync-backup-${Date.now()}-${backupCounter++}-${file_}`;
   const backupPath = join(dir, backupFileName);
 
   try {
