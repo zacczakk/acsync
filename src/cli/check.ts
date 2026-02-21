@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { Command } from 'commander';
-import { runCheck } from './orchestrator';
+import { runCheck } from './sync-check';
 import { mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
 
 export const checkCommand = new Command('check')

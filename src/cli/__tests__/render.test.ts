@@ -7,7 +7,7 @@ import {
   readCanonicalSkills,
   readCanonicalMCPServers,
   readCanonicalInstructions,
-} from '../orchestrator';
+} from '../canonical';
 import { createExclusionFilter } from '../../infra/exclusion';
 
 const projectDir = join(import.meta.dir, '..', '..', '..');

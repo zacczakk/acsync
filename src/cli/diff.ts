@@ -9,8 +9,8 @@ import {
   readCanonicalMCPServers,
   readCanonicalInstructions,
   readCanonicalSkills,
-} from './orchestrator';
-import { runCheck } from './orchestrator';
+} from './canonical';
+import { runCheck } from './sync-check';
 import { mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
 import { createExclusionFilter } from '../infra/exclusion';
 import { cwd } from 'node:process';

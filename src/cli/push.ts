@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 import { createInterface } from 'node:readline';
 import { Command } from 'commander';
-import { runCheck, runPush } from './orchestrator';
+import { runCheck } from './sync-check';
+import { runPush } from './sync-push';
 import { mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
 
 async function confirm(question: string): Promise<boolean> {

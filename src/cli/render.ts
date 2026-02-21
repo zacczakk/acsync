@@ -11,7 +11,7 @@ import {
   readCanonicalMCPServers,
   readCanonicalInstructions,
   readCanonicalSkills,
-} from './orchestrator';
+} from './canonical';
 import { createExclusionFilter } from '../infra/exclusion';
 import { parseFrontmatter } from '../formats/markdown';
 import type { TargetName, CanonicalItem } from '../types';
@@ -29,7 +29,7 @@ function mapTarget(t: string): TargetName {
 export const renderCommand = new Command('render')
   .description('Render canonical config to target format and print to stdout')
   .requiredOption('--type <type>', `Config type: ${VALID_SINGULAR_TYPES.join(', ')}`)
-  .requiredOption('--name <name>', 'Canonical item name (e.g., zz-gate, tavily)')
+  .requiredOption('--name <name>', 'Canonical item name (e.g., obs-triage-inbox, tavily)')
   .option('-t, --target <name>', `Target CLI: ${VALID_TARGETS.join(', ')}`)
   .action(async (options: { type: string; name: string; target?: string }) => {
     try {
