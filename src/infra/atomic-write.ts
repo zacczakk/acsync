@@ -2,12 +2,10 @@ import { randomBytes } from 'node:crypto';
 import { writeFile, rename, mkdir, unlink, open } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { AtomicWriteError } from '../errors';
-import { backupFile } from './backup';
 
 export async function atomicWrite(
   targetPath: string,
   content: string | Uint8Array,
-  backupDir: string,
 ): Promise<void> {
   const dir = dirname(targetPath);
   const tmpSuffix = randomBytes(8).toString('hex');
@@ -16,8 +14,6 @@ export async function atomicWrite(
   let fileHandle: Awaited<ReturnType<typeof open>> | undefined;
   try {
     await mkdir(dir, { recursive: true });
-
-    await backupFile(targetPath, backupDir);
 
     await writeFile(tmpPath, content);
 

@@ -1,6 +1,6 @@
-import { copyFile, unlink, mkdir } from 'node:fs/promises';
-import { readFile } from 'node:fs/promises';
-import { dirname, join, basename } from 'node:path';
+import { copyFile, unlink, mkdir, readFile } from 'node:fs/promises';
+import { join, basename } from 'node:path';
+import { tmpdir } from 'node:os';
 import { atomicWrite } from '../infra/atomic-write';
 import { RollbackError } from '../errors';
 
@@ -28,13 +28,13 @@ export async function createBackup(filePath: string): Promise<BackupInfo> {
     };
   }
 
-  const dir = dirname(filePath);
   const file_ = basename(filePath);
-  const backupFileName = `.acsync-backup-${Date.now()}-${backupCounter++}-${file_}`;
-  const backupPath = join(dir, backupFileName);
+  const backupDir = join(tmpdir(), `acsync-rollback-${Date.now()}`);
+  const backupFileName = `${backupCounter++}-${file_}`;
+  const backupPath = join(backupDir, backupFileName);
 
   try {
-    await mkdir(dir, { recursive: true });
+    await mkdir(backupDir, { recursive: true });
     await copyFile(filePath, backupPath);
   } catch (err) {
     throw new RollbackError(
@@ -72,8 +72,7 @@ export async function restoreBackup(backup: BackupInfo): Promise<void> {
 
   try {
     const backupContent = await readFile(backup.backupPath, 'utf-8');
-    const backupDir = join(dirname(backup.originalPath), '.acsync', 'restore-backups');
-    await atomicWrite(backup.originalPath, backupContent, backupDir);
+    await atomicWrite(backup.originalPath, backupContent);
   } catch {
     // Swallow errors — best-effort during failure recovery
   }

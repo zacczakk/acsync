@@ -1,17 +1,15 @@
 import { describe, expect, test, beforeEach, afterEach } from 'bun:test';
 import { mkdtempSync, rmSync, existsSync, readdirSync } from 'node:fs';
-import { writeFile, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { atomicWrite } from '../atomic-write';
 import { AtomicWriteError } from '../../errors';
 
 let tempDir: string;
-let backupDir: string;
 
 beforeEach(() => {
   tempDir = mkdtempSync(join(tmpdir(), 'atomic-write-test-'));
-  backupDir = join(tempDir, 'backups');
 });
 
 afterEach(() => {
@@ -21,28 +19,25 @@ afterEach(() => {
 describe('atomicWrite', () => {
   test('creates file with correct content', async () => {
     const targetPath = join(tempDir, 'output.txt');
-    await atomicWrite(targetPath, 'hello world', backupDir);
+    await atomicWrite(targetPath, 'hello world');
 
     const content = await readFile(targetPath, 'utf-8');
     expect(content).toBe('hello world');
   });
 
-  test('creates backup of existing file before overwriting', async () => {
+  test('overwrites existing file', async () => {
     const targetPath = join(tempDir, 'existing.txt');
-    await writeFile(targetPath, 'original');
+    await Bun.write(targetPath, 'original');
 
-    await atomicWrite(targetPath, 'updated', backupDir);
+    await atomicWrite(targetPath, 'updated');
 
     const current = await readFile(targetPath, 'utf-8');
     expect(current).toBe('updated');
-
-    const backed = await readFile(join(backupDir, 'existing.txt'), 'utf-8');
-    expect(backed).toBe('original');
   });
 
   test('no tmp files remain after success', async () => {
     const targetPath = join(tempDir, 'clean.txt');
-    await atomicWrite(targetPath, 'clean', backupDir);
+    await atomicWrite(targetPath, 'clean');
 
     const files = readdirSync(tempDir);
     const tmpFiles = files.filter((f) => f.startsWith('.tmp-'));
@@ -51,7 +46,7 @@ describe('atomicWrite', () => {
 
   test('creates parent directories if missing', async () => {
     const targetPath = join(tempDir, 'deep', 'nested', 'file.txt');
-    await atomicWrite(targetPath, 'nested content', backupDir);
+    await atomicWrite(targetPath, 'nested content');
 
     const content = await readFile(targetPath, 'utf-8');
     expect(content).toBe('nested content');
@@ -64,7 +59,7 @@ describe('atomicWrite', () => {
     mkdirSync(dirPath);
 
     try {
-      await atomicWrite(dirPath, 'content', backupDir);
+      await atomicWrite(dirPath, 'content');
       expect(true).toBe(false); // should not reach
     } catch (err) {
       expect(err).toBeInstanceOf(AtomicWriteError);
@@ -78,7 +73,7 @@ describe('atomicWrite', () => {
   test('handles Uint8Array content', async () => {
     const targetPath = join(tempDir, 'binary.bin');
     const bytes = new Uint8Array([0x00, 0xff, 0x42]);
-    await atomicWrite(targetPath, bytes, backupDir);
+    await atomicWrite(targetPath, bytes);
 
     const result = await Bun.file(targetPath).bytes();
     expect(result[0]).toBe(0x00);

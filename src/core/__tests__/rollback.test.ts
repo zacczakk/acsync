@@ -36,13 +36,13 @@ describe('createBackup', () => {
     expect(backupContent).toBe('original content');
   });
 
-  test('backup filename includes .acsync-backup- prefix', async () => {
+  test('backup path is in tmpdir with acsync-rollback prefix', async () => {
     const filePath = join(tempDir, 'file.txt');
     await writeFile(filePath, 'content');
 
     const info = await createBackup(filePath);
 
-    expect(info.backupPath).toContain('.acsync-backup-');
+    expect(info.backupPath).toContain('acsync-rollback-');
     expect(info.backupPath).toContain('file.txt');
   });
 
