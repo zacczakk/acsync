@@ -1,7 +1,8 @@
-import { describe, expect, test, beforeEach } from 'bun:test';
-import { mkdtemp, writeFile, mkdir } from 'node:fs/promises';
+import { describe, expect, test, beforeEach, afterEach } from 'bun:test';
+import { mkdtemp, writeFile, mkdir, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { homedir } from 'node:os';
 import { runCheck, runPush } from '../orchestrator';
 
 /** Make a per-test unique project with salted content so hashes never collide with real deployed files */
@@ -147,14 +148,16 @@ describe('runCheck', () => {
     expect(names).toContain(`test-${salt}-agent`);
   });
 
-  test('all new items have create operation type', async () => {
+  test('all new canonical items have create operation type', async () => {
     const result = await runCheck({
       projectDir: tmpDir,
       targets: ['claude-code'],
       types: ['command'],
     });
     const claudeDiff = result.diffs[0];
-    for (const op of claudeDiff.operations) {
+    const canonicalOps = claudeDiff.operations.filter((op) => op.name.startsWith(`test-${salt}-`));
+    expect(canonicalOps.length).toBeGreaterThan(0);
+    for (const op of canonicalOps) {
       expect(op.type).toBe('create');
     }
   });
@@ -168,6 +171,14 @@ describe('runPush', () => {
     salt = makeSalt();
     tmpDir = await mkdtemp(join(tmpdir(), 'orchestrator-push-'));
     await setupProject(tmpDir, salt);
+  });
+
+  // Clean up test artifacts written to real ~/.claude/commands/
+  afterEach(async () => {
+    const claudeCmdDir = join(homedir(), '.claude', 'commands');
+    for (const name of [`test-${salt}-alpha.md`, `test-${salt}-beta.md`]) {
+      try { await unlink(join(claudeCmdDir, name)); } catch { /* already gone */ }
+    }
   });
 
   test('dry-run returns zero writes', async () => {
@@ -234,7 +245,9 @@ describe('runPush', () => {
       types: ['command'],
     });
     const claudeDiff = checkResult.diffs[0];
-    for (const op of claudeDiff.operations) {
+    // Canonical items should be "skip" (up to date); stale items from real target dirs are "delete"
+    const canonicalOps = claudeDiff.operations.filter((op) => op.name.startsWith(`test-${salt}-`));
+    for (const op of canonicalOps) {
       expect(op.type).toBe('skip');
     }
   });

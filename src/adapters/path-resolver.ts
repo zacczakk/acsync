@@ -69,7 +69,7 @@ export class AdapterPathResolver {
 
   private rawCommandsDir(): string {
     switch (this.target) {
-      case 'claude-code': return '~/.claude/commands/zz/';
+      case 'claude-code': return '~/.claude/commands/';
       case 'opencode':    return '~/.config/opencode/command/';
       case 'gemini':      return '~/.gemini/commands/';
       case 'codex':       return '~/.codex/prompts/';
@@ -113,16 +113,11 @@ export class AdapterPathResolver {
 
   /**
    * Convert a logical command name to a filename for the target.
-   * - claude-code: strip "zz-" prefix, add .md (e.g. "zz-plan" → "plan.md")
    * - gemini: .toml extension
    * - others: name.md as-is
    */
   private commandFileName(name: string): string {
     switch (this.target) {
-      case 'claude-code': {
-        const stripped = name.startsWith('zz-') ? name.slice(3) : name;
-        return `${stripped}.md`;
-      }
       case 'gemini':
         return `${name}.toml`;
       default:
@@ -131,6 +126,11 @@ export class AdapterPathResolver {
   }
 
   private agentFileName(name: string): string {
-    return `${name}.md`;
+    switch (this.target) {
+      case 'codex':
+        return `agent-${name}.md`;
+      default:
+        return `${name}.md`;
+    }
   }
 }
