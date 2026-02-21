@@ -1,6 +1,7 @@
 import { BaseAdapter } from './base';
 import { stringifyFrontmatter } from '../formats/markdown';
 import { readJson, writeJson } from '../formats/json';
+import { readToml } from '../formats/toml';
 import type {
   CanonicalItem,
   MCPServer,
@@ -14,7 +15,13 @@ export class GeminiAdapter extends BaseAdapter {
   }
 
   getCapabilities(): AdapterCapabilities {
-    return { commands: true, agents: true, mcp: true, instructions: true, skills: false };
+    return { commands: true, agents: true, mcp: true, instructions: true, skills: true };
+  }
+
+  /** Gemini commands are TOML files: zz-plan.toml → zz-plan */
+  protected override commandNameFromFile(filename: string): string | null {
+    if (!filename.endsWith('.toml')) return null;
+    return filename.slice(0, -5);
   }
 
   renderCommand(item: CanonicalItem): RenderedFile {
@@ -46,6 +53,19 @@ export class GeminiAdapter extends BaseAdapter {
     return {
       relativePath: this.paths.getAgentFilePath(item.name),
       content,
+    };
+  }
+
+  /** Parse TOML command back to canonical: extract description + prompt body */
+  override parseCommand(name: string, content: string): CanonicalItem {
+    const parsed = readToml<{ description?: string; prompt?: string }>(content);
+    let body = parsed.prompt ?? '';
+    // Strip trailing "\n\nUser arguments: {args}\n" appended during render
+    body = body.replace(/\n\nUser arguments: \{args\}\s*$/, '');
+    return {
+      name,
+      content: body,
+      metadata: { description: parsed.description ?? '' },
     };
   }
 

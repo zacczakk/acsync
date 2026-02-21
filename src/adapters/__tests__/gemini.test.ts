@@ -105,9 +105,9 @@ describe('GeminiAdapter.renderAgent', () => {
 });
 
 describe('GeminiAdapter capabilities', () => {
-  it('reports skills as false', () => {
+  it('declares skills capability', () => {
     const caps = adapter.getCapabilities();
-    expect(caps.skills).toBe(false);
+    expect(caps.skills).toBe(true);
   });
 
   it('reports core capabilities as true', () => {
@@ -121,5 +121,9 @@ describe('GeminiAdapter capabilities', () => {
   it('has correct target and displayName', () => {
     expect(adapter.target).toBe('gemini');
     expect(adapter.displayName).toBe('Gemini');
+  });
+
+  it('resolves skills dir to ~/.gemini/skills/', () => {
+    expect(adapter.getPaths().getSkillsDir()).toBe(path.join(HOME, '.gemini/skills/'));
   });
 });

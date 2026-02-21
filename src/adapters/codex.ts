@@ -19,7 +19,20 @@ export class CodexAdapter extends BaseAdapter {
   }
 
   getCapabilities(): AdapterCapabilities {
-    return { commands: true, agents: true, mcp: true, instructions: true, skills: false };
+    return { commands: true, agents: true, mcp: true, instructions: true, skills: true };
+  }
+
+  /** Codex commands: any .md that isn't agent-prefixed */
+  protected override commandNameFromFile(filename: string): string | null {
+    if (filename.startsWith('agent-')) return null;
+    if (!filename.endsWith('.md')) return null;
+    return filename.slice(0, -3);
+  }
+
+  /** Codex agents are prefixed: agent-zz-planner.md → zz-planner */
+  protected override agentNameFromFile(filename: string): string | null {
+    if (!filename.startsWith('agent-') || !filename.endsWith('.md')) return null;
+    return filename.slice(6, -3); // strip "agent-" and ".md"
   }
 
   renderCommand(item: CanonicalItem): RenderedFile {
@@ -56,6 +69,57 @@ export class CodexAdapter extends BaseAdapter {
       relativePath: this.paths.getAgentFilePath(item.name),
       content,
     };
+  }
+
+  /** Parse flat markdown command: # /{name}\n\n{description}\n\n{body} */
+  override parseCommand(name: string, content: string): CanonicalItem {
+    const lines = content.split('\n');
+    // Skip heading line (# /{name}) and blank line after it
+    let idx = 0;
+    if (lines[idx]?.startsWith('# /')) idx++;
+    while (idx < lines.length && lines[idx]?.trim() === '') idx++;
+    // Next non-blank paragraph is description
+    const descLines: string[] = [];
+    while (idx < lines.length && lines[idx]?.trim() !== '') {
+      descLines.push(lines[idx]!);
+      idx++;
+    }
+    // Skip blank lines
+    while (idx < lines.length && lines[idx]?.trim() === '') idx++;
+    // Rest is body
+    const body = lines.slice(idx).join('\n').replace(/\n+$/, '');
+    return {
+      name,
+      content: body,
+      metadata: { description: descLines.join('\n') },
+    };
+  }
+
+  /** Parse flat markdown agent: # Agent: {name}\n\n**Role**: {desc}\n\n[**Allowed Tools**: ...]\n\n{body} */
+  override parseAgent(name: string, content: string): CanonicalItem {
+    const lines = content.split('\n');
+    let idx = 0;
+    // Skip heading (# Agent: {name})
+    if (lines[idx]?.startsWith('# Agent:')) idx++;
+    while (idx < lines.length && lines[idx]?.trim() === '') idx++;
+    // Parse **Role**: description
+    let description = '';
+    if (lines[idx]?.startsWith('**Role**:')) {
+      description = lines[idx]!.replace(/^\*\*Role\*\*:\s*/, '');
+      idx++;
+    }
+    while (idx < lines.length && lines[idx]?.trim() === '') idx++;
+    // Parse optional **Allowed Tools**: ...
+    const metadata: Record<string, unknown> = { description };
+    if (lines[idx]?.startsWith('**Allowed Tools**:')) {
+      const toolsStr = lines[idx]!.replace(/^\*\*Allowed Tools\*\*:\s*/, '');
+      metadata['allowed-tools'] = toolsStr.split(',').map((t) => t.trim()).filter(Boolean);
+      idx++;
+    }
+    while (idx < lines.length && lines[idx]?.trim() === '') idx++;
+    // Rest is body
+    const body = lines.slice(idx).join('\n').replace(/\n+$/, '');
+    return { name, content: body, metadata };
   }
 
   /** Codex uses mcp_servers in TOML */

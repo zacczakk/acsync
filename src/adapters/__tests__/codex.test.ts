@@ -80,7 +80,7 @@ describe('CodexAdapter.renderCommand', () => {
 describe('CodexAdapter.renderAgent', () => {
   it('produces correct agent file path (.md in prompts/)', () => {
     const result = adapter.renderAgent(agentWithTools);
-    expect(result.relativePath).toBe(path.join(HOME, '.codex/prompts/my-agent.md'));
+    expect(result.relativePath).toBe(path.join(HOME, '.codex/prompts/agent-my-agent.md'));
   });
 
   it('uses # Agent: {name} heading', () => {
@@ -126,9 +126,9 @@ describe('CodexAdapter.renderAgent', () => {
 });
 
 describe('CodexAdapter capabilities', () => {
-  it('reports skills as false', () => {
+  it('declares skills capability', () => {
     const caps = adapter.getCapabilities();
-    expect(caps.skills).toBe(false);
+    expect(caps.skills).toBe(true);
   });
 
   it('reports core capabilities as true', () => {
@@ -142,5 +142,9 @@ describe('CodexAdapter capabilities', () => {
   it('has correct target and displayName', () => {
     expect(adapter.target).toBe('codex');
     expect(adapter.displayName).toBe('Codex');
+  });
+
+  it('resolves skills dir to ~/.codex/skills/', () => {
+    expect(adapter.getPaths().getSkillsDir()).toBe(path.join(HOME, '.codex/skills/'));
   });
 });
