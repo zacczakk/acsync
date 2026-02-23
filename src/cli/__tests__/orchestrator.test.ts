@@ -3,8 +3,8 @@ import { mkdtemp, writeFile, mkdir, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { homedir } from 'node:os';
-import { runCheck } from '../sync-check';
-import { runPush } from '../sync-push';
+import { runCheck } from '../check';
+import { runPush } from '../push';
 
 /** Make a per-test unique project with salted content so hashes never collide with real deployed files */
 async function setupProject(dir: string, salt: string): Promise<void> {
