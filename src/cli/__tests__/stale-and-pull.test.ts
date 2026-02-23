@@ -2,8 +2,8 @@ import { describe, expect, test, beforeEach } from 'bun:test';
 import { mkdtemp, writeFile, mkdir, readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { runCheck } from '../sync-check';
-import { runPull, runPullAll } from '../sync-pull';
+import { runCheck } from '../check';
+import { runPull, runPullAll } from '../pull';
 import { validatePullSource } from '../cli-helpers';
 
 function makeSalt(): string {
