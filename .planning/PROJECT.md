@@ -8,29 +8,47 @@ A deterministic TypeScript (bun) CLI tool that syncs AI coding tool configuratio
 
 Make config sync fast, cheap, and reliable by moving all mechanical transforms into deterministic code, leaving only genuinely complex decisions to agents.
 
+## Current Milestone: v2.0 Simplify Canonical
+
+**Goal:** Flatten canonical structure, unify instructions, rename repo — breaking changes for cleaner architecture.
+
+**Target features:**
+- Flatten `configs/common/` to `configs/`
+- Merge 4 per-CLI instruction addendums into single AGENTS.md
+- Add canonical TOOLS.md (referenced by absolute path, not rendered)
+- Rename repo folder `~/Repos/agents` -> `~/Repos/acsync`
+- Fix OpenCode `opencode.json` instructions path
+
 ## Requirements
 
 ### Validated
 
-(None yet — ship to validate)
+- Deterministic transforms for all 4 CLI targets (Claude Code, OpenCode, Gemini CLI, Codex)
+- Command format conversion (frontmatter rebuild, TOML, flat markdown)
+- Agent format conversion (frontmatter rebuild, TOML, flat markdown)
+- MCP server transforms (JSON/JSONC/TOML + env var syntax + secret injection)
+- Settings subset merge (deep-merge vs wholesale per key)
+- Instructions concatenation (AGENTS.md + CLI addendum)
+- Skill sync (directory copy with support files)
+- Hash-based diff engine (show what changed before applying)
+- CLI interface: push, pull, check
+- Backup before write (atomic, rollback-capable)
+- Non-canonical item preservation (skip items not in canonical repo)
+- GSD exclusion (skip `gsd-*` files/dirs, manifest files)
+- Agent-friendly output (structured JSON for agent consumption)
 
 ### Active
 
-- [ ] Deterministic transforms for all 4 CLI targets (Claude Code, OpenCode, Gemini CLI, Codex)
-- [ ] Command format conversion (frontmatter rebuild, TOML, flat markdown)
-- [ ] Agent format conversion (frontmatter rebuild, TOML, flat markdown)
-- [ ] MCP server transforms (JSON/JSONC/TOML + env var syntax + secret injection)
-- [ ] Settings subset merge (deep-merge vs wholesale per key)
-- [ ] Instructions concatenation (AGENTS.md + CLI addendum)
-- [ ] Skill sync (directory copy with support files)
-- [ ] Hash-based diff engine (show what changed before applying)
-- [ ] CLI interface: `sync push`, `sync pull`, `sync check` (diff-only)
-- [ ] Secret handling: inject from `.env` on push, mask on pull
-- [ ] Backup before write (atomic, rollback-capable)
-- [ ] Dry-run mode (preview without writing)
-- [ ] Non-canonical item preservation (skip items not in canonical repo)
-- [ ] GSD exclusion (skip `gsd-*` files/dirs, manifest files)
-- [ ] Agent-friendly output (structured JSON for agent consumption)
+- [ ] Flatten `configs/common/` one level up to `configs/`
+- [ ] Move AGENTS.md into `configs/instructions/AGENTS.md`
+- [ ] Merge per-CLI addendums (claude.md, opencode.md, gemini.md, codex.md) into single AGENTS.md
+- [ ] Update `renderInstructions()` to single-file model (no addendum)
+- [ ] Update instruction output filenames (OpenCode: AGENTS.md, Gemini: AGENTS.md, Codex: AGENTS.md)
+- [ ] Create canonical `configs/instructions/TOOLS.md` referenced by absolute path from AGENTS.md
+- [ ] Rename repo folder `~/Repos/agents` -> `~/Repos/acsync` + re-register binary
+- [ ] Fix OpenCode `opencode.json` instructions path to point to AGENTS.md
+- [ ] Update all source code paths referencing `configs/common/`
+- [ ] Clean up stale target files (OPENCODE.md, GEMINI.md, instructions.md)
 
 ### Out of Scope
 
@@ -39,6 +57,8 @@ Make config sync fast, cheap, and reliable by moving all mechanical transforms i
 - Plugin system for custom adapters — 4 fixed targets, extend when needed
 - Bidirectional merge conflict resolution — source of truth is canonical repo; pull detects drift, doesn't auto-merge
 - CI/CD integration — useful later, not v1
+- TOOLS.md rendering to targets — referenced by absolute path instead
+- vsync-alignment changes — deferred to v2.1 (3-way diff, capability enforcement, Codex TOML agents)
 
 ## Context
 
@@ -66,6 +86,7 @@ Make config sync fast, cheap, and reliable by moving all mechanical transforms i
 | Borrow vsync patterns, not code | vsync's architecture is well-designed but our config types and transforms differ significantly | -- Pending |
 | Agent-friendly CLI output | Agents still orchestrate interactive sync; CLI provides deterministic transforms + diffs | -- Pending |
 | Hash-based manifest for 3-way diff | Enables detecting drift in CLI configs vs what was last synced vs canonical source | -- Pending |
+| TOOLS.md by reference, not render | Agents always have access to ~/Repos/acsync; no need for rendering overhead | -- Pending |
 
 ---
-*Last updated: 2026-02-20 after initialization*
+*Last updated: 2026-02-23 after v2.0 milestone start*
