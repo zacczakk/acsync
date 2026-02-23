@@ -1,154 +1,108 @@
-# Requirements: Agent Config Sync CLI
+# Requirements: acsync
 
 **Defined:** 2026-02-20
 **Core Value:** Make config sync fast and cheap by moving mechanical transforms into deterministic code
 
-**Design Principle:** Minimal CLI. Script the obvious (renderers, hashes, diffs, copies). Leave complex/judgmental logic to agents.
+## v1 Requirements (Complete)
 
-## v1 Requirements
+All 37 v1 requirements satisfied. See MILESTONES.md for details.
 
-Requirements for initial release. Each maps to roadmap phases.
+## v2.0 Requirements
 
-### Rendering
+Requirements for Simplify Canonical milestone. Flatten structure, unify instructions, rename repo.
 
-- [x] **RNDR-01**: Render canonical command → Claude Code format (strip `zz-` prefix, nest in `zz/` subdir, body verbatim)
-- [x] **RNDR-02**: Render canonical command → OpenCode format (rebuild frontmatter, `allowed-tools` → `tools` map, keep `zz-` prefix)
-- [x] **RNDR-03**: Render canonical command → Gemini format (convert to TOML, `prompt = """..."""`)
-- [x] **RNDR-04**: Render canonical command → Codex format (flat markdown, `# /{name}` heading + description)
-- [x] **RNDR-05**: Render canonical agent → Claude Code format (nest in `zz/` subdir, body verbatim)
-- [x] **RNDR-06**: Render canonical agent → OpenCode format (rebuild frontmatter, add `mode: subagent`)
-- [x] **RNDR-07**: Render canonical agent → Gemini format (add `kind: local` to frontmatter)
-- [x] **RNDR-08**: Render canonical agent → Codex format (flat markdown, `# Agent: {name}` heading)
-- [x] **RNDR-09**: Render canonical MCP server → Claude Code format (JSON, `mcpServers` key, inject secrets)
-- [x] **RNDR-10**: Render canonical MCP server → OpenCode format (JSONC, `mcp` key, `local`/`remote` types, `environment` key, command as array)
-- [x] **RNDR-11**: Render canonical MCP server → Gemini format (JSON, `mcpServers` key, inject secrets)
-- [x] **RNDR-12**: Render canonical MCP server → Codex format (TOML, `mcp_servers` key, HTTP-only, skip stdio servers)
-- [x] **RNDR-13**: Render instructions per CLI (concatenate AGENTS.md + CLI-specific addendum)
-- [x] **RNDR-14**: Copy skill directories verbatim (directory copy with support files)
+### Canonical Structure
 
-### Diff Engine
+- [ ] **STRUCT-01**: `configs/common/` directory flattened — all subdirs (agents, commands, mcp, settings, skills, instructions) live directly under `configs/`
+- [ ] **STRUCT-02**: All source code path references updated from `configs/common/X` to `configs/X`
+- [ ] **STRUCT-03**: All test fixtures and assertions updated for new path structure
+- [ ] **STRUCT-04**: Help text and error messages reference `configs/` (not `configs/common/`)
+- [ ] **STRUCT-05**: `configs/common/` directory no longer exists
 
-- [x] **DIFF-01**: Compute SHA-256 content hash for any file or directory
-- [x] **DIFF-02**: Read/write manifest file (JSON, tracks last-synced hashes per target)
-- [x] **DIFF-03**: Compare source vs target vs manifest to produce operations (create/update/skip)
-- [x] **DIFF-04**: Output diff as structured JSON (for agent consumption)
-- [x] **DIFF-05**: Output diff as human-readable colored text (for terminal)
+### Instructions Unification
 
-### Secret Handling
+- [ ] **INST-01**: AGENTS.md lives at `configs/instructions/AGENTS.md` (moved from repo root)
+- [ ] **INST-02**: No AGENTS.md at repo root
+- [ ] **INST-03**: AGENTS.md contains `## CLI-Specific Notes` section with merged content from all 4 per-CLI addendums
+- [ ] **INST-04**: Per-CLI addendum files deleted (claude.md, opencode.md, gemini.md, codex.md)
+- [ ] **INST-05**: `renderInstructions()` accepts single content parameter (no addendum)
+- [ ] **INST-06**: `readCanonicalInstructions()` reads single file from `configs/instructions/AGENTS.md`
+- [ ] **INST-07**: OpenCode instructions output file is `AGENTS.md` (not `OPENCODE.md`)
+- [ ] **INST-08**: Gemini instructions output file is `AGENTS.md` (not `GEMINI.md`)
+- [ ] **INST-09**: Codex instructions output file is `AGENTS.md` (not `instructions.md`)
+- [ ] **INST-10**: Claude instructions output file remains `CLAUDE.md` (unchanged)
 
-- [x] **SECR-01**: Load secrets from `.env` file
-- [x] **SECR-02**: Inject secrets into rendered configs on push (replace `${VAR}` placeholders with values)
-- [x] **SECR-03**: Convert env var syntax per target (`${VAR}` ↔ `${env:VAR}` ↔ `{env:VAR}`)
+### TOOLS.md
 
-### File Operations
+- [ ] **TOOL-01**: `configs/instructions/TOOLS.md` exists with tool-use documentation
+- [ ] **TOOL-02**: AGENTS.md `## Tools` section references TOOLS.md by absolute path
+- [ ] **TOOL-03**: TOOLS.md is not rendered/synced to any CLI target (reference only)
 
-- [x] **FILE-01**: Atomic write (write to temp, fsync, rename)
-- [x] **FILE-02**: Backup target file before overwrite (timestamped copy)
-- [x] **FILE-03**: Dry-run mode (compute diff, show plan, write nothing)
-- [x] **FILE-04**: Rollback on push failure (track written files, restore all to pre-push state on first error; replaces Phase 1 backup-only approach)
+### Repo Identity
 
-### CLI Interface
+- [ ] **REPO-01**: Repo folder renamed from `~/Repos/agents` to `~/Repos/acsync`
+- [ ] **REPO-02**: All internal path references updated (`~/Repos/agents` -> `~/Repos/acsync`)
+- [ ] **REPO-03**: `acsync` binary re-registered via `bun link` from new location
+- [ ] **REPO-04**: `acsync push --force` propagates all path changes to targets
+- [ ] **REPO-05**: OpenCode `opencode.json` instructions array points to `AGENTS.md` (not `OPENCODE.md`)
+- [ ] **REPO-06**: Stale target files cleaned up: `~/.config/opencode/OPENCODE.md`, `~/.gemini/GEMINI.md`, `~/.codex/instructions.md`
 
-- [x] **CLI-01**: `render` subcommand — render a canonical config to a specific target format, output to stdout or file
-- [x] **CLI-02**: `diff` subcommand — show what would change for one or all targets
-- [x] **CLI-03**: `push` subcommand — render + write to target locations
-- [x] **CLI-04**: `check` subcommand — diff-only, exit non-zero if drift detected
-- [x] **CLI-05**: `--json` flag on all subcommands for structured output
-- [x] **CLI-06**: `--dry-run` flag on push (compute + display, no writes)
-- [x] **CLI-07**: `--target` flag to scope to specific CLI (e.g., `--target claude`)
-- [x] **CLI-08**: `--type` flag to scope to config type (e.g., `--type commands`, `--type mcp`)
-- [x] **CLI-09**: Exit codes: 0=success, 1=error, 2=drift-detected
+## Future Requirements (v2.1 — vsync-alignment)
 
-### Exclusions
-
-- [x] **EXCL-01**: Skip `gsd-*` files and directories during sync
-- [x] **EXCL-02**: Skip non-canonical items in targets (don't delete, don't touch)
-
-## v2 Requirements
-
-Deferred to future release. Tracked but not in current roadmap.
-
-### Settings Merge
-
-- **SETM-01**: Deep merge Claude Code settings (permissions array merge, env wholesale replace)
-- **SETM-02**: Deep merge OpenCode settings (provider/plugin/model wholesale, permission deep-merge)
-- **SETM-03**: Deep merge Gemini settings (mcpServers only)
-
-### Pull Direction
-
-- **PULL-01**: Read target configs and reverse-transform to canonical format
-- **PULL-02**: Detect drift: compare target state to what CLI last pushed
-- **PULL-03**: Present drift to agent for interactive resolution
-
-### Advanced
-
-- **ADV-01**: Import from target (one-time bootstrap from existing CLI config to canonical)
-- **ADV-02**: Path expansion (`~` → absolute) in rendered configs
-- **ADV-03**: Post-write secret scan (paranoid check that no secrets leaked to git-tracked files)
+- **HASH-01**: Metadata-aware hashing for canonical items
+- **DIFF-01**: True 3-way diff using manifest hash (6-case algorithm)
+- **DIFF-02**: Prune/delete mode integrated into diff engine
+- **CAP-01**: Capability enforcement in adapters (throw on unsupported operations)
+- **ERR-01**: Error type guards and static factory methods
+- **CODEX-01**: Codex agents rendered as TOML (not markdown in prompts/)
+- **CODEX-02**: Codex agent entries in config.toml `[agents]` section
+- **MCP-01**: Dedicated MCP server hash with sorted keys
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Settings deep merge in CLI | Too many per-key edge cases; agent handles this better with context |
-| Non-canonical item preservation logic | Requires judgment about what to keep; agent decides |
-| Interactive confirmation UI | Agent provides the UX; CLI is headless |
-| Template language | TypeScript functions are the "templates"; no DSL needed |
+| TOOLS.md rendering to targets | Referenced by absolute path; all agents have repo access |
 | Watch mode / auto-sync | Premature; sync is infrequent |
+| Bidirectional merge conflict resolution | Source of truth is canonical repo |
+| vsync pattern adoption | Deferred to v2.1 milestone |
+| Codex TOML agent format | Deferred to v2.1 milestone |
 | Plugin system | 4 fixed targets; add as code when needed |
-| Bidirectional merge resolution | Source of truth is canonical repo; no merge conflicts |
-| Password manager integration | `.env` file covers our needs |
-| Symlink mode | Copies are more reliable; symlinks break when repo moves |
-| Multi-language CLI output | English only; developer tool |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DIFF-01 | Phase 1 | Complete |
-| FILE-01 | Phase 1 | Complete |
-| FILE-02 | Phase 1 | Complete |
-| EXCL-01 | Phase 1 | Complete |
-| EXCL-02 | Phase 1 | Complete |
-| RNDR-01 | Phase 2 | Complete |
-| RNDR-02 | Phase 2 | Complete |
-| RNDR-03 | Phase 2 | Complete |
-| RNDR-04 | Phase 2 | Complete |
-| RNDR-05 | Phase 2 | Complete |
-| RNDR-06 | Phase 2 | Complete |
-| RNDR-07 | Phase 2 | Complete |
-| RNDR-08 | Phase 2 | Complete |
-| RNDR-09 | Phase 2 | Complete |
-| RNDR-10 | Phase 2 | Complete |
-| RNDR-11 | Phase 2 | Complete |
-| RNDR-12 | Phase 2 | Complete |
-| RNDR-13 | Phase 2 | Complete |
-| RNDR-14 | Phase 2 | Complete |
-| SECR-01 | Phase 2 | Complete |
-| SECR-02 | Phase 2 | Complete |
-| SECR-03 | Phase 2 | Complete |
-| DIFF-02 | Phase 3 | Complete |
-| DIFF-03 | Phase 3 | Complete |
-| DIFF-04 | Phase 3 | Complete |
-| DIFF-05 | Phase 3 | Complete |
-| FILE-03 | Phase 3 | Complete |
-| FILE-04 | Phase 3 | Complete |
-| CLI-01 | Phase 4 | Complete |
-| CLI-02 | Phase 4 | Complete |
-| CLI-03 | Phase 3 | Complete |
-| CLI-04 | Phase 3 | Complete |
-| CLI-05 | Phase 4 | Complete |
-| CLI-06 | Phase 3 | Complete |
-| CLI-07 | Phase 3 | Complete |
-| CLI-08 | Phase 3 | Complete |
-| CLI-09 | Phase 3 | Complete |
+| STRUCT-01 | TBD | Pending |
+| STRUCT-02 | TBD | Pending |
+| STRUCT-03 | TBD | Pending |
+| STRUCT-04 | TBD | Pending |
+| STRUCT-05 | TBD | Pending |
+| INST-01 | TBD | Pending |
+| INST-02 | TBD | Pending |
+| INST-03 | TBD | Pending |
+| INST-04 | TBD | Pending |
+| INST-05 | TBD | Pending |
+| INST-06 | TBD | Pending |
+| INST-07 | TBD | Pending |
+| INST-08 | TBD | Pending |
+| INST-09 | TBD | Pending |
+| INST-10 | TBD | Pending |
+| TOOL-01 | TBD | Pending |
+| TOOL-02 | TBD | Pending |
+| TOOL-03 | TBD | Pending |
+| REPO-01 | TBD | Pending |
+| REPO-02 | TBD | Pending |
+| REPO-03 | TBD | Pending |
+| REPO-04 | TBD | Pending |
+| REPO-05 | TBD | Pending |
+| REPO-06 | TBD | Pending |
 
 **Coverage:**
-- v1 requirements: 37 total
-- Mapped to phases: 37 ✓
-- Unmapped: 0
-- Satisfied: 37 / Pending: 0
+- v2.0 requirements: 24 total
+- Mapped to phases: 0
+- Unmapped: 24
 
 ---
-*Requirements defined: 2026-02-20*
-*Last updated: 2026-02-22 — all 37 v1 requirements satisfied, milestone complete*
+*Requirements defined: 2026-02-23*
+*Last updated: 2026-02-23 after v2.0 initial definition*
