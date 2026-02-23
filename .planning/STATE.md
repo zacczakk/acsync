@@ -2,19 +2,17 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-20)
+See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Make config sync fast and cheap by moving mechanical transforms into deterministic code
-**Current focus:** Phase 5 complete — all plans executed (including gap closure 05-03)
+**Current focus:** v2.0 Simplify Canonical — defining requirements
 
 ## Current Position
 
-Phase: 5 of 5 (Dead Code Cleanup Integration)
-Plan: 3 of 3 in current phase
-Status: Complete
-Last activity: 2026-02-23 — Completed 05-03-PLAN.md (CLI module rename + merge)
-
-Progress: [██████████] 100% (15 of 15 plans complete)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-23 — Milestone v2.0 started
 
 ## Performance Metrics
 
@@ -98,5 +96,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 05-03-PLAN.md (CLI module rename + merge). All 15/15 plans complete. 414/414 tests pass. Milestone complete.
+Stopped at: Starting v2.0 milestone — simplify-canonical scope. Defining requirements.
 Resume file: None
