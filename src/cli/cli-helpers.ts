@@ -1,3 +1,4 @@
+import { createInterface } from 'node:readline';
 import type { TargetName, ItemType } from '../types';
 
 const VALID_TARGETS = ['claude', 'gemini', 'codex', 'opencode'] as const;
@@ -5,6 +6,17 @@ const VALID_TYPES = ['commands', 'agents', 'mcps', 'instructions', 'skills'] as 
 
 type UserTarget = (typeof VALID_TARGETS)[number];
 type UserType = (typeof VALID_TYPES)[number];
+
+/** Interactive y/N confirmation prompt */
+export async function confirm(question: string): Promise<boolean> {
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  return new Promise((resolve) => {
+    rl.question(`${question} [y/N] `, (answer) => {
+      rl.close();
+      resolve(answer.trim().toLowerCase() === 'y' || answer.trim().toLowerCase() === 'yes');
+    });
+  });
+}
 
 /** Commander repeatable option collector */
 export function collect(value: string, previous: string[]): string[] {
@@ -19,6 +31,16 @@ export function validateTargets(targets: string[]): void {
         `Invalid target: "${t}". Valid targets: ${VALID_TARGETS.join(', ')}`,
       );
     }
+  }
+}
+
+/** Validate a pull --source value (target name or 'all') */
+export function validatePullSource(source: string): void {
+  if (source === 'all') return;
+  if (!VALID_TARGETS.includes(source as UserTarget)) {
+    throw new Error(
+      `Invalid source: "${source}". Valid sources: all, ${VALID_TARGETS.join(', ')}`,
+    );
   }
 }
 
