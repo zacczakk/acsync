@@ -8,6 +8,8 @@ import { formatCheckResult } from '../core/formatter';
 import { createExclusionFilter, classifyEntry } from '../infra/exclusion';
 import {
   ALL_TARGETS,
+  COMMANDS_DIR,
+  AGENTS_DIR,
   createAdapter,
   hashRendered,
   hashTargetFile,
@@ -139,7 +141,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
             type: 'command',
             name: item.name,
             hash: sourceHash,
-            sourcePath: join(projectDir, 'configs', 'commands', `${item.name}.md`),
+            sourcePath: join(projectDir, COMMANDS_DIR, `${item.name}.md`),
             targetPath: rendered.relativePath,
           });
           if (targetHash !== null) {
@@ -160,7 +162,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
             type: 'agent',
             name: item.name,
             hash: sourceHash,
-            sourcePath: join(projectDir, 'configs', 'agents', `${item.name}.md`),
+            sourcePath: join(projectDir, AGENTS_DIR, `${item.name}.md`),
             targetPath: rendered.relativePath,
           });
           if (targetHash !== null) {
@@ -292,7 +294,21 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
 }
 
 export const checkCommand = new Command('check')
-  .description('Detect drift between canonical and target configs')
+  .description(
+    `Detect drift between canonical configs and installed target files.
+
+Compares rendered canonical output against on-disk target files using SHA-256 hashes.
+Reports create/update/skip/delete operations per target. Default output is JSON;
+use --pretty for colored human-readable output.
+
+Examples:
+  acsync check                          Check all targets, all types (JSON)
+  acsync check --pretty                 Human-readable colored output
+  acsync check -t claude                Check Claude Code only
+  acsync check --type commands          Check commands only across all targets
+  acsync check -t codex --type mcps     Check Codex MCP servers only
+
+Exit codes: 0 = no drift, 2 = drift detected, 1 = error`)
   .option('--pretty', 'Human-readable colored output (default: JSON)')
   .option('--json', 'Output JSON (default behavior, explicit for scripts)')
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])

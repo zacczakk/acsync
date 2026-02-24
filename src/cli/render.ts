@@ -5,6 +5,8 @@ import { cwd } from 'node:process';
 import { Command } from 'commander';
 import {
   ALL_TARGETS,
+  COMMANDS_DIR,
+  AGENTS_DIR,
   createAdapter,
   readCanonicalCommands,
   readCanonicalAgents,
@@ -27,7 +29,19 @@ function mapTarget(t: string): TargetName {
 }
 
 export const renderCommand = new Command('render')
-  .description('Render canonical config to target format and print to stdout')
+  .description(
+    `Render a single canonical item to target format and print to stdout.
+
+Debug/inspection tool: see exactly what a canonical item looks like after adapter
+transformation for a given target. If no --target is specified, renders for all 4
+targets with separator headers.
+
+Examples:
+  acsync render --type command --name obs-jot                Show obs-jot for all targets
+  acsync render --type command --name obs-jot -t claude      Show obs-jot for Claude only
+  acsync render --type mcp --name tavily                     Show tavily MCP for all targets
+  acsync render --type agent --name my-planner -t codex      Show agent as Codex TOML
+  acsync render --type instruction --name base -t opencode   Show instructions for OpenCode`)
   .requiredOption('--type <type>', `Config type: ${VALID_SINGULAR_TYPES.join(', ')}`)
   .requiredOption('--name <name>', 'Canonical item name (e.g., obs-triage-inbox, tavily)')
   .option('-t, --target <name>', `Target CLI: ${VALID_TARGETS.join(', ')}`)
@@ -114,12 +128,14 @@ export const renderCommand = new Command('render')
  * Read a single canonical command or agent by name.
  * Reads directly from the known path rather than scanning the whole directory.
  */
+const DIR_MAP = { commands: COMMANDS_DIR, agents: AGENTS_DIR } as const;
+
 async function readSingleCanonicalItem(
   projectDir: string,
   dirName: 'commands' | 'agents',
   name: string,
 ): Promise<CanonicalItem> {
-  const filePath = join(projectDir, 'configs', dirName, `${name}.md`);
+  const filePath = join(projectDir, DIR_MAP[dirName], `${name}.md`);
   let raw: string;
   try {
     raw = await readFile(filePath, 'utf-8');
