@@ -13,11 +13,11 @@ Requirements for Simplify Canonical milestone. Flatten structure, unify instruct
 
 ### Canonical Structure
 
-- [ ] **STRUCT-01**: `configs/common/` directory flattened — all subdirs (agents, commands, mcp, settings, skills, instructions) live directly under `configs/`
-- [ ] **STRUCT-02**: All source code path references updated from `configs/common/X` to `configs/X`
-- [ ] **STRUCT-03**: All test fixtures and assertions updated for new path structure
-- [ ] **STRUCT-04**: Help text and error messages reference `configs/` (not `configs/common/`)
-- [ ] **STRUCT-05**: `configs/common/` directory no longer exists
+- [x] **STRUCT-01**: `configs/common/` directory flattened — all subdirs (agents, commands, mcp, settings, skills, instructions) live directly under `configs/`
+- [x] **STRUCT-02**: All source code path references updated from `configs/common/X` to `configs/X`
+- [x] **STRUCT-03**: All test fixtures and assertions updated for new path structure
+- [x] **STRUCT-04**: Help text and error messages reference `configs/` (not `configs/common/`)
+- [x] **STRUCT-05**: `configs/common/` directory no longer exists
 
 ### Instructions Unification
 
@@ -73,11 +73,11 @@ Requirements for Simplify Canonical milestone. Flatten structure, unify instruct
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STRUCT-01 | Phase 6 | Pending |
-| STRUCT-02 | Phase 6 | Pending |
-| STRUCT-03 | Phase 6 | Pending |
-| STRUCT-04 | Phase 6 | Pending |
-| STRUCT-05 | Phase 6 | Pending |
+| STRUCT-01 | Phase 6 | Complete |
+| STRUCT-02 | Phase 6 | Complete |
+| STRUCT-03 | Phase 6 | Complete |
+| STRUCT-04 | Phase 6 | Complete |
+| STRUCT-05 | Phase 6 | Complete |
 | INST-01 | Phase 7 | Pending |
 | INST-02 | Phase 7 | Pending |
 | INST-03 | Phase 7 | Pending |
