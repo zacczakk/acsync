@@ -30,7 +30,7 @@ describe('createExclusionFilter', () => {
 
 describe('classifyEntry', () => {
   const isExcluded = createExclusionFilter(['gsd-*']);
-  const canonicals = new Set(['zz-plan.md', 'zz-verify.md']);
+  const canonicals = new Set(['my-plan.md', 'my-verify.md']);
 
   test('returns excluded for gsd-* items', () => {
     expect(classifyEntry('gsd-tools.cjs', canonicals, isExcluded)).toEqual({
@@ -39,7 +39,7 @@ describe('classifyEntry', () => {
   });
 
   test('returns canonical for known items', () => {
-    expect(classifyEntry('zz-plan.md', canonicals, isExcluded)).toEqual({
+    expect(classifyEntry('my-plan.md', canonicals, isExcluded)).toEqual({
       status: 'canonical',
     });
   });

@@ -8,7 +8,7 @@ const HOME = os.homedir();
 const adapter = new ClaudeCodeAdapter();
 
 const baseItem = {
-  name: 'zz-plan',
+  name: 'my-plan',
   content: 'This is the command body.\n',
   metadata: {
     description: 'Plan a feature',
@@ -20,7 +20,7 @@ const baseItem = {
 describe('ClaudeCodeAdapter.renderCommand', () => {
   it('nests directly under commands/ directory', () => {
     const result = adapter.renderCommand(baseItem);
-    const expected = path.join(HOME, '.claude/commands/zz-plan.md');
+    const expected = path.join(HOME, '.claude/commands/my-plan.md');
     expect(result.relativePath).toBe(expected);
   });
 
@@ -36,7 +36,7 @@ describe('ClaudeCodeAdapter.renderCommand', () => {
     expect(result.content).toContain('This is the command body.');
   });
 
-  it('handles item without zz- prefix', () => {
+  it('handles item with different name', () => {
     const item = { ...baseItem, name: 'mycommand' };
     const result = adapter.renderCommand(item);
     expect(result.relativePath).toBe(path.join(HOME, '.claude/commands/mycommand.md'));

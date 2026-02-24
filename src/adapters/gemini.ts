@@ -18,7 +18,7 @@ export class GeminiAdapter extends BaseAdapter {
     return { commands: true, agents: true, mcp: true, instructions: true, skills: true };
   }
 
-  /** Gemini commands are TOML files: zz-plan.toml → zz-plan */
+  /** Gemini commands are TOML files: my-plan.toml → my-plan */
   protected override commandNameFromFile(filename: string): string | null {
     if (!filename.endsWith('.toml')) return null;
     return filename.slice(0, -5);

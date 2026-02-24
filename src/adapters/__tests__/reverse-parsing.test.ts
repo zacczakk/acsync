@@ -26,12 +26,12 @@ class TestCodexAdapter extends CodexAdapter {
 describe('Claude commandNameFromFile', () => {
   const adapter = new TestClaudeAdapter();
 
-  test('plan.md returns plan (no zz- prefix added)', () => {
+  test('plan.md returns plan (name preserved as-is)', () => {
     expect(adapter.testCommandNameFromFile('plan.md')).toBe('plan');
   });
 
-  test('zz-plan.md returns zz-plan (name preserved as-is)', () => {
-    expect(adapter.testCommandNameFromFile('zz-plan.md')).toBe('zz-plan');
+  test('my-plan.md returns my-plan (name preserved as-is)', () => {
+    expect(adapter.testCommandNameFromFile('my-plan.md')).toBe('my-plan');
   });
 
   test('plan.toml returns null (not .md)', () => {
@@ -42,32 +42,32 @@ describe('Claude commandNameFromFile', () => {
 describe('Gemini commandNameFromFile', () => {
   const adapter = new TestGeminiAdapter();
 
-  test('zz-plan.toml returns zz-plan', () => {
-    expect(adapter.testCommandNameFromFile('zz-plan.toml')).toBe('zz-plan');
+  test('my-plan.toml returns my-plan', () => {
+    expect(adapter.testCommandNameFromFile('my-plan.toml')).toBe('my-plan');
   });
 
-  test('zz-gate.toml returns zz-gate', () => {
-    expect(adapter.testCommandNameFromFile('zz-gate.toml')).toBe('zz-gate');
+  test('my-gate.toml returns my-gate', () => {
+    expect(adapter.testCommandNameFromFile('my-gate.toml')).toBe('my-gate');
   });
 
-  test('zz-plan.md returns null (not .toml)', () => {
-    expect(adapter.testCommandNameFromFile('zz-plan.md')).toBeNull();
+  test('my-plan.md returns null (not .toml)', () => {
+    expect(adapter.testCommandNameFromFile('my-plan.md')).toBeNull();
   });
 });
 
 describe('Codex agentNameFromFile', () => {
   const adapter = new TestCodexAdapter();
 
-  test('agent-zz-planner.md returns zz-planner', () => {
-    expect(adapter.testAgentNameFromFile('agent-zz-planner.md')).toBe('zz-planner');
+  test('agent-my-planner.md returns my-planner', () => {
+    expect(adapter.testAgentNameFromFile('agent-my-planner.md')).toBe('my-planner');
   });
 
-  test('agent-zz-reviewer.md returns zz-reviewer', () => {
-    expect(adapter.testAgentNameFromFile('agent-zz-reviewer.md')).toBe('zz-reviewer');
+  test('agent-my-reviewer.md returns my-reviewer', () => {
+    expect(adapter.testAgentNameFromFile('agent-my-reviewer.md')).toBe('my-reviewer');
   });
 
-  test('zz-planner.md returns null (no agent- prefix)', () => {
-    expect(adapter.testAgentNameFromFile('zz-planner.md')).toBeNull();
+  test('my-planner.md returns null (no agent- prefix)', () => {
+    expect(adapter.testAgentNameFromFile('my-planner.md')).toBeNull();
   });
 });
 
@@ -88,10 +88,10 @@ describe('Codex parseCommand (flat markdown reverse)', () => {
   const adapter = new CodexAdapter();
 
   test('parses heading, description, and body from flat markdown', () => {
-    const input = `# /zz-plan\n\nPlan the task\n\nBody content here.\n`;
-    const result = adapter.parseCommand('zz-plan', input);
+    const input = `# /my-plan\n\nPlan the task\n\nBody content here.\n`;
+    const result = adapter.parseCommand('my-plan', input);
 
-    expect(result.name).toBe('zz-plan');
+    expect(result.name).toBe('my-plan');
     expect(result.content).toBe('Body content here.');
     expect(result.metadata.description).toBe('Plan the task');
   });
@@ -101,20 +101,20 @@ describe('Codex parseAgent (flat markdown reverse)', () => {
   const adapter = new CodexAdapter();
 
   test('parses agent with allowed tools', () => {
-    const input = `# Agent: zz-planner\n\n**Role**: Plans tasks\n\n**Allowed Tools**: Read, Write\n\nInstructions here.\n`;
-    const result = adapter.parseAgent('zz-planner', input);
+    const input = `# Agent: my-planner\n\n**Role**: Plans tasks\n\n**Allowed Tools**: Read, Write\n\nInstructions here.\n`;
+    const result = adapter.parseAgent('my-planner', input);
 
-    expect(result.name).toBe('zz-planner');
+    expect(result.name).toBe('my-planner');
     expect(result.content).toBe('Instructions here.');
     expect(result.metadata.description).toBe('Plans tasks');
     expect(result.metadata['allowed-tools']).toEqual(['Read', 'Write']);
   });
 
   test('parses agent without allowed tools', () => {
-    const input = `# Agent: zz-reviewer\n\n**Role**: Reviews code\n\nReview instructions.\n`;
-    const result = adapter.parseAgent('zz-reviewer', input);
+    const input = `# Agent: my-reviewer\n\n**Role**: Reviews code\n\nReview instructions.\n`;
+    const result = adapter.parseAgent('my-reviewer', input);
 
-    expect(result.name).toBe('zz-reviewer');
+    expect(result.name).toBe('my-reviewer');
     expect(result.content).toBe('Review instructions.');
     expect(result.metadata.description).toBe('Reviews code');
     expect(result.metadata['allowed-tools']).toBeUndefined();

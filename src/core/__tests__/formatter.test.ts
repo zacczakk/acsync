@@ -3,7 +3,7 @@ import { formatDiffJson, formatDiffPretty, formatPushResult, formatCheckResult, 
 import type { DiffResult, Operation } from '../../types';
 
 function makeOp(
-  type: 'create' | 'update' | 'skip',
+  type: 'create' | 'update' | 'skip' | 'delete',
   name: string,
   target: 'claude-code' | 'opencode' | 'gemini' | 'codex' = 'claude-code',
 ): Operation {
@@ -25,6 +25,7 @@ function makeResult(target: 'claude-code' | 'opencode' | 'gemini' | 'codex', ops
       create: ops.filter((o) => o.type === 'create').length,
       update: ops.filter((o) => o.type === 'update').length,
       skip: ops.filter((o) => o.type === 'skip').length,
+      delete: ops.filter((o) => o.type === 'delete').length,
     },
   };
 }
@@ -282,7 +283,7 @@ describe('MCP warnings', () => {
     return {
       target,
       operations: [{ ...makeOp('update', 'context7', target), itemType: 'mcp' }],
-      summary: { create: 0, update: 1, skip: 0 },
+      summary: { create: 0, update: 1, skip: 0, delete: 0 },
       mcpWarning: { serverNames, action },
     };
   }
@@ -315,7 +316,7 @@ describe('MCP warnings', () => {
     const result: DiffResult = {
       target: 'opencode',
       operations: [{ ...makeOp('update', 'context7', 'opencode'), itemType: 'mcp' }],
-      summary: { create: 0, update: 1, skip: 0 },
+      summary: { create: 0, update: 1, skip: 0, delete: 0 },
       mcpWarning: { serverNames: ['old-mcp'], action: 'orphan' },
     };
     const output = formatDiffPretty([result]);
@@ -349,6 +350,55 @@ describe('MCP warnings', () => {
     const results = [makeResult('claude-code', [makeOp('create', 'x')])];
     const parsed = JSON.parse(formatDryRunJson(results));
     expect(parsed.warnings).toBeUndefined();
+  });
+});
+
+describe('delete operations', () => {
+  test('formatDiffPretty shows delete ops with minus symbol and stale suffix', () => {
+    const results = [makeResult('claude-code', [makeOp('delete', 'stale-cmd')])];
+    const output = formatDiffPretty(results);
+    expect(output).toContain('−');
+    expect(output).toContain('(stale)');
+    expect(output).toContain('stale-cmd');
+  });
+
+  test('formatDiffJson includes totalDelete in summary', () => {
+    const results = [
+      makeResult('claude-code', [
+        makeOp('create', 'new-cmd'),
+        makeOp('delete', 'old-cmd'),
+        makeOp('delete', 'stale-cmd'),
+      ]),
+    ];
+    const parsed = JSON.parse(formatDiffJson(results));
+    expect(parsed.summary.totalDelete).toBe(2);
+    expect(parsed.summary.totalCreate).toBe(1);
+    expect(parsed.targets['claude'].delete).toBe(2);
+  });
+
+  test('formatDryRunPretty shows delete ops with minus symbol and delete verb', () => {
+    const op = { ...makeOp('delete', 'old-cmd'), targetPath: '/tmp/old-cmd.md' };
+    const results = [makeResult('claude-code', [op])];
+    const output = formatDryRunPretty(results);
+    expect(output).toContain('−');
+    expect(output).toContain('delete');
+    expect(output).toContain('old-cmd');
+  });
+
+  test('formatDryRunJson includes delete actions', () => {
+    const op = { ...makeOp('delete', 'stale-item'), targetPath: '/tmp/stale.md' };
+    const results = [makeResult('claude-code', [op])];
+    const parsed = JSON.parse(formatDryRunJson(results));
+    expect(parsed.actions).toHaveLength(1);
+    expect(parsed.actions[0].action).toBe('delete');
+    expect(parsed.actions[0].name).toBe('stale-item');
+    expect(parsed.summary.delete).toBe(1);
+  });
+
+  test('formatCheckResult returns hasDrift=true when there are only delete ops', () => {
+    const results = [makeResult('claude-code', [makeOp('delete', 'gone-cmd')])];
+    const { hasDrift } = formatCheckResult(results, false);
+    expect(hasDrift).toBe(true);
   });
 });
 

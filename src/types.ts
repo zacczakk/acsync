@@ -7,8 +7,7 @@ export interface ErrorContext {
 // Config item types synced by acsync
 export type ItemType = 'command' | 'agent' | 'mcp' | 'instruction' | 'skill';
 
-// Operation types (no 'delete' — we never delete non-canonical items per EXCL-02)
-export type OperationType = 'create' | 'update' | 'skip';
+export type OperationType = 'create' | 'update' | 'skip' | 'delete';
 
 export interface TargetStatus {
   hash: string;
@@ -48,8 +47,8 @@ export interface MCPWarning {
 
 export interface DiffResult {
   target: TargetName;
-  operations: Operation[]; // all ops for this target (create + update + skip)
-  summary: { create: number; update: number; skip: number };
+  operations: Operation[]; // all ops for this target (create + update + skip + delete)
+  summary: { create: number; update: number; skip: number; delete: number };
   mcpWarning?: MCPWarning;
 }
 
