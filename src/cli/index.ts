@@ -8,7 +8,7 @@ import { diffCommand } from './diff';
 
 const program = new Command()
   .name('acsync')
-  .description('Agent Config Sync — render, diff, and push canonical configs to CLI targets')
+  .description('Agent Config Sync — manages canonical configs in configs/ and syncs to CLI targets')
   .version('1.0.0');
 
 program.addCommand(checkCommand);

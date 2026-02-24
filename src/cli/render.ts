@@ -70,7 +70,7 @@ export const renderCommand = new Command('render')
           const servers = await readCanonicalMCPServers(projectDir);
           const server = servers.find((s) => s.name === name);
           if (!server) {
-            throw new Error(`Canonical mcp "${name}" not found in configs/common/mcp/`);
+            throw new Error(`Canonical mcp "${name}" not found in configs/mcp/`);
           }
           content = adapter.renderMCPServers([server]);
         } else if (itemType === 'instruction') {
@@ -86,7 +86,7 @@ export const renderCommand = new Command('render')
           const item = skills.find((s) => s.name === name);
           if (!item) {
             throw new Error(
-              `Canonical skill "${name}" not found in configs/common/skills/${name}/SKILL.md`,
+              `Canonical skill "${name}" not found in configs/skills/${name}/SKILL.md`,
             );
           }
           content = adapter.renderSkill(item).content;
@@ -119,7 +119,7 @@ async function readSingleCanonicalItem(
   dirName: 'commands' | 'agents',
   name: string,
 ): Promise<CanonicalItem> {
-  const filePath = join(projectDir, 'configs', 'common', dirName, `${name}.md`);
+  const filePath = join(projectDir, 'configs', dirName, `${name}.md`);
   let raw: string;
   try {
     raw = await readFile(filePath, 'utf-8');

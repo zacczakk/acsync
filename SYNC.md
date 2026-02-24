@@ -34,12 +34,12 @@ merges commands and agents into a single `prompts/` directory.
 ### Canonical Sources (This Repo)
 
 ```
-configs/common/commands/*.md       17 slash commands (all zz- prefixed)
-configs/common/agents/*.md         8 agent definitions (all zz- prefixed)
-configs/common/skills/             2 skill directories
-configs/common/mcp/*.json          6 MCP server definitions
-configs/common/settings/*.json     2 settings definitions (claude, opencode)
-configs/common/instructions/*.md   4 CLI-specific instruction addendums
+configs/commands/*.md       17 slash commands (all zz- prefixed)
+configs/agents/*.md         8 agent definitions (all zz- prefixed)
+configs/skills/             2 skill directories
+configs/mcp/*.json          6 MCP server definitions
+configs/settings/*.json     2 settings definitions (claude, opencode)
+configs/instructions/*.md   4 CLI-specific instruction addendums
 ```
 
 ### Exclusion Rules
@@ -62,7 +62,7 @@ Never touch these during sync:
 Canonical command files are named `zz-{name}.md`. For Claude Code, strip the
 `zz-` prefix from the filename and place the file inside a `zz/` subdirectory:
 
-- Canonical: `configs/common/commands/zz-gate.md`
+- Canonical: `configs/commands/zz-gate.md`
 - Claude system: `~/.claude/commands/zz/gate.md`
 - Invoked as: `/zz:gate`
 
@@ -174,7 +174,7 @@ Rules:
 
 Strip `zz-` prefix and place in `~/.claude/agents/zz/` subdirectory (same pattern as commands).
 
-- Canonical: `configs/common/agents/zz-planner.md`
+- Canonical: `configs/agents/zz-planner.md`
 - Claude system: `~/.claude/agents/zz/planner.md`
 
 Body content copied verbatim.
@@ -284,10 +284,10 @@ to voluntarily issue a Read tool call.
 
 ```
 AGENTS.md (root)                        — ground truth rules (prepended to all)
-configs/common/instructions/claude.md   -> ~/.claude/CLAUDE.md
-configs/common/instructions/opencode.md -> ~/.config/opencode/OPENCODE.md
-configs/common/instructions/gemini.md   -> ~/.gemini/GEMINI.md
-configs/common/instructions/codex.md    -> ~/.codex/AGENTS.md
+configs/instructions/claude.md   -> ~/.claude/CLAUDE.md
+configs/instructions/opencode.md -> ~/.config/opencode/OPENCODE.md
+configs/instructions/gemini.md   -> ~/.gemini/GEMINI.md
+configs/instructions/codex.md    -> ~/.codex/AGENTS.md
 ```
 
 #### Discovery Mechanism Per CLI
@@ -306,7 +306,7 @@ The rendered system file is built as:
 ```
 {contents of ~/Repos/agents/AGENTS.md}
 
-{contents of configs/common/instructions/{cli}.md}
+{contents of configs/instructions/{cli}.md}
 ```
 
 Two newlines separate AGENTS.md from the addendum. The addendum files in
@@ -315,7 +315,7 @@ the repo contain only the CLI-specific content (no `READ` directive).
 #### Push
 
 1. Read `~/Repos/agents/AGENTS.md`.
-2. Read the canonical CLI addendum (`configs/common/instructions/{cli}.md`).
+2. Read the canonical CLI addendum (`configs/instructions/{cli}.md`).
 3. Concatenate: AGENTS.md content + `"\n\n"` + addendum content.
 4. Write the combined result to the system instruction file.
 
@@ -340,7 +340,7 @@ Same split logic as pull. Report drift for both portions independently.
 
 ### 2.5 MCP Servers
 
-The canonical MCP definition schema (`configs/common/mcp/*.json`):
+The canonical MCP definition schema (`configs/mcp/*.json`):
 
 ```json
 {
@@ -500,7 +500,7 @@ Rules:
   `enabledMcpjsonServers`/`disabledMcpjsonServers` entries. Do NOT modify
   these during sync.
 - **Claude-only skills**: The `ralph-tui-*` skills in `~/.claude/skills/` are
-  Claude-only. They are not canonical (not in `configs/common/skills/`). Do
+  Claude-only. They are not canonical (not in `configs/skills/`). Do
   NOT remove them during sync.
 
 ### OpenCode
@@ -633,7 +633,7 @@ Compare to canonical MCP definitions.
 
 ### Claude `~/.claude/settings.json`
 
-**Canonical source**: `configs/common/settings/claude.json`
+**Canonical source**: `configs/settings/claude.json`
 
 **Managed keys**: `permissions`, `env`
 
@@ -662,7 +662,7 @@ directory paths to `~`. Compare to canonical settings file.
 
 ### OpenCode `~/.config/opencode/opencode.json`
 
-**Canonical source**: `configs/common/settings/opencode.json`
+**Canonical source**: `configs/settings/opencode.json`
 
 **Managed keys**: `provider`, `plugin`, `permission`, `model`,
 `instructions`

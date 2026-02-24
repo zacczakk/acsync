@@ -8,8 +8,8 @@ read_when:
 # Subagent and Command System
 
 ## Canonical sources
-- Canonical subagent specs: `configs/common/agents/*.md`.
-- Canonical command specs: `configs/common/commands/*.md`.
+- Canonical subagent specs: `configs/agents/*.md`.
+- Canonical command specs: `configs/commands/*.md`.
 - Each spec uses front-matter (`name`, `description`, optional `model`, optional `allowed-tools`) plus body instructions.
 
 ## Render targets — agents
@@ -25,13 +25,13 @@ read_when:
 - Codex: flat Markdown with `# /{name}` heading, copy to `~/.codex/prompts/`.
 
 ## Instruction addendums
-- Canonical source: `configs/common/instructions/{cli}.md`.
+- Canonical source: `configs/instructions/{cli}.md`.
 - System locations: `~/.claude/CLAUDE.md`, `~/.config/opencode/OPENCODE.md`, `~/.gemini/GEMINI.md`, `~/.codex/AGENTS.md`.
 - These point to `~/Repos/agents/AGENTS.md` and add CLI-specific notes (paths, quirks, restrictions).
 - Synced via `/zz-sync-agent-configs push` alongside commands, agents, and MCP.
 
 ## Operational rules
-- Update only `configs/common/agents/` and `configs/common/commands/` for shared behavior changes.
+- Update only `configs/agents/` and `configs/commands/` for shared behavior changes.
 - Do not hand-edit system files; use `/zz-sync-agent-configs push` to distribute.
-- If you need CLI-specific behavior, edit `configs/common/instructions/{cli}.md` and push.
+- If you need CLI-specific behavior, edit `configs/instructions/{cli}.md` and push.
 - Full format specification lives in `SYNC.md` sections 2.1 through 2.5.

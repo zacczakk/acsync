@@ -13,7 +13,7 @@ Single source of truth for AI coding assistant configurations across four CLIs:
 **Claude Code**, **OpenCode**, **Gemini CLI**, and **Codex**.
 
 All commands, agents, skills, and MCP server definitions are authored once in
-`configs/common/` and synced to each CLI's system directory via an
+`configs/` and synced to each CLI's system directory via an
 agent-driven workflow.
 
 ## How It Works
@@ -26,7 +26,7 @@ playbook, computes diffs, shows them to you, and applies changes one at a time
 with your confirmation.
 
 ```
-configs/common/          SYNC.md           CLI system dirs
+configs/          SYNC.md           CLI system dirs
   commands/*.md    -->   (playbook)   -->   ~/.claude/commands/
   agents/*.md      -->   read by the  -->   ~/.config/opencode/command/
   skills/          -->   agent at     -->   ~/.gemini/commands/
@@ -62,7 +62,7 @@ diffs, explains changes, and asks before proceeding. No silent bulk operations.
 quirks are documented in `SYNC.md` as structured prose. The agent reads and
 follows it. Changes to sync behavior are documentation edits, not code changes.
 
-**Canonical source**: `configs/common/` is the single source of truth. System
+**Canonical source**: `configs/` is the single source of truth. System
 directories are derived. Pull operations extract from system back to canonical.
 
 **Secret separation**: Real values live in `.env` (gitignored). Repo files
@@ -77,12 +77,11 @@ agents/
   SYNC.md                     Sync playbook (format specs, merge rules, per-CLI quirks)
   .env                        Secrets (gitignored)
   configs/
-    common/
-      commands/*.md            17 slash commands (canonical)
-      agents/*.md              8 agent definitions (canonical)
-      skills/                  2 skill directories (canonical)
-      mcp/*.json               6 MCP server definitions (canonical)
-      settings/*.json          2 settings definitions (claude, opencode)
+    commands/*.md              17 slash commands (canonical)
+    agents/*.md                8 agent definitions (canonical)
+    skills/                    2 skill directories (canonical)
+    mcp/*.json                 6 MCP server definitions (canonical)
+    settings/*.json            2 settings definitions (claude, opencode)
   scripts/
     committer                  Git commit helper
     generate-docs.py           Docs catalog generator

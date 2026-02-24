@@ -17,7 +17,7 @@ read_when:
 
 ## Immediate containment
 - Disable affected MCP server in the canonical definition:
-  - Edit `configs/common/mcp/<name>.json` — set `"enabled": false` or add CLI to `disabled_for`.
+  - Edit `configs/mcp/<name>.json` — set `"enabled": false` or add CLI to `disabled_for`.
 - Keep unaffected servers enabled.
 - Push config update: run `/zz-sync-agent-configs push`.
 

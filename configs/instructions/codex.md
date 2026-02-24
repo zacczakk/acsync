@@ -2,9 +2,9 @@
 
 ## Paths
 - Canonical rules: `~/Repos/agents/AGENTS.md`
-- Canonical commands: `~/Repos/agents/configs/common/commands`
-- Canonical subagents: `~/Repos/agents/configs/common/agents`
-- Canonical skills: `~/Repos/agents/configs/common/skills`
+- Canonical commands: `~/Repos/agents/configs/commands`
+- Canonical subagents: `~/Repos/agents/configs/agents`
+- Canonical skills: `~/Repos/agents/configs/skills`
 - Codex prompts (rendered): `~/.codex/prompts`
 - Codex skills (rendered): `~/.codex/skills`
 - Helper scripts: `~/Repos/agents/scripts`

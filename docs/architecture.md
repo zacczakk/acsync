@@ -11,7 +11,7 @@ read_when:
 
 - **AGENTS.md** — Ground truth for agent behavior. Index, not encyclopedia.
 - **SYNC.md** — Sync playbook: format specs, merge rules, per-CLI transforms.
-- **configs/common/** — Canonical source for all CLI artifacts.
+- **configs/** — Canonical source for all CLI artifacts.
   - `commands/` — Slash commands (17 .md files)
   - `agents/` — Subagent definitions (8 .md files)
   - `skills/` — Skill bundles (2 directories)
@@ -25,7 +25,7 @@ read_when:
 ## Data Flow
 
 ```
-configs/common/  ──→  /zz-sync-agent-configs push  ──→  ~/.claude/
+configs/  ──→  /zz-sync-agent-configs push  ──→  ~/.claude/
                                                          ~/.config/opencode/
                                                          ~/.gemini/
                                                          ~/.codex/
@@ -33,7 +33,7 @@ configs/common/  ──→  /zz-sync-agent-configs push  ──→  ~/.claude/
 
 ## Dependency Direction
 
-- CLI configs depend on `configs/common/` (never the reverse)
+- CLI configs depend on `configs/` (never the reverse)
 - `SYNC.md` is the contract between the repo and the sync command
 - `AGENTS.md` is consumed by all CLIs at runtime (injected as instructions)
 - `scripts/` are standalone; no imports between them
