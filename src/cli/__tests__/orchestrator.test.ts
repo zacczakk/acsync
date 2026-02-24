@@ -27,13 +27,11 @@ async function setupProject(dir: string, salt: string): Promise<void> {
     `---\ndescription: Test agent ${salt}\n---\n\nAgent ${salt}.\n`,
   );
 
-  await writeFile(join(dir, 'AGENTS.md'), `# Agent OS ${salt}\n\nBase.\n`);
-
   const instructionsDir = join(dir, 'configs', 'instructions');
   await mkdir(instructionsDir, { recursive: true });
   await writeFile(
-    join(instructionsDir, 'claude.md'),
-    `# Claude Addendum ${salt}\n\nClaude-specific.\n`,
+    join(instructionsDir, 'AGENTS.md'),
+    `# Agent OS ${salt}\n\nBase.\n\n## CLI-Specific Notes\n\n### Claude Code\n\nClaude-specific ${salt}.\n`,
   );
 }
 

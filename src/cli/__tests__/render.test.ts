@@ -28,11 +28,11 @@ describe('render subcommand logic', () => {
   });
 
   test('renders instructions for a target', async () => {
-    const instructions = await readCanonicalInstructions(projectDir, 'claude-code');
-    expect(instructions).not.toBeNull();
+    const content = await readCanonicalInstructions(projectDir);
+    expect(content).not.toBeNull();
 
     const adapter = createAdapter('claude-code');
-    const rendered = adapter.renderInstructions(instructions!.base, instructions!.addendum);
+    const rendered = adapter.renderInstructions(content!);
     expect(rendered.length).toBeGreaterThan(0);
   });
 
