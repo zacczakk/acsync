@@ -21,16 +21,16 @@ Requirements for Simplify Canonical milestone. Flatten structure, unify instruct
 
 ### Instructions Unification
 
-- [ ] **INST-01**: AGENTS.md lives at `configs/instructions/AGENTS.md` (moved from repo root)
-- [ ] **INST-02**: No AGENTS.md at repo root
-- [ ] **INST-03**: AGENTS.md contains `## CLI-Specific Notes` section with merged content from all 4 per-CLI addendums
-- [ ] **INST-04**: Per-CLI addendum files deleted (claude.md, opencode.md, gemini.md, codex.md)
-- [ ] **INST-05**: `renderInstructions()` accepts single content parameter (no addendum)
-- [ ] **INST-06**: `readCanonicalInstructions()` reads single file from `configs/instructions/AGENTS.md`
-- [ ] **INST-07**: OpenCode instructions output file is `AGENTS.md` (not `OPENCODE.md`)
-- [ ] **INST-08**: Gemini instructions output file is `AGENTS.md` (not `GEMINI.md`)
-- [ ] **INST-09**: Codex instructions output file is `AGENTS.md` (not `instructions.md`)
-- [ ] **INST-10**: Claude instructions output file remains `CLAUDE.md` (unchanged)
+- [x] **INST-01**: AGENTS.md lives at `configs/instructions/AGENTS.md` (moved from repo root)
+- [x] **INST-02**: No AGENTS.md at repo root
+- [x] **INST-03**: AGENTS.md contains `## CLI-Specific Notes` section with merged content from all 4 per-CLI addendums
+- [x] **INST-04**: Per-CLI addendum files deleted (claude.md, opencode.md, gemini.md, codex.md)
+- [x] **INST-05**: `renderInstructions()` accepts single content parameter (no addendum)
+- [x] **INST-06**: `readCanonicalInstructions()` reads single file from `configs/instructions/AGENTS.md`
+- [x] **INST-07**: OpenCode instructions output file is `AGENTS.md` (not `OPENCODE.md`)
+- [x] **INST-08**: Gemini instructions output file is `AGENTS.md` (not `GEMINI.md`)
+- [x] **INST-09**: Codex instructions output file is `AGENTS.md` (not `instructions.md`)
+- [x] **INST-10**: Claude instructions output file remains `CLAUDE.md` (unchanged)
 
 ### TOOLS.md
 
@@ -78,16 +78,16 @@ Requirements for Simplify Canonical milestone. Flatten structure, unify instruct
 | STRUCT-03 | Phase 6 | Complete |
 | STRUCT-04 | Phase 6 | Complete |
 | STRUCT-05 | Phase 6 | Complete |
-| INST-01 | Phase 7 | Pending |
-| INST-02 | Phase 7 | Pending |
-| INST-03 | Phase 7 | Pending |
-| INST-04 | Phase 7 | Pending |
-| INST-05 | Phase 7 | Pending |
-| INST-06 | Phase 7 | Pending |
-| INST-07 | Phase 7 | Pending |
-| INST-08 | Phase 7 | Pending |
-| INST-09 | Phase 7 | Pending |
-| INST-10 | Phase 7 | Pending |
+| INST-01 | Phase 7 | Complete |
+| INST-02 | Phase 7 | Complete |
+| INST-03 | Phase 7 | Complete |
+| INST-04 | Phase 7 | Complete |
+| INST-05 | Phase 7 | Complete |
+| INST-06 | Phase 7 | Complete |
+| INST-07 | Phase 7 | Complete |
+| INST-08 | Phase 7 | Complete |
+| INST-09 | Phase 7 | Complete |
+| INST-10 | Phase 7 | Complete |
 | TOOL-01 | Phase 8 | Pending |
 | TOOL-02 | Phase 8 | Pending |
 | TOOL-03 | Phase 8 | Pending |
