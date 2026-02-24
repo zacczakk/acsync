@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 
 ## Current Position
 
-Phase: 7 of 8 (Unify Instructions) — COMPLETE
-Plan: 2 of 2 in current phase (COMPLETE)
-Status: Phase 07 complete — tests updated, addendum files deleted, full suite green
-Last activity: 2026-02-24 — Completed 07-02 (test updates + addendum cleanup)
+Phase: 8 of 8 (TOOLS.md + Repo Rename) — PLANNED
+Plan: 0 of 2 in current phase (ready to execute)
+Status: Phase 08 plans created and verified — ready for execution
+Last activity: 2026-02-24 — Phase 08 planning complete (2 plans, 2 waves)
 
-Progress: [███████████████████░] 95% (19/20 plans)
+Progress: [███████████████████░] 95% (19/21 plans)
 
 ## Performance Metrics
 
@@ -70,5 +70,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 07-02-PLAN.md — Phase 07 complete (test updates + addendum cleanup)
-Resume file: .planning/phases/07-unify-instructions/07-02-SUMMARY.md
+Stopped at: Phase 08 planning complete — 2 plans created and verified
+Resume file: .planning/phases/08-tools-repo-rename/08-01-PLAN.md
