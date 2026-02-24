@@ -159,10 +159,11 @@ Plans:
   3. `acsync check` runs successfully against the new path structure (no "not found" errors)
   4. All tests pass with zero references to `configs/common/`
   5. `acsync --help` and error messages reference `configs/` (not `configs/common/`)
-**Plans:** 1/1 plans complete
+**Plans:** 2 plans (1 complete + 1 gap closure)
 
 Plans:
-- [ ] 06-01-PLAN.md — Move configs/common/* to configs/, add path constants, update all references (single atomic commit)
+- [x] 06-01-PLAN.md — Move configs/common/* to configs/, add path constants, update all references (single atomic commit)
+- [ ] 06-02-PLAN.md — Gap closure: fix README.md stale refs + wire path constants into render/pull/check
 
 ### Phase 7: Unify Instructions
 **Goal**: Single canonical `configs/instructions/AGENTS.md` replaces base + 4 addendums — rendering pipeline simplified to single-file passthrough, all 4 targets receive correct output filenames
