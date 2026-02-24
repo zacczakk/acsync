@@ -17,7 +17,20 @@ import { cwd } from 'node:process';
 import type { TargetName, ItemType, CanonicalItem } from '../types';
 
 export const diffCommand = new Command('diff')
-  .description('Show unified text diff between rendered canonical and on-disk target configs')
+  .description(
+    `Show unified text diff between rendered canonical and on-disk target configs.
+
+Runs check first, then for each drifted item shows a git-style unified diff
+(--- a/path, +++ b/path, @@ hunks) comparing the current on-disk content
+against what canonical would render. Only items with create/update drift are shown.
+
+Examples:
+  acsync diff                           Diff all targets, all types
+  acsync diff -t claude                 Diff Claude Code only
+  acsync diff --type mcps               Diff MCP configs only
+  acsync diff -t opencode --type commands  Diff OpenCode commands only
+
+Exit codes: 0 = no drift, 2 = drift found, 1 = error`)
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
   .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills', collect, [] as string[])
   .action(async (options: { target: string[]; type: string[] }) => {
@@ -89,9 +102,9 @@ export const diffCommand = new Command('diff')
             }
             rendered = adapter.renderMCPServers(mcpServers, existingContent);
           } else if (op.itemType === 'instruction') {
-            const instructions = await readCanonicalInstructions(projectDir, target);
-            if (!instructions) continue;
-            rendered = adapter.renderInstructions(instructions.base, instructions.addendum);
+            const instructionContent = await readCanonicalInstructions(projectDir);
+            if (!instructionContent) continue;
+            rendered = adapter.renderInstructions(instructionContent);
           } else if (op.itemType === 'skill') {
             if (!caps.skills) continue;
             const item = skills.find((s) => s.name === op.name);

@@ -132,9 +132,9 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
             }
             content = adapter.renderMCPServers(mcpServers, existingContent);
           } else if (op.itemType === 'instruction') {
-            const instructions = await readCanonicalInstructions(projectDir, target);
-            if (!instructions) continue;
-            content = adapter.renderInstructions(instructions.base, instructions.addendum);
+            const instructionContent = await readCanonicalInstructions(projectDir);
+            if (!instructionContent) continue;
+            content = adapter.renderInstructions(instructionContent);
           } else if (op.itemType === 'skill') {
             if (!caps.skills) continue;
             const item = skills.find((s) => s.name === op.name);
@@ -217,7 +217,22 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
 }
 
 export const pushCommand = new Command('push')
-  .description('Render and write configs to target locations')
+  .description(
+    `Render canonical configs and write them to target CLI locations.
+
+Runs check first, shows a plan, prompts for confirmation, then atomically writes
+rendered files. Creates backups before each write; rolls back all changes on failure.
+
+Without --force, shows drift and asks for confirmation before writing.
+With --delete, also removes stale target files not present in canonical source.
+
+Examples:
+  acsync push                           Check, confirm, then push all
+  acsync push --force                   Push without confirmation
+  acsync push --dry-run                 Show plan without writing anything
+  acsync push --delete                  Push and remove stale target files
+  acsync push -t claude --type commands Push commands to Claude Code only
+  acsync push --force --delete          Full sync: push all + clean stale`)
   .option('--pretty', 'Human-readable colored output (default: JSON)')
   .option('--json', 'Output JSON (default behavior, explicit for scripts)')
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
