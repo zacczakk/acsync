@@ -56,14 +56,14 @@ Phase 2 (subset merge engine). This is the core differentiator over a naive copy
 ### Pitfall 3: Secret Value Leaked to Git via Incomplete Redaction
 
 **What goes wrong:**
-During pull (system → repo), real secret values in system files must be redacted back to `${VAR}` placeholders before writing to canonical files. Missing a single code path (e.g., a new MCP server, the `FOUNDRY_TOKEN` alias, or `UPTIMIZE_BEDROCK_API_KEY` in nested provider config) means a real API key gets committed.
+During pull (system → repo), real secret values in system files must be redacted back to `${VAR}` placeholders before writing to canonical files. Missing a single code path (e.g., a new MCP server, the `FOUNDRY_TOKEN` env var, or `CORP_BEDROCK_API_KEY` in nested provider config) means a real API key gets committed.
 
 **Why it happens:**
 Redaction is a string replacement operation that must cover every location where secrets appear, including:
 - `env` blocks in MCP configs (4 different formats)
 - `headers` blocks in HTTP MCP configs
-- Nested paths like `provider.uptimize-bedrock.options.apiKey`
-- The `FOUNDRY_TOKEN` alias (env key differs from `.env` variable name)
+- Nested paths like `provider.corp-proxy-bedrock.options.apiKey`
+- The `FOUNDRY_TOKEN` env var in MCP config
 
 One missed substitution = leaked secret.
 
@@ -71,11 +71,11 @@ One missed substitution = leaked secret.
 1. After every pull operation, scan the entire output for exact string matches of all known secret values. Fail loudly if any are found.
 2. Implement redaction as a final pass over serialized content, not per-field replacement.
 3. Add a pre-commit hook (or post-pull verification) that greps canonical files for known secret patterns.
-4. The `FOUNDRY_TOKEN` ↔ `PALANTIR_FOUNDRY_TOKEN` alias must be a first-class mapping, not an afterthought.
+4. The `FOUNDRY_TOKEN` env var mapping must be a first-class mapping, not an afterthought.
 
 **Warning signs:**
 - Redaction logic that operates field-by-field instead of a final content scan
-- No test for the `FOUNDRY_TOKEN` alias round-trip
+- No test for the `FOUNDRY_TOKEN` round-trip
 - No integration test that verifies "zero secrets in output files"
 
 **Phase to address:**
@@ -86,7 +86,7 @@ Phase 1 (secret handling module). Must be correct from the first push/pull. Add 
 ### Pitfall 4: OpenCode `{env:VAR}` Confused with Secret Placeholder `${VAR}`
 
 **What goes wrong:**
-OpenCode provider configs use `{env:ANTHROPIC_BASE_URL}` — runtime env var references that OpenCode resolves at startup. These look similar to `${PALANTIR_FOUNDRY_TOKEN}` (secret placeholders that our sync tool resolves). A naive regex replacing `$?{env:...}` or `${...}` patterns will corrupt OpenCode provider configs by injecting secret values where runtime references belong, or vice versa.
+OpenCode provider configs use `{env:ANTHROPIC_BASE_URL}` — runtime env var references that OpenCode resolves at startup. These look similar to `${FOUNDRY_TOKEN}` (secret placeholders that our sync tool resolves). A naive regex replacing `$?{env:...}` or `${...}` patterns will corrupt OpenCode provider configs by injecting secret values where runtime references belong, or vice versa.
 
 **Why it happens:**
 Three different env var syntaxes exist across the CLIs:
@@ -99,7 +99,7 @@ The regex patterns for these overlap. vsync's `EnvVarTransformer` handles this w
 **How to avoid:**
 1. Secret injection regex must match `${VAR}` exactly (dollar + curly brace + uppercase + curly brace).
 2. Explicitly skip patterns matching `{env:VAR}` (no dollar sign).
-3. Test fixture: OpenCode settings with both `{env:ANTHROPIC_BASE_URL}` and `${UPTIMIZE_BEDROCK_API_KEY}` — verify only the latter gets injected.
+3. Test fixture: OpenCode settings with both `{env:ANTHROPIC_BASE_URL}` and `${CORP_BEDROCK_API_KEY}` — verify only the latter gets injected.
 
 **Warning signs:**
 - A single regex handles all env var patterns
@@ -242,7 +242,7 @@ Phase 1 (core exclusion filter). Must be in place before any directory-level syn
 | `.env` committed to repo | All secrets exposed in git history | `.gitignore` entry + pre-commit hook; verify on every pull operation |
 | Secret scan only on known fields | New MCP server with secrets in unexpected field goes unredacted | Post-write content scan: grep for all known secret values in all output files |
 | Backup files contain secrets | Backup dir (`backups/<timestamp>/`) has plaintext secrets | Exclude backup dir from git; or redact secrets in backups too |
-| `FOUNDRY_TOKEN` alias missed in redaction | `PALANTIR_FOUNDRY_TOKEN` value committed under `FOUNDRY_TOKEN` key | First-class alias mapping: env key → secret name → `.env` variable |
+| `FOUNDRY_TOKEN` missed in redaction | `FOUNDRY_TOKEN` value committed without redaction | First-class env var mapping: env key → secret name → `.env` variable |
 
 ## UX Pitfalls
 
@@ -256,7 +256,7 @@ Phase 1 (core exclusion filter). Must be in place before any directory-level syn
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Secret injection:** Test the `FOUNDRY_TOKEN` alias specifically — the env key name differs from the `.env` variable name
+- [ ] **Secret injection:** Test the `FOUNDRY_TOKEN` env var specifically — ensure correct injection and redaction
 - [ ] **OpenCode env syntax:** Verify `{env:ANTHROPIC_BASE_URL}` survives push untouched (no dollar sign added)
 - [ ] **Codex HTTP-only filter:** Verify all stdio MCP servers are silently skipped (not errored)
 - [ ] **Claude nested commands:** Verify `zz/gate.md` maps to `/zz:gate` invocation (not `/zz/gate`)

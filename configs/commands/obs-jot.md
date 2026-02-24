@@ -26,7 +26,7 @@ User input: $ARGUMENTS
 4. **Create the memory note:**
    - **Do NOT use `obsidian create` for this step.** The shell interprets backticks in `content=` as command substitution, silently stripping any inline code. Write directly to the filesystem instead:
      ```
-     Write to: /Users/m332023/Library/Mobile Documents/iCloud~md~obsidian/Documents/Memory/{kebab-name}.md
+      Write to: ~/Vaults/Memory/{kebab-name}.md
      ```
    - Use `[[wikilinks]]` to reference related notes in either vault (cross-vault links work).
 

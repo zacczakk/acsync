@@ -36,15 +36,15 @@
 
 ## Known Bugs
 
-**`palantir-mcp.json` uses `${FOUNDRY_HOST}` in args but doesn't declare it in `env_vars`**
-- Symptoms: If `FOUNDRY_HOST` is missing from `.env`, the sync push will inject the literal string `${FOUNDRY_HOST}` into the CLI config instead of a real URL. The `env_vars` validation (SYNC.md section 4) only checks `PALANTIR_FOUNDRY_TOKEN`.
-- Files: `configs/common/mcp/palantir-mcp.json` (line 5)
+**`foundry-mcp.json` uses `${FOUNDRY_HOST}` in args but doesn't declare it in `env_vars`**
+- Symptoms: If `FOUNDRY_HOST` is missing from `.env`, the sync push will inject the literal string `${FOUNDRY_HOST}` into the CLI config instead of a real URL. The `env_vars` validation (SYNC.md section 4) only checks `FOUNDRY_TOKEN`.
+- Files: `configs/common/mcp/foundry-mcp.json` (line 5)
 - Trigger: Run sync push without `FOUNDRY_HOST` in `.env`.
 - Workaround: Manually ensure `FOUNDRY_HOST` is always set. But the validation step won't catch its absence.
 
 **SYNC.md secret table is incomplete**
-- Symptoms: `SYNC.md` section 4 ("Secret Variables") lists 4 vars: `TAVILY_API_KEY`, `CONTEXT7_API_KEY`, `UPTIMIZE_BEDROCK_API_KEY`, `PALANTIR_FOUNDRY_TOKEN`. But `.env.example` also has `FOUNDRY_HOST` and `UPTIMIZE_BASE_URL_PROD`, which are used in `palantir-mcp.json` args and `opencode.json` settings respectively. The agent performing sync may not validate these.
-- Files: `SYNC.md` (section 4), `.env.example`, `configs/common/mcp/palantir-mcp.json`, `configs/common/settings/opencode.json`
+- Symptoms: `SYNC.md` section 4 ("Secret Variables") lists 4 vars: `TAVILY_API_KEY`, `CONTEXT7_API_KEY`, `CORP_BEDROCK_API_KEY`, `FOUNDRY_TOKEN`. But `.env.example` also has `FOUNDRY_HOST` and `CORP_BASE_URL`, which are used in `foundry-mcp.json` args and `opencode.json` settings respectively. The agent performing sync may not validate these.
+- Files: `SYNC.md` (section 4), `.env.example`, `configs/common/mcp/foundry-mcp.json`, `configs/common/settings/opencode.json`
 - Trigger: Agent follows SYNC.md literally and only validates the 4 documented vars.
 - Workaround: None — requires updating SYNC.md.
 
@@ -104,7 +104,7 @@
 
 **Secret injection/redaction boundary**
 - Files: `.env`, `SYNC.md` (section 4), all `configs/common/mcp/*.json`, `configs/common/settings/opencode.json`
-- Why fragile: Push replaces `${VAR}` with real values. Pull replaces real values back to `${VAR}`. The `FOUNDRY_TOKEN` alias (`PALANTIR_FOUNDRY_TOKEN` in `.env` → `FOUNDRY_TOKEN` in config) is a special case documented only in prose. If the agent misapplies the alias, secrets leak into the repo or configs break.
+- Why fragile: Push replaces `${VAR}` with real values. Pull replaces real values back to `${VAR}`. The `FOUNDRY_TOKEN` alias (`FOUNDRY_TOKEN` in `.env` → `FOUNDRY_TOKEN` in config) must be handled correctly. If the agent misapplies the alias, secrets leak into the repo or configs break.
 - Safe modification: Always verify with `git diff` after a pull that no real secrets appear in committed files.
 - Test coverage: Zero.
 

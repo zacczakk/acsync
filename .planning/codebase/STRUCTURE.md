@@ -88,7 +88,7 @@ agents/
 **`configs/common/mcp/`:**
 - Purpose: MCP server definitions in canonical JSON schema
 - Contains: 7 JSON files defining transport, command, args, env, secrets, per-CLI exclusions
-- Key files: `tavily.json` (web search, stdio), `context7.json` (docs retrieval, HTTP), `palantir-mcp.json` (Foundry access, stdio)
+- Key files: `tavily.json` (web search, stdio), `context7.json` (docs retrieval, HTTP), `foundry-mcp.json` (data platform access, stdio)
 
 **`configs/common/settings/`:**
 - Purpose: CLI-specific settings (permissions, providers, env)

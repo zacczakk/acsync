@@ -1,67 +1,62 @@
-# agents
+# acsync
 
 Single source of truth for AI coding assistant configurations.
-Agent-driven sync across Claude Code, OpenCode, Gemini CLI, and Codex.
+Code-driven sync across Claude Code, OpenCode, Gemini CLI, and Codex.
 
 ## First-Time Setup
 
 1. Clone the repo:
    ```bash
-   git clone https://github.com/zacczakk/agents.git
-   cd agents
+   git clone https://github.com/zacczakk/acsync.git ~/Repos/acsync
+   cd ~/Repos/acsync
    ```
 
-2. Copy `.env.example` to `.env` and fill in secrets:
+2. Install dependencies and link the CLI:
+   ```bash
+   bun install && bun link
+   ```
+
+3. Copy `.env.example` to `.env` and fill in secrets:
    ```bash
    cp .env.example .env
    # Edit .env with your API keys
    ```
 
-3. **Bootstrap sync**: Since slash commands aren't installed yet, manually copy one command to your CLI:
-
-   **For Claude Code:**
+4. Push configs to all CLIs:
    ```bash
-   mkdir -p ~/.claude/commands/zz
-    cp configs/commands/zz-sync-agent-configs.md \
-      ~/.claude/commands/zz/sync-agent-configs.md
+   acsync push --force --delete
    ```
-
-   **For OpenCode:**
-   ```bash
-   mkdir -p ~/.config/opencode/command
-    cp configs/commands/zz-sync-agent-configs.md \
-      ~/.config/opencode/command/zz-sync-agent-configs.md
-   ```
-
-4. Restart your CLI, then run `/zz-sync-agent-configs push` to install everything else.
 
 ## Quick Start
 
-After setup, from any of the four CLIs, run:
-
+```bash
+acsync check --pretty            # drift detection (read-only)
+acsync diff                      # unified diff of all drift
+acsync push --force --delete     # push all + delete stale files
+acsync pull -s claude            # pull from Claude to canonical
 ```
-/zz-sync-agent-configs push    # repo -> system
-/zz-sync-agent-configs pull    # system -> repo
-/zz-sync-agent-configs check   # drift detection
-```
-
-The agent reads `SYNC.md` (the playbook), computes diffs, and walks you
-through every change interactively.
 
 ## Directory Layout
 
 ```
-AGENTS.md                    Agent operating system (ground truth)
-SYNC.md                      Sync playbook (format specs, merge rules)
 .env                         Secrets (gitignored)
 
 configs/
-  commands/*.md              17 slash commands
-  agents/*.md                8 agent definitions
+  commands/*.md              8 slash commands
+  agents/                    Agent definitions (currently empty)
   skills/                    2 skill directories
-  mcp/*.json                 6 MCP server definitions
+  mcp/*.json                 3 MCP server definitions
   settings/*.json            2 settings definitions (claude, opencode)
-  instructions/*.md          4 per-CLI instruction addendums
+  instructions/AGENTS.md     Unified agent operating system (ground truth)
+  instructions/TOOLS.md      Tool-use reference
+
+src/                         TypeScript sync engine
+  cli/                       check, push, pull, diff, render commands
+  adapters/                  Per-CLI renderers (claude, opencode, gemini, codex)
+  core/                      Diff engine, formatter, manifest tracking
+  formats/                   Parsers (markdown, JSON, JSONC, TOML)
+  secrets/                   .env injection/redaction
+  infra/                     Atomic writes, exclusion filters
 
 scripts/
   committer                  Git commit helper
@@ -74,29 +69,20 @@ backups/                     Pre-sync backups (gitignored)
 
 ## How It Works
 
-No sync engine. No build step. The playbook (`SYNC.md`) documents:
+The `acsync` CLI handles all sync operations programmatically:
 
-- System paths per CLI
-- Format transformations (Markdown, TOML, JSON per CLI)
-- MCP server rendering (4 different shapes)
-- Secret injection/redaction
-- Subset merge rules (which JSON keys to touch, which to preserve)
-- Per-CLI specialties (OpenCode providers, Claude proxy workarounds, etc.)
-
-The `/zz-sync-agent-configs` slash command reads the playbook and executes it
-interactively. Every write is preceded by a diff and requires confirmation.
+- Reads canonical configs from `configs/`
+- Transforms to each CLI's native format (Markdown, TOML, JSON)
+- Injects secrets from `.env` on push, redacts on pull
+- Subset-merges settings (preserves user-added keys)
+- Tracks sync state via `.acsync/manifest.json` (3-way hash comparison)
+- Atomic writes with backup/rollback on failure
 
 ## Helper Scripts
 
-To sync helper scripts into another repo:
-
-```
-/zz-sync-agent-helpers
-```
-
-Copies `committer`, `generate-docs.py`, and `browser-tools.ts` from this
-repo into the current working repo's `scripts/` directory. Diff + confirm
-per file.
+To sync helper scripts into another repo, use the `/acsync-helpers` slash
+command from any CLI. Copies `committer`, `generate-docs.py`, and
+`browser-tools.ts` into the target repo's `scripts/` directory.
 
 ## Secrets
 
@@ -117,8 +103,8 @@ Run `python scripts/generate-docs.py` for the full docs catalog.
 
 | Doc | When to Read |
 |-----|-------------|
-| `SYNC.md` | Before any sync operation |
 | `docs/overview.md` | First time in the repo |
+| `docs/architecture.md` | Understanding repo structure |
 | `docs/subagent.md` | Writing new commands or agents |
 | `docs/tools.md` | Understanding available tools |
 | `docs/tavily-reference.md` | Configuring Tavily MCP |

@@ -32,7 +32,7 @@ gaps:
       - path: "~/.mcporter/mcporter.json"
         issue: "File does not exist — mcporter not configured"
     missing:
-      - "Human action: create ~/.mcporter/mcporter.json with chrome-devtools, palantir-mcp, liquid-carbon, shadcn entries"
+      - "Human action: create ~/.mcporter/mcporter.json with chrome-devtools, foundry-mcp, liquid-carbon, shadcn entries"
 
   - truth: "All tests pass (no regressions)"
     status: failed
@@ -56,7 +56,7 @@ human_verification:
     expected: "All CLIs (claude, gemini, codex, opencode) have tavily in their MCP config after push"
     why_human: "Requires running push against real target dirs and inspecting output"
   - test: "Verify MCPorter setup (if mcporter.json is created)"
-    expected: "4 servers (chrome-devtools, palantir-mcp, liquid-carbon, shadcn) accessible via mcporter"
+    expected: "4 servers (chrome-devtools, foundry-mcp, liquid-carbon, shadcn) accessible via mcporter"
     why_human: "Requires human to create ~/.mcporter/mcporter.json and test mcporter invocations"
 ---
 

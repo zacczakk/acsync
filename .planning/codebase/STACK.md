@@ -51,7 +51,7 @@
 
 **Infrastructure (MCP servers, installed globally or via `npx`):**
 - `tavily-mcp` — Python package, run via `python -m tavily_mcp`
-- `palantir-mcp` — Run via `npx -y palantir-mcp`
+- `foundry-mcp` — Run via `npx -y foundry-mcp`
 - `@modelcontextprotocol/server-sequential-thinking` — Run via `npx`
 - `chrome-devtools-mcp` — Run via `npx -y chrome-devtools-mcp@latest`
 - `shadcn@latest` — Run via `npx shadcn@latest mcp`
@@ -62,7 +62,7 @@
 **Environment:**
 - `.env` file at repo root (gitignored) — Holds API keys and tokens
 - `.env.example` — Template with required variable names
-- Required env vars: `TAVILY_API_KEY`, `CONTEXT7_API_KEY`, `UPTIMIZE_BEDROCK_API_KEY`, `PALANTIR_FOUNDRY_TOKEN`, `FOUNDRY_HOST`, `UPTIMIZE_BASE_URL_PROD`
+- Required env vars: `TAVILY_API_KEY`, `CONTEXT7_API_KEY`, `CORP_BEDROCK_API_KEY`, `FOUNDRY_TOKEN`, `FOUNDRY_HOST`, `CORP_BASE_URL`
 - SSL: `SSL_CERT_FILE` and `NODE_EXTRA_CA_CERTS` → `~/.claude/cacert.pem` (corporate proxy)
 
 **Build:**

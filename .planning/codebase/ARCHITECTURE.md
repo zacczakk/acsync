@@ -55,7 +55,7 @@ This repo has no runtime application or sync engine. It stores canonical AI codi
 **Secrets Layer:**
 - Purpose: Hold API keys and tokens outside version control
 - Location: `.env` (gitignored)
-- Contains: `TAVILY_API_KEY`, `CONTEXT7_API_KEY`, `UPTIMIZE_BEDROCK_API_KEY`, `PALANTIR_FOUNDRY_TOKEN`
+- Contains: `TAVILY_API_KEY`, `CONTEXT7_API_KEY`, `CORP_BEDROCK_API_KEY`, `FOUNDRY_TOKEN`
 - Depends on: Nothing
 - Used by: Sync push (injection) and pull (redaction)
 
@@ -142,7 +142,7 @@ This repo has no runtime application or sync engine. It stores canonical AI codi
 
 **`scripts/generate-docs.py`:**
 - Location: `scripts/generate-docs.py`
-- Triggers: Manual run or `/zz-groom-docs`
+- Triggers: Manual run or `/groom-docs`
 - Responsibilities: Walk `docs/`, parse YAML frontmatter, print catalog with summary + read_when hints
 
 **`scripts/committer`:**
@@ -173,7 +173,7 @@ This repo has no runtime application or sync engine. It stores canonical AI codi
 - Front-matter compliance enforced by `scripts/generate-docs.py`
 - Secret presence validated before push
 - Drift detection via `/zz-sync-agent-configs check`
-- Docs quality scanned by `/zz-groom-docs`
+- Docs quality scanned by `/groom-docs`
 
 **Authentication:** Not applicable — secrets are API keys for third-party MCP servers, not auth for this repo
 

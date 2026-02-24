@@ -3,7 +3,7 @@
 ## Reporting a Vulnerability
 
 If you discover a security issue in this project, please open a
-[GitHub issue](https://github.com/zacczakk/agents/issues/new) with the label
+[GitHub issue](https://github.com/zacczakk/acsync/issues/new) with the label
 **security**.
 
 Do **not** include secrets, tokens, or reproduction steps that could be

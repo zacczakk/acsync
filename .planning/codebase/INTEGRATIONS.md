@@ -19,27 +19,27 @@
   - Config: `configs/common/mcp/context7.json`
 
 **Enterprise Data Platform:**
-- Palantir Foundry — Ontology access, dataset queries, builds
-  - SDK/Client: `palantir-mcp` npm package (MCP server)
-  - Auth: `PALANTIR_FOUNDRY_TOKEN` env var (aliased as `FOUNDRY_TOKEN` in MCP env)
-  - Transport: stdio (`npx -y palantir-mcp --foundry-api-url ${FOUNDRY_HOST}`)
-  - Config: `configs/common/mcp/palantir-mcp.json`
+- Foundry Platform — Ontology access, dataset queries, builds
+  - SDK/Client: `foundry-mcp` npm package (MCP server)
+  - Auth: `FOUNDRY_TOKEN` env var
+  - Transport: stdio (`npx -y foundry-mcp --foundry-api-url ${FOUNDRY_HOST}`)
+  - Config: `configs/common/mcp/foundry-mcp.json`
   - Disabled for: Codex
 
 **AI Model Providers (OpenCode only):**
-- Uptimize Bedrock — Corporate proxy to AWS Bedrock models
+- Corp Proxy Bedrock — Corporate proxy to AWS Bedrock models
   - SDK/Client: `@ai-sdk/openai-compatible` npm package
-  - Auth: `UPTIMIZE_BEDROCK_API_KEY` env var
-  - Base URL: `${UPTIMIZE_BASE_URL_PROD}/model/`
+  - Auth: `CORP_BEDROCK_API_KEY` env var
+  - Base URL: `${CORP_BASE_URL}/model/`
   - Models: Claude Sonnet 4.5, Claude Haiku 4.5, Claude Opus 4.5
-  - Config: `configs/common/settings/opencode.json` → `provider.uptimize-bedrock`
+  - Config: `configs/common/settings/opencode.json` → `provider.corp-proxy-bedrock`
 
-- Uptimize Foundry — Corporate proxy to Anthropic via Foundry LMS
+- Corp Proxy Foundry — Corporate proxy to Anthropic via Foundry LMS
   - SDK/Client: `@ai-sdk/anthropic` npm package
   - Auth: `ANTHROPIC_AUTH_TOKEN` env var (Bearer token)
   - Base URL: `{env:ANTHROPIC_BASE_URL}/v1`
   - Models: Claude Opus 4.6, Claude Opus 4.5, Claude Sonnet 4.5, Claude Haiku 4.5
-  - Config: `configs/common/settings/opencode.json` → `provider.uptimize-foundry`
+  - Config: `configs/common/settings/opencode.json` → `provider.corp-proxy-foundry`
 
 **Browser Automation:**
 - Chrome DevTools Protocol — Direct browser control
@@ -109,10 +109,10 @@
 |----------|---------|-----------------|
 | `TAVILY_API_KEY` | Tavily MCP | `env` block in MCP config |
 | `CONTEXT7_API_KEY` | Context7 MCP | `headers` block in MCP config |
-| `UPTIMIZE_BEDROCK_API_KEY` | OpenCode settings | `provider.uptimize-bedrock.options.apiKey` |
-| `PALANTIR_FOUNDRY_TOKEN` | Palantir MCP | Aliased as `FOUNDRY_TOKEN` in MCP env block |
-| `FOUNDRY_HOST` | Palantir MCP | CLI arg `--foundry-api-url` |
-| `UPTIMIZE_BASE_URL_PROD` | OpenCode settings | `provider.uptimize-bedrock.options.baseURL` |
+| `CORP_BEDROCK_API_KEY` | OpenCode settings | `provider.corp-proxy-bedrock.options.apiKey` |
+| `FOUNDRY_TOKEN` | Foundry MCP | `env` block in MCP config |
+| `FOUNDRY_HOST` | Foundry MCP | CLI arg `--foundry-api-url` |
+| `CORP_BASE_URL` | OpenCode settings | `provider.corp-proxy-bedrock.options.baseURL` |
 
 ## Monitoring & Observability
 
@@ -133,7 +133,7 @@
 - No CI config files in repo (`.github/workflows/` not present)
 
 **Version Control:**
-- Git with GitHub remote (`https://github.com/zacczakk/agents.git`)
+- Git with GitHub remote (`https://github.com/zacczakk/acsync.git`)
 - `gh` CLI for PR management, issue tracking, CI interaction
 
 ## Environment Configuration
@@ -141,10 +141,10 @@
 **Required env vars (from `.env.example`):**
 - `TAVILY_API_KEY` — Tavily web search
 - `CONTEXT7_API_KEY` — Context7 docs retrieval
-- `UPTIMIZE_BEDROCK_API_KEY` — Corporate AI proxy (Bedrock)
-- `PALANTIR_FOUNDRY_TOKEN` — Palantir Foundry access
-- `FOUNDRY_HOST` — Palantir Foundry API URL
-- `UPTIMIZE_BASE_URL_PROD` — Corporate AI proxy base URL
+- `CORP_BEDROCK_API_KEY` — Corporate AI proxy (Bedrock)
+- `FOUNDRY_TOKEN` — Foundry Platform access
+- `FOUNDRY_HOST` — Foundry Platform API URL
+- `CORP_BASE_URL` — Corporate AI proxy base URL
 
 **Secrets location:**
 - `.env` at repo root (gitignored, never committed)
@@ -173,7 +173,7 @@ These are injected into the browser page context, not installed as npm dependenc
 |------------|--------|----------|--------|-------|
 | Tavily | Yes | Yes | Yes | No (stdio) |
 | Context7 | Yes | Yes | Yes | Yes (HTTP) |
-| Palantir | Yes | Yes | Yes | No (disabled) |
+| Foundry | Yes | Yes | Yes | No (disabled) |
 | Sequential Thinking | Yes | Yes | Yes | No (disabled) |
 | Chrome DevTools | Yes | Yes | Yes | No (disabled) |
 | Liquid Carbon | Yes | Yes | Yes | No (disabled) |
