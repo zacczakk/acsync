@@ -2,7 +2,7 @@ import { createInterface } from 'node:readline';
 import type { TargetName, ItemType } from '../types';
 
 const VALID_TARGETS = ['claude', 'gemini', 'codex', 'opencode'] as const;
-const VALID_TYPES = ['commands', 'agents', 'mcps', 'instructions', 'skills'] as const;
+const VALID_TYPES = ['commands', 'agents', 'mcps', 'instructions', 'skills', 'settings'] as const;
 
 type UserTarget = (typeof VALID_TARGETS)[number];
 type UserType = (typeof VALID_TYPES)[number];
@@ -83,6 +83,7 @@ export function mapTypes(types: string[]): ItemType[] | undefined {
       case 'mcps': return 'mcp';
       case 'instructions': return 'instruction';
       case 'skills': return 'skill';
+      case 'settings': return 'settings';
       default: return t as ItemType;
     }
   });

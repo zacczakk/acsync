@@ -13,11 +13,13 @@ import {
   createAdapter,
   hashRendered,
   hashTargetFile,
+  hashContent,
   readCanonicalCommands,
   readCanonicalAgents,
   readCanonicalMCPServers,
   readCanonicalInstructions,
   readCanonicalSkills,
+  readCanonicalSettings,
 } from './canonical';
 import { mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
 import type { SyncOptions } from './canonical';
@@ -262,6 +264,46 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
       }
     }
 
+    // Settings
+    if (!options.types || options.types.includes('settings')) {
+      if (caps.settings) {
+        const settings = await readCanonicalSettings(projectDir, target);
+        if (settings) {
+          const canonicalKeys = Object.keys(settings.keys);
+          // Source hash: stable JSON of canonical keys (sorted)
+          const extracted: Record<string, unknown> = {};
+          for (const key of [...canonicalKeys].sort()) {
+            extracted[key] = settings.keys[key];
+          }
+          const sourceHash = hashContent(JSON.stringify(extracted, null, 2) + '\n');
+
+          // Target hash: extract only canonical keys from installed file
+          const settingsPath = adapter.getPaths().getSettingsPath();
+          let targetHash: string | null = null;
+          try {
+            const file = Bun.file(settingsPath);
+            if (await file.exists()) {
+              const targetContent = await file.text();
+              const targetExtracted = adapter.extractSettingsKeys(canonicalKeys, targetContent);
+              targetHash = hashContent(targetExtracted);
+            }
+          } catch {
+            // File missing or unreadable
+          }
+
+          sourceItems.push({
+            type: 'settings',
+            name: 'settings',
+            hash: sourceHash,
+            targetPath: settingsPath,
+          });
+          if (targetHash !== null) {
+            targetHashes.set('settings/settings', targetHash);
+          }
+        }
+      }
+    }
+
     const diff = calculateDiff(sourceItems, targetHashes, manifest, target);
     if (mcpWarning) diff.mcpWarning = mcpWarning;
 
@@ -300,7 +342,7 @@ Exit codes: 0 = no drift, 2 = drift detected, 1 = error`)
   .option('--pretty', 'Human-readable colored output (default: JSON)')
   .option('--json', 'Output JSON (default behavior, explicit for scripts)')
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
-  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills', collect, [] as string[])
+  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings', collect, [] as string[])
   .action(async (options: { pretty?: boolean; json?: boolean; target: string[]; type: string[] }) => {
     try {
       validateTargets(options.target);

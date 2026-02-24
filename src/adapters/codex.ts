@@ -19,7 +19,7 @@ export class CodexAdapter extends BaseAdapter {
   }
 
   getCapabilities(): AdapterCapabilities {
-    return { commands: true, agents: true, mcp: true, instructions: true, skills: true };
+    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: false };
   }
 
   /** Codex commands: any .md that isn't agent-prefixed */

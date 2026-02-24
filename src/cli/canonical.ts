@@ -8,7 +8,7 @@ import { OpenCodeAdapter } from '../adapters/opencode';
 import { GeminiAdapter } from '../adapters/gemini';
 import { CodexAdapter } from '../adapters/codex';
 import type { ToolAdapter } from '../adapters/base';
-import type { TargetName, ItemType, CanonicalItem, MCPServer } from '../types';
+import type { TargetName, ItemType, CanonicalItem, CanonicalSettings, MCPServer } from '../types';
 
 /** Repo root — resolved from module location so acsync works from any cwd */
 export const PROJECT_ROOT = resolve(import.meta.dir, '..', '..');
@@ -162,6 +162,32 @@ export async function readCanonicalInstructions(
   const filePath = join(projectDir, INSTRUCTIONS_DIR, 'AGENTS.md');
   try {
     return await readFile(filePath, 'utf-8');
+  } catch {
+    return null;
+  }
+}
+
+/** Map target name to canonical settings filename */
+function settingsFileName(target: TargetName): string {
+  switch (target) {
+    case 'claude-code': return 'claude.json';
+    default:            return `${target}.json`;
+  }
+}
+
+/**
+ * Read canonical settings for a specific target from configs/settings/{target}.json
+ * Returns null if no canonical settings file exists for the target.
+ */
+export async function readCanonicalSettings(
+  projectDir: string,
+  target: TargetName,
+): Promise<CanonicalSettings | null> {
+  const filePath = join(projectDir, SETTINGS_DIR, settingsFileName(target));
+  try {
+    const raw = await readFile(filePath, 'utf-8');
+    const keys = JSON.parse(raw) as Record<string, unknown>;
+    return { target, keys };
   } catch {
     return null;
   }

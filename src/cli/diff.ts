@@ -10,6 +10,7 @@ import {
   readCanonicalMCPServers,
   readCanonicalInstructions,
   readCanonicalSkills,
+  readCanonicalSettings,
 } from './canonical';
 import { runCheck } from './check';
 import { mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
@@ -32,7 +33,7 @@ Examples:
 
 Exit codes: 0 = no drift, 2 = drift found, 1 = error`)
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
-  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills', collect, [] as string[])
+  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings', collect, [] as string[])
   .action(async (options: { target: string[]; type: string[] }) => {
     try {
       validateTargets(options.target);
@@ -110,6 +111,17 @@ Exit codes: 0 = no drift, 2 = drift found, 1 = error`)
             const item = skills.find((s) => s.name === op.name);
             if (!item) continue;
             rendered = adapter.renderSkill(item).content;
+          } else if (op.itemType === 'settings') {
+            if (!caps.settings) continue;
+            const settings = await readCanonicalSettings(projectDir, target);
+            if (!settings) continue;
+            let existingContent: string | undefined;
+            try {
+              existingContent = await readFile(op.targetPath, 'utf-8');
+            } catch {
+              // No existing file
+            }
+            rendered = adapter.renderSettings(settings, existingContent);
           } else {
             continue;
           }
