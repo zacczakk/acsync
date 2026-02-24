@@ -1,12 +1,12 @@
 #!/usr/bin/env bun
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { cwd } from 'node:process';
 import { Command } from 'commander';
 import {
   ALL_TARGETS,
   COMMANDS_DIR,
   AGENTS_DIR,
+  PROJECT_ROOT,
   createAdapter,
   readCanonicalCommands,
   readCanonicalAgents,
@@ -65,7 +65,7 @@ Examples:
         ? [mapTarget(options.target)]
         : ALL_TARGETS;
 
-      const projectDir = cwd();
+      const projectDir = PROJECT_ROOT;
       const itemType = options.type as SingularType;
       const name = options.name;
 

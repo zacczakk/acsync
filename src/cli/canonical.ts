@@ -1,5 +1,5 @@
 import { readdir, readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { readSupportFiles } from '../infra/support-files';
 import { parseFrontmatter } from '../formats/markdown';
@@ -9,6 +9,9 @@ import { GeminiAdapter } from '../adapters/gemini';
 import { CodexAdapter } from '../adapters/codex';
 import type { ToolAdapter } from '../adapters/base';
 import type { TargetName, ItemType, CanonicalItem, MCPServer } from '../types';
+
+/** Repo root — resolved from module location so acsync works from any cwd */
+export const PROJECT_ROOT = resolve(import.meta.dir, '..', '..');
 
 /** Canonical config root — single source of truth for all config paths */
 const CANONICAL_ROOT = 'configs';
@@ -27,7 +30,7 @@ export interface SyncOptions {
   dryRun?: boolean;             // --dry-run
   force?: boolean;              // --force (skip confirmation)
   pretty?: boolean;             // --pretty (human output)
-  projectDir?: string;          // project root (default cwd)
+  projectDir?: string;          // project root (default: repo root via import.meta.dir)
   deleteStale?: boolean;        // --delete (remove stale target files)
 }
 

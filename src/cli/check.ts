@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 import { join } from 'node:path';
-import { cwd } from 'node:process';
 import { Command } from 'commander';
 import { loadManifest } from '../core/manifest';
 import { calculateDiff } from '../core/diff';
@@ -10,6 +9,7 @@ import {
   ALL_TARGETS,
   COMMANDS_DIR,
   AGENTS_DIR,
+  PROJECT_ROOT,
   createAdapter,
   hashRendered,
   hashTargetFile,
@@ -109,7 +109,7 @@ async function detectStaleItems(
  * Run the check operation: render all canonical items, diff against targets.
  */
 export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorCheckResult> {
-  const projectDir = options.projectDir ?? cwd();
+  const projectDir = options.projectDir ?? PROJECT_ROOT;
   const targets = options.targets && options.targets.length > 0 ? options.targets : ALL_TARGETS;
   const isExcluded = createExclusionFilter(['gsd-*', '.acsync-backup-*']);
 
