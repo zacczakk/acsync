@@ -160,44 +160,13 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 - Leave progress notes in thread.
 
 ## Tools
-Read `~/Repos/agents/docs/tools.md` for the full tool catalog if it exists.
+Read `~/Repos/acsync/configs/instructions/TOOLS.md` for the full tool catalog.
 
-### acsync
-- Agent Config Sync CLI (PATH via `bun link`). Syncs canonical configs to AI CLI targets.
-- Run `acsync --help` for full docs. Subcommands: `check`, `push`, `pull`, `render`, `diff`.
-- Source: `~/Repos/agents/src/cli/`. Canonical configs: `~/Repos/agents/configs/common/`.
-- Targets: claude-code, opencode, gemini, codex.
-- Quick ref: `acsync check --pretty`, `acsync push --force --delete`, `acsync diff`.
-
-### committer
-- Commit helper (PATH). Stages only listed paths; required here. Repo may also ship `./scripts/committer`.
-- Usage: `committer "commit message" file1 file2 ...`
-- Example: `committer "fix: update config" src/app.ts README.md`
-
-### trash
-- Move files to Trash: `trash …` (system command).
-
-### generate-docs
-- Lists `docs/` catalog + enforces front-matter. Run: `python scripts/generate-docs.py`.
-
-### bin/browser-tools / scripts/browser-tools.ts
-- Chrome DevTools helper. Cmds: `start`, `nav`, `eval`, `screenshot`, `pick`, `cookies`, `inspect`, `kill`.
-- Rebuild: `bun build scripts/browser-tools.ts --compile --target bun --outfile bin/browser-tools`.
-
-### gh
-- GitHub CLI for PRs/CI/releases. Given issue/PR URL (or `/pull/5`): use `gh`, not web search.
-- Examples: `gh issue view <url> --comments -R owner/repo`, `gh pr view <url> --comments --files -R owner/repo`.
-
-### tmux
-- Use only when you need persistence/interaction (debugger/server).
-- Quick refs: `tmux new -d -s codex-shell`, `tmux attach -t codex-shell`, `tmux list-sessions`, `tmux kill-session -t codex-shell`.
-
-### mcporter
-- MCP launcher for non-native servers. Keeps chrome-devtools warm via daemon.
-- Usage: `mcporter call <server>.<tool> <args>` or `mcporter list <server>`
-- Servers: chrome-devtools (daemon), palantir-mcp, liquid-carbon, shadcn.
-- Config: `~/.mcporter/mcporter.json`
-- Daemon: auto-starts on first keep-alive call; `mcporter daemon stop` to tear down.
+Quick reference:
+- `acsync` — Config sync CLI. `acsync check --pretty`, `acsync push --force --delete`.
+- `committer` — Safe git commit: `committer "message" file1 file2 ...`
+- `trash` — Move files to Trash: `trash <path>`
+- `gh` — GitHub CLI for PRs/CI. `gh pr view`, `gh issue view`.
 
 ## Frontend Aesthetics
 Avoid "AI slop" UI. Be opinionated + distinctive.
