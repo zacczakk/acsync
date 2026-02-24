@@ -7,7 +7,7 @@ Deterministic CLI that renders canonical agent configs to 4 target CLI formats, 
 ## Milestones
 
 - ✅ **v1.0 Foundation** - Phases 1-5 (shipped 2026-02-22)
-- ✅ **v2.0 Simplify Canonical** - Phases 6-8 (shipped 2026-02-24)
+- ✅ **v2.0 Simplify Canonical** - Phases 6-9 (shipped 2026-02-24)
 
 ## Phases
 
@@ -141,13 +141,14 @@ Plans:
 
 </details>
 
-### ✅ v2.0 Simplify Canonical (Complete)
+### v2.0 Simplify Canonical
 
 **Milestone Goal:** Flatten canonical structure, unify instructions, rename repo — breaking changes for cleaner architecture.
 
 - [x] **Phase 6: Flatten Canonical Structure** - Move `configs/common/*` up to `configs/`, update all path references in code/tests/docs (completed 2026-02-24)
 - [x] **Phase 7: Unify Instructions** - Merge 4 per-CLI addendums into single AGENTS.md, simplify rendering pipeline, fix output filenames (completed 2026-02-24)
 - [x] **Phase 8: TOOLS.md + Repo Rename** - Create canonical TOOLS.md, rename repo to `~/Repos/acsync`, propagate paths, clean up stale files (completed 2026-02-24)
+- [ ] **Phase 9: Verification Closure + Doc Cleanup** - Run Phase 8 verification, update REQUIREMENTS.md checkboxes, clean stale .planning/ references
 
 ### Phase 6: Flatten Canonical Structure
 **Goal**: Canonical configs live at `configs/` with no intermediate `common/` directory — all code, tests, and docs reference the new flat path
@@ -197,10 +198,25 @@ Plans:
 - [x] 08-01-PLAN.md — Create configs/instructions/TOOLS.md + update AGENTS.md ## Tools section reference
 - [x] 08-02-PLAN.md — Rename repo ~/Repos/agents → ~/Repos/acsync, update all path references, bun link, push --force, clean stale files
 
+### Phase 9: Verification Closure + Doc Cleanup
+**Goal**: Close all audit gaps — run formal Phase 8 verification, update REQUIREMENTS.md checkboxes, clean stale path references in `.planning/` docs
+**Depends on**: Phase 8
+**Requirements**: REPO-01, REPO-02, REPO-03, REPO-04, REPO-05, REPO-06, TOOL-01, TOOL-02, TOOL-03
+**Gap Closure**: Closes all 9 gaps from v2.0-MILESTONE-AUDIT.md (6 unsatisfied REPO-*, 3 partial TOOL-*)
+**Success Criteria** (what must be TRUE):
+  1. `08-VERIFICATION.md` exists with formal attestation of all 9 Phase 8 requirements (REPO-01..06, TOOL-01..03)
+  2. REQUIREMENTS.md checkboxes for REPO-01..06 are checked (`[x]`)
+  3. REQUIREMENTS.md traceability table shows all 24 v2.0 requirements as Complete
+  4. Zero stale `configs/common/` references in `.planning/` docs
+  5. Zero stale `~/Repos/agents` references in `.planning/` docs
+  6. Re-audit scores 24/24 requirements satisfied
+
+Plans: 0/0 plans complete
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -212,3 +228,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 6. Flatten Canonical Structure | v2.0 | 2/2 | Complete | 2026-02-24 |
 | 7. Unify Instructions | v2.0 | 2/2 | Complete | 2026-02-24 |
 | 8. TOOLS.md + Repo Rename | v2.0 | 2/2 | Complete | 2026-02-24 |
+| 9. Verification Closure + Doc Cleanup | v2.0 | 0/0 | Pending | — |

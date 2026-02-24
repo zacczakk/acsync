@@ -88,15 +88,15 @@ Requirements for Simplify Canonical milestone. Flatten structure, unify instruct
 | INST-08 | Phase 7 | Complete |
 | INST-09 | Phase 7 | Complete |
 | INST-10 | Phase 7 | Complete |
-| TOOL-01 | Phase 8 | Complete |
-| TOOL-02 | Phase 8 | Complete |
-| TOOL-03 | Phase 8 | Complete |
-| REPO-01 | Phase 8 | Pending |
-| REPO-02 | Phase 8 | Pending |
-| REPO-03 | Phase 8 | Pending |
-| REPO-04 | Phase 8 | Pending |
-| REPO-05 | Phase 8 | Pending |
-| REPO-06 | Phase 8 | Pending |
+| TOOL-01 | Phase 9 | Pending |
+| TOOL-02 | Phase 9 | Pending |
+| TOOL-03 | Phase 9 | Pending |
+| REPO-01 | Phase 9 | Pending |
+| REPO-02 | Phase 9 | Pending |
+| REPO-03 | Phase 9 | Pending |
+| REPO-04 | Phase 9 | Pending |
+| REPO-05 | Phase 9 | Pending |
+| REPO-06 | Phase 9 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 24 total
