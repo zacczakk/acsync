@@ -2,8 +2,8 @@
 
 ## Paths
 - Canonical rules: `~/Repos/agents/AGENTS.md`
-- Canonical commands: `~/Repos/agents/configs/common/commands`
-- Canonical subagents: `~/Repos/agents/configs/common/agents`
+- Canonical commands: `~/Repos/agents/configs/commands`
+- Canonical subagents: `~/Repos/agents/configs/agents`
 - Claude commands (rendered): `~/.claude/commands/zz/`
 - Claude subagents (rendered): `~/.claude/agents/`
 - Helper scripts: `~/Repos/agents/scripts`

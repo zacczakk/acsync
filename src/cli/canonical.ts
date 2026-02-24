@@ -10,6 +10,17 @@ import { CodexAdapter } from '../adapters/codex';
 import type { ToolAdapter } from '../adapters/base';
 import type { TargetName, ItemType, CanonicalItem, MCPServer } from '../types';
 
+/** Canonical config root — single source of truth for all config paths */
+const CANONICAL_ROOT = 'configs';
+
+/** Subdirectory constants — import these instead of string-concatenating paths */
+export const COMMANDS_DIR = join(CANONICAL_ROOT, 'commands');
+export const AGENTS_DIR = join(CANONICAL_ROOT, 'agents');
+export const MCP_DIR = join(CANONICAL_ROOT, 'mcp');
+export const INSTRUCTIONS_DIR = join(CANONICAL_ROOT, 'instructions');
+export const SKILLS_DIR = join(CANONICAL_ROOT, 'skills');
+export const SETTINGS_DIR = join(CANONICAL_ROOT, 'settings');
+
 export interface SyncOptions {
   targets?: TargetName[];       // --target flag (all if empty)
   types?: ItemType[];           // --type flag (all if empty)
@@ -54,14 +65,14 @@ export async function hashTargetFile(filePath: string): Promise<string | null> {
 }
 
 /**
- * Read canonical commands from configs/common/commands/*.md
+ * Read canonical commands from configs/commands/*.md
  * Returns CanonicalItem[] with name from filename (without .md)
  */
 export async function readCanonicalCommands(
   projectDir: string,
   isExcluded: (name: string) => boolean,
 ): Promise<CanonicalItem[]> {
-  const dir = join(projectDir, 'configs', 'common', 'commands');
+  const dir = join(projectDir, COMMANDS_DIR);
   let entries: string[];
   try {
     entries = await readdir(dir);
@@ -83,13 +94,13 @@ export async function readCanonicalCommands(
 }
 
 /**
- * Read canonical agents from configs/common/agents/*.md
+ * Read canonical agents from configs/agents/*.md
  */
 export async function readCanonicalAgents(
   projectDir: string,
   isExcluded: (name: string) => boolean,
 ): Promise<CanonicalItem[]> {
-  const dir = join(projectDir, 'configs', 'common', 'agents');
+  const dir = join(projectDir, AGENTS_DIR);
   let entries: string[];
   try {
     entries = await readdir(dir);
@@ -111,10 +122,10 @@ export async function readCanonicalAgents(
 }
 
 /**
- * Read canonical MCP servers from configs/common/mcp/*.json
+ * Read canonical MCP servers from configs/mcp/*.json
  */
 export async function readCanonicalMCPServers(projectDir: string): Promise<MCPServer[]> {
-  const dir = join(projectDir, 'configs', 'common', 'mcp');
+  const dir = join(projectDir, MCP_DIR);
   let entries: string[];
   try {
     entries = await readdir(dir);
@@ -155,7 +166,7 @@ export async function readCanonicalInstructions(
   }
 
   const addendumName = target === 'claude-code' ? 'claude' : target;
-  const addendumPath = join(projectDir, 'configs', 'common', 'instructions', `${addendumName}.md`);
+  const addendumPath = join(projectDir, INSTRUCTIONS_DIR, `${addendumName}.md`);
   let addendum = '';
   try {
     addendum = await readFile(addendumPath, 'utf-8');
@@ -167,14 +178,14 @@ export async function readCanonicalInstructions(
 }
 
 /**
- * Read canonical skills from configs/common/skills/ directories
+ * Read canonical skills from configs/skills/ directories
  * Each skill is a directory with a SKILL.md file
  */
 export async function readCanonicalSkills(
   projectDir: string,
   isExcluded: (name: string) => boolean,
 ): Promise<CanonicalItem[]> {
-  const dir = join(projectDir, 'configs', 'common', 'skills');
+  const dir = join(projectDir, SKILLS_DIR);
   let entries: string[];
   try {
     entries = await readdir(dir);

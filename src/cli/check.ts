@@ -139,7 +139,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
             type: 'command',
             name: item.name,
             hash: sourceHash,
-            sourcePath: join(projectDir, 'configs', 'common', 'commands', `${item.name}.md`),
+            sourcePath: join(projectDir, 'configs', 'commands', `${item.name}.md`),
             targetPath: rendered.relativePath,
           });
           if (targetHash !== null) {
@@ -160,7 +160,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
             type: 'agent',
             name: item.name,
             hash: sourceHash,
-            sourcePath: join(projectDir, 'configs', 'common', 'agents', `${item.name}.md`),
+            sourcePath: join(projectDir, 'configs', 'agents', `${item.name}.md`),
             targetPath: rendered.relativePath,
           });
           if (targetHash !== null) {

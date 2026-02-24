@@ -8,7 +8,7 @@ import { runPush } from '../push';
 
 /** Make a per-test unique project with salted content so hashes never collide with real deployed files */
 async function setupProject(dir: string, salt: string): Promise<void> {
-  const commandsDir = join(dir, 'configs', 'common', 'commands');
+  const commandsDir = join(dir, 'configs', 'commands');
   await mkdir(commandsDir, { recursive: true });
 
   await writeFile(
@@ -20,7 +20,7 @@ async function setupProject(dir: string, salt: string): Promise<void> {
     `---\ndescription: Test beta ${salt}\n---\n\nContent beta ${salt}.\n`,
   );
 
-  const agentsDir = join(dir, 'configs', 'common', 'agents');
+  const agentsDir = join(dir, 'configs', 'agents');
   await mkdir(agentsDir, { recursive: true });
   await writeFile(
     join(agentsDir, `test-${salt}-agent.md`),
@@ -29,7 +29,7 @@ async function setupProject(dir: string, salt: string): Promise<void> {
 
   await writeFile(join(dir, 'AGENTS.md'), `# Agent OS ${salt}\n\nBase.\n`);
 
-  const instructionsDir = join(dir, 'configs', 'common', 'instructions');
+  const instructionsDir = join(dir, 'configs', 'instructions');
   await mkdir(instructionsDir, { recursive: true });
   await writeFile(
     join(instructionsDir, 'claude.md'),
@@ -111,7 +111,7 @@ describe('runCheck', () => {
   });
 
   test('excludes gsd-* items from diff', async () => {
-    const commandsDir = join(tmpDir, 'configs', 'common', 'commands');
+    const commandsDir = join(tmpDir, 'configs', 'commands');
     await writeFile(
       join(commandsDir, `gsd-plan-phase-${salt}.md`),
       `---\ndescription: GSD plan\n---\n\nGSD.\n`,

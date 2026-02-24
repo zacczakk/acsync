@@ -2,8 +2,8 @@
 
 ## Paths
 - Canonical rules: `~/Repos/agents/AGENTS.md`
-- Canonical commands: `~/Repos/agents/configs/common/commands`
-- Canonical subagents: `~/Repos/agents/configs/common/agents`
+- Canonical commands: `~/Repos/agents/configs/commands`
+- Canonical subagents: `~/Repos/agents/configs/agents`
 - OpenCode commands (rendered): `~/.config/opencode/command/`
 - OpenCode subagents (rendered): `~/.config/opencode/agents/`
 - OpenCode skills (rendered): `~/.config/opencode/skill/`

@@ -126,7 +126,7 @@ System locations:
 - Codex: `~/.codex/AGENTS.md`
 
 For **push**: Read `~/Repos/agents/AGENTS.md` and the canonical addendum
-(`configs/common/instructions/{cli}.md`). Concatenate with `"\n\n"` separator.
+(`configs/instructions/{cli}.md`). Concatenate with `"\n\n"` separator.
 Write the combined result to the system instruction file.
 Show diff of rendered output vs current system file; ask before each write.
 
@@ -150,8 +150,8 @@ For pull: redact secrets before showing/writing.
 #### 3f. Settings
 
 For CLIs with canonical settings files (see SYNC.md section 5):
-- Claude `settings.json` vs `configs/common/settings/claude.json`
-- OpenCode `opencode.json` vs `configs/common/settings/opencode.json`
+- Claude `settings.json` vs `configs/settings/claude.json`
+- OpenCode `opencode.json` vs `configs/settings/opencode.json`
 
 For **push**: Render canonical settings (secrets injected, `~` expanded),
 deep-merge or wholesale-replace managed keys into system file.

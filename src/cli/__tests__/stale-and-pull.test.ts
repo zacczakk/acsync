@@ -21,7 +21,7 @@ describe('stale detection in runCheck', () => {
 
   test('detects stale items not in canonical set as delete ops', async () => {
     // Set up a project with 1 canonical command
-    const commandsDir = join(tmpDir, 'configs', 'common', 'commands');
+    const commandsDir = join(tmpDir, 'configs', 'commands');
     await mkdir(commandsDir, { recursive: true });
     await writeFile(
       join(commandsDir, `test-${salt}-cmd.md`),
@@ -67,7 +67,7 @@ describe('stale detection in runCheck', () => {
 
   test('excluded items (gsd-*) are not flagged as stale', async () => {
     // Set up a project with 1 canonical command
-    const commandsDir = join(tmpDir, 'configs', 'common', 'commands');
+    const commandsDir = join(tmpDir, 'configs', 'commands');
     await mkdir(commandsDir, { recursive: true });
     await writeFile(
       join(commandsDir, `test-${salt}-cmd.md`),
@@ -111,7 +111,7 @@ describe('runPull', () => {
     // No files should be written in dry-run
     let cmdDirExists = false;
     try {
-      await readdir(join(tmpDir, 'configs', 'common', 'commands'));
+      await readdir(join(tmpDir, 'configs', 'commands'));
       cmdDirExists = true;
     } catch {
       cmdDirExists = false;
@@ -132,7 +132,7 @@ describe('runPull', () => {
 
     if (result.pulled > 0) {
       // Verify files created in canonical dirs (commands, agents, and/or skills)
-      const cmdDir = join(tmpDir, 'configs', 'common', 'commands');
+      const cmdDir = join(tmpDir, 'configs', 'commands');
       let cmdEntries: string[] = [];
       try {
         cmdEntries = await readdir(cmdDir);
@@ -140,7 +140,7 @@ describe('runPull', () => {
         // May not exist if no commands pulled
       }
 
-      const agentDir = join(tmpDir, 'configs', 'common', 'agents');
+      const agentDir = join(tmpDir, 'configs', 'agents');
       let agentEntries: string[] = [];
       try {
         agentEntries = await readdir(agentDir);
@@ -148,7 +148,7 @@ describe('runPull', () => {
         // May not exist if no agents pulled
       }
 
-      const skillDir = join(tmpDir, 'configs', 'common', 'skills');
+      const skillDir = join(tmpDir, 'configs', 'skills');
       let skillEntries: string[] = [];
       try {
         skillEntries = await readdir(skillDir);
@@ -175,7 +175,7 @@ describe('runPull', () => {
 
   test('skips existing canonical items when force is not set', async () => {
     // Pre-create a canonical command file
-    const cmdDir = join(tmpDir, 'configs', 'common', 'commands');
+    const cmdDir = join(tmpDir, 'configs', 'commands');
     await mkdir(cmdDir, { recursive: true });
     await writeFile(join(cmdDir, 'my-plan.md'), '---\ndescription: existing\n---\n\nExisting.\n');
 
@@ -213,7 +213,7 @@ describe('runPull', () => {
 
   test('skips existing canonical skills when force is not set', async () => {
     // Pre-create a canonical skill dir
-    const skillDir = join(tmpDir, 'configs', 'common', 'skills', 'vercel-react-best-practices');
+    const skillDir = join(tmpDir, 'configs', 'skills', 'vercel-react-best-practices');
     await mkdir(skillDir, { recursive: true });
     await writeFile(
       join(skillDir, 'SKILL.md'),
