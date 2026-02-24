@@ -1,3 +1,10 @@
+---
+summary: "Flatten configs/common/, unify AGENTS.md, add TOOLS.md, rename repo folder."
+read_when:
+  - "Working on repo structure changes"
+  - "Modifying instruction rendering pipeline"
+---
+
 # Simplify Canonical Structure & Unified AGENTS.md
 
 ## Goal
@@ -234,7 +241,7 @@ After push, manually remove old instruction files that are no longer rendered:
 
 ### Git Remote
 
-No change needed. `https://github.com/zacczakk/agents.git` stays valid — local folder name is independent.
+No change needed. `https://github.com/zacczakk/acsync.git` is the canonical remote.
 
 ---
 

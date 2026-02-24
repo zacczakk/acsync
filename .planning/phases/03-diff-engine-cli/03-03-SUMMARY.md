@@ -79,7 +79,7 @@ completed: 2026-02-20
 ## Accomplishments
 
 ### From prior session (Task 1)
-- Trimmed canonical MCP to 3 servers (trashed chrome-devtools, palantir, liquid-carbon, shadcn)
+- Trimmed canonical MCP to 3 servers (trashed chrome-devtools, foundry, liquid-carbon, shadcn)
 - Updated AGENTS.md with MCPorter tool docs
 - Updated CLI addendums for MCPorter references
 

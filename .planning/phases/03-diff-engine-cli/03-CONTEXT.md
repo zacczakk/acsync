@@ -35,7 +35,7 @@ End-to-end CLI (`acsync`) that diffs canonical configs against rendered targets,
 ### MCPorter hybrid setup
 - **Native (rendered by acsync):** context7 (enabled, all CLIs), tavily (enabled, all CLIs)
 - **Native but disabled:** sequential-thinking (disabled everywhere)
-- **Rendered but disabled + MCPorter:** chrome-devtools, palantir-mcp, liquid-carbon, shadcn — rendered to CLIs but disabled by default; actual usage routed through MCPorter
+- **Rendered but disabled + MCPorter:** chrome-devtools, foundry-mcp, liquid-carbon, shadcn — rendered to CLIs but disabled by default; actual usage routed through MCPorter
 - `mcporter.json` is managed separately (not by acsync)
 - `acsync check` detects MCPorter coverage gaps: warns when a canonical server has no target (not in native rendering or mcporter.json) — warning severity, non-blocking
 

@@ -98,7 +98,7 @@
     },
     "external_directory": {
       "*": "ask",
-      "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Knowledge/**": "allow",
+      "~/Vaults/**": "allow",
       "~/.config/opencode/agents/*": "allow"
     },
     "read": {
