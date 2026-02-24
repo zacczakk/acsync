@@ -12,76 +12,68 @@ read_when:
 Single source of truth for AI coding assistant configurations across four CLIs:
 **Claude Code**, **OpenCode**, **Gemini CLI**, and **Codex**.
 
-All commands, agents, skills, and MCP server definitions are authored once in
-`configs/` and synced to each CLI's system directory via an
-agent-driven workflow.
+All commands, agents, skills, MCP server definitions, and the unified
+`AGENTS.md` instruction file are authored once in `configs/` and synced to
+each CLI's system directory via an agent-driven workflow.
 
 ## How It Works
 
-There is no sync engine. No Python scripts. No build step.
-
-Instead, the repo contains a **playbook** (`SYNC.md`) and a **slash command**
-(`/zz-sync-agent-configs`) that any of the four CLIs can run. The agent reads the
-playbook, computes diffs, shows them to you, and applies changes one at a time
-with your confirmation.
+The `acsync` CLI handles all sync operations programmatically:
 
 ```
-configs/          SYNC.md           CLI system dirs
-  commands/*.md    -->   (playbook)   -->   ~/.claude/commands/
-  agents/*.md      -->   read by the  -->   ~/.config/opencode/command/
-  skills/          -->   agent at     -->   ~/.gemini/commands/
-  mcp/*.json       -->   sync time    -->   ~/.codex/prompts/
+configs/         acsync CLI        CLI system dirs
+  commands/*.md   -->  (adapters)   -->   ~/.claude/commands/
+  agents/         -->  transform    -->   ~/.config/opencode/command/
+  skills/         -->  + secrets    -->   ~/.gemini/commands/
+  mcp/*.json      -->  + merge      -->   ~/.codex/prompts/
 ```
 
 ### Push (Repo to System)
 
-The agent reads canonical sources, transforms them to each CLI's native
+`acsync push` reads canonical sources, transforms them to each CLI's native
 format (Markdown, TOML, JSON), injects secrets from `.env`, and writes to
-system directories. You see every diff and approve every write.
+system directories with atomic writes and rollback on failure.
 
 ### Pull (System to Repo)
 
-The agent reads system files, reverse-transforms to canonical format, redacts
-secrets, and presents diffs against the repo. You choose what to accept.
+`acsync pull` reads system files, reverse-transforms to canonical format,
+redacts secrets, and writes back to the repo.
 
 ### Check (Drift Detection)
 
-Read-only comparison. The agent renders canonical sources and diffs against
-system state. Reports drift without modifying anything.
+`acsync check` renders canonical sources and diffs against system state.
+Read-only — reports drift without modifying anything.
 
 ## Key Design Decisions
 
-**Agent as sync engine**: The four CLIs are AI coding agents. They can read
-files, compute diffs, transform formats, and write files. Why maintain a
-separate program to do what they already do?
-
-**Interactive by default**: Every write requires confirmation. The agent shows
-diffs, explains changes, and asks before proceeding. No silent bulk operations.
-
-**Playbook over code**: Format specifications, merge rules, and per-CLI
-quirks are documented in `SYNC.md` as structured prose. The agent reads and
-follows it. Changes to sync behavior are documentation edits, not code changes.
+**Code-driven sync**: A TypeScript CLI (`acsync`) implements all format
+transformations, secret handling, and merge logic. Per-CLI adapters handle
+the 4 different output shapes. Format spec: `docs/design/sync-spec.md`.
 
 **Canonical source**: `configs/` is the single source of truth. System
 directories are derived. Pull operations extract from system back to canonical.
 
 **Secret separation**: Real values live in `.env` (gitignored). Repo files
-use `${VAR}` placeholders. The agent handles injection (push) and redaction
+use `${VAR}` placeholders. The CLI handles injection (push) and redaction
 (pull) at the boundary.
+
+**Manifest tracking**: `.acsync/manifest.json` tracks sync state for 3-way
+hash comparison — detecting independent target modifications vs source changes.
 
 ## Architecture
 
 ```
-agents/
-  AGENTS.md                   Ground truth agent operating system
-  SYNC.md                     Sync playbook (format specs, merge rules, per-CLI quirks)
+acsync/
+  src/                        TypeScript sync engine (adapters, diff, secrets, formats)
   .env                        Secrets (gitignored)
   configs/
-    commands/*.md              17 slash commands (canonical)
-    agents/*.md                8 agent definitions (canonical)
+    commands/*.md              8 slash commands (canonical)
+    agents/                    Agent definitions (canonical, currently empty)
     skills/                    2 skill directories (canonical)
-    mcp/*.json                 6 MCP server definitions (canonical)
+    mcp/*.json                 3 MCP server definitions (canonical)
     settings/*.json            2 settings definitions (claude, opencode)
+    instructions/AGENTS.md     Unified agent operating system (ground truth)
+    instructions/TOOLS.md      Tool-use reference
   scripts/
     committer                  Git commit helper
     generate-docs.py           Docs catalog generator
@@ -95,6 +87,6 @@ agents/
 v1 had a 3,500 LOC Python sync engine with 6,800 LOC of tests, rendered
 output directories per CLI, a registry system, and overlay support.
 
-v2 replaces all of that with ~400 lines of playbook + slash commands. The
-agent does the work interactively. No code to maintain. No tests needed
-for a document. No rendered output committed to the repo.
+v2 started as ~400 lines of playbook + slash commands (agent-driven). It has
+since evolved into a full TypeScript CLI (`acsync`) with per-CLI adapters,
+a diff engine, secret handling, and manifest-based drift detection.

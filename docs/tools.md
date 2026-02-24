@@ -7,13 +7,12 @@ read_when:
 
 # Tools
 
-## MCP Servers
-- `tavily`: Web search/extract (Claude, OpenCode, Gemini).
+<!-- TODO: review — source code changed significantly since 2026-02-19; verify MCP server list is current -->
+
+## MCP Servers (Native)
+- `tavily`: Web search/extract (Claude, OpenCode, Gemini; stdio — skipped for Codex).
 - `context7`: Documentation retrieval for coding libraries (all CLIs).
-- `sequential-thinking`: Structured reasoning tool (Claude only).
-- `palantir-mcp`: Foundry access (Claude only; requires `PALANTIR_FOUNDRY_TOKEN`).
-- `liquid-carbon`: Domain-specific MCP (Claude, OpenCode).
-- `shadcn`: shadcn/ui component library (disabled by default).
+- `sequential-thinking`: Structured reasoning tool (disabled).
 - Incident response: `docs/runbooks/mcp-incident.md`.
 
 ## Local Helpers (repo)
