@@ -5,3 +5,5 @@ node_modules/
 __pycache__/
 .DS_Store
 bun.lock*
+package-lock.json
+.acsync/
