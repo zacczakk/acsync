@@ -151,30 +151,17 @@ export async function readCanonicalMCPServers(projectDir: string): Promise<MCPSe
 }
 
 /**
- * Read canonical instructions: base AGENTS.md + CLI-specific addendum
+ * Read canonical instructions from unified configs/instructions/AGENTS.md
  */
 export async function readCanonicalInstructions(
   projectDir: string,
-  target: TargetName,
-): Promise<{ base: string; addendum: string } | null> {
-  const basePath = join(projectDir, 'AGENTS.md');
-  let base: string;
+): Promise<string | null> {
+  const filePath = join(projectDir, INSTRUCTIONS_DIR, 'AGENTS.md');
   try {
-    base = await readFile(basePath, 'utf-8');
+    return await readFile(filePath, 'utf-8');
   } catch {
     return null;
   }
-
-  const addendumName = target === 'claude-code' ? 'claude' : target;
-  const addendumPath = join(projectDir, INSTRUCTIONS_DIR, `${addendumName}.md`);
-  let addendum = '';
-  try {
-    addendum = await readFile(addendumPath, 'utf-8');
-  } catch {
-    // No addendum for this target is fine
-  }
-
-  return { base, addendum };
 }
 
 /**
