@@ -13,12 +13,13 @@ import {
   readCanonicalMCPServers,
   readCanonicalInstructions,
   readCanonicalSkills,
+  readCanonicalSettings,
 } from './canonical';
 import { createExclusionFilter } from '../infra/exclusion';
 import { parseFrontmatter } from '../formats/markdown';
 import type { TargetName, CanonicalItem } from '../types';
 
-const VALID_SINGULAR_TYPES = ['command', 'agent', 'mcp', 'instruction', 'skill'] as const;
+const VALID_SINGULAR_TYPES = ['command', 'agent', 'mcp', 'instruction', 'skill', 'settings'] as const;
 type SingularType = (typeof VALID_SINGULAR_TYPES)[number];
 
 const VALID_TARGETS = ['claude', 'gemini', 'codex', 'opencode'] as const;
@@ -93,8 +94,7 @@ Examples:
             throw new Error(`Canonical instruction not found (missing configs/instructions/AGENTS.md)`);
           }
           content = adapter.renderInstructions(instructionContent);
-        } else {
-          // skill
+        } else if (itemType === 'skill') {
           const isExcluded = createExclusionFilter(['gsd-*', '.acsync-backup-*']);
           const skills = await readCanonicalSkills(projectDir, isExcluded);
           const item = skills.find((s) => s.name === name);
@@ -104,6 +104,21 @@ Examples:
             );
           }
           content = adapter.renderSkill(item).content;
+        } else {
+          // settings
+          const settings = await readCanonicalSettings(projectDir, target);
+          if (!settings) {
+            throw new Error(`No canonical settings for target "${target}"`);
+          }
+          // Read existing target file to show merged output
+          let existingContent: string | undefined;
+          const settingsPath = adapter.getPaths().getSettingsPath();
+          try {
+            existingContent = await readFile(settingsPath, 'utf-8');
+          } catch {
+            // No existing file
+          }
+          content = adapter.renderSettings(settings, existingContent);
         }
 
         if (targets.length > 1) {

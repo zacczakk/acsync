@@ -1,5 +1,6 @@
 import os from 'node:os';
 import { readdir, readFile } from 'node:fs/promises';
+import { readJson, writeJson } from '../formats/json';
 import { join } from 'node:path';
 import { AdapterPathResolver } from './path-resolver';
 import { parseFrontmatter, stringifyFrontmatter } from '../formats/markdown';
@@ -7,6 +8,7 @@ import { readSupportFiles } from '../infra/support-files';
 import type {
   TargetName,
   CanonicalItem,
+  CanonicalSettings,
   MCPServer,
   RenderedFile,
   AdapterCapabilities,
@@ -59,6 +61,20 @@ export interface ToolAdapter {
 
   /** Read a skill from target: SKILL.md + support files → CanonicalItem */
   readSkill(name: string): Promise<CanonicalItem>;
+
+  /**
+   * Render settings: deep-merge canonical keys into existing target content.
+   * Returns the full file content ready to write. Only touches canonical keys;
+   * preserves all other keys in the target file.
+   */
+  renderSettings(settings: CanonicalSettings, existingContent?: string): string;
+
+  /**
+   * Extract canonical settings keys from target file content for hash comparison.
+   * Returns a stable JSON string of only the canonical keys (sorted), so we can
+   * compare source vs target without noise from non-canonical keys.
+   */
+  extractSettingsKeys(canonicalKeys: string[], targetContent: string): string;
 
   /** Expose path resolver for orchestrator use */
   getPaths(): AdapterPathResolver;
@@ -206,6 +222,35 @@ export abstract class BaseAdapter implements ToolAdapter {
   /** Render instructions (identity passthrough — content is already unified) */
   renderInstructions(content: string): string {
     return content;
+  }
+
+  /**
+   * Default renderSettings: deep-merge canonical keys into existing JSON.
+   * Preserves all non-canonical keys in the target file.
+   */
+  renderSettings(settings: CanonicalSettings, existingContent?: string): string {
+    const base: Record<string, unknown> = existingContent
+      ? readJson<Record<string, unknown>>(existingContent)
+      : {};
+    for (const [key, value] of Object.entries(settings.keys)) {
+      base[key] = value;
+    }
+    return writeJson(base);
+  }
+
+  /**
+   * Default extractSettingsKeys: pick canonical keys from target JSON,
+   * return stable sorted JSON string for hash comparison.
+   */
+  extractSettingsKeys(canonicalKeys: string[], targetContent: string): string {
+    const parsed = readJson<Record<string, unknown>>(targetContent);
+    const extracted: Record<string, unknown> = {};
+    for (const key of [...canonicalKeys].sort()) {
+      if (key in parsed) {
+        extracted[key] = parsed[key];
+      }
+    }
+    return JSON.stringify(extracted, null, 2) + '\n';
   }
 
   /** Expose path resolver for orchestrator use */

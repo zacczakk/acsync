@@ -4,6 +4,7 @@ import { modifyJsonc, readJsonc } from '../formats/jsonc';
 import { EnvVarTransformer } from '../secrets/env-var-transformer';
 import type {
   CanonicalItem,
+  CanonicalSettings,
   MCPServer,
   RenderedFile,
   AdapterCapabilities,
@@ -15,7 +16,7 @@ export class OpenCodeAdapter extends BaseAdapter {
   }
 
   getCapabilities(): AdapterCapabilities {
-    return { commands: true, agents: true, mcp: true, instructions: true, skills: true };
+    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: true };
   }
 
   renderCommand(item: CanonicalItem): RenderedFile {
@@ -65,6 +66,27 @@ export class OpenCodeAdapter extends BaseAdapter {
     return servers
       .filter((s) => !s.disabledFor?.includes('opencode'))
       .map((s) => s.name);
+  }
+
+  /** OpenCode uses JSONC — override to preserve comments and $schema */
+  override renderSettings(settings: CanonicalSettings, existingContent?: string): string {
+    let text = existingContent ?? '{}';
+    for (const [key, value] of Object.entries(settings.keys)) {
+      text = modifyJsonc(text, [key], value) as string;
+    }
+    return text;
+  }
+
+  /** OpenCode uses JSONC — override to parse with comment support */
+  override extractSettingsKeys(canonicalKeys: string[], targetContent: string): string {
+    const parsed = readJsonc<Record<string, unknown>>(targetContent);
+    const extracted: Record<string, unknown> = {};
+    for (const key of [...canonicalKeys].sort()) {
+      if (key in parsed) {
+        extracted[key] = parsed[key];
+      }
+    }
+    return JSON.stringify(extracted, null, 2) + '\n';
   }
 
   renderMCPServers(servers: MCPServer[], existingContent?: string): string {

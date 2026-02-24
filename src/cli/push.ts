@@ -19,6 +19,7 @@ import {
   readCanonicalMCPServers,
   readCanonicalInstructions,
   readCanonicalSkills,
+  readCanonicalSettings,
 } from './canonical';
 import { runCheck } from './check';
 import { confirm, mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
@@ -145,6 +146,19 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
               await mkdir(skillDir, { recursive: true });
               await writeSupportFiles(skillDir, item.supportFiles);
             }
+          } else if (op.itemType === 'settings') {
+            if (!caps.settings) continue;
+            const settings = await readCanonicalSettings(projectDir, target);
+            if (!settings) continue;
+            let existingContent: string | undefined;
+            if (backup.existed) {
+              try {
+                existingContent = await readFile(backup.backupPath, 'utf-8');
+              } catch {
+                // Use no existing content
+              }
+            }
+            content = adapter.renderSettings(settings, existingContent);
           } else {
             continue;
           }
@@ -236,7 +250,7 @@ Examples:
   .option('--pretty', 'Human-readable colored output (default: JSON)')
   .option('--json', 'Output JSON (default behavior, explicit for scripts)')
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
-  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills', collect, [] as string[])
+  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings', collect, [] as string[])
   .option('--dry-run', 'Show execution plan without writing')
   .option('--force', 'Skip confirmation prompt')
   .option('--delete', 'Delete stale target files not in canonical source (default: skip)')

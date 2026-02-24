@@ -5,7 +5,7 @@ export interface ErrorContext {
 }
 
 // Config item types synced by acsync
-export type ItemType = 'command' | 'agent' | 'mcp' | 'instruction' | 'skill';
+export type ItemType = 'command' | 'agent' | 'mcp' | 'instruction' | 'skill' | 'settings';
 
 export type OperationType = 'create' | 'update' | 'skip' | 'delete';
 
@@ -95,6 +95,12 @@ export interface MCPServer {
   disabledFor?: TargetName[];
 }
 
+// Canonical settings: parsed JSON keys from configs/settings/{target}.json
+export interface CanonicalSettings {
+  target: TargetName;
+  keys: Record<string, unknown>;  // top-level keys from canonical settings file
+}
+
 // Rendered output from an adapter
 export interface RenderedFile {
   relativePath: string;
@@ -108,4 +114,5 @@ export interface AdapterCapabilities {
   mcp: boolean;
   instructions: boolean;
   skills: boolean;
+  settings: boolean;
 }

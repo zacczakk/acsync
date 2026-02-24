@@ -34,6 +34,11 @@ export class AdapterPathResolver {
     return this.expandHome(this.rawInstructionsPath());
   }
 
+  /** Settings file path for the target (may overlap with MCP config path) */
+  getSettingsPath(): string {
+    return this.expandHome(this.rawSettingsPath());
+  }
+
   /** Skills directory (only meaningful for opencode) */
   getSkillsDir(): string {
     return this.expandHome(this.rawSkillsDir());
@@ -86,6 +91,15 @@ export class AdapterPathResolver {
   }
 
   private rawMCPConfigPath(): string {
+    switch (this.target) {
+      case 'claude-code': return '~/.claude.json';
+      case 'opencode':    return '~/.config/opencode/opencode.json';
+      case 'gemini':      return '~/.gemini/settings.json';
+      case 'codex':       return '~/.codex/config.toml';
+    }
+  }
+
+  private rawSettingsPath(): string {
     switch (this.target) {
       case 'claude-code': return '~/.claude.json';
       case 'opencode':    return '~/.config/opencode/opencode.json';
