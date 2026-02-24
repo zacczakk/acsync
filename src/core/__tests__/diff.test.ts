@@ -167,6 +167,6 @@ describe('calculateDiff', () => {
     const result = calculateDiff([], new Map(), manifest, 'codex');
 
     expect(result.operations).toHaveLength(0);
-    expect(result.summary).toEqual({ create: 0, update: 0, skip: 0 });
+    expect(result.summary).toEqual({ create: 0, update: 0, skip: 0, delete: 0 });
   });
 });

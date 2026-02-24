@@ -29,7 +29,7 @@ export class CodexAdapter extends BaseAdapter {
     return filename.slice(0, -3);
   }
 
-  /** Codex agents are prefixed: agent-zz-planner.md → zz-planner */
+  /** Codex agents are prefixed: agent-my-planner.md → my-planner */
   protected override agentNameFromFile(filename: string): string | null {
     if (!filename.startsWith('agent-') || !filename.endsWith('.md')) return null;
     return filename.slice(6, -3); // strip "agent-" and ".md"

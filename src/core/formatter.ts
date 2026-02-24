@@ -21,18 +21,20 @@ function displayTarget(target: TargetName): string {
 export function formatDiffJson(results: DiffResult[]): string {
   const targets: Record<
     string,
-    { create: number; update: number; skip: number; operations: Operation[]; mcpWarning?: MCPWarning }
+    { create: number; update: number; skip: number; delete: number; operations: Operation[]; mcpWarning?: MCPWarning }
   > = {};
 
   let totalCreate = 0;
   let totalUpdate = 0;
   let totalSkip = 0;
+  let totalDelete = 0;
 
   for (const result of results) {
     const entry: (typeof targets)[string] = {
       create: result.summary.create,
       update: result.summary.update,
       skip: result.summary.skip,
+      delete: result.summary.delete,
       operations: result.operations,
     };
     if (result.mcpWarning) entry.mcpWarning = result.mcpWarning;
@@ -40,13 +42,14 @@ export function formatDiffJson(results: DiffResult[]): string {
     totalCreate += result.summary.create;
     totalUpdate += result.summary.update;
     totalSkip += result.summary.skip;
+    totalDelete += result.summary.delete;
   }
 
   return (
     JSON.stringify(
       {
         targets,
-        summary: { totalCreate, totalUpdate, totalSkip },
+        summary: { totalCreate, totalUpdate, totalSkip, totalDelete },
       },
       null,
       2,
@@ -67,6 +70,7 @@ export function formatDiffPretty(results: DiffResult[]): string {
 
     const creates = result.operations.filter((op) => op.type === 'create');
     const updates = result.operations.filter((op) => op.type === 'update');
+    const deletes = result.operations.filter((op) => op.type === 'delete');
     const skips = result.operations.filter((op) => op.type === 'skip');
 
     for (const op of creates) {
@@ -77,6 +81,12 @@ export function formatDiffPretty(results: DiffResult[]): string {
       const label = `[${op.itemType}]`.padEnd(14);
       lines.push(
         `    ${pc.yellow('~')} ${label} ${op.name.padEnd(30)} ${pc.dim('(modified)')}`,
+      );
+    }
+    for (const op of deletes) {
+      const label = `[${op.itemType}]`.padEnd(14);
+      lines.push(
+        `    ${pc.red('−')} ${label} ${op.name.padEnd(30)} ${pc.dim('(stale)')}`,
       );
     }
     for (const op of skips) {
@@ -105,7 +115,7 @@ export function formatDiffPretty(results: DiffResult[]): string {
     totalCreate += result.summary.create;
     totalUpdate += result.summary.update;
     totalSkip += result.summary.skip;
-    totalRemove += result.mcpWarning?.serverNames.length ?? 0;
+    totalRemove += result.summary.delete + (result.mcpWarning?.serverNames.length ?? 0);
   }
 
   const summaryParts: string[] = [];
@@ -167,8 +177,12 @@ export function formatPushResult(
     if (!r.success && r.error) {
       lines.push(`    ${pc.red(r.error)}`);
     }
-    const written = r.operations.filter((op) => op.type !== 'skip').length;
-    lines.push(`    ${pc.dim(`${written} file(s) written`)}`);
+    const written = r.operations.filter((op) => op.type === 'create' || op.type === 'update').length;
+    const deleted = r.operations.filter((op) => op.type === 'delete').length;
+    const parts: string[] = [];
+    if (written > 0) parts.push(`${written} file(s) written`);
+    if (deleted > 0) parts.push(`${deleted} file(s) deleted`);
+    lines.push(`    ${pc.dim(parts.join(', ') || 'no changes')}`);
     lines.push('');
   }
 
@@ -184,7 +198,7 @@ function tildify(p: string): string {
 
 export function formatDryRunJson(results: DiffResult[]): string {
   const actions: Array<{
-    action: 'create' | 'update';
+    action: 'create' | 'update' | 'delete';
     target: string;
     type: string;
     name: string;
@@ -197,7 +211,7 @@ export function formatDryRunJson(results: DiffResult[]): string {
     for (const op of result.operations) {
       if (op.type === 'skip') continue;
       actions.push({
-        action: op.type as 'create' | 'update',
+        action: op.type as 'create' | 'update' | 'delete',
         target: displayTarget(result.target),
         type: op.itemType,
         name: op.name,
@@ -215,6 +229,7 @@ export function formatDryRunJson(results: DiffResult[]): string {
     summary: {
       create: actions.filter((a) => a.action === 'create').length,
       update: actions.filter((a) => a.action === 'update').length,
+      delete: actions.filter((a) => a.action === 'delete').length,
     },
   };
   if (warnings.length > 0) output.warnings = warnings;
@@ -227,22 +242,34 @@ export function formatDryRunPretty(results: DiffResult[]): string {
 
   let totalCreate = 0;
   let totalUpdate = 0;
+  let totalDelete = 0;
 
   for (const result of results) {
     const actionOps = result.operations.filter((op) => op.type !== 'skip');
-    if (actionOps.length === 0) continue;
+    if (actionOps.length === 0 && !result.mcpWarning) continue;
 
     lines.push(`  ${pc.bold(displayTarget(result.target))}`);
 
     for (const op of actionOps) {
-      const symbol = op.type === 'create' ? pc.green('+') : pc.yellow('~');
-      const verb = op.type === 'create' ? pc.dim('create') : pc.dim('update');
+      let symbol: string;
+      let verb: string;
+      if (op.type === 'delete') {
+        symbol = pc.red('−');
+        verb = pc.dim('delete');
+      } else if (op.type === 'create') {
+        symbol = pc.green('+');
+        verb = pc.dim('create');
+      } else {
+        symbol = pc.yellow('~');
+        verb = pc.dim('update');
+      }
       const label = `[${op.itemType}]`.padEnd(14);
       const path = op.targetPath ? pc.dim(tildify(op.targetPath)) : '';
       lines.push(`    ${symbol} ${label} ${op.name.padEnd(24)} ${verb}  → ${path}`);
 
       if (op.type === 'create') totalCreate++;
-      else totalUpdate++;
+      else if (op.type === 'update') totalUpdate++;
+      else if (op.type === 'delete') totalDelete++;
     }
 
     if (result.mcpWarning) {
@@ -258,13 +285,14 @@ export function formatDryRunPretty(results: DiffResult[]): string {
     lines.push('');
   }
 
-  if (totalCreate === 0 && totalUpdate === 0) {
+  if (totalCreate === 0 && totalUpdate === 0 && totalDelete === 0) {
     lines.push(`  ${pc.dim('Nothing to push — all targets up to date.')}`);
     lines.push('');
   } else {
     const parts: string[] = [];
     if (totalCreate > 0) parts.push(pc.green(`${totalCreate} to create`));
     if (totalUpdate > 0) parts.push(pc.yellow(`${totalUpdate} to update`));
+    if (totalDelete > 0) parts.push(pc.red(`${totalDelete} to delete`));
     lines.push(`  Would write: ${parts.join(', ')}`);
     lines.push('');
   }
@@ -274,7 +302,7 @@ export function formatDryRunPretty(results: DiffResult[]): string {
 
 export function formatDryRunResult(results: DiffResult[], pretty: boolean): CheckResult {
   const hasDrift = results.some(
-    (r) => r.summary.create > 0 || r.summary.update > 0,
+    (r) => r.summary.create > 0 || r.summary.update > 0 || r.summary.delete > 0,
   );
   const output = pretty ? formatDryRunPretty(results) : formatDryRunJson(results);
   return { output, hasDrift };
@@ -282,7 +310,7 @@ export function formatDryRunResult(results: DiffResult[], pretty: boolean): Chec
 
 export function formatCheckResult(results: DiffResult[], pretty: boolean): CheckResult {
   const hasDrift = results.some(
-    (r) => r.summary.create > 0 || r.summary.update > 0,
+    (r) => r.summary.create > 0 || r.summary.update > 0 || r.summary.delete > 0,
   );
   const output = pretty ? formatDiffPretty(results) : formatDiffJson(results);
   return { output, hasDrift };

@@ -8,7 +8,7 @@ const HOME = os.homedir();
 const adapter = new CodexAdapter();
 
 const baseCommandItem = {
-  name: 'zz-plan',
+  name: 'my-plan',
   content: 'This is the command body.\nWith details.\n',
   metadata: {
     description: 'Plan a feature',
@@ -38,12 +38,12 @@ const agentWithoutTools = {
 describe('CodexAdapter.renderCommand', () => {
   it('produces correct command file path (.md in prompts/)', () => {
     const result = adapter.renderCommand(baseCommandItem);
-    expect(result.relativePath).toBe(path.join(HOME, '.codex/prompts/zz-plan.md'));
+    expect(result.relativePath).toBe(path.join(HOME, '.codex/prompts/my-plan.md'));
   });
 
   it('uses # /{name} heading', () => {
     const result = adapter.renderCommand(baseCommandItem);
-    expect(result.content).toContain('# /zz-plan');
+    expect(result.content).toContain('# /my-plan');
   });
 
   it('includes description as paragraph', () => {
@@ -69,7 +69,7 @@ describe('CodexAdapter.renderCommand', () => {
 
   it('orders: heading → description → body', () => {
     const result = adapter.renderCommand(baseCommandItem);
-    const headingIdx = result.content.indexOf('# /zz-plan');
+    const headingIdx = result.content.indexOf('# /my-plan');
     const descIdx = result.content.indexOf('Plan a feature');
     const bodyIdx = result.content.indexOf('This is the command body.');
     expect(headingIdx).toBeLessThan(descIdx);

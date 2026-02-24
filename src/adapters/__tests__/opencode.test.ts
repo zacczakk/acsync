@@ -8,7 +8,7 @@ const HOME = os.homedir();
 const adapter = new OpenCodeAdapter();
 
 const baseCommandItem = {
-  name: 'zz-plan',
+  name: 'my-plan',
   content: 'This is the command body.\n',
   metadata: {
     description: 'Plan a feature',
@@ -18,9 +18,9 @@ const baseCommandItem = {
 };
 
 describe('OpenCodeAdapter.renderCommand', () => {
-  it('produces correct command file path (keeps zz- prefix)', () => {
+  it('produces correct command file path', () => {
     const result = adapter.renderCommand(baseCommandItem);
-    expect(result.relativePath).toBe(path.join(HOME, '.config/opencode/command/zz-plan.md'));
+    expect(result.relativePath).toBe(path.join(HOME, '.config/opencode/command/my-plan.md'));
   });
 
   it('keeps description in frontmatter', () => {

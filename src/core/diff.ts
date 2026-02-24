@@ -119,6 +119,6 @@ export function calculateDiff(
   return {
     target,
     operations,
-    summary: { create: createCount, update: updateCount, skip: skipCount },
+    summary: { create: createCount, update: updateCount, skip: skipCount, delete: 0 },
   };
 }

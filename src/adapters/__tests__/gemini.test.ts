@@ -8,7 +8,7 @@ const HOME = os.homedir();
 const adapter = new GeminiAdapter();
 
 const baseCommandItem = {
-  name: 'zz-plan',
+  name: 'my-plan',
   content: 'This is the command body.\nWith multiple lines.\n',
   metadata: {
     description: 'Plan a feature',
@@ -30,7 +30,7 @@ const agentItem = {
 describe('GeminiAdapter.renderCommand', () => {
   it('outputs .toml extension in path', () => {
     const result = adapter.renderCommand(baseCommandItem);
-    expect(result.relativePath).toBe(path.join(HOME, '.gemini/commands/zz-plan.toml'));
+    expect(result.relativePath).toBe(path.join(HOME, '.gemini/commands/my-plan.toml'));
   });
 
   it('includes description as TOML key', () => {
