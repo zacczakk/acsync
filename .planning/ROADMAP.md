@@ -146,7 +146,7 @@ Plans:
 **Milestone Goal:** Flatten canonical structure, unify instructions, rename repo — breaking changes for cleaner architecture.
 
 - [x] **Phase 6: Flatten Canonical Structure** - Move `configs/common/*` up to `configs/`, update all path references in code/tests/docs (completed 2026-02-24)
-- [ ] **Phase 7: Unify Instructions** - Merge 4 per-CLI addendums into single AGENTS.md, simplify rendering pipeline, fix output filenames
+- [x] **Phase 7: Unify Instructions** - Merge 4 per-CLI addendums into single AGENTS.md, simplify rendering pipeline, fix output filenames (completed 2026-02-24)
 - [ ] **Phase 8: TOOLS.md + Repo Rename** - Create canonical TOOLS.md, rename repo to `~/Repos/acsync`, propagate paths, clean up stale files
 
 ### Phase 6: Flatten Canonical Structure
@@ -175,7 +175,7 @@ Plans:
   3. `acsync push` writes `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`, `~/.codex/AGENTS.md` with correct content
   4. `acsync check --type instructions` reports zero drift after push
   5. No `AGENTS.md` at repo root — canonical location is `configs/instructions/AGENTS.md`
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 07-01-PLAN.md — Merge addendums into unified AGENTS.md, simplify rendering pipeline + path-resolver output filenames
@@ -205,5 +205,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 4. CLI Subcommands + Test Fixes | v1.0 | 2/2 | Complete | 2026-02-21 |
 | 5. Dead Code Cleanup + Integration Hygiene | v1.0 | 3/3 | Complete | 2026-02-22 |
 | 6. Flatten Canonical Structure | 1/1 | Complete    | 2026-02-24 | - |
-| 7. Unify Instructions | v2.0 | 0/2 | Planned | - |
+| 7. Unify Instructions | v2.0 | Complete    | 2026-02-24 | - |
 | 8. TOOLS.md + Repo Rename | v2.0 | 0/TBD | Not started | - |
