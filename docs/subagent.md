@@ -27,7 +27,7 @@ read_when:
 ## Instruction addendums
 - Canonical source: `configs/instructions/{cli}.md`.
 - System locations: `~/.claude/CLAUDE.md`, `~/.config/opencode/OPENCODE.md`, `~/.gemini/GEMINI.md`, `~/.codex/AGENTS.md`.
-- These point to `~/Repos/agents/AGENTS.md` and add CLI-specific notes (paths, quirks, restrictions).
+- These point to `~/Repos/acsync/AGENTS.md` and add CLI-specific notes (paths, quirks, restrictions).
 - Synced via `/zz-sync-agent-configs push` alongside commands, agents, and MCP.
 
 ## Operational rules
