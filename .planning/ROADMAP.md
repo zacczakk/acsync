@@ -191,6 +191,11 @@ Plans:
   3. `acsync` binary works from PATH after `bun link` in new location
   4. `acsync push --force` succeeds and propagates all path changes to targets (no `~/Repos/agents` references remain in target files)
   5. Stale target files removed: `~/.config/opencode/OPENCODE.md`, `~/.gemini/GEMINI.md`, `~/.codex/instructions.md`; OpenCode `opencode.json` instructions points to `AGENTS.md`
+**Plans:** 2 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Create configs/instructions/TOOLS.md + update AGENTS.md ## Tools section reference
+- [ ] 08-02-PLAN.md — Rename repo ~/Repos/agents → ~/Repos/acsync, update all path references, bun link, push --force, clean stale files
 
 ## Progress
 
@@ -206,4 +211,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 5. Dead Code Cleanup + Integration Hygiene | v1.0 | 3/3 | Complete | 2026-02-22 |
 | 6. Flatten Canonical Structure | 1/1 | Complete    | 2026-02-24 | - |
 | 7. Unify Instructions | v2.0 | Complete    | 2026-02-24 | - |
-| 8. TOOLS.md + Repo Rename | v2.0 | 0/TBD | Not started | - |
+| 8. TOOLS.md + Repo Rename | v2.0 | 0/2 | Planned | - |
