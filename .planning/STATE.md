@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 6 of 8 (Flatten Canonical Structure)
-Plan: 1 of 1 in current phase (COMPLETE)
-Status: Phase 6 complete — ready for Phase 7
-Last activity: 2026-02-24 — Completed 06-01 flatten configs/common/ to configs/
+Plan: 2 of 2 in current phase (COMPLETE)
+Status: Phase 6 complete — all gap closures done, ready for Phase 7
+Last activity: 2026-02-24 — Completed 06-02 gap closure (README + path constants wiring)
 
-Progress: [████████████████░░░░] 80% (16/20 plans)
+Progress: [█████████████████░░░] 85% (17/20 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
+- Total plans completed: 17
 - Average duration: 6min
-- Total execution time: ~1.6 hours
+- Total execution time: ~1.8 hours
 
 **By Phase:**
 
@@ -32,11 +32,11 @@ Progress: [████████████████░░░░] 80% (16
 | 03-diff-engine-cli | 5 | 33min | 6.6min |
 | 04-cli-subcommands-test-fixes | 2 | ~23min | 11.5min |
 | 05-dead-code-cleanup-integration | 3 | 21min | 7min |
-| 06-flatten-canonical-structure | 1 | 32min | 32min |
+| 06-flatten-canonical-structure | 2 | 46min | 23min |
 
 **Recent Trend:**
-- Last 5 plans: 15min, 7min, 8min, 6min, 32min
-- Trend: Phase 6 was larger scope (97 files in single atomic commit)
+- Last 5 plans: 7min, 8min, 6min, 32min, 14min
+- Trend: Phase 6 gap closure plan was faster (4 files vs 97)
 
 *Updated after each plan completion*
 
@@ -54,6 +54,7 @@ Recent decisions affecting current work:
 - `renderInstructions()` simplifies to single-file passthrough (no addendum parameter)
 - Path constants in canonical.ts as single source of truth for all config paths
 - Plain mv (not git mv) for file moves — git detects renames automatically
+- DIR_MAP pattern for dynamic path lookup in render.ts
 
 ### Pending Todos
 
@@ -66,5 +67,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 06-01-PLAN.md — Phase 6 complete
-Resume file: .planning/phases/06-flatten-canonical-structure/06-01-SUMMARY.md
+Stopped at: Completed 06-02-PLAN.md — Phase 6 fully complete (all gaps closed)
+Resume file: .planning/phases/06-flatten-canonical-structure/06-02-SUMMARY.md
