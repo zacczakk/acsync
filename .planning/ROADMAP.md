@@ -211,7 +211,11 @@ Plans:
   5. Zero stale `~/Repos/agents` references in `.planning/` docs
   6. Re-audit scores 24/24 requirements satisfied
 
-Plans: 0/0 plans complete
+**Plans:** 2 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Live verification attestation for Phase 8 + REQUIREMENTS.md checkbox update
+- [ ] 09-02-PLAN.md — Stale reference cleanup in living docs + audit/milestone closure
 
 ## Progress
 
