@@ -52,6 +52,37 @@
           }
         }
       }
+    },
+    "throttle-tux": {
+      "npm": "@ai-sdk/anthropic",
+      "name": "Tux",
+      "options": {
+        "baseURL": "http://127.0.0.1:18080/v1",
+        "apiKey": "does-not-matter"
+      },
+      "models": {
+        "claude-opus-4-6": {
+          "name": "Claude Opus 4.6",
+          "limit": {
+            "context": 180000,
+            "output": 64000
+          }
+        },
+        "claude-sonnet-4-6": {
+          "name": "Claude Sonnet 4.6",
+          "limit": {
+            "context": 180000,
+            "output": 64000
+          }
+        },
+        "claude-haiku-4-5-20251001": {
+          "name": "Claude Haiku 4.5",
+          "limit": {
+            "context": 180000,
+            "output": 64000
+          }
+        }
+      }
     }
   },
   "plugin": [
@@ -74,7 +105,7 @@
       "~/.config/opencode/agents/*": "allow"
     }
   },
-  "model": "uptimize-foundry/claude-opus-4-6",
+  "model": "throttle-tux/claude-opus-4-6",
   "instructions": [
     "~/.config/opencode/AGENTS.md"
   ]
