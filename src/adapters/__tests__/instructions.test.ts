@@ -15,46 +15,16 @@ const adapters = [
 describe('renderInstructions (all adapters)', () => {
   for (const adapter of adapters) {
     describe(adapter.displayName, () => {
-      test('concatenates base + addendum with newline separator', () => {
-        const base = '# Base\n\nSome base content.';
-        const addendum = '## Addendum\n\nCLI-specific content.';
-        const result = adapter.renderInstructions(base, addendum);
-
-        expect(result).toContain('# Base');
-        expect(result).toContain('## Addendum');
-        expect(result).toContain('Some base content.');
-        expect(result).toContain('CLI-specific content.');
+      test('returns content unchanged (identity passthrough)', () => {
+        const content = '# Agent OS\n\nBase content.\n\n## CLI-Specific Notes\n\nPer-CLI stuff.\n';
+        const result = adapter.renderInstructions(content);
+        expect(result).toBe(content);
       });
 
-      test('base content comes before addendum', () => {
-        const base = 'FIRST';
-        const addendum = 'SECOND';
-        const result = adapter.renderInstructions(base, addendum);
-
-        expect(result.indexOf('FIRST')).toBeLessThan(result.indexOf('SECOND'));
-      });
-
-      test('outputs end with newline', () => {
-        const result = adapter.renderInstructions('base', 'addendum');
-        expect(result.endsWith('\n')).toBe(true);
-      });
-
-      test('expands ~ to homedir via expandPaths if called in subclass', () => {
-        // renderInstructions itself does not call expandPaths — that's up to the caller
-        // Verify the tilde passes through unmodified (expandPaths is a protected helper)
-        const base = '# Base\n\n~/some/path';
-        const addendum = '~/another/path';
-        const result = adapter.renderInstructions(base, addendum);
-        // BaseAdapter.renderInstructions does NOT expand paths — it's a raw concatenation
-        // expandPaths() is available as a protected helper for subclasses to call explicitly
+      test('preserves tildes (expandPaths not called by renderInstructions)', () => {
+        const content = '# Base\n\n~/some/path\n';
+        const result = adapter.renderInstructions(content);
         expect(result).toContain('~/some/path');
-      });
-
-      test('separator is double newline between base and addendum', () => {
-        const base = 'BASE_CONTENT';
-        const addendum = 'ADDENDUM_CONTENT';
-        const result = adapter.renderInstructions(base, addendum);
-        expect(result).toContain('BASE_CONTENT\n\nADDENDUM_CONTENT');
       });
     });
   }
