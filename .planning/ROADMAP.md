@@ -175,7 +175,11 @@ Plans:
   3. `acsync push` writes `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`, `~/.codex/AGENTS.md` with correct content
   4. `acsync check --type instructions` reports zero drift after push
   5. No `AGENTS.md` at repo root — canonical location is `configs/instructions/AGENTS.md`
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Merge addendums into unified AGENTS.md, simplify rendering pipeline + path-resolver output filenames
+- [ ] 07-02-PLAN.md — Update tests for new signatures, delete addendum files + repo-root AGENTS.md, verify clean state
 
 ### Phase 8: TOOLS.md + Repo Rename
 **Goal**: Canonical TOOLS.md exists and is referenced from AGENTS.md; repo lives at `~/Repos/acsync` with all internal paths updated and binary re-registered; stale target files cleaned up
@@ -201,5 +205,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 4. CLI Subcommands + Test Fixes | v1.0 | 2/2 | Complete | 2026-02-21 |
 | 5. Dead Code Cleanup + Integration Hygiene | v1.0 | 3/3 | Complete | 2026-02-22 |
 | 6. Flatten Canonical Structure | 1/1 | Complete    | 2026-02-24 | - |
-| 7. Unify Instructions | v2.0 | 0/TBD | Not started | - |
+| 7. Unify Instructions | v2.0 | 0/2 | Planned | - |
 | 8. TOOLS.md + Repo Rename | v2.0 | 0/TBD | Not started | - |
