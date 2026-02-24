@@ -9,7 +9,7 @@ import { createBackup, restoreAll, cleanupAll } from '../core/rollback';
 import { atomicWrite } from '../infra/atomic-write';
 import { createExclusionFilter } from '../infra/exclusion';
 import { stringifyFrontmatter } from '../formats/markdown';
-import { ALL_TARGETS, createAdapter } from './canonical';
+import { ALL_TARGETS, COMMANDS_DIR, AGENTS_DIR, SKILLS_DIR, createAdapter } from './canonical';
 import { confirm, validatePullSource } from './cli-helpers';
 import type { TargetName } from '../types';
 import type { BackupInfo } from '../core/rollback';
@@ -69,21 +69,21 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
   const existingSkillNames = new Set<string>();
 
   if (!options.force) {
-    const cmdDir = join(projectDir, 'configs', 'commands');
+    const cmdDir = join(projectDir, COMMANDS_DIR);
     try {
       for (const entry of await readdir(cmdDir)) {
         if (entry.endsWith('.md')) existingCommandNames.add(entry.slice(0, -3));
       }
     } catch { /* dir doesn't exist yet */ }
 
-    const agentDir = join(projectDir, 'configs', 'agents');
+    const agentDir = join(projectDir, AGENTS_DIR);
     try {
       for (const entry of await readdir(agentDir)) {
         if (entry.endsWith('.md')) existingAgentNames.add(entry.slice(0, -3));
       }
     } catch { /* dir doesn't exist yet */ }
 
-    const skillDir = join(projectDir, 'configs', 'skills');
+    const skillDir = join(projectDir, SKILLS_DIR);
     try {
       for (const entry of await readdir(skillDir)) {
         if (entry.startsWith('.')) continue;
@@ -103,7 +103,7 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
     if (isExcluded(name)) continue;
     if (options.onlyKeys && !options.onlyKeys.has(`command/${name}`)) continue;
 
-    const targetPath = join(projectDir, 'configs', 'commands', `${name}.md`);
+    const targetPath = join(projectDir, COMMANDS_DIR, `${name}.md`);
 
     if (!options.force && existingCommandNames.has(name)) {
       items.push({ type: 'command', name, action: 'skip', targetPath });
@@ -118,7 +118,7 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
     if (isExcluded(name)) continue;
     if (options.onlyKeys && !options.onlyKeys.has(`agent/${name}`)) continue;
 
-    const targetPath = join(projectDir, 'configs', 'agents', `${name}.md`);
+    const targetPath = join(projectDir, AGENTS_DIR, `${name}.md`);
 
     if (!options.force && existingAgentNames.has(name)) {
       items.push({ type: 'agent', name, action: 'skip', targetPath });
@@ -135,7 +135,7 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
       if (isExcluded(name)) continue;
       if (options.onlyKeys && !options.onlyKeys.has(`skill/${name}`)) continue;
 
-      const targetPath = join(projectDir, 'configs', 'skills', name, 'SKILL.md');
+      const targetPath = join(projectDir, SKILLS_DIR, name, 'SKILL.md');
 
       if (!options.force && existingSkillNames.has(name)) {
         items.push({ type: 'skill', name, action: 'skip', targetPath });
@@ -171,19 +171,19 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
         const content = await readFile(filePath, 'utf-8');
         const canonical = adapter.parseCommand(item.name, content);
         const rendered = stringifyFrontmatter(canonical.content, canonical.metadata);
-        await mkdir(join(projectDir, 'configs', 'commands'), { recursive: true });
+        await mkdir(join(projectDir, COMMANDS_DIR), { recursive: true });
         await atomicWrite(item.targetPath, rendered);
       } else if (item.type === 'agent') {
         const filePath = paths.getAgentFilePath(item.name);
         const content = await readFile(filePath, 'utf-8');
         const canonical = adapter.parseAgent(item.name, content);
         const rendered = stringifyFrontmatter(canonical.content, canonical.metadata);
-        await mkdir(join(projectDir, 'configs', 'agents'), { recursive: true });
+        await mkdir(join(projectDir, AGENTS_DIR), { recursive: true });
         await atomicWrite(item.targetPath, rendered);
       } else if (item.type === 'skill') {
         const skill = await adapter.readSkill(item.name);
         const rendered = stringifyFrontmatter(skill.content, skill.metadata);
-        const skillDir = join(projectDir, 'configs', 'skills', item.name);
+        const skillDir = join(projectDir, SKILLS_DIR, item.name);
         await mkdir(skillDir, { recursive: true });
         await atomicWrite(join(skillDir, 'SKILL.md'), rendered);
         if (skill.supportFiles && skill.supportFiles.length > 0) {
