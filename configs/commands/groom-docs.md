@@ -3,9 +3,7 @@ description: Scan docs/ for staleness, dead links, and drift. Reports issues, of
 allowed-tools: [Read, Glob, Grep, Bash, Edit, Write]
 ---
 
-READ ~/Repos/acsync/AGENTS.md BEFORE ANYTHING (skip if missing).
-
-# Groom Docs
+# acsync-groom-docs
 
 Scan repository documentation for quality issues: dead links, stale references, missing front-matter, drift from code.
 
@@ -15,7 +13,7 @@ Detect documentation structure:
 - `docs/` directory (if exists)
 - `AGENTS.md` at repo root
 - `docs/plans/active/*/PLAN.md` (if exists)
-- `ARCHITECTURE.md` or `docs/architecture.md`
+- `docs/ARCHITECTURE.md`
 - Any markdown files in repo root
 
 ## Checks
