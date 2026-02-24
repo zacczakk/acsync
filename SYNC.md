@@ -304,7 +304,7 @@ configs/instructions/codex.md    -> ~/.codex/AGENTS.md
 The rendered system file is built as:
 
 ```
-{contents of ~/Repos/agents/AGENTS.md}
+{contents of ~/Repos/acsync/AGENTS.md}
 
 {contents of configs/instructions/{cli}.md}
 ```
@@ -314,7 +314,7 @@ the repo contain only the CLI-specific content (no `READ` directive).
 
 #### Push
 
-1. Read `~/Repos/agents/AGENTS.md`.
+1. Read `~/Repos/acsync/AGENTS.md`.
 2. Read the canonical CLI addendum (`configs/instructions/{cli}.md`).
 3. Concatenate: AGENTS.md content + `"\n\n"` + addendum content.
 4. Write the combined result to the system instruction file.
@@ -569,7 +569,7 @@ The canonical value `${PALANTIR_FOUNDRY_TOKEN}` maps to env key `FOUNDRY_TOKEN`.
 ### Path Expansion
 
 Canonical settings files use `~` for home directory paths (e.g.,
-`~/.claude/cacert.pem`, `~/Repos/agents/AGENTS.md`). These must be
+`~/.claude/cacert.pem`, `~/Repos/acsync/AGENTS.md`). These must be
 expanded/collapsed at the push/pull boundary:
 
 - **Push**: Expand `~` to the actual home directory (`$HOME`).

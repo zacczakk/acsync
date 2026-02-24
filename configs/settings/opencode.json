@@ -16,9 +16,6 @@
         },
         "eu.anthropic.claude-haiku-4-5-20251001-v1:0": {
           "name": "Claude Haiku 4.5"
-        },
-        "eu.anthropic.claude-opus-4-5-20251101-v1:0": {
-          "name": "Claude Opus 4.5 (experimental)"
         }
       }
     },
@@ -37,28 +34,21 @@
           "name": "Claude Opus 4.6",
           "limit": {
             "context": 180000,
-            "output": 8192
+            "output": 64000
           }
         },
-        "claude-opus-4-5-20251101": {
-          "name": "Claude Opus 4.5",
+        "claude-sonnet-4-6": {
+          "name": "Claude Sonnet 4.6",
           "limit": {
             "context": 180000,
-            "output": 8192
-          }
-        },
-        "claude-sonnet-4-5-20250929": {
-          "name": "Claude Sonnet 4.5",
-          "limit": {
-            "context": 180000,
-            "output": 8192
+            "output": 64000
           }
         },
         "claude-haiku-4-5-20251001": {
           "name": "Claude Haiku 4.5",
           "limit": {
             "context": 180000,
-            "output": 8192
+            "output": 64000
           }
         }
       }
@@ -77,11 +67,15 @@
     },
     "external_directory": {
       "*": "ask",
-      "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Knowledge/**": "allow"
+      "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Knowledge/**": "allow",
+      "~/.config/opencode/agents/*": "allow"
+    },
+    "read": {
+      "~/.config/opencode/agents/*": "allow"
     }
   },
   "model": "uptimize-foundry/claude-opus-4-6",
   "instructions": [
-    "~/.config/opencode/OPENCODE.md"
+    "~/.config/opencode/AGENTS.md"
   ]
 }

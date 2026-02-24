@@ -7,7 +7,7 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 - Model preference: latest only. OK: Anthropic Opus 4.6 / Sonnet 4.5 (Sonnet 3.5 = old; avoid), OpenAI GPT-5.3, xAI Grok-4.1 Fast, Google Gemini 3 Flash.
 - Workspace: `~/Repos`. Missing repo: clone `https://github.com/zacczakk/<repo>.git`.
 - 3rd-party/OSS (non-zacczakk): clone under `~/Repos/oss`.
-- Files: repo or `~/Repos/agents`.
+- Files: repo or `~/Repos/acsync`.
 - PRs: use `gh pr view/diff` (no URLs).
 - "Make a note" => edit `AGENTS.md` and/or active plan in `docs/plans/` (shortcut; not a blocker).
 - No `./runner`. Guardrails: use `trash` for deletes.
@@ -251,12 +251,12 @@ Canonical AGENTS.md now has expanded `## Docs` section:
 ### Claude Code
 
 ## Paths
-- Canonical rules: `~/Repos/agents/AGENTS.md`
-- Canonical commands: `~/Repos/agents/configs/commands`
-- Canonical subagents: `~/Repos/agents/configs/agents`
+- Canonical rules: `~/Repos/acsync/AGENTS.md`
+- Canonical commands: `~/Repos/acsync/configs/commands`
+- Canonical subagents: `~/Repos/acsync/configs/agents`
 - Claude commands (rendered): `~/.claude/commands/zz/`
 - Claude subagents (rendered): `~/.claude/agents/`
-- Helper scripts: `~/Repos/agents/scripts`
+- Helper scripts: `~/Repos/acsync/scripts`
 
 ## Web Access
 WebFetch blocked (corporate proxy). Use Tavily MCP
@@ -270,20 +270,20 @@ Set in `~/.claude/settings.json` under `env` key.
 Non-native MCP servers via `mcporter call`. See `## Tools` in AGENTS.md.
 
 ## Config Management
-- Global configs are managed in `~/Repos/agents`.
+- Global configs are managed in `~/Repos/acsync`.
 - Use `/zz:sync-agent-configs` to sync configs across CLIs.
 - Keep secrets in `.env`; never commit them.
 
 ### OpenCode
 
 ## Paths
-- Canonical rules: `~/Repos/agents/AGENTS.md`
-- Canonical commands: `~/Repos/agents/configs/commands`
-- Canonical subagents: `~/Repos/agents/configs/agents`
+- Canonical rules: `~/Repos/acsync/AGENTS.md`
+- Canonical commands: `~/Repos/acsync/configs/commands`
+- Canonical subagents: `~/Repos/acsync/configs/agents`
 - OpenCode commands (rendered): `~/.config/opencode/command/`
 - OpenCode subagents (rendered): `~/.config/opencode/agents/`
 - OpenCode skills (rendered): `~/.config/opencode/skill/`
-- Helper scripts: `~/Repos/agents/scripts`
+- Helper scripts: `~/Repos/acsync/scripts`
 
 ## Naming Quirks
 - Singular directories: `command/`, `skill/` (not `commands/`, `skills/`).
@@ -298,40 +298,40 @@ Non-native MCP servers via `mcporter call`. See `## Tools` in AGENTS.md.
 - No native Tavily MCP (Claude-only); use the search tool directly.
 
 ## Config Management
-- Global configs are managed in `~/Repos/agents`.
+- Global configs are managed in `~/Repos/acsync`.
 - Use `/zz-sync-agent-configs` to sync configs across CLIs.
 - Keep secrets in `.env`; never commit them.
 
 ### Gemini
 
 ## Paths
-- Canonical rules: `~/Repos/agents/AGENTS.md`
-- Canonical commands: `~/Repos/agents/configs/commands`
-- Canonical subagents: `~/Repos/agents/configs/agents`
+- Canonical rules: `~/Repos/acsync/AGENTS.md`
+- Canonical commands: `~/Repos/acsync/configs/commands`
+- Canonical subagents: `~/Repos/acsync/configs/agents`
 - Gemini commands (rendered): `~/.gemini/commands`
 - Gemini subagents (rendered): `~/.gemini/agents`
-- Helper scripts: `~/Repos/agents/scripts`
+- Helper scripts: `~/Repos/acsync/scripts`
 
 ## Notes
 - Subagents: `experimental.enableAgents = true` in `~/.gemini/settings.json`.
 - Context: `AGENTS.md` canonical; `GEMINI.md` fallback (`context.fileName = ["AGENTS.md", "GEMINI.md"]`).
-- Missing local context: import `@~/Repos/agents/AGENTS.md`.
+- Missing local context: import `@~/Repos/acsync/AGENTS.md`.
 
 ## Config Management
-- Global configs are managed in `~/Repos/agents`.
+- Global configs are managed in `~/Repos/acsync`.
 - Use `/zz-sync-agent-configs` to sync configs across CLIs.
 - Keep secrets in `.env`; never commit them.
 
 ### Codex
 
 ## Paths
-- Canonical rules: `~/Repos/agents/AGENTS.md`
-- Canonical commands: `~/Repos/agents/configs/commands`
-- Canonical subagents: `~/Repos/agents/configs/agents`
-- Canonical skills: `~/Repos/agents/configs/skills`
+- Canonical rules: `~/Repos/acsync/AGENTS.md`
+- Canonical commands: `~/Repos/acsync/configs/commands`
+- Canonical subagents: `~/Repos/acsync/configs/agents`
+- Canonical skills: `~/Repos/acsync/configs/skills`
 - Codex prompts (rendered): `~/.codex/prompts`
 - Codex skills (rendered): `~/.codex/skills`
-- Helper scripts: `~/Repos/agents/scripts`
+- Helper scripts: `~/Repos/acsync/scripts`
 
 ## Helpers and Sync Discipline
 - Repo helper scripts live in `scripts/` (committer, generate-docs, browser-tools).
@@ -339,6 +339,6 @@ Non-native MCP servers via `mcporter call`. See `## Tools` in AGENTS.md.
 - Use `/zz-sync-agent-helpers` to manage helper drift.
 
 ## Config Management
-- Global configs are managed in `~/Repos/agents`.
+- Global configs are managed in `~/Repos/acsync`.
 - Use `/zz-sync-agent-configs` to sync configs across CLIs.
 - Keep secrets in `.env`; never commit them.
