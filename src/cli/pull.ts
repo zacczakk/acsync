@@ -363,7 +363,20 @@ function formatPullResult(
 }
 
 export const pullCommand = new Command('pull')
-  .description('Pull commands/agents/skills from a target CLI back to canonical format')
+  .description(
+    `Pull configs from a target CLI back to canonical format in configs/.
+
+Reverse of push: reads installed target configs, reverse-parses them through the
+adapter, and writes canonical markdown with frontmatter to configs/.
+Skips items that already exist in canonical unless --force is used.
+
+Use --source all to deduplicate across all 4 targets (first-source-wins).
+
+Examples:
+  acsync pull -s claude                 Pull from Claude Code
+  acsync pull -s all                    Pull from all targets, deduplicate
+  acsync pull -s opencode --force       Pull from OpenCode, overwrite existing
+  acsync pull -s claude --dry-run       Preview what would be pulled`)
   .requiredOption('-s, --source <target>', 'Source target: all, claude, gemini, codex, opencode')
   .option('--pretty', 'Human-readable colored output (default: JSON)')
   .option('--force', 'Overwrite existing canonical items')

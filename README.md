@@ -22,14 +22,14 @@ Agent-driven sync across Claude Code, OpenCode, Gemini CLI, and Codex.
    **For Claude Code:**
    ```bash
    mkdir -p ~/.claude/commands/zz
-   cp configs/common/commands/zz-sync-agent-configs.md \
+    cp configs/commands/zz-sync-agent-configs.md \
       ~/.claude/commands/zz/sync-agent-configs.md
    ```
 
    **For OpenCode:**
    ```bash
    mkdir -p ~/.config/opencode/command
-   cp configs/common/commands/zz-sync-agent-configs.md \
+    cp configs/commands/zz-sync-agent-configs.md \
       ~/.config/opencode/command/zz-sync-agent-configs.md
    ```
 
@@ -55,12 +55,13 @@ AGENTS.md                    Agent operating system (ground truth)
 SYNC.md                      Sync playbook (format specs, merge rules)
 .env                         Secrets (gitignored)
 
-configs/common/
+configs/
   commands/*.md              17 slash commands
   agents/*.md                8 agent definitions
   skills/                    2 skill directories
   mcp/*.json                 6 MCP server definitions
   settings/*.json            2 settings definitions (claude, opencode)
+  instructions/*.md          4 per-CLI instruction addendums
 
 scripts/
   committer                  Git commit helper
