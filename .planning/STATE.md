@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 8 of 8 (TOOLS.md + Repo Rename) — IN PROGRESS
-Plan: 1 of 2 in current phase (Plan 01 complete)
-Status: 08-01 complete — TOOLS.md created, AGENTS.md updated
-Last activity: 2026-02-24 — Completed 08-01-PLAN.md (TOOLS.md + AGENTS.md reference)
+Plan: 2 of 2 in current phase (Plan 01 complete, Plan 02 checkpoint)
+Status: 08-02 Tasks 1-2 committed (6ff2c59) — blocked on manual repo rename
+Last activity: 2026-02-24 — 08-02 path refs updated, awaiting manual mv ~/Repos/agents → ~/Repos/acsync
 
 Progress: [████████████████████] 95% (20/21 plans)
 
@@ -69,10 +69,12 @@ None yet.
 
 ### Blockers/Concerns
 
-None.
+- 08-02 checkpoint: manual `mv ~/Repos/agents ~/Repos/acsync` required before Task 3 can run. Session must restart from new location.
 
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 08-01-PLAN.md (TOOLS.md + AGENTS.md reference)
+Stopped at: 08-02 checkpoint — Tasks 1-2 committed (6ff2c59), manual rename pending
 Resume file: .planning/phases/08-tools-repo-rename/08-02-PLAN.md
+Resume task: Task 3 (post-rename: bun link, test, push, stale cleanup)
+Resume instructions: After mv, in new session say "Execute 08-02 Task 3 — post-rename steps (bun link, test, push, stale cleanup). Tasks 1-2 already committed as 6ff2c59. After Task 3, run Task 4 checkpoint (human-verify), then create SUMMARY.md and update STATE.md/ROADMAP.md. Finally run phase 8 verification + close."
