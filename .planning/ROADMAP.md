@@ -2,7 +2,12 @@
 
 ## Overview
 
-Build a deterministic CLI that renders canonical agent configs to 4 target CLI formats, detects drift via hash-based diffs, and pushes changes with atomic writes and secret injection. Three phases: infrastructure foundations, all renderers + secret handling, then diff engine + CLI shell.
+Deterministic CLI that renders canonical agent configs to 4 target CLI formats, detects drift via hash-based diffs, and pushes changes with atomic writes. v1.0 built the core. v2.0 simplifies canonical structure: flatten paths, unify instructions, add TOOLS.md, rename repo.
+
+## Milestones
+
+- ✅ **v1.0 Foundation** - Phases 1-5 (shipped 2026-02-22)
+- 🚧 **v2.0 Simplify Canonical** - Phases 6-8 (in progress)
 
 ## Phases
 
@@ -10,13 +15,22 @@ Build a deterministic CLI that renders canonical agent configs to 4 target CLI f
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [x] **Phase 1: Foundation** - Types, infra (atomic writes, backup, hashing), format parsers, exclusion filters (completed 2026-02-20)
-- [x] **Phase 2: Renderers + Secrets** - All config rendering for 4 targets + secret injection + env var conversion (completed 2026-02-20)
-- [x] **Phase 3: Diff Engine + CLI** - Manifest, 3-way diff, CLI subcommands, output formats, dry-run (completed 2026-02-20)
-- [x] **Phase 4: CLI Subcommands + Test Fixes** - Add render/diff subcommands, --json flag, fix test failures (gap closure) (completed 2026-02-21)
-- [x] **Phase 5: Dead Code Cleanup + Integration Hygiene** - Remove dead exports, eliminate double-backup, wire atomicWrite into pull, split orchestrator (gap closure) (completed 2026-02-22)
+<details>
+<summary>✅ v1.0 Foundation (Phases 1-5) - SHIPPED 2026-02-22</summary>
+
+- [x] **Phase 1: Foundation** - Types, infra (atomic writes, backup, hashing), format parsers, exclusion filters
+- [x] **Phase 2: Renderers + Secrets** - All config rendering for 4 targets + secret injection + env var conversion
+- [x] **Phase 3: Diff Engine + CLI** - Manifest, 3-way diff, CLI subcommands, output formats, dry-run
+- [x] **Phase 4: CLI Subcommands + Test Fixes** - Add render/diff subcommands, --json flag, fix test failures
+- [x] **Phase 5: Dead Code Cleanup + Integration Hygiene** - Remove dead exports, eliminate double-backup, wire atomicWrite into pull, split orchestrator
+
+</details>
 
 ## Phase Details
+
+<details>
+<summary>✅ v1.0 Foundation (Phases 1-5)</summary>
+
 
 ### Phase 1: Foundation
 **Goal**: Infrastructure layer exists — deterministic hashing, safe file operations, and exclusion filtering
@@ -118,22 +132,70 @@ Plans:
   3. pull uses atomicWrite (same crash-safety as push)
   4. orchestrator.ts split into modules, each <500 LOC
   5. All tests pass after cleanup
-**Plans:** 3 plans (2 complete, 1 gap closure)
+**Plans:** 3/3 plans complete
 
 Plans:
 - [x] 05-01-PLAN.md — Dead code removal + backup consolidation (remove 12 dead exports, strip backup from atomicWrite, single rollback strategy)
 - [x] 05-02-PLAN.md — Pull safety + orchestrator split (wire atomicWrite/rollback into pull, split orchestrator into canonical.ts/sync-check.ts/sync-push.ts/sync-pull.ts)
-- [ ] 05-03-PLAN.md — Module rename: merge Commander wrappers into sync-* modules, rename to check/push/pull, delete orchestrator.ts (gap closure)
+- [x] 05-03-PLAN.md — Module rename: merge Commander wrappers into sync-* modules, rename to check/push/pull, delete orchestrator.ts (gap closure)
+
+</details>
+
+### 🚧 v2.0 Simplify Canonical (In Progress)
+
+**Milestone Goal:** Flatten canonical structure, unify instructions, rename repo — breaking changes for cleaner architecture.
+
+- [ ] **Phase 6: Flatten Canonical Structure** - Move `configs/common/*` up to `configs/`, update all path references in code/tests/docs
+- [ ] **Phase 7: Unify Instructions** - Merge 4 per-CLI addendums into single AGENTS.md, simplify rendering pipeline, fix output filenames
+- [ ] **Phase 8: TOOLS.md + Repo Rename** - Create canonical TOOLS.md, rename repo to `~/Repos/acsync`, propagate paths, clean up stale files
+
+### Phase 6: Flatten Canonical Structure
+**Goal**: Canonical configs live at `configs/` with no intermediate `common/` directory — all code, tests, and docs reference the new flat path
+**Depends on**: Phase 5
+**Requirements**: STRUCT-01, STRUCT-02, STRUCT-03, STRUCT-04, STRUCT-05
+**Success Criteria** (what must be TRUE):
+  1. `configs/agents/`, `configs/commands/`, `configs/mcp/`, `configs/settings/`, `configs/skills/`, `configs/instructions/` exist directly under `configs/`
+  2. `configs/common/` directory does not exist
+  3. `acsync check` runs successfully against the new path structure (no "not found" errors)
+  4. All tests pass with zero references to `configs/common/`
+  5. `acsync --help` and error messages reference `configs/` (not `configs/common/`)
+**Plans**: TBD
+
+### Phase 7: Unify Instructions
+**Goal**: Single canonical `configs/instructions/AGENTS.md` replaces base + 4 addendums — rendering pipeline simplified to single-file passthrough, all 4 targets receive correct output filenames
+**Depends on**: Phase 6
+**Requirements**: INST-01, INST-02, INST-03, INST-04, INST-05, INST-06, INST-07, INST-08, INST-09, INST-10
+**Success Criteria** (what must be TRUE):
+  1. `configs/instructions/AGENTS.md` exists with `## CLI-Specific Notes` containing merged content from all 4 addendums
+  2. No per-CLI addendum files exist (`claude.md`, `opencode.md`, `gemini.md`, `codex.md` deleted)
+  3. `acsync push` writes `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`, `~/.codex/AGENTS.md` with correct content
+  4. `acsync check --type instructions` reports zero drift after push
+  5. No `AGENTS.md` at repo root — canonical location is `configs/instructions/AGENTS.md`
+**Plans**: TBD
+
+### Phase 8: TOOLS.md + Repo Rename
+**Goal**: Canonical TOOLS.md exists and is referenced from AGENTS.md; repo lives at `~/Repos/acsync` with all internal paths updated and binary re-registered; stale target files cleaned up
+**Depends on**: Phase 7
+**Requirements**: TOOL-01, TOOL-02, TOOL-03, REPO-01, REPO-02, REPO-03, REPO-04, REPO-05, REPO-06
+**Success Criteria** (what must be TRUE):
+  1. `configs/instructions/TOOLS.md` exists with tool-use documentation, referenced by absolute path from AGENTS.md `## Tools` section
+  2. Repo folder is `~/Repos/acsync` (not `~/Repos/agents`)
+  3. `acsync` binary works from PATH after `bun link` in new location
+  4. `acsync push --force` succeeds and propagates all path changes to targets (no `~/Repos/agents` references remain in target files)
+  5. Stale target files removed: `~/.config/opencode/OPENCODE.md`, `~/.gemini/GEMINI.md`, `~/.codex/instructions.md`; OpenCode `opencode.json` instructions points to `AGENTS.md`
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Foundation | 2/2 | Complete | 2026-02-20 |
-| 2. Renderers + Secrets | 3/3 | Complete | 2026-02-20 |
-| 3. Diff Engine + CLI | 5/5 | Complete | 2026-02-21 |
-| 4. CLI Subcommands + Test Fixes | 2/2 | Complete | 2026-02-21 |
-| 5. Dead Code Cleanup + Integration Hygiene | 2/3 | In Progress | 2026-02-22 |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Foundation | v1.0 | 2/2 | Complete | 2026-02-20 |
+| 2. Renderers + Secrets | v1.0 | 3/3 | Complete | 2026-02-20 |
+| 3. Diff Engine + CLI | v1.0 | 5/5 | Complete | 2026-02-21 |
+| 4. CLI Subcommands + Test Fixes | v1.0 | 2/2 | Complete | 2026-02-21 |
+| 5. Dead Code Cleanup + Integration Hygiene | v1.0 | 3/3 | Complete | 2026-02-22 |
+| 6. Flatten Canonical Structure | v2.0 | 0/TBD | Not started | - |
+| 7. Unify Instructions | v2.0 | 0/TBD | Not started | - |
+| 8. TOOLS.md + Repo Rename | v2.0 | 0/TBD | Not started | - |

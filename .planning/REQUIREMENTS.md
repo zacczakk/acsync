@@ -73,35 +73,35 @@ Requirements for Simplify Canonical milestone. Flatten structure, unify instruct
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STRUCT-01 | TBD | Pending |
-| STRUCT-02 | TBD | Pending |
-| STRUCT-03 | TBD | Pending |
-| STRUCT-04 | TBD | Pending |
-| STRUCT-05 | TBD | Pending |
-| INST-01 | TBD | Pending |
-| INST-02 | TBD | Pending |
-| INST-03 | TBD | Pending |
-| INST-04 | TBD | Pending |
-| INST-05 | TBD | Pending |
-| INST-06 | TBD | Pending |
-| INST-07 | TBD | Pending |
-| INST-08 | TBD | Pending |
-| INST-09 | TBD | Pending |
-| INST-10 | TBD | Pending |
-| TOOL-01 | TBD | Pending |
-| TOOL-02 | TBD | Pending |
-| TOOL-03 | TBD | Pending |
-| REPO-01 | TBD | Pending |
-| REPO-02 | TBD | Pending |
-| REPO-03 | TBD | Pending |
-| REPO-04 | TBD | Pending |
-| REPO-05 | TBD | Pending |
-| REPO-06 | TBD | Pending |
+| STRUCT-01 | Phase 6 | Pending |
+| STRUCT-02 | Phase 6 | Pending |
+| STRUCT-03 | Phase 6 | Pending |
+| STRUCT-04 | Phase 6 | Pending |
+| STRUCT-05 | Phase 6 | Pending |
+| INST-01 | Phase 7 | Pending |
+| INST-02 | Phase 7 | Pending |
+| INST-03 | Phase 7 | Pending |
+| INST-04 | Phase 7 | Pending |
+| INST-05 | Phase 7 | Pending |
+| INST-06 | Phase 7 | Pending |
+| INST-07 | Phase 7 | Pending |
+| INST-08 | Phase 7 | Pending |
+| INST-09 | Phase 7 | Pending |
+| INST-10 | Phase 7 | Pending |
+| TOOL-01 | Phase 8 | Pending |
+| TOOL-02 | Phase 8 | Pending |
+| TOOL-03 | Phase 8 | Pending |
+| REPO-01 | Phase 8 | Pending |
+| REPO-02 | Phase 8 | Pending |
+| REPO-03 | Phase 8 | Pending |
+| REPO-04 | Phase 8 | Pending |
+| REPO-05 | Phase 8 | Pending |
+| REPO-06 | Phase 8 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 24 total
-- Mapped to phases: 0
-- Unmapped: 24
+- Mapped to phases: 24
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-23*
