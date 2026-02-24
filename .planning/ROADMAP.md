@@ -7,7 +7,7 @@ Deterministic CLI that renders canonical agent configs to 4 target CLI formats, 
 ## Milestones
 
 - ✅ **v1.0 Foundation** - Phases 1-5 (shipped 2026-02-22)
-- 🚧 **v2.0 Simplify Canonical** - Phases 6-8 (in progress)
+- ✅ **v2.0 Simplify Canonical** - Phases 6-8 (shipped 2026-02-24)
 
 ## Phases
 
@@ -44,8 +44,8 @@ Deterministic CLI that renders canonical agent configs to 4 target CLI formats, 
 **Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 01-01-PLAN.md — Types, errors, exclusion filter, hash, backup, atomic write + tests
-- [ ] 01-02-PLAN.md — Format parsers (JSON, JSONC, TOML, Markdown frontmatter) + round-trip tests
+- [x] 01-01-PLAN.md — Types, errors, exclusion filter, hash, backup, atomic write + tests
+- [x] 01-02-PLAN.md — Format parsers (JSON, JSONC, TOML, Markdown frontmatter) + round-trip tests
 
 ### Phase 2: Renderers + Secrets
 **Goal**: Lightweight rendering — pure functions that transform canonical configs to target formats. Borrow proven logic from vsync (`~/Repos/oss/vsync/cli/src/`) wherever applicable; do NOT re-derive what vsync already solved.
@@ -63,12 +63,12 @@ Plans:
   3. Env var syntax matches target conventions (`${VAR}` for Claude/Gemini, `{env:VAR}` for OpenCode, none for Codex)
   4. Format integrity preserved: JSONC comments survive, TOML types are correct, frontmatter round-trips cleanly
   5. Renderers are pure functions (input → output string), no class hierarchies or adapter registries
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 02-01-PLAN.md — Secrets (env-loader, injector, EnvVarTransformer) + types + BaseAdapter/PathResolver
-- [ ] 02-02-PLAN.md — Command + agent renderers (4 adapters × 2 methods = 8 render functions)
-- [ ] 02-03-PLAN.md — MCP rendering (4 targets) + instructions + skills
+- [x] 02-01-PLAN.md — Secrets (env-loader, injector, EnvVarTransformer) + types + BaseAdapter/PathResolver
+- [x] 02-02-PLAN.md — Command + agent renderers (4 adapters × 2 methods = 8 render functions)
+- [x] 02-03-PLAN.md — MCP rendering (4 targets) + instructions + skills
 
 ### Phase 3: Diff Engine + CLI
 **Goal**: End-to-end CLI works — diff, render, push, check with proper output and exit codes. Rollback replaces Phase 1's backup-only approach with full restore-on-failure semantics.
@@ -98,9 +98,9 @@ Plans:
 **Plans:** 5/5 plans complete
 
 Plans:
-- [ ] 03-01-PLAN.md — Manifest manager + 3-way diff engine + rollback + output formatters (types, compareHashes/calculateDiff, BackupInfo/restoreAll, JSON+pretty formatters via picocolors)
-- [ ] 03-02-PLAN.md — CLI shell + sync orchestrator (Commander.js acsync check/push, --pretty/--dry-run/--force/--target/--type, push orchestration with rollback, exit codes 0/1/2)
-- [ ] 03-03-PLAN.md — MCPorter hybrid setup + E2E verification (trim canonical MCP to 3 servers, update AGENTS.md + addendums, exercise full acsync check→push pipeline)
+- [x] 03-01-PLAN.md — Manifest manager + 3-way diff engine + rollback + output formatters (types, compareHashes/calculateDiff, BackupInfo/restoreAll, JSON+pretty formatters via picocolors)
+- [x] 03-02-PLAN.md — CLI shell + sync orchestrator (Commander.js acsync check/push, --pretty/--dry-run/--force/--target/--type, push orchestration with rollback, exit codes 0/1/2)
+- [x] 03-03-PLAN.md — MCPorter hybrid setup + E2E verification (trim canonical MCP to 3 servers, update AGENTS.md + addendums, exercise full acsync check→push pipeline)
 
 ### Phase 4: CLI Subcommands + Test Fixes
 **Goal**: All CLI interface requirements satisfied — named subcommands exist, flags match spec, tests pass
@@ -115,11 +115,11 @@ Plans:
   5. skills.test.ts uses temp directory instead of depending on host environment
   6. All tests pass: 0 failures
 
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 04-01-PLAN.md — Add render + diff subcommands, --json flag
-- [ ] 04-02-PLAN.md — Fix Date.now() collision in rollback + skills.test.ts host dependency
+- [x] 04-01-PLAN.md — Add render + diff subcommands, --json flag
+- [x] 04-02-PLAN.md — Fix Date.now() collision in rollback + skills.test.ts host dependency
 
 ### Phase 5: Dead Code Cleanup + Integration Hygiene
 **Goal**: No dead exports, no redundant operations, orchestrator under 500 LOC, consistent safety guarantees
@@ -141,13 +141,13 @@ Plans:
 
 </details>
 
-### 🚧 v2.0 Simplify Canonical (In Progress)
+### ✅ v2.0 Simplify Canonical (Complete)
 
 **Milestone Goal:** Flatten canonical structure, unify instructions, rename repo — breaking changes for cleaner architecture.
 
 - [x] **Phase 6: Flatten Canonical Structure** - Move `configs/common/*` up to `configs/`, update all path references in code/tests/docs (completed 2026-02-24)
 - [x] **Phase 7: Unify Instructions** - Merge 4 per-CLI addendums into single AGENTS.md, simplify rendering pipeline, fix output filenames (completed 2026-02-24)
-- [ ] **Phase 8: TOOLS.md + Repo Rename** - Create canonical TOOLS.md, rename repo to `~/Repos/acsync`, propagate paths, clean up stale files
+- [x] **Phase 8: TOOLS.md + Repo Rename** - Create canonical TOOLS.md, rename repo to `~/Repos/acsync`, propagate paths, clean up stale files (completed 2026-02-24)
 
 ### Phase 6: Flatten Canonical Structure
 **Goal**: Canonical configs live at `configs/` with no intermediate `common/` directory — all code, tests, and docs reference the new flat path
@@ -163,7 +163,7 @@ Plans:
 
 Plans:
 - [x] 06-01-PLAN.md — Move configs/common/* to configs/, add path constants, update all references (single atomic commit)
-- [ ] 06-02-PLAN.md — Gap closure: fix README.md stale refs + wire path constants into render/pull/check
+- [x] 06-02-PLAN.md — Gap closure: fix README.md stale refs + wire path constants into render/pull/check
 
 ### Phase 7: Unify Instructions
 **Goal**: Single canonical `configs/instructions/AGENTS.md` replaces base + 4 addendums — rendering pipeline simplified to single-file passthrough, all 4 targets receive correct output filenames
@@ -178,8 +178,8 @@ Plans:
 **Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 07-01-PLAN.md — Merge addendums into unified AGENTS.md, simplify rendering pipeline + path-resolver output filenames
-- [ ] 07-02-PLAN.md — Update tests for new signatures, delete addendum files + repo-root AGENTS.md, verify clean state
+- [x] 07-01-PLAN.md — Merge addendums into unified AGENTS.md, simplify rendering pipeline + path-resolver output filenames
+- [x] 07-02-PLAN.md — Update tests for new signatures, delete addendum files + repo-root AGENTS.md, verify clean state
 
 ### Phase 8: TOOLS.md + Repo Rename
 **Goal**: Canonical TOOLS.md exists and is referenced from AGENTS.md; repo lives at `~/Repos/acsync` with all internal paths updated and binary re-registered; stale target files cleaned up
@@ -191,11 +191,11 @@ Plans:
   3. `acsync` binary works from PATH after `bun link` in new location
   4. `acsync push --force` succeeds and propagates all path changes to targets (no `~/Repos/agents` references remain in target files)
   5. Stale target files removed: `~/.config/opencode/OPENCODE.md`, `~/.gemini/GEMINI.md`, `~/.codex/instructions.md`; OpenCode `opencode.json` instructions points to `AGENTS.md`
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 08-01-PLAN.md — Create configs/instructions/TOOLS.md + update AGENTS.md ## Tools section reference
-- [ ] 08-02-PLAN.md — Rename repo ~/Repos/agents → ~/Repos/acsync, update all path references, bun link, push --force, clean stale files
+- [x] 08-01-PLAN.md — Create configs/instructions/TOOLS.md + update AGENTS.md ## Tools section reference
+- [x] 08-02-PLAN.md — Rename repo ~/Repos/agents → ~/Repos/acsync, update all path references, bun link, push --force, clean stale files
 
 ## Progress
 
@@ -209,6 +209,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 3. Diff Engine + CLI | v1.0 | 5/5 | Complete | 2026-02-21 |
 | 4. CLI Subcommands + Test Fixes | v1.0 | 2/2 | Complete | 2026-02-21 |
 | 5. Dead Code Cleanup + Integration Hygiene | v1.0 | 3/3 | Complete | 2026-02-22 |
-| 6. Flatten Canonical Structure | 1/1 | Complete    | 2026-02-24 | - |
-| 7. Unify Instructions | v2.0 | Complete    | 2026-02-24 | - |
-| 8. TOOLS.md + Repo Rename | v2.0 | 0/2 | Planned | - |
+| 6. Flatten Canonical Structure | v2.0 | 2/2 | Complete | 2026-02-24 |
+| 7. Unify Instructions | v2.0 | 2/2 | Complete | 2026-02-24 |
+| 8. TOOLS.md + Repo Rename | v2.0 | 2/2 | Complete | 2026-02-24 |
