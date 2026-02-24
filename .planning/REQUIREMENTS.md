@@ -34,9 +34,9 @@ Requirements for Simplify Canonical milestone. Flatten structure, unify instruct
 
 ### TOOLS.md
 
-- [ ] **TOOL-01**: `configs/instructions/TOOLS.md` exists with tool-use documentation
-- [ ] **TOOL-02**: AGENTS.md `## Tools` section references TOOLS.md by absolute path
-- [ ] **TOOL-03**: TOOLS.md is not rendered/synced to any CLI target (reference only)
+- [x] **TOOL-01**: `configs/instructions/TOOLS.md` exists with tool-use documentation
+- [x] **TOOL-02**: AGENTS.md `## Tools` section references TOOLS.md by absolute path
+- [x] **TOOL-03**: TOOLS.md is not rendered/synced to any CLI target (reference only)
 
 ### Repo Identity
 
@@ -88,9 +88,9 @@ Requirements for Simplify Canonical milestone. Flatten structure, unify instruct
 | INST-08 | Phase 7 | Complete |
 | INST-09 | Phase 7 | Complete |
 | INST-10 | Phase 7 | Complete |
-| TOOL-01 | Phase 8 | Pending |
-| TOOL-02 | Phase 8 | Pending |
-| TOOL-03 | Phase 8 | Pending |
+| TOOL-01 | Phase 8 | Complete |
+| TOOL-02 | Phase 8 | Complete |
+| TOOL-03 | Phase 8 | Complete |
 | REPO-01 | Phase 8 | Pending |
 | REPO-02 | Phase 8 | Pending |
 | REPO-03 | Phase 8 | Pending |
