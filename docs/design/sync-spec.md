@@ -1,9 +1,17 @@
-# SYNC.md — Agent Config Sync Playbook
+---
+summary: "Reference spec for format transformations, MCP rendering, secret handling, and merge rules."
+read_when:
+  - "Modifying adapter rendering logic"
+  - "Adding a new CLI target"
+  - "Debugging format transformation or secret injection"
+---
 
-This is the single reference document for syncing agent configurations between
-this repo (the canonical source) and four AI coding CLI system directories.
+# Sync Specification (Reference)
 
-Read this file in full before performing any sync operation.
+> **Status**: Reference document. The sync logic is implemented in the
+> `acsync` TypeScript CLI (`src/adapters/`, `src/secrets/`, `src/core/`).
+> This spec documents the contracts those adapters implement. It was
+> originally the agent-driven playbook (SYNC.md) before the CLI existed.
 
 ---
 
@@ -34,12 +42,13 @@ merges commands and agents into a single `prompts/` directory.
 ### Canonical Sources (This Repo)
 
 ```
-configs/commands/*.md       17 slash commands (all zz- prefixed)
-configs/agents/*.md         8 agent definitions (all zz- prefixed)
-configs/skills/             2 skill directories
-configs/mcp/*.json          6 MCP server definitions
-configs/settings/*.json     2 settings definitions (claude, opencode)
-configs/instructions/*.md   4 CLI-specific instruction addendums
+configs/commands/*.md              8 slash commands
+configs/agents/                    Agent definitions (currently empty)
+configs/skills/                    2 skill directories
+configs/mcp/*.json                 3 MCP server definitions
+configs/settings/*.json            2 settings definitions (claude, opencode)
+configs/instructions/AGENTS.md     Unified agent operating system
+configs/instructions/TOOLS.md      Tool-use reference
 ```
 
 ### Exclusion Rules
@@ -272,71 +281,43 @@ tools (e.g., `mcp__tavily_*`), verify that the referenced MCP server is
 enabled for the target CLI. If the server is listed in `disabled_for` for
 that CLI, warn the user and offer to force-enable it.
 
-### 2.4 Instruction Addendums
+### 2.4 Instructions
 
 Each CLI has a global instruction file that is auto-injected into the system
-prompt at startup. During sync push, this file is built by concatenating
-the canonical `AGENTS.md` (the ground truth rules) with the CLI-specific
-addendum. This ensures models always receive the full rules without needing
-to voluntarily issue a Read tool call.
+prompt at startup. A single canonical file (`configs/instructions/AGENTS.md`)
+is written verbatim to each CLI's instruction path. No concatenation or
+per-CLI addendums — CLI-specific notes are sections within the unified file.
 
-#### Canonical Sources
+#### Canonical Source
 
 ```
-AGENTS.md (root)                        — ground truth rules (prepended to all)
-configs/instructions/claude.md   -> ~/.claude/CLAUDE.md
-configs/instructions/opencode.md -> ~/.config/opencode/OPENCODE.md
-configs/instructions/gemini.md   -> ~/.gemini/GEMINI.md
-configs/instructions/codex.md    -> ~/.codex/AGENTS.md
+configs/instructions/AGENTS.md   — unified agent operating system (all CLI notes included)
 ```
 
-#### Discovery Mechanism Per CLI
+#### Rendering Paths
 
 | CLI | System File | How It's Loaded |
 |-----|------------|-----------------|
 | Claude | `~/.claude/CLAUDE.md` | Auto-discovered by filename |
-| OpenCode | `~/.config/opencode/OPENCODE.md` | Via `instructions` array in `opencode.json` |
-| Gemini | `~/.gemini/GEMINI.md` | Via `context.fileName` setting |
+| OpenCode | `~/.config/opencode/AGENTS.md` | Via `instructions` array in `opencode.json` |
+| Gemini | `~/.gemini/AGENTS.md` | Via `context.fileName` setting |
 | Codex | `~/.codex/AGENTS.md` | Auto-discovered by filename |
-
-#### Concatenation Format
-
-The rendered system file is built as:
-
-```
-{contents of ~/Repos/acsync/AGENTS.md}
-
-{contents of configs/instructions/{cli}.md}
-```
-
-Two newlines separate AGENTS.md from the addendum. The addendum files in
-the repo contain only the CLI-specific content (no `READ` directive).
 
 #### Push
 
-1. Read `~/Repos/acsync/AGENTS.md`.
-2. Read the canonical CLI addendum (`configs/instructions/{cli}.md`).
-3. Concatenate: AGENTS.md content + `"\n\n"` + addendum content.
-4. Write the combined result to the system instruction file.
+1. Read `configs/instructions/AGENTS.md`.
+2. Write content verbatim to the CLI's instruction file.
 
 No secret injection needed (these files contain no secrets).
 
 #### Pull
 
 1. Read the system instruction file.
-2. Split at the CLI addendum header marker:
-   - Claude: `# Claude Code Addendum`
-   - OpenCode: `# OpenCode Addendum`
-   - Gemini: `# Gemini Addendum`
-   - Codex: `# Codex Addendum`
-3. Content before the marker → diff against canonical `AGENTS.md`.
-4. Content from the marker onward → diff against the canonical addendum.
-
-Report drift for each portion independently.
+2. Compare against canonical `configs/instructions/AGENTS.md`.
 
 #### Check
 
-Same split logic as pull. Report drift for both portions independently.
+Same as pull — diff rendered vs canonical.
 
 ### 2.5 MCP Servers
 
@@ -719,58 +700,4 @@ preserved verbatim.
 **Pull**: Read system file. Extract `[mcp_servers.*]` sections. Redact
 secrets. Compare to canonical MCP definitions.
 
----
 
-## 6. Operations
-
-### Push (Repo to System)
-
-For each CLI (Claude, OpenCode, Gemini, Codex):
-
-1. **Render**: Transform canonical sources into CLI-specific format
-   (commands, agents, MCP servers).
-2. **Diff**: Compare rendered output against current system files.
-3. **Show**: Present unified diff per file. Explain what changes.
-4. **Confirm**: Ask user to approve each file write.
-5. **Backup**: Copy affected system files to `backups/<timestamp>/<cli>/`.
-6. **Write**: Apply changes with secret injection.
-7. **Verify**: Read back written file and confirm it matches expected content.
-
-### Pull (System to Repo)
-
-For each CLI (Claude, OpenCode, Gemini, Codex):
-
-1. **Read**: Read system files (commands, agents, skills, MCP, settings).
-2. **Extract**: Pull out managed content. For commands/agents, reverse the
-   format transformation to canonical Markdown. For MCP, reverse to
-   canonical JSON schema.
-3. **Redact**: Replace real secret values with `${VAR}` placeholders.
-4. **Diff**: Compare extracted content against canonical sources in repo.
-5. **Show**: Present unified diff per file. Flag new items (exists in
-   system but not in canonical), modified items, and deleted items
-   (exists in canonical but not in system).
-6. **Confirm**: Ask user to approve each repo file write.
-7. **Write**: Update canonical files in the repo.
-
-### Check (Drift Detection)
-
-For each CLI (Claude, OpenCode, Gemini, Codex):
-
-1. **Render**: Transform canonical sources into CLI-specific format.
-2. **Compare**: Diff rendered output against current system files.
-3. **Report**: List all diffs per CLI, per category (commands, agents,
-   skills, MCP, settings).
-4. **No writes**: Check is read-only. Report only.
-
-### Interaction Pattern
-
-Every sync operation follows this rhythm:
-
-1. Announce which CLI you are processing: "Checking Claude Code..."
-2. For each category (commands, agents, skills, MCP, settings):
-   - Show a summary: "3 commands modified, 1 added, 0 deleted"
-   - For each changed file, show the diff
-   - Ask: "Apply this change? [yes / skip / show full diff]"
-3. After all categories for a CLI, show a CLI summary
-4. After all CLIs, show a final summary table
-5. Offer "Next up" suggestion

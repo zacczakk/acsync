@@ -24,14 +24,14 @@ read_when:
 - OpenCode: rebuild frontmatter (`description`, `argument-hint`, translate `allowed-tools` to `tools` map), copy to `~/.config/opencode/command/`.
 - Codex: flat Markdown with `# /{name}` heading, copy to `~/.codex/prompts/`.
 
-## Instruction addendums
-- Canonical source: `configs/instructions/{cli}.md`.
-- System locations: `~/.claude/CLAUDE.md`, `~/.config/opencode/OPENCODE.md`, `~/.gemini/GEMINI.md`, `~/.codex/AGENTS.md`.
-- These point to `~/Repos/acsync/AGENTS.md` and add CLI-specific notes (paths, quirks, restrictions).
-- Synced via `/zz-sync-agent-configs push` alongside commands, agents, and MCP.
+## Instructions
+- Canonical source: `configs/instructions/AGENTS.md` (unified, all CLI notes included).
+- System locations: `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`, `~/.codex/AGENTS.md`.
+- Written verbatim to each CLI's instruction path (no per-CLI addendums).
+- Synced via `acsync push` alongside commands, agents, and MCP.
 
 ## Operational rules
 - Update only `configs/agents/` and `configs/commands/` for shared behavior changes.
 - Do not hand-edit system files; use `/zz-sync-agent-configs push` to distribute.
-- If you need CLI-specific behavior, edit `configs/instructions/{cli}.md` and push.
-- Full format specification lives in `SYNC.md` sections 2.1 through 2.5.
+- If you need CLI-specific behavior, add a section to `configs/instructions/AGENTS.md` and push.
+- Full format specification lives in `docs/design/sync-spec.md` sections 2.1 through 2.5.

@@ -6,6 +6,8 @@ read_when:
 
 # Changelog
 
+<!-- TODO: review — 20+ commits since 2026-02-18, changelog not updated -->
+
 ## 2026-02-18
 
 - Initial full sync push across all 4 CLIs (Claude, OpenCode, Gemini, Codex)

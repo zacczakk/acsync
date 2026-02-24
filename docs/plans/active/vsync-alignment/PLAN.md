@@ -1,3 +1,10 @@
+---
+summary: "Borrow vsync patterns (3-way diff, metadata hashing) + Codex multi-agent TOML."
+read_when:
+  - "Working on diff engine or hash improvements"
+  - "Modifying Codex adapter"
+---
+
 # vsync Alignment & Codex Multi-Agent Integration
 
 ## Context

@@ -1,3 +1,10 @@
+---
+summary: "Decision record for hybrid native + MCPorter MCP server setup."
+read_when:
+  - "Evaluating MCP server architecture"
+  - "Adding or removing MCP servers"
+---
+
 # MCPorter Hybrid MCP Analysis
 
 > Decision record for migrating from all-native MCP servers to a hybrid
@@ -5,8 +12,8 @@
 
 ## Context
 
-7 canonical MCP servers managed in `configs/common/mcp/`, rendered to 4 CLI
-formats via agent-driven sync (~140 lines of MCP rendering logic in SYNC.md).
+7 canonical MCP servers managed in `configs/mcp/`, rendered to 4 CLI
+formats via the `acsync` CLI adapters.
 Codex limited to HTTP-only transport — gets 1 of 7 servers (context7).
 
 [MCPorter](https://github.com/steipete/mcporter) is a TypeScript MCP client/CLI
@@ -53,7 +60,7 @@ through MCPorter (agent calls via bash).
 - chrome-devtools gets daemon keep-alive: warm CDP connection across sessions.
 - Codex goes from 1 server to all 7 (via bash — no transport limitation).
 - Sync simplifies: 3 canonical files (context7, tavily, sequential-thinking)
-  instead of 7. ~60% less MCP rendering logic in SYNC.md.
+  instead of 7. ~60% less MCP rendering logic in adapters.
 
 ## MCPorter Architecture
 
@@ -142,7 +149,7 @@ mcporter daemon status              # confirm connected
 
 ### Step 4: Modify canonical MCP configs
 
-**Delete** from `configs/common/mcp/` (trash, not rm):
+**Delete** from `configs/mcp/` (trash, not rm):
 
 - `chrome-devtools-mcp.json`
 - `palantir-mcp.json`
@@ -176,7 +183,7 @@ mcporter daemon status              # confirm connected
 }
 ```
 
-**Remaining** `configs/common/mcp/`: 3 files (context7.json, tavily.json, sequential-thinking.json).
+**Remaining** `configs/mcp/`: 3 files (context7.json, tavily.json, sequential-thinking.json).
 
 ### Step 5: Update AGENTS.md
 
@@ -231,11 +238,10 @@ Usage: `mcporter call <server>.<tool> <args>`
 Non-native MCP servers via `mcporter call`. See `## Tools` in AGENTS.md.
 ```
 
-### Step 8: Simplify SYNC.md MCP section
+### Step 8: Simplify MCP adapter logic
 
-Reduce rendering examples to context7 (all CLIs) + tavily (Claude only).
-Remove chrome-devtools/palantir/liquid-carbon/shadcn examples.
-Add note: "Other servers managed by MCPorter — see MCPORTER_ANALYSIS.md."
+Reduce rendering to context7 (all CLIs) + tavily (Claude, OpenCode, Gemini).
+Remove chrome-devtools/palantir/liquid-carbon/shadcn from canonical MCP configs.
 
 ### Step 9: Sync + verify
 
@@ -272,4 +278,4 @@ mcporter call chrome-devtools.take_snapshot        # daemon test
 - [MCPorter GitHub](https://github.com/steipete/mcporter)
 - [MCPorter Daemon Design](https://github.com/steipete/mcporter/blob/main/docs/daemon.md)
 - [Anthropic: Code Execution with MCP](https://docs.anthropic.com/en/docs/agents-and-tools/mcp)
-- SYNC.md §2.5 for native MCP rendering rules
+- `docs/design/sync-spec.md` §2.5 for native MCP rendering rules
