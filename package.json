@@ -1,4 +1,7 @@
 {
+  "name": "acsync",
+  "version": "1.0.0",
+  "description": "Agent Config Sync — single source of truth for AI coding assistant configs",
   "bin": {
     "acsync": "./src/cli/index.ts"
   },
@@ -8,6 +11,7 @@
     "jsonc-parser": "^3.3",
     "picocolors": "^1.1.1",
     "puppeteer-core": "^24.37.3",
-    "smol-toml": "^1.6"
+    "smol-toml": "^1.6",
+    "tsx": "^4.21.0"
   }
 }
