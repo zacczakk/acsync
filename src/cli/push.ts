@@ -288,9 +288,14 @@ Examples:
             process.stderr.write('Push cancelled.\n');
             process.exit(0);
           }
+
+          // User confirmed after seeing the full check output (including deletes).
+          // Confirmation = consent to execute everything shown.
+          const hasDeletes = check.diffs.some((d) => d.summary.delete > 0);
+          if (hasDeletes) syncOpts.deleteStale = true;
         }
 
-        const result = await runPush({ ...syncOpts, force: true, deleteStale: options.delete });
+        const result = await runPush({ ...syncOpts, force: true });
         process.stdout.write(result.output + '\n');
         process.exit(result.failed > 0 ? 1 : 0);
       } catch (err) {

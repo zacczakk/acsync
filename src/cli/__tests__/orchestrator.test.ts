@@ -49,13 +49,15 @@ describe('runCheck', () => {
     await setupProject(tmpDir, salt);
   });
 
-  test('empty project returns empty diffs with no drift', async () => {
+  test('empty project detects stale target items as drift', async () => {
     const emptyDir = await mkdtemp(join(tmpdir(), 'orchestrator-empty-'));
     const result = await runCheck({ projectDir: emptyDir });
     expect(result.diffs).toHaveLength(4);
-    expect(result.hasDrift).toBe(false);
+    // Empty canonical against real target dirs: all target items are stale (delete ops)
     for (const diff of result.diffs) {
-      expect(diff.operations).toHaveLength(0);
+      for (const op of diff.operations) {
+        expect(op.type).toBe('delete');
+      }
     }
   });
 

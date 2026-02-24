@@ -35,9 +35,9 @@ export interface OrchestratorCheckResult {
  * Detect stale items in a target directory that aren't in the canonical source.
  * Returns delete operations for non-canonical, non-excluded items.
  *
- * Safety: only detects stale items for item types that have at least one
- * canonical item. An empty canonical source means the project doesn't
- * manage that type — never flag real items as stale.
+ * Items matching the exclusion filter (e.g. gsd-*) are never flagged as stale.
+ * Everything else not in canonical is stale — the exclusion filter is the
+ * safety mechanism, not empty-canonical heuristics.
  */
 async function detectStaleItems(
   adapter: ToolAdapter,
@@ -50,8 +50,9 @@ async function detectStaleItems(
   const deleteOps: Operation[] = [];
   const caps = adapter.getCapabilities();
   const paths = adapter.getPaths();
+  const target = adapter.target;
 
-  if ((!types || types.includes('command')) && canonicalCommandNames.size > 0) {
+  if (!types || types.includes('command')) {
     const existingCommands = await adapter.listExistingCommandNames();
     for (const name of existingCommands) {
       const entry = classifyEntry(name, canonicalCommandNames, isExcluded);
@@ -60,7 +61,7 @@ async function detectStaleItems(
           type: 'delete',
           itemType: 'command',
           name,
-          target: adapter.target,
+          target,
           reason: 'Item not in canonical source (stale)',
           targetPath: paths.getCommandFilePath(name),
         });
@@ -68,7 +69,7 @@ async function detectStaleItems(
     }
   }
 
-  if ((!types || types.includes('agent')) && canonicalAgentNames.size > 0) {
+  if (!types || types.includes('agent')) {
     const existingAgents = await adapter.listExistingAgentNames();
     for (const name of existingAgents) {
       const entry = classifyEntry(name, canonicalAgentNames, isExcluded);
@@ -77,7 +78,7 @@ async function detectStaleItems(
           type: 'delete',
           itemType: 'agent',
           name,
-          target: adapter.target,
+          target,
           reason: 'Item not in canonical source (stale)',
           targetPath: paths.getAgentFilePath(name),
         });
@@ -85,7 +86,7 @@ async function detectStaleItems(
     }
   }
 
-  if ((!types || types.includes('skill')) && caps.skills && canonicalSkillNames.size > 0) {
+  if ((!types || types.includes('skill')) && caps.skills) {
     const existingSkills = await adapter.listExistingSkillNames();
     for (const name of existingSkills) {
       const entry = classifyEntry(name, canonicalSkillNames, isExcluded);
@@ -94,7 +95,7 @@ async function detectStaleItems(
           type: 'delete',
           itemType: 'skill',
           name,
-          target: adapter.target,
+          target,
           reason: 'Item not in canonical source (stale)',
           targetPath: join(paths.getSkillsDir(), name),
         });
