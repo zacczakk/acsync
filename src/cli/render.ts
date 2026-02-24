@@ -88,11 +88,11 @@ Examples:
           }
           content = adapter.renderMCPServers([server]);
         } else if (itemType === 'instruction') {
-          const instructions = await readCanonicalInstructions(projectDir, target);
-          if (!instructions) {
-            throw new Error(`Canonical instruction not found (missing AGENTS.md)`);
+          const instructionContent = await readCanonicalInstructions(projectDir);
+          if (!instructionContent) {
+            throw new Error(`Canonical instruction not found (missing configs/instructions/AGENTS.md)`);
           }
-          content = adapter.renderInstructions(instructions.base, instructions.addendum);
+          content = adapter.renderInstructions(instructionContent);
         } else {
           // skill
           const isExcluded = createExclusionFilter(['gsd-*', '.acsync-backup-*']);

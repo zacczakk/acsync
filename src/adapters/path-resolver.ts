@@ -97,9 +97,9 @@ export class AdapterPathResolver {
   private rawInstructionsPath(): string {
     switch (this.target) {
       case 'claude-code': return '~/.claude/CLAUDE.md';
-      case 'opencode':    return '~/.config/opencode/OPENCODE.md';
-      case 'gemini':      return '~/.gemini/GEMINI.md';
-      case 'codex':       return '~/.codex/instructions.md';
+      case 'opencode':    return '~/.config/opencode/AGENTS.md';
+      case 'gemini':      return '~/.gemini/AGENTS.md';
+      case 'codex':       return '~/.codex/AGENTS.md';
     }
   }
 

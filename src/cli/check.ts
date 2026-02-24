@@ -221,34 +221,21 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
     // Instructions
     if (!options.types || options.types.includes('instruction')) {
       if (caps.instructions) {
-        const instructions = await readCanonicalInstructions(projectDir, target);
-        if (instructions) {
-          const rendered = adapter.renderInstructions(instructions.base, instructions.addendum);
+        const content = await readCanonicalInstructions(projectDir);
+        if (content) {
+          const rendered = adapter.renderInstructions(content);
           const sourceHash = hashRendered(rendered);
           const instructionsPath = adapter.getPaths().getInstructionsPath();
           const targetHash = await hashTargetFile(instructionsPath);
 
           sourceItems.push({
             type: 'instruction',
-            name: 'AGENTS.md',
+            name: 'instructions',
             hash: sourceHash,
             targetPath: instructionsPath,
           });
           if (targetHash !== null) {
-            targetHashes.set('instruction/AGENTS.md', targetHash);
-          }
-
-          if (instructions.addendum) {
-            const addendumName = target === 'claude-code' ? 'claude' : target;
-            sourceItems.push({
-              type: 'instruction',
-              name: `${addendumName}.md`,
-              hash: sourceHash,
-              targetPath: instructionsPath,
-            });
-            if (targetHash !== null) {
-              targetHashes.set(`instruction/${addendumName}.md`, targetHash);
-            }
+            targetHashes.set('instruction/instructions', targetHash);
           }
         }
       }
