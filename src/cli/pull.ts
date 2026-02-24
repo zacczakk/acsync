@@ -29,6 +29,8 @@ export interface PullItem {
   action: 'create' | 'skip';
   targetPath: string;
   source?: TargetName; // set when pulling from multiple sources
+  /** Other targets that also have this item (pull --source all) */
+  alsoIn?: TargetName[];
 }
 
 export interface OrchestratorPullResult {
@@ -204,16 +206,17 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
 }
 
 /**
- * Pull from all targets, deduplicating by item key (type/name).
- * First source that has an item wins; later sources skip it.
+ * Pull from all targets, showing every item under every target that has it.
  *
- * Discovery pass: dry-run all targets to collect available items.
- * Write pass: pull only first-source winners via single-target runPull calls
- * with a filtered item set, so no overwrites between targets.
+ * Discovery: dry-run all 4 targets to collect available items.
+ * Display: every item appears under every target that has it — no hiding.
+ * Write: each unique item is written once (first-source-wins for the actual
+ *   file write, since all adapters produce identical canonical output).
  */
 export async function runPullAll(options: PullAllOptions = {}): Promise<OrchestratorPullResult> {
   const projectDir = options.projectDir ?? PROJECT_ROOT;
 
+  // Phase 1: discover items in all targets
   const discoveries = new Map<TargetName, PullItem[]>();
   for (const target of ALL_TARGETS) {
     const result = await runPull({
@@ -225,33 +228,50 @@ export async function runPullAll(options: PullAllOptions = {}): Promise<Orchestr
     discoveries.set(target, result.items);
   }
 
-  const seen = new Set<string>();
-  const allItems: PullItem[] = [];
-  const winnersPerTarget = new Map<TargetName, Set<string>>();
-
+  // Build per-item source map: which targets have each type/name
+  const sourcesPerItem = new Map<string, TargetName[]>();
   for (const target of ALL_TARGETS) {
-    const items = discoveries.get(target) ?? [];
-    for (const item of items) {
+    for (const item of discoveries.get(target) ?? []) {
       const key = `${item.type}/${item.name}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      allItems.push({ ...item, source: target });
-
-      if (item.action === 'create') {
-        if (!winnersPerTarget.has(target)) winnersPerTarget.set(target, new Set());
-        winnersPerTarget.get(target)!.add(key);
-      }
+      if (!sourcesPerItem.has(key)) sourcesPerItem.set(key, []);
+      sourcesPerItem.get(key)!.push(target);
     }
   }
 
-  const totalPulled = allItems.filter((i) => i.action === 'create').length;
-  const totalSkipped = allItems.filter((i) => i.action === 'skip').length;
+  // Flatten: every item appears under every target that has it
+  const allItems: PullItem[] = [];
+  for (const target of ALL_TARGETS) {
+    for (const item of discoveries.get(target) ?? []) {
+      const key = `${item.type}/${item.name}`;
+      const others = (sourcesPerItem.get(key) ?? []).filter((t) => t !== target);
+      allItems.push({ ...item, source: target, alsoIn: others.length > 0 ? others : undefined });
+    }
+  }
+
+  // Pick first-source-wins for actual writes (canonical output is identical regardless of source)
+  const winnersPerTarget = new Map<TargetName, Set<string>>();
+  const claimed = new Set<string>();
+  for (const target of ALL_TARGETS) {
+    for (const item of discoveries.get(target) ?? []) {
+      if (item.action !== 'create') continue;
+      const key = `${item.type}/${item.name}`;
+      if (claimed.has(key)) continue;
+      claimed.add(key);
+      if (!winnersPerTarget.has(target)) winnersPerTarget.set(target, new Set());
+      winnersPerTarget.get(target)!.add(key);
+    }
+  }
+
+  const totalPulled = claimed.size;
+  const uniqueKeys = new Set(allItems.map((i) => `${i.type}/${i.name}`));
+  const totalSkipped = [...uniqueKeys].filter((k) => !claimed.has(k)).length;
 
   if (options.dryRun) {
     const output = formatPullAllResult(allItems, options.pretty ?? false, true);
     return { items: allItems, pulled: totalPulled, skipped: totalSkipped, dryRun: true, rolledBack: false, output };
   }
 
+  // Phase 2: write — each unique item pulled once
   for (const target of ALL_TARGETS) {
     const keys = winnersPerTarget.get(target);
     if (!keys || keys.size === 0) continue;
@@ -273,22 +293,22 @@ function formatPullAllResult(
   dryRun: boolean,
 ): string {
   if (!pretty) {
-    const creates = items.filter((i) => i.action === 'create');
-    const skips = items.filter((i) => i.action === 'skip');
     return JSON.stringify({
       source: 'all',
       dryRun,
-      items: creates,
-      summary: { pull: creates.length, skip: skips.length },
+      items,
+      summary: {
+        pull: items.filter((i) => i.action === 'create').length,
+        skip: items.filter((i) => i.action === 'skip').length,
+      },
     }, null, 2);
   }
 
   const lines: string[] = ['', `acsync pull --source all${dryRun ? ' --dry-run' : ''}`, ''];
 
-  const creates = items.filter((i) => i.action === 'create');
-
+  // Group items by source target
   const bySource = new Map<TargetName, PullItem[]>();
-  for (const item of creates) {
+  for (const item of items) {
     const src = item.source!;
     if (!bySource.has(src)) bySource.set(src, []);
     bySource.get(src)!.push(item);
@@ -298,21 +318,29 @@ function formatPullAllResult(
     lines.push(`  ${pc.bold(displayTarget(target))}`);
     for (const item of targetItems) {
       const label = `[${item.type}]`.padEnd(14);
-      const verb = dryRun ? 'would pull' : 'pulled';
-      lines.push(`    ${pc.green('+')} ${label} ${item.name.padEnd(30)} ${pc.dim(`(${verb})`)}`);
+      if (item.action === 'create') {
+        const verb = dryRun ? 'would pull' : 'pulled';
+        lines.push(`    ${pc.green('+')} ${label} ${item.name.padEnd(30)} ${pc.dim(`(${verb})`)}`);
+      } else {
+        lines.push(`    ${pc.dim('=')} ${label} ${item.name.padEnd(30)} ${pc.dim('(existing)')}`);
+      }
     }
     lines.push('');
   }
 
-  if (creates.length === 0) {
+  if (items.length === 0) {
     lines.push(`  ${pc.dim('Nothing to pull.')}`);
     lines.push('');
   }
 
+  const creates = items.filter((i) => i.action === 'create');
   const skips = items.filter((i) => i.action === 'skip');
+  // Count unique items (same item may appear under multiple targets)
+  const uniqueCreates = new Set(creates.map((i) => `${i.type}/${i.name}`)).size;
+  const uniqueSkips = new Set(skips.map((i) => `${i.type}/${i.name}`)).size;
   const parts: string[] = [];
-  if (creates.length > 0) parts.push(pc.green(`${creates.length} to pull`));
-  if (skips.length > 0) parts.push(pc.dim(`${skips.length} existing`));
+  if (uniqueCreates > 0) parts.push(pc.green(`${uniqueCreates} to pull`));
+  if (uniqueSkips > 0) parts.push(pc.dim(`${uniqueSkips} existing`));
   if (parts.length > 0) lines.push(`  Summary: ${parts.join(', ')}`);
   lines.push('');
 
