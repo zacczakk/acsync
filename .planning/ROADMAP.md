@@ -159,7 +159,10 @@ Plans:
   3. `acsync check` runs successfully against the new path structure (no "not found" errors)
   4. All tests pass with zero references to `configs/common/`
   5. `acsync --help` and error messages reference `configs/` (not `configs/common/`)
-**Plans**: TBD
+**Plans:** 1 plan
+
+Plans:
+- [ ] 06-01-PLAN.md — Move configs/common/* to configs/, add path constants, update all references (single atomic commit)
 
 ### Phase 7: Unify Instructions
 **Goal**: Single canonical `configs/instructions/AGENTS.md` replaces base + 4 addendums — rendering pipeline simplified to single-file passthrough, all 4 targets receive correct output filenames
@@ -196,6 +199,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 3. Diff Engine + CLI | v1.0 | 5/5 | Complete | 2026-02-21 |
 | 4. CLI Subcommands + Test Fixes | v1.0 | 2/2 | Complete | 2026-02-21 |
 | 5. Dead Code Cleanup + Integration Hygiene | v1.0 | 3/3 | Complete | 2026-02-22 |
-| 6. Flatten Canonical Structure | v2.0 | 0/TBD | Not started | - |
+| 6. Flatten Canonical Structure | v2.0 | 0/1 | Planned | - |
 | 7. Unify Instructions | v2.0 | 0/TBD | Not started | - |
 | 8. TOOLS.md + Repo Rename | v2.0 | 0/TBD | Not started | - |
