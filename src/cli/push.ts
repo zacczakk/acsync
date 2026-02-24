@@ -1,7 +1,6 @@
 #!/usr/bin/env bun
 import { readFile, mkdir, unlink, rm } from 'node:fs/promises';
 import { join } from 'node:path';
-import { cwd } from 'node:process';
 import { Command } from 'commander';
 import { writeSupportFiles } from '../infra/support-files';
 import { loadManifest, saveManifest, updateManifestItem } from '../core/manifest';
@@ -12,6 +11,7 @@ import { atomicWrite } from '../infra/atomic-write';
 import { createExclusionFilter } from '../infra/exclusion';
 import {
   ALL_TARGETS,
+  PROJECT_ROOT,
   createAdapter,
   hashContent,
   readCanonicalCommands,
@@ -39,7 +39,7 @@ export interface OrchestratorPushResult {
  * Run the push operation: render + write all drifted items with rollback on failure.
  */
 export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPushResult> {
-  const projectDir = options.projectDir ?? cwd();
+  const projectDir = options.projectDir ?? PROJECT_ROOT;
   const targets = options.targets && options.targets.length > 0 ? options.targets : ALL_TARGETS;
   const isExcluded = createExclusionFilter(['gsd-*', '.acsync-backup-*']);
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env bun
 import { readdir, readFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { cwd } from 'node:process';
 import { Command } from 'commander';
 import pc from 'picocolors';
 import { writeSupportFiles } from '../infra/support-files';
@@ -9,7 +8,7 @@ import { createBackup, restoreAll, cleanupAll } from '../core/rollback';
 import { atomicWrite } from '../infra/atomic-write';
 import { createExclusionFilter } from '../infra/exclusion';
 import { stringifyFrontmatter } from '../formats/markdown';
-import { ALL_TARGETS, COMMANDS_DIR, AGENTS_DIR, SKILLS_DIR, createAdapter } from './canonical';
+import { ALL_TARGETS, COMMANDS_DIR, AGENTS_DIR, SKILLS_DIR, PROJECT_ROOT, createAdapter } from './canonical';
 import { confirm, validatePullSource } from './cli-helpers';
 import type { TargetName } from '../types';
 import type { BackupInfo } from '../core/rollback';
@@ -58,7 +57,7 @@ function displayTarget(target: TargetName): string {
  * Reads from installed target configs, writes to configs/.
  */
 export async function runPull(options: PullOptions): Promise<OrchestratorPullResult> {
-  const projectDir = options.projectDir ?? cwd();
+  const projectDir = options.projectDir ?? PROJECT_ROOT;
   const adapter = createAdapter(options.source);
   const isExcluded = createExclusionFilter(['gsd-*', '.acsync-backup-*']);
   const paths = adapter.getPaths();
@@ -213,7 +212,7 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
  * with a filtered item set, so no overwrites between targets.
  */
 export async function runPullAll(options: PullAllOptions = {}): Promise<OrchestratorPullResult> {
-  const projectDir = options.projectDir ?? cwd();
+  const projectDir = options.projectDir ?? PROJECT_ROOT;
 
   const discoveries = new Map<TargetName, PullItem[]>();
   for (const target of ALL_TARGETS) {

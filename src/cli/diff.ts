@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { Command } from 'commander';
 import {
   ALL_TARGETS,
+  PROJECT_ROOT,
   createAdapter,
   readCanonicalCommands,
   readCanonicalAgents,
@@ -13,7 +14,6 @@ import {
 import { runCheck } from './check';
 import { mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
 import { createExclusionFilter } from '../infra/exclusion';
-import { cwd } from 'node:process';
 import type { TargetName, ItemType, CanonicalItem } from '../types';
 
 export const diffCommand = new Command('diff')
@@ -38,7 +38,7 @@ Exit codes: 0 = no drift, 2 = drift found, 1 = error`)
       validateTargets(options.target);
       validateTypes(options.type);
 
-      const projectDir = cwd();
+      const projectDir = PROJECT_ROOT;
       const targets = mapTargets(options.target);
       const types = mapTypes(options.type);
 
