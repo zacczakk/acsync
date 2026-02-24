@@ -37,7 +37,7 @@ describe('stale detection in runCheck', () => {
     const claudeDiff = result.diffs[0];
     const deleteOps = claudeDiff.operations.filter((op) => op.type === 'delete');
 
-    // Real ~/.claude/commands/zz/ has files not in our tiny canonical set
+    // Real ~/.claude/commands/ has files not in our tiny canonical set
     // Those should appear as delete ops
     if (deleteOps.length > 0) {
       expect(claudeDiff.summary.delete).toBeGreaterThan(0);
@@ -47,7 +47,7 @@ describe('stale detection in runCheck', () => {
         expect(op.targetPath).toBeDefined();
       }
     } else {
-      // If no commands dir exists at ~/.claude/commands/zz/, no stale detection
+      // If no commands dir exists at ~/.claude/commands/, no stale detection
       expect(claudeDiff.summary.delete).toBe(0);
     }
   });
@@ -55,7 +55,7 @@ describe('stale detection in runCheck', () => {
   test('empty canonical source still detects stale target items', async () => {
     // Empty project dir (no commands/agents) — stale detection still runs
     // because the exclusion filter is the safety mechanism, not empty-canonical checks.
-    // If real target dirs (e.g. ~/.claude/commands/zz/) have files, they appear as delete ops.
+    // If real target dirs (e.g. ~/.claude/commands/) have files, they appear as delete ops.
     const result = await runCheck({
       projectDir: tmpDir,
       targets: ['claude-code'],
@@ -115,7 +115,7 @@ describe('runPull', () => {
     });
 
     expect(result.dryRun).toBe(true);
-    // Real commands exist in ~/.claude/commands/zz/ (from user's real config)
+    // Real commands exist in ~/.claude/commands/ (from user's real config)
     expect(result.pulled).toBeGreaterThanOrEqual(0);
 
     // No files should be written in dry-run
@@ -209,7 +209,7 @@ describe('runPull', () => {
     });
 
     const skillItems = result.items.filter((i) => i.type === 'skill');
-    // Real ~/.claude/skills/ has known skills (ralph-tui-*, vercel-*, web-design-*)
+    // Real ~/.claude/skills/ has known skills (vercel-*, web-design-*)
     expect(skillItems.length).toBeGreaterThan(0);
 
     const skillNames = skillItems.map((i) => i.name);
