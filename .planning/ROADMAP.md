@@ -145,7 +145,7 @@ Plans:
 
 **Milestone Goal:** Flatten canonical structure, unify instructions, rename repo — breaking changes for cleaner architecture.
 
-- [ ] **Phase 6: Flatten Canonical Structure** - Move `configs/common/*` up to `configs/`, update all path references in code/tests/docs
+- [x] **Phase 6: Flatten Canonical Structure** - Move `configs/common/*` up to `configs/`, update all path references in code/tests/docs (completed 2026-02-24)
 - [ ] **Phase 7: Unify Instructions** - Merge 4 per-CLI addendums into single AGENTS.md, simplify rendering pipeline, fix output filenames
 - [ ] **Phase 8: TOOLS.md + Repo Rename** - Create canonical TOOLS.md, rename repo to `~/Repos/acsync`, propagate paths, clean up stale files
 
@@ -159,7 +159,7 @@ Plans:
   3. `acsync check` runs successfully against the new path structure (no "not found" errors)
   4. All tests pass with zero references to `configs/common/`
   5. `acsync --help` and error messages reference `configs/` (not `configs/common/`)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
 - [ ] 06-01-PLAN.md — Move configs/common/* to configs/, add path constants, update all references (single atomic commit)
@@ -199,6 +199,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 3. Diff Engine + CLI | v1.0 | 5/5 | Complete | 2026-02-21 |
 | 4. CLI Subcommands + Test Fixes | v1.0 | 2/2 | Complete | 2026-02-21 |
 | 5. Dead Code Cleanup + Integration Hygiene | v1.0 | 3/3 | Complete | 2026-02-22 |
-| 6. Flatten Canonical Structure | v2.0 | 0/1 | Planned | - |
+| 6. Flatten Canonical Structure | 1/1 | Complete   | 2026-02-24 | - |
 | 7. Unify Instructions | v2.0 | 0/TBD | Not started | - |
 | 8. TOOLS.md + Repo Rename | v2.0 | 0/TBD | Not started | - |
