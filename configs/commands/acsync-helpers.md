@@ -1,65 +1,59 @@
 ---
-description: Sync helper scripts from the agents repo into the current working repo.
-allowed-tools: [Read, Glob, Grep, Edit, Write, Bash]
+description: Sync helper scripts from the acsync repo into the current working repo.
+allowed-tools: [Read, Glob, Bash]
 ---
 
-# /zz-sync-agent-helpers — Helper Script Sync
+# /acsync-helpers
 
-READ ~/Repos/acsync/AGENTS.md BEFORE ANYTHING ELSE. Follow all rules there. Skip if file missing.
-
-## Purpose
-
-Copy helper scripts from `~/Repos/acsync/scripts/` into the current
-working repo's `scripts/` directory. Helpers must be byte-identical across
-repos. This command ensures that.
+Copy helper scripts from `~/Repos/acsync/scripts/` into the current repo's `scripts/` directory. Helpers must be byte-identical across repos.
 
 ## Available Helpers
 
 | Script | Description |
 |--------|-------------|
-| `committer` | Safe git commit helper — stages only listed paths, lock recovery |
-| `generate-docs.py` | Walks `docs/`, prints catalog with frontmatter summary |
-| `browser-tools.ts` | Chrome DevTools CLI — start/nav/eval/screenshot/pick/cookies/inspect/kill |
+| `committer` | Safe git commit — stages only listed paths, lock recovery |
+| `generate-docs.py` | Docs catalog with frontmatter summary |
+| `browser-tools.ts` | Chrome DevTools CLI (start/nav/eval/screenshot/pick/cookies/inspect/kill) |
 
 ## Procedure
 
-### Step 1: Detect Context
+### 1. Validate Context
 
-1. Identify the current working directory (the repo you are operating in).
-2. Verify it is a git repo (`git rev-parse --git-dir`). If not, stop:
-   "This command must be run from within a git repository."
-3. Check if `scripts/` directory exists. If not, ask:
-   "No `scripts/` directory found. Create it?"
+```bash
+git rev-parse --git-dir  # Must be a git repo
+ls scripts/              # Check if scripts/ exists
+```
 
-### Step 2: Compare Each Helper
+If no `scripts/` dir, ask: "Create it?"
 
-For each helper in the table above:
+### 2. Compare
 
-1. Read the canonical version from `~/Repos/acsync/scripts/{helper}`.
-2. Read the local version from `{cwd}/scripts/{helper}` (if it exists).
-3. Compare:
-   - **Missing locally**: Show "New helper — will be copied."
-   - **Identical**: Show "Already in sync." Skip.
-   - **Different**: Show unified diff between canonical and local.
+For each helper, diff canonical vs local:
 
-Present a summary:
+```bash
+diff ~/Repos/acsync/scripts/committer scripts/committer
+diff ~/Repos/acsync/scripts/generate-docs.py scripts/generate-docs.py
+diff ~/Repos/acsync/scripts/browser-tools.ts scripts/browser-tools.ts
+```
+
+Present summary table:
 ```
 Helper              Status
-committer           differs (12 lines changed)
+committer           differs (12 lines)
 generate-docs.py    in sync
 browser-tools.ts    missing locally
 ```
 
-### Step 3: Confirm and Copy
+### 3. Sync
 
-For each helper that differs or is missing:
-- Show the diff (or note it's new)
-- Ask: "Sync this helper?" with options:
-  - **Yes** — copy the canonical version
-  - **Skip** — leave as-is
-  - **Show full diff** — show the complete diff, then ask again
+For each that differs or is missing — show diff, ask "Sync this helper?", then copy:
 
-### Step 4: Summary
+```bash
+cp ~/Repos/acsync/scripts/{helper} scripts/{helper}
+chmod +x scripts/{helper}  # if executable
+```
+
+### 4. Summary
 
 ```
 Synced: committer, browser-tools.ts
@@ -69,8 +63,6 @@ Already in sync: generate-docs.py
 
 ## Guardrails
 
-- **Source of truth**: `~/Repos/acsync/scripts/` is always canonical.
-  This command only copies FROM agents TO the current repo. Never the
-  reverse.
-- **No partial edits**: Helpers are copied whole. No merging or patching.
-- **Confirm each file**: Never batch-copy without showing diffs.
+- Source of truth: `~/Repos/acsync/scripts/`. One-way copy only — never reverse.
+- Whole-file copy. No merging or patching.
+- Confirm each file before copying.

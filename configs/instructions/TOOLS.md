@@ -7,21 +7,37 @@ Canonical tool-use documentation for agents. Read on demand — not rendered to 
 Agent Config Sync CLI. Syncs canonical configs to AI CLI targets (claude-code, opencode, gemini, codex).
 
 - **Source:** `~/Repos/acsync/src/cli/`
-- **Canonical configs:** `~/Repos/acsync/configs/`
+- **Canonical configs:** `~/Repos/acsync/configs/` (commands, agents, mcp, instructions, skills, settings)
 - **Installed via:** `bun link` (available on PATH as `acsync`)
 
 ### Subcommands
-- `acsync check --pretty` — Show drift between canonical and rendered configs.
-- `acsync push --force --delete` — Push all canonical configs to targets; delete stale rendered files.
-- `acsync pull` — Pull rendered configs back to canonical (reverse sync).
-- `acsync render` — Render canonical to target format without writing.
-- `acsync diff` — Show detailed diff of changes.
+
+| Command | Purpose |
+|---------|---------|
+| `acsync check` | Drift detection (read-only). Exit 0=clean, 2=drift. |
+| `acsync push` | Render canonical and write to targets. Atomic writes + backup/rollback. |
+| `acsync pull` | Reverse-sync from target back to canonical. |
+| `acsync diff` | Unified text diff of all drift. |
+| `acsync render` | Render single item to target format (debug). |
+
+### Common flags
+- `-t, --target <name>` — Scope to target (repeatable): `claude`, `opencode`, `gemini`, `codex`
+- `--type <name>` — Scope to config type (repeatable): `commands`, `agents`, `mcps`, `instructions`, `skills`
+- `--pretty` / `--json` — Output format
+- `--dry-run` — Preview without writing (push/pull)
+- `--force` — Skip confirmation (push) or overwrite existing (pull)
+- `--delete` — Delete stale files not in canonical (push only)
+- `-s, --source <target>` — Required for pull: `all`, `claude`, `opencode`, `gemini`, `codex`
+- `--name <name>` + `--type <type>` — Required for render
 
 ### Quick ref
 ```bash
-acsync check --pretty       # What's drifted?
-acsync push --force --delete # Sync everything
-acsync diff                  # Detailed changes
+acsync check --pretty                     # What's drifted?
+acsync diff                               # Detailed changes
+acsync push --force --delete              # Sync everything
+acsync push -t opencode --type commands   # Narrow scope
+acsync pull -s claude --dry-run           # Preview reverse sync
+acsync render --type command --name gate  # Debug single item
 ```
 
 ## committer

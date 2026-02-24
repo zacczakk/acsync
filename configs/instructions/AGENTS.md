@@ -72,7 +72,7 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 - System of record: `docs/` in each repo. AGENTS.md = index, not encyclopedia.
 - Progressive disclosure: AGENTS.md points to deeper docs; agent loads on demand.
 - Repo knowledge > chat knowledge. Slack/thread decision? Encode in docs/ or it doesn't exist.
-- Staleness: dead links / stale refs = bugs. Run `/zz-groom-docs` periodically.
+- Staleness: dead links / stale refs = bugs. Run `/groom-docs` periodically.
 - Front-matter: run `python scripts/generate-docs.py`; honor `read_when` hints.
 - Search Context7 MCP for library documentation.
 
@@ -191,7 +191,7 @@ Completed first full sync push across all 4 CLIs. Key findings:
 - `.tasks/{slug}/CONTEXT.md` -> `docs/plans/active/{slug}/CONTEXT.md`
 - Affected commands: decide, discuss, gate, handoff, pickup, plan, pr, research, verify
 
-### New Command: `/zz-groom-docs`
+### New Command: `/groom-docs`
 - Added documentation quality scanner
 - Checks: dead links, stale references, front-matter compliance, code drift
 - Output: severity-ranked table (ERROR/WARN/INFO)
