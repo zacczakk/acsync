@@ -32,7 +32,7 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 - [x] **PUSH-03**: Push skills to all 4 real CLI targets and verify output format
 - [x] **PUSH-04**: Push settings to all 4 real CLI targets and verify output format
 - [x] **PUSH-05**: Push MCP servers to all 4 real CLI targets and verify output format
-- [ ] **PUSH-06**: Push instructions to all 4 real CLI targets and verify output format
+- [x] **PUSH-06**: Push instructions to all 4 real CLI targets and verify output format
 - [x] **PUSH-07**: Push removes non-canonical items from targets (with warning)
 
 ### Pull E2E
@@ -88,7 +88,7 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 | PUSH-03 | Phase 11 | Complete |
 | PUSH-04 | Phase 11 | Complete |
 | PUSH-05 | Phase 11 | Complete |
-| PUSH-06 | Phase 11 | Pending |
+| PUSH-06 | Phase 11 | Complete |
 | PUSH-07 | Phase 11 | Complete |
 | PULL-01 | Phase 12 | Pending |
 | PULL-02 | Phase 12 | Pending |

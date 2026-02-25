@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 11 of 12 (Push E2E Tests)
-Plan: 2 of 3 in current phase
+Plan: 3 of 3 in current phase
 Status: In Progress
-Last activity: 2026-02-25 — Plan 11-02 complete
+Last activity: 2026-02-25 — Plan 11-03 complete
 
-Progress: [████████████████████████████░░] 93% (28/30 plans est.)
+Progress: [█████████████████████████████░] 97% (29/30 plans est.)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 28
+- Total plans completed: 29
 - Average duration: 6min
-- Total execution time: ~2 hours
+- Total execution time: ~2.5 hours
 
 **By Phase:**
 
@@ -37,7 +37,7 @@ Progress: [███████████████████████
 | 08-tools-repo-rename | 2 | 16min | 8min |
 | 09-verification-closure-doc-cleanup | 2 | 6min | 3min |
 | 10-fixtures-infrastructure-test-health | 3 | 11min | 3.7min |
-| 11-push-e2e-tests | 2 | 21min | 10.5min |
+| 11-push-e2e-tests | 3 | 41min | 13.7min |
 
 ## Accumulated Context
 
@@ -57,6 +57,7 @@ Key decisions across the project:
 - [Phase 10-03]: Golden files generated via actual renderers — guarantees accuracy vs hand-crafting
 - [Phase 11-01]: MCP goldens reflect actual overwrite behavior; settings goldens show merge with non-canonical key preservation
 - [Phase 11-02]: E2E_TIMEOUT 60s for push tests; each test file uses isolated projectDir + withTargetBackup
+- [Phase 11-03]: Combined all MCP/settings/instructions assertions into single withTargetBackup blocks to avoid backup overhead
 
 ### Pending Todos
 
@@ -69,5 +70,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 11-02-PLAN.md
+Stopped at: Completed 11-03-PLAN.md
 Resume file: None
