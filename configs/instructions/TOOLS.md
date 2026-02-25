@@ -23,7 +23,7 @@ Agent Config Sync CLI. Syncs canonical configs to AI CLI targets (claude-code, o
 
 ### Common flags
 - `-t, --target <name>` — Scope to target (repeatable): `claude`, `opencode`, `gemini`, `codex`
-- `--type <name>` — Scope to config type (repeatable): `commands`, `agents`, `mcps`, `instructions`, `skills`
+- `--type <name>` — Scope to config type (repeatable): `commands`, `agents`, `mcps`, `instructions`, `skills`, `settings`
 - `--pretty` / `--json` — Output format
 - `--dry-run` — Preview without writing (push/pull)
 - `--force` — Skip confirmation (push) or overwrite existing (pull)
@@ -57,10 +57,10 @@ committer "feat(08-01): add TOOLS.md" configs/instructions/TOOLS.md
 
 ## ask-model
 
-Cross-model consultation. Query Codex (OpenAI) or Gemini (Google) non-interactively from any agent session. Supports blocking and async modes with timeout protection.
+Cross-model consultation. Query Claude (Anthropic), Codex (OpenAI), or Gemini (Google) non-interactively from any agent session. Supports blocking and async modes with timeout protection.
 
 - **Location:** `~/Repos/acsync/scripts/ask-model` (on PATH via scripts dir)
-- **Usage:** `ask-model [flags] <codex|gemini> "your question"`
+- **Usage:** `ask-model [flags] <claude|codex|gemini> "your question"`
 - **Output:** Model answer to stdout (blocking) or to file (async).
 
 ### Flags
@@ -69,28 +69,31 @@ Cross-model consultation. Query Codex (OpenAI) or Gemini (Google) non-interactiv
 |------|---------|---------|
 | `--async` | off | Run in background; requires `--output` |
 | `--output, -o FILE` | — | Write answer to file |
-| `--model, -m NAME` | engine default | Override model (e.g. `gpt-5.3-codex`, `gemini-3.1-pro`) |
+| `--model, -m NAME` | engine default | Override model (e.g. `opus`, `gpt-5.3-codex`, `gemini-3.1-pro-preview`) |
 | `--timeout SECS` | 120 | Max wait; env `ASK_MODEL_TIMEOUT` also works |
 
 ### Engines
 
 | Engine | CLI | Auth | Notes |
 |--------|-----|------|-------|
+| `claude` | `claude -p` | Anthropic login or `ANTHROPIC_API_KEY` | `--no-session-persistence` applied automatically. Cleanest output. |
 | `codex` | `codex exec` | ChatGPT login or `CODEX_API_KEY` | `--ephemeral --skip-git-repo-check` applied automatically |
 | `gemini` | `gemini -p` | Google OAuth or `GEMINI_API_KEY` | Free tier: 60 req/min, 1000 req/day |
 
 ### Examples
 ```bash
 # Blocking (default) — answer printed to stdout
-ask-model gemini "what is the idiomatic way to handle errors in Go?"
+ask-model claude "what is the idiomatic way to handle errors in Go?"
 ask-model codex "review this approach to caching: LRU with TTL expiry"
+ask-model gemini "compare WAL vs rollback journal in SQLite"
 
 # Specific model
+ask-model -m opus claude "deep architectural review of this approach"
 ask-model -m gpt-5.3-codex codex "explain coroutines vs goroutines"
-ask-model -m gemini-3.1-pro gemini "compare WAL vs rollback journal in SQLite"
+ask-model -m gemini-3.1-pro-preview gemini "compare WAL vs rollback journal in SQLite"
 
 # Capture output in a variable (agent use)
-answer=$(ask-model gemini "explain the tradeoffs of WAL mode in SQLite")
+answer=$(ask-model claude "explain the tradeoffs of WAL mode in SQLite")
 
 # Async — returns PID, writes answer to file when done
 pid=$(ask-model --async -o /tmp/answer.txt gemini "long analysis question")
@@ -103,11 +106,14 @@ ask-model --timeout 60 codex "quick question"
 
 ### Direct CLI usage (without wrapper)
 ```bash
+# Claude non-interactive (model: opus)
+claude -p --no-session-persistence --model opus "your question"
+
 # Codex non-interactive (model: gpt-5.3-codex)
 codex exec --ephemeral --skip-git-repo-check --model gpt-5.3-codex "your question"
 
-# Gemini non-interactive (model: gemini-3.1-pro)
-gemini -p -m gemini-3.1-pro "your question"
+# Gemini non-interactive (model: gemini-3.1-pro-preview)
+gemini -m gemini-3.1-pro-preview -p "your question"
 
 # Gemini JSON output
 gemini -p "your question" --output-format json
@@ -122,12 +128,14 @@ trash path/to/file
 trash path/to/directory
 ```
 
-## generate-docs
+## docs-list
 
 Lists `docs/` catalog and enforces front-matter compliance.
 
-- **Location:** `~/Repos/acsync/scripts/generate-docs.py`
-- **Usage:** `python scripts/generate-docs.py`
+- **Source:** `~/Repos/acsync/scripts/docs-list.ts`
+- **Binary:** `~/Repos/acsync/bin/docs-list`
+- **Usage:** `bin/docs-list` (or `bun scripts/docs-list.ts`)
+- **Rebuild:** `bun build scripts/docs-list.ts --compile --outfile bin/docs-list`
 - **Run:** After adding/modifying docs; honors `read_when` hints in front-matter.
 
 ## browser-tools
@@ -195,16 +203,17 @@ mcporter list <server>                 # List server tools
 
 ## MCP Servers
 
-Configured MCP servers across CLI targets:
+Canonical definitions in `configs/mcp/*.json`. Rendered to each CLI via `acsync push`.
 
-| Server | CLIs | Notes |
-|--------|------|-------|
-| `tavily` | Claude, OpenCode, Gemini | Web search/extract |
-| `context7` | All | Library documentation retrieval |
-| `sequential-thinking` | Claude only | Structured reasoning |
-| `palantir-mcp` | Claude only | Requires `PALANTIR_FOUNDRY_TOKEN` |
-| `liquid-carbon` | Claude, OpenCode | Domain-specific |
-| `shadcn` | Disabled by default | shadcn/ui components |
+| Server | Status | CLIs | Notes |
+|--------|--------|------|-------|
+| `tavily` | Enabled | Claude, OpenCode, Gemini | Web search/extract |
+| `context7` | Enabled | All | Library documentation retrieval |
+| `sequential-thinking` | Disabled | — | `enabled: false` globally |
+| `chrome-devtools-mcp` | Disabled | — | Browser automation; also available via MCPorter daemon |
+| `palantir-mcp` | Disabled | — | Requires `PALANTIR_FOUNDRY_TOKEN`; also via MCPorter |
+| `liquid-carbon` | Disabled | — | Component library; also via MCPorter |
+| `shadcn` | Disabled | — | shadcn/ui; also via MCPorter |
 
 Incident response: `docs/runbooks/mcp-incident.md`
 

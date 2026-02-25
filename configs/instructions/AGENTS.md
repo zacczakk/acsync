@@ -27,14 +27,12 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - **Search before pivoting**. Stuck? Search official docs first. No direction change unless asked.
 
 ## Flow & Runtime
-- Update active plan in `docs/plans/`: goals, steps, verification.
-- New rules/pitfalls: update here or active plan in `docs/plans/`.
-- Use Codex background for long jobs; tmux only for interactive/persistent (debugger/server).
+- Use repo’s package manager/runtime; no swaps w/o approval.
 - Subagents for deep work (planning, research, verification, refactor).
-- Prefer deterministic formatting hooks when available to avoid CI churn.
+- Deterministic formatting hooks when available.
 - Hangs >5 min: stop, capture logs, ask user.
 - New dep: research health + fit; confirm w/ user.
-- Repo helpers (`scripts/`)
+- Helpers in `scripts/` (`committer`, `ask-model`, `docs-list.ts`, `browser-tools.ts`)
 
 ## Screenshots ("use a screenshot")
 - Pick newest PNG in `~/Desktop` or `~/Downloads`.
@@ -43,13 +41,18 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Optimize: `imageoptim <file>` (install: `brew install imageoptim-cli`).
 - Replace asset; keep dimensions; commit; run gate; verify CI.
 
+## PR Feedback
+- Active PR: `gh pr view --json number,title,url --jq '"PR #\\(.number): \\(.title)\\n\\(.url)"'`.
+- PR comments: `gh pr view …` + `gh api …/comments --paginate`.
+- Replies: cite fix + file/line; resolve threads only after fix lands.
+- When merging a PR: thank the contributor in `CHANGELOG.md`.
+
 ## Docs
 - System of record: `docs/`. AGENTS.md = index.
 - Start: run docs list (`docs:list` script, or `bin/docs-list` here if present; ignore if not installed); open docs before coding.
 - Follow links until domain makes sense; honor `Read when` hints.
 - Keep notes short; update docs when behavior/API changes (no ship w/o docs).
-- Staleness: dead links / stale refs = bugs. Run `/groom-docs` periodically.
-- Front-matter: run `python scripts/generate-docs.py`; honor `read_when` hints.
+- Staleness: dead links / stale refs = bugs; groom docs often.
 - Context7 MCP has library documentation.
 
 ### Structure (create dirs as needed per repo)
@@ -67,10 +70,10 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 #### `docs/plans/`
 - Execution plans. Replaces `TASK.md` / `.tasks/`.
 - `active/{slug}/PLAN.md` — goals, steps, verification criteria, progress log.
-- `active/{slug}/CONTEXT.md` — discovery context from `/zz-discuss`.
+- `active/{slug}/CONTEXT.md` — discovery context.
 - `completed/{slug}/` — archived plans; move here when done.
-- `STATE.md` — active plan pointer (managed by `/zz-plan`).
-- `DECISIONS.md` — cross-plan decision log (managed by `/zz-decide`).
+- `STATE.md` — active plan pointer.
+- `DECISIONS.md` — cross-plan decision log.
 - Complex work → plan in repo, not ephemeral chat.
 
 #### `docs/references/`
@@ -89,17 +92,11 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - When merging a PR: thank the contributor (in `docs/CHANGELOG.md` if repo has one).
 
 ## Build / Test
+- No mocks; unit or e2e.
 - Before handoff: run full gate (lint/typecheck/tests/docs).
 - CI red: `gh run list/view`, rerun, fix, push, repeat til green.
 - Keep it observable (logs, panes, tails, MCP/browser tools).
-- Release: read `docs/RELEASING.md` (or find best checklist if missing).
-- Definition of done by task type:
-  - Bug fix: regression test + existing suite green + CI green.
-  - Feature: tests + docs updated + CI green.
-  - Refactor: behavior unchanged + tests pass + CI green.
-  - Docs: render/preview if available + links valid.
-- No mocks; unit or e2e. Mocks invent fake behaviors, hide real bugs.
-- Test rigorously. New contributor can't break things; nothing slips by.
+- Release: read release checklist if repo has one.
 
 ## Git
 - Safe by default: `git status/diff/log`. Push only when user asks.
@@ -107,7 +104,7 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Branch changes require user consent.
 - Destructive ops forbidden unless explicit (`reset --hard`, `clean`, `restore`, `rm`, …).
 - Remotes under `~/Repos`: prefer HTTPS; flip SSH->HTTPS before pull/push.
-- Commit helper on PATH: `committer` (bash). Prefer it; if repo has `./scripts/committer`, use that.
+- Use Commit helper `./scripts/committer`.
 - Don't delete/rename unexpected stuff; stop + ask.
 - No repo-wide S/R scripts; keep edits small/reviewable.
 - Avoid manual `git stash`; auto-stash during pull/rebase OK (soft rule).
@@ -124,25 +121,42 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 ## Language/Stack Notes
 - Swift: use workspace helper/daemon; validate `swift build` + tests; keep concurrency attrs right.
 - TypeScript: use repo PM; run `docs:list`; keep files small; follow existing patterns; do not use `any` or `as`.
-- Python: use `ruff`, `uv`, and `pyproject.toml`. no `pip` venvs, poetry, or `requirements.txt` unless asked; strong types, type hints everywhere, explicit models instead of loose dicts or strings.
+- Python: use `ruff`, `uv`, and `pyproject.toml`. no `pip` venvs, poetry, or `requirements.txt` unless asked. `pytest` for tests. strong types & type hints.
 
 ## Permissions and Safety
 - Do not read or commit secrets. Use placeholders and `.env` for local values.
 
 ## Critical Thinking
+- Fix root cause (not band-aid).
 - Unsure: read more code; if still stuck, ask w/ short options.
 - Conflicts: call out; pick safer path.
 - Unrecognized changes: assume other agent; keep going; focus your changes. If it causes issues, stop + ask user.
-- Leave progress notes in thread.
 
 ## Tools
 Read `~/Repos/acsync/configs/instructions/TOOLS.md` for the full tool catalog.
 
-Quick reference:
-- `acsync` — Config sync CLI. `acsync check --pretty`, `acsync push --force --delete`.
-- `committer` — Safe git commit: `committer "message" file1 file2 ...`
-- `trash` — Move files to Trash: `trash <path>`
-- `gh` — GitHub CLI for PRs/CI. `gh pr view`, `gh issue view`.
+### trash
+- Move files to Trash: `trash …` (system command).
+
+### acsync
+- Agent config sync on PATH. `acsync {check|push|pull|diff|render|helpers}`.
+
+### /scripts/committer
+- Commit helper. Stages only listed paths; required.
+
+### bin/docs-list / scripts/docs-list.ts
+- Optional. Lists `docs/` + enforces front-matter. Ignore if `bin/docs-list` not installed. Rebuild: `bun build scripts/docs-list.ts --compile --outfile bin/docs-list`.
+
+### bin/browser-tools / scripts/browser-tools.ts
+- Chrome DevTools helper. Cmds: `start`, `nav`, `eval`, `screenshot`, `pick`, `cookies`, `inspect`, `kill`.
+- Rebuild: `bun build scripts/browser-tools.ts --compile --target bun --outfile bin/browser-tools`.
+
+### mcporter / iterm / firecrawl / XcodeBuildMCP
+- MCP launcher: `npx mcporter <server>` (see `npx mcporter --help`). Common: `palantir-mcp` `liquid-carbon` `shadcn` `chrome-devtools`.
+
+### gh
+- GitHub CLI for PRs/CI/releases. Given issue/PR URL (or `/pull/5`): use `gh`, not web search.
+- Examples: `gh issue view <url> --comments -R owner/repo`, `gh pr view <url> --comments --files -R owner/repo`.
 
 ## Frontend Aesthetics
 Avoid "AI slop" UI. Be opinionated + distinctive.
@@ -155,85 +169,6 @@ Do:
 
 Avoid: purple-on-white cliches, generic component grids, predictable layouts.
 
-## Agent Config Sync -- Learnings (2026-02-18)
-
-Completed first full sync push across all 4 CLIs. Key findings:
-
-### Path Migration (`.tasks/` -> `docs/plans/`)
-- All slash commands updated to reference new planning structure
-- `TASK.md` -> `PLAN.md` throughout
-- `.tasks/DECISIONS.md` -> `docs/plans/DECISIONS.md`
-- `.tasks/STATE.md` -> `docs/plans/STATE.md`
-- `.tasks/{slug}/CONTEXT.md` -> `docs/plans/active/{slug}/CONTEXT.md`
-- Affected commands: decide, discuss, gate, handoff, pickup, plan, pr, research, verify
-
-### New Command: `/groom-docs`
-- Added documentation quality scanner
-- Checks: dead links, stale references, front-matter compliance, code drift
-- Output: severity-ranked table (ERROR/WARN/INFO)
-- Offers batch fixes with user consent
-- Run periodically (weekly or before releases)
-
-### Format Transformations Work As Specified
-- **Claude**: Strip `zz-` prefix, nest under `zz/` subdirectory
-- **OpenCode**: Frontmatter rebuild with `allowed-tools` -> `tools` map
-- **Gemini**: TOML conversion with triple-quoted prompt strings
-- **Codex**: Flat markdown with heading + description
-
-### Settings Deep-Merge Preserved User Additions
-- Claude: Kept user-added `Read(//Users/.../articles/**)` permission
-- OpenCode: Preserved unmanaged keys (`$schema`, `model`, `hooks`)
-- Path expansion (`~` -> absolute) worked correctly
-
-### Non-Canonical Items Left Untouched
-- Claude: `ralph-tui-*` skills (3) preserved
-- GSD files/directories skipped correctly
-
-### MCP Configs Already In Sync
-- All 6 canonical MCP servers matched system state
-- Secret injection logic validated (not needed this run)
-
-### Backup System Worked
-- Created `backups/2026-02-18T182618/` with CLI subdirs
-- Backed up 10 Claude commands, 3 agents, 1 instruction file
-- Backed up 17 OpenCode commands, 8 agents, 2 settings files
-- Backed up 17 Gemini commands, 8 agents, 1 instruction file
-- Backed up 17 Codex commands, 8 agents, 1 instruction file
-- Total: 96 files backed up before first write
-
-### Sync Stats
-- **Commands**: 65 files updated (11 Claude, 18 OpenCode, 18 Gemini, 18 Codex)
-- **Agents**: 27 files updated (3 Claude, 8 OpenCode, 8 Gemini, 8 Codex)
-- **Instructions**: 4 files updated (all CLIs)
-- **Settings**: 1 file updated (OpenCode only)
-- **MCP**: 0 files updated (already in sync)
-- **Skills**: 0 files updated (already in sync)
-
-### Documentation Structure Evolution
-Canonical AGENTS.md now has expanded `## Docs` section:
-- Progressive disclosure strategy documented
-- Four structured subdirectories: `architecture.md`, `design/`, `plans/`, `references/`
-- `docs/plans/` replaces legacy `.tasks/` approach
-- Front-matter enforcement via `scripts/generate-docs.py`
-- Staleness = tracked refs vs actual code changes
-
-### Next Steps
-- Run `/zz-sync-agent-configs check` to verify drift is zero
-- Add sync frequency to workflow (suggest: before major work / after merging PRs)
-- Consider automating sync as pre-commit hook or CI check
-
-## CLI-Specific Notes
-
-### Claude Code
-
-## Paths
-- Canonical rules: `~/Repos/acsync/AGENTS.md`
-- Canonical commands: `~/Repos/acsync/configs/commands`
-- Canonical subagents: `~/Repos/acsync/configs/agents`
-- Claude commands (rendered): `~/.claude/commands/zz/`
-- Claude subagents (rendered): `~/.claude/agents/`
-- Helper scripts: `~/Repos/acsync/scripts`
-
 ## Web Access
 WebFetch blocked (corporate proxy). Use Tavily MCP
 (`mcp__tavily_*`) for web lookups.
@@ -245,76 +180,18 @@ Set in `~/.claude/settings.json` under `env` key.
 ## MCPorter
 Non-native MCP servers via `mcporter call`. See `## Tools` in AGENTS.md.
 
-## Config Management
-- Global configs are managed in `~/Repos/acsync`.
-- Use `/zz:sync-agent-configs` to sync configs across CLIs.
-- Keep secrets in `.env`; never commit them.
-
-### OpenCode
-
-## Paths
-- Canonical rules: `~/Repos/acsync/AGENTS.md`
-- Canonical commands: `~/Repos/acsync/configs/commands`
-- Canonical subagents: `~/Repos/acsync/configs/agents`
-- OpenCode commands (rendered): `~/.config/opencode/command/`
-- OpenCode subagents (rendered): `~/.config/opencode/agents/`
-- OpenCode skills (rendered): `~/.config/opencode/skill/`
-- Helper scripts: `~/Repos/acsync/scripts`
-
-## Naming Quirks
-- Singular directories: `command/`, `skill/` (not `commands/`, `skills/`).
-- MCP env key: `environment` (not `env`).
-- MCP transport types: `local`/`remote` (not `stdio`/`http`).
-- MCP command: always an array (not string + args).
-- Provider env vars: `{env:VAR_NAME}` syntax (OpenCode resolves at startup).
-
-## Web Access
-- WebFetch works (no proxy block unlike Claude Code).
-- Use WebFetch for specific URLs; Tavily search tool for broad queries.
-- No native Tavily MCP (Claude-only); use the search tool directly.
-
-## Config Management
-- Global configs are managed in `~/Repos/acsync`.
-- Use `/zz-sync-agent-configs` to sync configs across CLIs.
-- Keep secrets in `.env`; never commit them.
-
-### Gemini
-
-## Paths
-- Canonical rules: `~/Repos/acsync/AGENTS.md`
-- Canonical commands: `~/Repos/acsync/configs/commands`
-- Canonical subagents: `~/Repos/acsync/configs/agents`
-- Gemini commands (rendered): `~/.gemini/commands`
-- Gemini subagents (rendered): `~/.gemini/agents`
-- Helper scripts: `~/Repos/acsync/scripts`
-
 ## Notes
 - Subagents: `experimental.enableAgents = true` in `~/.gemini/settings.json`.
 - Context: `AGENTS.md` canonical; `GEMINI.md` fallback (`context.fileName = ["AGENTS.md", "GEMINI.md"]`).
 - Missing local context: import `@~/Repos/acsync/AGENTS.md`.
 
-## Config Management
-- Global configs are managed in `~/Repos/acsync`.
-- Use `/zz-sync-agent-configs` to sync configs across CLIs.
-- Keep secrets in `.env`; never commit them.
-
-### Codex
-
 ## Paths
-- Canonical rules: `~/Repos/acsync/AGENTS.md`
+- Canonical rules: `~/Repos/acsync/configs/instructions/AGENTS.md`
 - Canonical commands: `~/Repos/acsync/configs/commands`
 - Canonical subagents: `~/Repos/acsync/configs/agents`
 - Canonical skills: `~/Repos/acsync/configs/skills`
-- Codex prompts (rendered): `~/.codex/prompts`
-- Codex skills (rendered): `~/.codex/skills`
 - Helper scripts: `~/Repos/acsync/scripts`
-
-## Helpers and Sync Discipline
-- Repo helper scripts live in `scripts/` (committer, generate-docs, browser-tools).
-- If helpers are synced to other repos, keep them byte-identical.
-- Use `acsync helpers -p <repo-root>` to copy helpers into a repo's `scripts/`.
 
 ## Config Management
 - Global configs are managed in `~/Repos/acsync`.
-- Use `/zz-sync-agent-configs` to sync configs across CLIs.
 - Keep secrets in `.env`; never commit them.

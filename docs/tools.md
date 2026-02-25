@@ -7,17 +7,20 @@ read_when:
 
 # Tools
 
-<!-- TODO: review — source code changed significantly since 2026-02-19; verify MCP server list is current -->
-
 ## MCP Servers (Native)
 - `tavily`: Web search/extract (Claude, OpenCode, Gemini; stdio — skipped for Codex).
 - `context7`: Documentation retrieval for coding libraries (all CLIs).
 - `sequential-thinking`: Structured reasoning tool (disabled).
+- `chrome-devtools-mcp`: Browser automation (disabled; also via MCPorter daemon).
+- `palantir-mcp`: Foundry access (disabled; requires `PALANTIR_FOUNDRY_TOKEN`).
+- `liquid-carbon`: Component library (disabled; also via MCPorter).
+- `shadcn`: shadcn/ui components (disabled; also via MCPorter).
 - Incident response: `docs/runbooks/mcp-incident.md`.
 
 ## Local Helpers (repo)
 - `scripts/committer`: Safe commit helper; stages only listed paths.
-- `scripts/generate-docs.py`: Lists `docs/` catalog and enforces front-matter.
+- `scripts/ask-model`: Cross-model consultation (Claude/Codex/Gemini).
+- `scripts/docs-list.ts`: Lists `docs/` catalog and enforces front-matter.
 - `scripts/browser-tools.ts`: Lightweight Chrome DevTools helper.
 
 ## Evaluated (not adopted)

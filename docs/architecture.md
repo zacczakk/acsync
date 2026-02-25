@@ -10,21 +10,21 @@ read_when:
 ## Layers
 
 - **configs/** — Canonical source for all CLI artifacts.
-  - `commands/` — Slash commands (8 .md files)
+  - `commands/` — Slash commands (6 .md files)
   - `agents/` — Subagent definitions (currently empty)
-  - `skills/` — Skill bundles (2 directories)
-  - `mcp/` — MCP server definitions (3 .json files)
+  - `skills/` — Skill bundles (3 directories)
+  - `mcp/` — MCP server definitions (7 .json files)
   - `settings/` — Per-CLI settings (claude, opencode)
   - `instructions/AGENTS.md` — Unified agent operating system (ground truth)
   - `instructions/TOOLS.md` — Tool-use reference
-- **scripts/** — Helper tools (committer, generate-docs, browser-tools)
+- **scripts/** — Helper tools (committer, ask-model, docs-list.ts, browser-tools.ts)
 - **docs/** — Operational documentation, plans, design decisions
 - **backups/** — Pre-sync backups (gitignored)
 
 ## Data Flow
 
 ```
-configs/  ──→  /zz-sync-agent-configs push  ──→  ~/.claude/
+configs/  ──→  acsync push  ──→  ~/.claude/
                                                          ~/.config/opencode/
                                                          ~/.gemini/
                                                          ~/.codex/
