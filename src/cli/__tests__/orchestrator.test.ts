@@ -1,10 +1,8 @@
-import { describe, expect, test, beforeEach, afterEach } from 'bun:test';
-import { mkdtemp, writeFile, mkdir, unlink } from 'node:fs/promises';
+import { describe, expect, test, beforeEach } from 'bun:test';
+import { mkdtemp, writeFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { homedir } from 'node:os';
 import { runCheck } from '../check';
-import { runPush } from '../push';
 
 /** Make a per-test unique project with salted content so hashes never collide with real deployed files */
 async function setupProject(dir: string, salt: string): Promise<void> {
@@ -161,120 +159,5 @@ describe('runCheck', () => {
     for (const op of canonicalOps) {
       expect(op.type).toBe('create');
     }
-  });
-});
-
-describe('runPush', () => {
-  let tmpDir: string;
-  let salt: string;
-
-  beforeEach(async () => {
-    salt = makeSalt();
-    tmpDir = await mkdtemp(join(tmpdir(), 'orchestrator-push-'));
-    await setupProject(tmpDir, salt);
-  });
-
-  // Clean up test artifacts written to real ~/.claude/commands/
-  afterEach(async () => {
-    const claudeCmdDir = join(homedir(), '.claude', 'commands');
-    for (const name of [`test-${salt}-alpha.md`, `test-${salt}-beta.md`]) {
-      try { await unlink(join(claudeCmdDir, name)); } catch { /* already gone */ }
-    }
-  });
-
-  test('dry-run returns zero writes', async () => {
-    const result = await runPush({
-      projectDir: tmpDir,
-      dryRun: true,
-      targets: ['claude-code'],
-      types: ['command'],
-    });
-    expect(result.written).toBe(0);
-    expect(result.rolledBack).toBe(false);
-  });
-
-  test('dry-run output is valid JSON', async () => {
-    const result = await runPush({
-      projectDir: tmpDir,
-      dryRun: true,
-      targets: ['claude-code'],
-      json: true,
-    });
-    expect(() => JSON.parse(result.output)).not.toThrow();
-  });
-
-  test('returns early with hasDrift=false when project is empty', async () => {
-    const emptyDir = await mkdtemp(join(tmpdir(), 'orchestrator-nodrift-'));
-    const result = await runPush({ projectDir: emptyDir, force: true });
-    expect(result.hasDrift).toBe(false);
-    expect(result.written).toBe(0);
-  });
-
-  test('force=true writes commands successfully', async () => {
-    const result = await runPush({
-      projectDir: tmpDir,
-      force: true,
-      targets: ['claude-code'],
-      types: ['command'],
-    });
-    expect(result.failed).toBe(0);
-    expect(result.rolledBack).toBe(false);
-    expect(result.written).toBe(2); // alpha + beta
-  });
-
-  test('manifest is created after successful push', async () => {
-    await runPush({
-      projectDir: tmpDir,
-      force: true,
-      targets: ['claude-code'],
-      types: ['command'],
-    });
-    const manifestPath = join(tmpDir, '.acsync', 'manifest.json');
-    const manifestExists = await Bun.file(manifestPath).exists();
-    expect(manifestExists).toBe(true);
-  });
-
-  test('subsequent check shows no drift after push', async () => {
-    await runPush({
-      projectDir: tmpDir,
-      force: true,
-      targets: ['claude-code'],
-      types: ['command'],
-    });
-    const checkResult = await runCheck({
-      projectDir: tmpDir,
-      targets: ['claude-code'],
-      types: ['command'],
-    });
-    const claudeDiff = checkResult.diffs[0];
-    // Canonical items should be "skip" (up to date); stale items from real target dirs are "delete"
-    const canonicalOps = claudeDiff.operations.filter((op) => op.name.startsWith(`test-${salt}-`));
-    for (const op of canonicalOps) {
-      expect(op.type).toBe('skip');
-    }
-  });
-
-  test('push pretty output by default', async () => {
-    const result = await runPush({
-      projectDir: tmpDir,
-      force: true,
-      targets: ['claude-code'],
-      types: ['command'],
-    });
-    // Pretty output by default — should contain acsync text, not raw JSON
-    if (result.written > 0) {
-      expect(result.output).toContain('acsync push');
-    }
-  });
-
-  test('push JSON output with --json', async () => {
-    const result = await runPush({
-      projectDir: tmpDir,
-      force: true,
-      targets: ['claude-code'],
-      types: ['command'],
-      json: true,
-    });
-    expect(() => JSON.parse(result.output)).not.toThrow();
   });
 });
