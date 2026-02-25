@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-24)
 
 **Core value:** Make config sync fast and cheap by moving mechanical transforms into deterministic code
-**Current focus:** v2.0 milestone COMPLETE — all 8 phases shipped
+**Current focus:** Phase 9 — verification closure and doc cleanup
 
 ## Current Position
 
-Phase: 8 of 8 (TOOLS.md + Repo Rename) — COMPLETE
-Plan: 2 of 2 — COMPLETE
-Status: All plans executed, verified, and committed
-Last activity: 2026-02-24 — 08-02 completed (repo rename, target sync, cwd-fix)
+Phase: 9 of 9 (Verification, Closure, Doc Cleanup)
+Plan: 1 of 2 — COMPLETE
+Status: 09-01 complete, 09-02 pending
+Last activity: 2026-02-25 — 09-01 completed (Phase 8 verification + REQUIREMENTS.md closure)
 
-Progress: [████████████████████] 100% (21/21 plans)
+Progress: [████████████████████▒] ~96% (22/23 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
+- Total plans completed: 22
 - Average duration: 6min
 - Total execution time: ~2 hours
 
@@ -38,6 +38,9 @@ Progress: [████████████████████] 100% (2
 
 | Phase 08 P01 | 1min | 2 tasks | 2 files |
 | Phase 08 P02 | 15min | 4 tasks | 15 files |
+| 09-verification-closure-doc-cleanup | 1 | 3min | n/a |
+
+| Phase 09 P01 | 3min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -55,6 +58,7 @@ Key decisions across the project:
 - Plain mv (not git mv) for file moves — git detects renames automatically
 - PROJECT_ROOT via import.meta.dir — acsync works from any cwd
 - Settings sync (opencode.json) not in push pipeline — manual fix for now
+- Phase attribution: TOOL/REPO requirements credited to Phase 8, verified in Phase 9
 
 ### Pending Todos
 
@@ -66,6 +70,6 @@ None — all phases complete.
 
 ## Session Continuity
 
-Last session: 2026-02-24
-Stopped at: v2.0 milestone complete
+Last session: 2026-02-25
+Stopped at: Completed 09-01-PLAN.md
 Resume file: N/A
