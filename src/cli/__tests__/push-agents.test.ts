@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, existsSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir, tmpdir } from 'node:os';
 import { cpSync, mkdtempSync } from 'node:fs';
@@ -24,10 +24,18 @@ const TARGET_PATHS = {
   codex: join(homedir(), '.codex', 'prompts'),
 };
 
+/** Remove agent files from all targets so push always detects drift */
+function clearTargetAgents(): void {
+  for (const dir of Object.values(TARGET_PATHS)) {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 describe('push-agents E2E', () => {
   test('pushes agents to all 4 targets matching golden fixtures', async () => {
     await withTargetBackup(async () => {
       const projectDir = setupProjectDir();
+      clearTargetAgents();
       const result = await runPush({ projectDir, force: true, types: ['agent'] });
 
       expect(result.written).toBeGreaterThan(0);

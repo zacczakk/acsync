@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync, cpSync, mkdirSync } from 'node:fs';
+import { readFileSync, cpSync, mkdirSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import os from 'node:os';
 import { withTargetBackup } from '../../../test/helpers/backup';
@@ -18,7 +18,7 @@ function setupProjectDir(): string {
   return dir;
 }
 
-/** Seed real target settings files with pre-existing content */
+/** Clear then seed real target settings files with pre-existing content */
 function seedSettingsTargets(): void {
   const targets: Array<{ target: TargetName; seedFile: string }> = [
     { target: 'claude-code', seedFile: join(SEEDS_ROOT, 'claude/settings.json') },
@@ -28,6 +28,7 @@ function seedSettingsTargets(): void {
   for (const { target, seedFile } of targets) {
     const adapter = createAdapter(target);
     const settingsPath = adapter.getPaths().getSettingsPath();
+    rmSync(settingsPath, { force: true });
     mkdirSync(dirname(settingsPath), { recursive: true });
     cpSync(seedFile, settingsPath);
   }

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync, cpSync } from 'node:fs';
+import { readFileSync, cpSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import os from 'node:os';
 import { withTargetBackup } from '../../../test/helpers/backup';
@@ -27,10 +27,20 @@ const GOLDEN_PATHS: Record<TargetName, string> = {
 
 const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'gemini', 'codex'];
 
+/** Remove instruction files from all targets so push always detects drift */
+function clearTargetInstructions(): void {
+  for (const target of ALL_TARGETS) {
+    const adapter = createAdapter(target);
+    const instrPath = adapter.getPaths().getInstructionsPath();
+    rmSync(instrPath, { force: true });
+  }
+}
+
 describe('push instructions E2E', () => {
   test('pushes instructions to all 4 targets, matches goldens, identity passthrough, idempotent', async () => {
     await withTargetBackup(async () => {
       const projectDir = setupProjectDir();
+      clearTargetInstructions();
 
       // --- Push instructions (no seeding needed — identity passthrough) ---
       const result = await runPush({ projectDir, force: true, types: ['instruction'] });
