@@ -47,8 +47,8 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 
 ### Test Health
 
-- [ ] **HLTH-01**: Failing tests that overlap with fixture/E2E code paths are fixed
-- [ ] **HLTH-02**: `package.json` has a `test` script
+- [x] **HLTH-01**: Failing tests that overlap with fixture/E2E code paths are fixed
+- [x] **HLTH-02**: `package.json` has a `test` script
 
 ## Future Requirements (v2.1 — vsync-alignment)
 
@@ -97,8 +97,8 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 | PULL-05 | Phase 12 | Pending |
 | PULL-06 | Phase 12 | Pending |
 | PULL-07 | Phase 12 | Pending |
-| HLTH-01 | Phase 10 | Pending |
-| HLTH-02 | Phase 10 | Pending |
+| HLTH-01 | Phase 10 | Complete |
+| HLTH-02 | Phase 10 | Complete |
 
 **Coverage:**
 - v3.0 requirements: 23 total
