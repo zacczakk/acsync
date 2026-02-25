@@ -5,6 +5,7 @@ import { pushCommand } from './push';
 import { pullCommand } from './pull';
 import { renderCommand } from './render';
 import { diffCommand } from './diff';
+import { helpersCommand } from './helpers';
 
 const DESCRIPTION = `Agent Config Sync — single source of truth for AI coding assistant configs.
 
@@ -23,10 +24,12 @@ Synced item types:
 
 Typical workflow:
   acsync check              Show drift between canonical and targets
+  acsync status             Alias for check
   acsync diff               Show unified text diff of drifted items
   acsync push --force       Write all canonical configs to targets
   acsync push --delete      Also remove stale items not in canonical
   acsync pull -s claude     Pull configs from Claude Code back to canonical
+  acsync helpers -p <path>  Copy helper scripts to a repo's scripts/ dir
 
 Exit codes:
   0  Success / no drift
@@ -43,6 +46,7 @@ program.addCommand(pushCommand);
 program.addCommand(pullCommand);
 program.addCommand(renderCommand);
 program.addCommand(diffCommand);
+program.addCommand(helpersCommand);
 
 // Allow proper exit codes from subcommands (don't let Commander swallow process.exit)
 program.exitOverride();

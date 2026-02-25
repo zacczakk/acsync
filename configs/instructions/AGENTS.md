@@ -1,13 +1,13 @@
-# Agent Operating System (Ground Truth)
+# AGENTS.md
 
-zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
+zacczakk owns this. Start: say hi + 1 motivating line.
+Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 
 ## Agent Protocol
-- Contact: @zacczakk on GitHub.
-- Model preference: latest only. OK: Anthropic Opus 4.6 / Sonnet 4.5 (Sonnet 3.5 = old; avoid), OpenAI GPT-5.3, xAI Grok-4.1 Fast, Google Gemini 3 Flash.
-- Workspace: `~/Repos`. Missing repo: clone `https://github.com/zacczakk/<repo>.git`.
-- 3rd-party/OSS (non-zacczakk): clone under `~/Repos/oss`.
-- Files: repo or `~/Repos/acsync`.
+- Contact: `@zacczakk` on GitHub.
+- Workspace: `~/Repos/`. Missing repo: clone `https://github.com/zacczakk/<repo>.git`.
+- 3rd-party/OSS (non-zacczakk): clone under `~/Repos/oss/`.
+- Files: repo or `~/Repos/acsync/`.
 - PRs: use `gh pr view/diff` (no URLs).
 - "Make a note" => edit `AGENTS.md` and/or active plan in `docs/plans/` (shortcut; not a blocker).
 - No `./runner`. Guardrails: use `trash` for deletes.
@@ -15,51 +15,26 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 - Bugs: add regression test when it fits.
 - Keep files <~500 LOC; split/refactor as needed.
 - Commits: Conventional Commits (`feat|fix|refactor|build|ci|chore|docs|style|perf|test`).
-- Subagents: read `docs/subagent.md`.
-- Editor: `code <path>`.
 - CI: `gh run list/view` (rerun/fix til green).
 - Prefer end-to-end verify; if blocked, say what's missing.
 - New deps: quick health check (recent releases/commits, adoption).
 - Web: search early; prefer 2025–2026 sources. Claude: Tavily MCP; others: WebFetch + Tavily search tool.
-- WebFetch: blocked in Claude Code (corporate proxy); works fine in OpenCode. Use Tavily for search regardless (better structured results).
-- Style: telegraph. Drop filler/grammar. Min tokens (global AGENTS + replies).
+- Style: telegraph. Drop filler/grammar. Min tokens.
 - **No breadcrumbs**. Delete/move code = no residual comments. No `// moved to X`. Just remove.
 - Fix root cause, not bandaids.
 - Idiomatic, simple, maintainable. Simplest intuitive solution wins.
-- Leave repos better than found. Fix code smells.
 - Kill dead code. Unused params/helpers: delete + update callers.
 - **Search before pivoting**. Stuck? Search official docs first. No direction change unless asked.
 
-## Core Principles
-1. **Plan first**: Non-trivial: plan + align before executing.
-2. **Verify before done**: Tests > manual checks > "looks right". If you cannot run tests, say why.
-3. **Fix root cause**: No band-aids. Hacky? Stop + ask.
-4. **Small, reviewable changes**: Small diffs; explicit steps.
-5. **Compound knowledge**: Mistakes: add rule here or docs/plans/active/{slug}/PLAN.md. No repeats.
-
 ## Flow & Runtime
-- Enter plan mode for non-trivial tasks.
 - Update active plan in `docs/plans/`: goals, steps, verification.
-- Ask for missing info before executing.
 - New rules/pitfalls: update here or active plan in `docs/plans/`.
-- GSD upkeep: run `npx get-shit-done-cc@latest --all --global` often (before major work / weekly).
-- GSD patch: `model_overrides` in `gsd-tools.js` (3 edits: `loadConfig`, `cmdResolveModel`, `resolveModelInternal`). Re-apply after GSD updates. Config: `"model_overrides": { "agent-type": "opus" }` in `.planning/config.json`.
-- One task per session.
-- Use parallel sessions for independent tasks; label each session and keep scopes separate.
-- Use repo's package manager/runtime; no swaps w/o approval.
 - Use Codex background for long jobs; tmux only for interactive/persistent (debugger/server).
-- Use slash commands to enforce zz-plan/zz-verify/zz-handoff discipline.
-- Use subagents for deep work (planning, research, verification, refactor).
+- Subagents for deep work (planning, research, verification, refactor).
 - Prefer deterministic formatting hooks when available to avoid CI churn.
 - Hangs >5 min: stop, capture logs, ask user.
 - New dep: research health + fit; confirm w/ user.
-- Repo helpers (`scripts/`): keep byte-identical across repos; use `/zz-sync-agent-helpers` to distribute.
-- When taking on new work, follow this order:
-  1. Think architecture.
-  2. Research: official docs, blogs, papers.
-  3. Review codebase.
-  4. Compare research vs codebase; pick best fit.
-  5. Implement or ask about tradeoffs.
+- Repo helpers (`scripts/`)
 
 ## Screenshots ("use a screenshot")
 - Pick newest PNG in `~/Desktop` or `~/Downloads`.
@@ -69,12 +44,13 @@ zacczakk owns this. Work style: telegraph; noun-phrases ok; drop grammar; min to
 - Replace asset; keep dimensions; commit; run gate; verify CI.
 
 ## Docs
-- System of record: `docs/` in each repo. AGENTS.md = index, not encyclopedia.
-- Progressive disclosure: AGENTS.md points to deeper docs; agent loads on demand.
-- Repo knowledge > chat knowledge. Slack/thread decision? Encode in docs/ or it doesn't exist.
+- System of record: `docs/`. AGENTS.md = index.
+- Start: run docs list (`docs:list` script, or `bin/docs-list` here if present; ignore if not installed); open docs before coding.
+- Follow links until domain makes sense; honor `Read when` hints.
+- Keep notes short; update docs when behavior/API changes (no ship w/o docs).
 - Staleness: dead links / stale refs = bugs. Run `/groom-docs` periodically.
 - Front-matter: run `python scripts/generate-docs.py`; honor `read_when` hints.
-- Search Context7 MCP for library documentation.
+- Context7 MCP has library documentation.
 
 ### Structure (create dirs as needed per repo)
 
@@ -336,7 +312,7 @@ Non-native MCP servers via `mcporter call`. See `## Tools` in AGENTS.md.
 ## Helpers and Sync Discipline
 - Repo helper scripts live in `scripts/` (committer, generate-docs, browser-tools).
 - If helpers are synced to other repos, keep them byte-identical.
-- Use `/zz-sync-agent-helpers` to manage helper drift.
+- Use `acsync helpers -p <repo-root>` to copy helpers into a repo's `scripts/`.
 
 ## Config Management
 - Global configs are managed in `~/Repos/acsync`.
