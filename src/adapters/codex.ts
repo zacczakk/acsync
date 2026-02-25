@@ -14,8 +14,8 @@ function extractBearerTokenVar(authHeader: string): string | undefined {
 }
 
 export class CodexAdapter extends BaseAdapter {
-  constructor() {
-    super('codex', 'Codex');
+  constructor(homeDir?: string) {
+    super('codex', 'Codex', homeDir);
   }
 
   getCapabilities(): AdapterCapabilities {

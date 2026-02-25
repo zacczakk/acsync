@@ -128,7 +128,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
   const diffs: DiffResult[] = [];
 
   for (const target of targets) {
-    const adapter = createAdapter(target);
+    const adapter = createAdapter(target, options.homeDir);
     const caps = adapter.getCapabilities();
     const sourceItems: SourceItem[] = [];
     const targetHashes = new Map<string, string>();
@@ -319,31 +319,32 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
     diffs.push(diff);
   }
 
-  const { output, hasDrift } = formatCheckResult(diffs, options.pretty ?? false);
+  const pretty = options.pretty ?? !options.json;
+  const { output, hasDrift } = formatCheckResult(diffs, pretty);
   return { diffs, hasDrift, output };
 }
 
 export const checkCommand = new Command('check')
+  .alias('status')
   .description(
     `Detect drift between canonical configs and installed target files.
 
 Compares rendered canonical output against on-disk target files using SHA-256 hashes.
-Reports create/update/skip/delete operations per target. Default output is JSON;
-use --pretty for colored human-readable output.
+Reports create/update/skip/delete operations per target.
 
 Examples:
-  acsync check                          Check all targets, all types (JSON)
-  acsync check --pretty                 Human-readable colored output
+  acsync check                          Human-readable colored output (default)
+  acsync status                         Alias for check
+  acsync check --json                   Machine-readable JSON output
   acsync check -t claude                Check Claude Code only
   acsync check --type commands          Check commands only across all targets
   acsync check -t codex --type mcps     Check Codex MCP servers only
 
 Exit codes: 0 = no drift, 2 = drift detected, 1 = error`)
-  .option('--pretty', 'Human-readable colored output (default: JSON)')
-  .option('--json', 'Output JSON (default behavior, explicit for scripts)')
+  .option('--json', 'Machine-readable JSON output')
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
   .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings', collect, [] as string[])
-  .action(async (options: { pretty?: boolean; json?: boolean; target: string[]; type: string[] }) => {
+  .action(async (options: { json?: boolean; target: string[]; type: string[] }) => {
     try {
       validateTargets(options.target);
       validateTypes(options.type);
@@ -351,7 +352,7 @@ Exit codes: 0 = no drift, 2 = drift detected, 1 = error`)
       const result = await runCheck({
         targets: mapTargets(options.target),
         types: mapTypes(options.type),
-        pretty: options.pretty,
+        json: options.json,
       });
 
       process.stdout.write(result.output + '\n');

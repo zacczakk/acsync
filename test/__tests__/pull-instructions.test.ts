@@ -1,11 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync, cpSync, mkdirSync, writeFileSync, existsSync, rmSync } from 'node:fs';
+import { readFileSync, cpSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import os from 'node:os';
-import { withTargetBackup } from '../helpers/backup';
+import { createTestHome } from '../helpers/backup';
 import { runPush } from '../../src/cli/push';
 import { runPull } from '../../src/cli/pull';
-import { createAdapter } from '../../src/cli/canonical';
 import type { TargetName } from '../../src/types';
 
 const FIXTURE_ROOT = join(import.meta.dir, '../fixtures');
@@ -28,65 +27,52 @@ function emptyProjectDir(suffix: string): string {
   return dir;
 }
 
-/** Remove instruction files from all targets so push always detects drift */
-function clearTargetInstructions(): void {
-  for (const target of ALL_TARGETS) {
-    const adapter = createAdapter(target);
-    const instrPath = adapter.getPaths().getInstructionsPath();
-    rmSync(instrPath, { force: true });
-  }
-}
-
 describe('pull instructions E2E', () => {
   test('round-trip: push then pull instructions matches canonical', async () => {
-    await withTargetBackup(async () => {
-      // Push canonical instructions to all 4 targets
-      const pushDir = setupProjectDir('push');
-      clearTargetInstructions();
-      const pushResult = await runPush({ projectDir: pushDir, force: true, types: ['instruction'] });
-      expect(pushResult.failed).toBe(0);
-      expect(pushResult.written).toBe(4);
+    const fakeHome = createTestHome('pull-instr-rt');
+    // Push canonical instructions to all 4 targets
+    const pushDir = setupProjectDir('push');
+    const pushResult = await runPush({ projectDir: pushDir, force: true, types: ['instruction'], homeDir: fakeHome });
+    expect(pushResult.failed).toBe(0);
+    expect(pushResult.written).toBe(4);
 
-      const canonicalContent = readFileSync(join(CANONICAL_ROOT, 'instructions/AGENTS.md'), 'utf-8');
+    const canonicalContent = readFileSync(join(CANONICAL_ROOT, 'instructions/AGENTS.md'), 'utf-8');
 
-      // Pull from each target into fresh projectDir
-      for (const target of ALL_TARGETS) {
-        const pullDir = emptyProjectDir(`pull-${target}`);
-        const pullResult = await runPull({ source: target, force: true, projectDir: pullDir });
-        expect(pullResult.rolledBack).toBe(false);
+    // Pull from each target into fresh projectDir
+    for (const target of ALL_TARGETS) {
+      const pullDir = emptyProjectDir(`pull-${target}`);
+      const pullResult = await runPull({ source: target, force: true, projectDir: pullDir, homeDir: fakeHome });
+      expect(pullResult.rolledBack).toBe(false);
 
-        const pulledPath = join(pullDir, 'configs/instructions/AGENTS.md');
-        expect(existsSync(pulledPath)).toBe(true);
-        const pulledContent = readFileSync(pulledPath, 'utf-8');
-        // Instructions are identity passthrough — pulled content must match canonical exactly
-        expect(pulledContent).toBe(canonicalContent);
-      }
-    });
+      const pulledPath = join(pullDir, 'configs/instructions/AGENTS.md');
+      expect(existsSync(pulledPath)).toBe(true);
+      const pulledContent = readFileSync(pulledPath, 'utf-8');
+      // Instructions are identity passthrough — pulled content must match canonical exactly
+      expect(pulledContent).toBe(canonicalContent);
+    }
   }, E2E_TIMEOUT);
 
   test('force pull overwrites existing instructions, non-force skips', async () => {
-    await withTargetBackup(async () => {
-      // Push instructions to claude
-      const pushDir = setupProjectDir('push-force');
-      clearTargetInstructions();
-      await runPush({ projectDir: pushDir, force: true, types: ['instruction'] });
+    const fakeHome = createTestHome('pull-instr-force');
+    // Push instructions to all targets
+    const pushDir = setupProjectDir('push-force');
+    await runPush({ projectDir: pushDir, force: true, types: ['instruction'], homeDir: fakeHome });
 
-      // Pre-populate pullDir with sentinel AGENTS.md
-      const pullDir = emptyProjectDir('pull-force');
-      mkdirSync(join(pullDir, 'configs/instructions'), { recursive: true });
-      writeFileSync(join(pullDir, 'configs/instructions/AGENTS.md'), 'sentinel content\n');
+    // Pre-populate pullDir with sentinel AGENTS.md
+    const pullDir = emptyProjectDir('pull-force');
+    mkdirSync(join(pullDir, 'configs/instructions'), { recursive: true });
+    writeFileSync(join(pullDir, 'configs/instructions/AGENTS.md'), 'sentinel content\n');
 
-      // Force pull from claude — sentinel overwritten
-      await runPull({ source: 'claude-code', force: true, projectDir: pullDir });
-      const afterForce = readFileSync(join(pullDir, 'configs/instructions/AGENTS.md'), 'utf-8');
-      expect(afterForce).not.toContain('sentinel');
-      const canonicalContent = readFileSync(join(CANONICAL_ROOT, 'instructions/AGENTS.md'), 'utf-8');
-      expect(afterForce).toBe(canonicalContent);
+    // Force pull from claude — sentinel overwritten
+    await runPull({ source: 'claude-code', force: true, projectDir: pullDir, homeDir: fakeHome });
+    const afterForce = readFileSync(join(pullDir, 'configs/instructions/AGENTS.md'), 'utf-8');
+    expect(afterForce).not.toContain('sentinel');
+    const canonicalContent = readFileSync(join(CANONICAL_ROOT, 'instructions/AGENTS.md'), 'utf-8');
+    expect(afterForce).toBe(canonicalContent);
 
-      // Non-force pull from opencode — file should be skipped (already exists)
-      await runPull({ source: 'opencode', projectDir: pullDir });
-      const afterNonForce = readFileSync(join(pullDir, 'configs/instructions/AGENTS.md'), 'utf-8');
-      expect(afterNonForce).toBe(canonicalContent); // unchanged from force pull above
-    });
+    // Non-force pull from opencode — file should be skipped (already exists)
+    await runPull({ source: 'opencode', projectDir: pullDir, homeDir: fakeHome });
+    const afterNonForce = readFileSync(join(pullDir, 'configs/instructions/AGENTS.md'), 'utf-8');
+    expect(afterNonForce).toBe(canonicalContent); // unchanged from force pull above
   }, E2E_TIMEOUT);
 });

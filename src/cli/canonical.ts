@@ -29,19 +29,21 @@ export interface SyncOptions {
   types?: ItemType[];           // --type flag (all if empty)
   dryRun?: boolean;             // --dry-run
   force?: boolean;              // --force (skip confirmation)
-  pretty?: boolean;             // --pretty (human output)
+  pretty?: boolean;             // --pretty (human output, default)
+  json?: boolean;               // --json (machine output)
   projectDir?: string;          // project root (default: repo root via import.meta.dir)
   deleteStale?: boolean;        // --delete (remove stale target files)
+  homeDir?: string;             // override home directory (for test isolation)
 }
 
 export const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'gemini', 'codex'];
 
-export function createAdapter(target: TargetName): ToolAdapter {
+export function createAdapter(target: TargetName, homeDir?: string): ToolAdapter {
   switch (target) {
-    case 'claude-code': return new ClaudeCodeAdapter();
-    case 'opencode':    return new OpenCodeAdapter();
-    case 'gemini':      return new GeminiAdapter();
-    case 'codex':       return new CodexAdapter();
+    case 'claude-code': return new ClaudeCodeAdapter(homeDir);
+    case 'opencode':    return new OpenCodeAdapter(homeDir);
+    case 'gemini':      return new GeminiAdapter(homeDir);
+    case 'codex':       return new CodexAdapter(homeDir);
   }
 }
 

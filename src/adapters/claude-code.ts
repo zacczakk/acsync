@@ -9,8 +9,8 @@ import type {
 } from '../types';
 
 export class ClaudeCodeAdapter extends BaseAdapter {
-  constructor() {
-    super('claude-code', 'Claude Code');
+  constructor(homeDir?: string) {
+    super('claude-code', 'Claude Code', homeDir);
   }
 
   getCapabilities(): AdapterCapabilities {

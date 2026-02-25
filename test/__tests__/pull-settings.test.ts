@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync, cpSync, mkdirSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import os from 'node:os';
-import { withTargetBackup } from '../helpers/backup';
+import { createTestHome } from '../helpers/backup';
 import { runPush } from '../../src/cli/push';
 import { runPull } from '../../src/cli/pull';
 import { createAdapter } from '../../src/cli/canonical';
@@ -20,15 +20,15 @@ function setupProjectDir(suffix: string): string {
   return dir;
 }
 
-/** Seed real target settings files with pre-existing content from seeds/ */
-function seedSettingsTargets(): void {
+/** Seed settings targets with pre-existing content from seeds/ into fakeHome */
+function seedSettingsTargets(fakeHome: string): void {
   const targets: Array<{ target: TargetName; seedFile: string }> = [
     { target: 'claude-code', seedFile: join(SEEDS_ROOT, 'claude/settings.json') },
     { target: 'opencode', seedFile: join(SEEDS_ROOT, 'opencode/settings.jsonc') },
   ];
 
   for (const { target, seedFile } of targets) {
-    const adapter = createAdapter(target);
+    const adapter = createAdapter(target, fakeHome);
     const settingsPath = adapter.getPaths().getSettingsPath();
     rmSync(settingsPath, { force: true });
     mkdirSync(dirname(settingsPath), { recursive: true });
@@ -38,34 +38,33 @@ function seedSettingsTargets(): void {
 
 describe('pull settings E2E', () => {
   test('round-trip: push then pull settings matches canonical', async () => {
-    await withTargetBackup(async () => {
-      // Push settings to claude + opencode (seed first for merge behavior)
-      const pushDir = setupProjectDir('push');
-      seedSettingsTargets();
-      const pushResult = await runPush({ projectDir: pushDir, force: true, types: ['settings'] });
-      expect(pushResult.failed).toBe(0);
-      expect(pushResult.written).toBe(2); // claude + opencode
+    const fakeHome = createTestHome('pull-settings-rt');
+    // Push settings to claude + opencode (seed first for merge behavior)
+    const pushDir = setupProjectDir('push');
+    seedSettingsTargets(fakeHome);
+    const pushResult = await runPush({ projectDir: pushDir, force: true, types: ['settings'], homeDir: fakeHome });
+    expect(pushResult.failed).toBe(0);
+    expect(pushResult.written).toBe(2); // claude + opencode
 
-      // Pull settings back — needs canonical settings in pullDir so pull knows which keys to manage
-      for (const target of ['claude-code', 'opencode'] as TargetName[]) {
-        const pullDir = setupProjectDir(`pull-${target}`);
-        const pullResult = await runPull({ source: target, force: true, projectDir: pullDir });
-        expect(pullResult.rolledBack).toBe(false);
+    // Pull settings back — needs canonical settings in pullDir so pull knows which keys to manage
+    for (const target of ['claude-code', 'opencode'] as TargetName[]) {
+      const pullDir = setupProjectDir(`pull-${target}`);
+      const pullResult = await runPull({ source: target, force: true, projectDir: pullDir, homeDir: fakeHome });
+      expect(pullResult.rolledBack).toBe(false);
 
-        // Pulled settings should contain canonical keys
-        const settingsFile = target === 'claude-code' ? 'claude.json' : 'opencode.json';
-        const pulledPath = join(pullDir, 'configs/settings', settingsFile);
-        const pulledContent = readFileSync(pulledPath, 'utf-8');
-        const pulled = JSON.parse(pulledContent);
-        const canonical = JSON.parse(readFileSync(join(CANONICAL_ROOT, 'settings', settingsFile), 'utf-8'));
+      // Pulled settings should contain canonical keys
+      const settingsFile = target === 'claude-code' ? 'claude.json' : 'opencode.json';
+      const pulledPath = join(pullDir, 'configs/settings', settingsFile);
+      const pulledContent = readFileSync(pulledPath, 'utf-8');
+      const pulled = JSON.parse(pulledContent);
+      const canonical = JSON.parse(readFileSync(join(CANONICAL_ROOT, 'settings', settingsFile), 'utf-8'));
 
-        // Check canonical keys round-trip
-        for (const key of Object.keys(canonical)) {
-          expect(pulled).toHaveProperty(key);
-          expect(JSON.stringify(pulled[key])).toBe(JSON.stringify(canonical[key]));
-        }
+      // Check canonical keys round-trip
+      for (const key of Object.keys(canonical)) {
+        expect(pulled).toHaveProperty(key);
+        expect(JSON.stringify(pulled[key])).toBe(JSON.stringify(canonical[key]));
       }
-    });
+    }
   }, E2E_TIMEOUT);
 
   test('gemini and codex have no settings capability', () => {

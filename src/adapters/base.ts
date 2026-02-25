@@ -88,10 +88,10 @@ export abstract class BaseAdapter implements ToolAdapter {
   readonly displayName: string;
   protected readonly paths: AdapterPathResolver;
 
-  constructor(target: TargetName, displayName: string) {
+  constructor(target: TargetName, displayName: string, homeDir?: string) {
     this.target = target;
     this.displayName = displayName;
-    this.paths = new AdapterPathResolver(target);
+    this.paths = new AdapterPathResolver(target, homeDir);
   }
 
   abstract getCapabilities(): AdapterCapabilities;

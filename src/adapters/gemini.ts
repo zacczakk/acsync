@@ -10,8 +10,8 @@ import type {
 } from '../types';
 
 export class GeminiAdapter extends BaseAdapter {
-  constructor() {
-    super('gemini', 'Gemini');
+  constructor(homeDir?: string) {
+    super('gemini', 'Gemini', homeDir);
   }
 
   getCapabilities(): AdapterCapabilities {
