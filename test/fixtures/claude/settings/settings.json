@@ -1,0 +1,63 @@
+{
+  "env": {
+    "SSL_CERT_FILE": "~/.claude/cacert.pem",
+    "NODE_EXTRA_CA_CERTS": "~/.claude/cacert.pem"
+  },
+  "customKey": "preserved",
+  "permissions": {
+    "allow": [
+      "mcp__*",
+      "Read",
+      "Edit",
+      "Create",
+      "Write",
+      "Grep",
+      "Glob",
+      "LS",
+      "Bash(cat:*)",
+      "Bash(cd:*)",
+      "Bash(date:*)",
+      "Bash(echo:*)",
+      "Bash(find:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote:*)",
+      "Bash(git tag:*)",
+      "Bash(git stash list:*)",
+      "Bash(head:*)",
+      "Bash(ls:*)",
+      "Bash(pwd:*)",
+      "Bash(rg:*)",
+      "Bash(sed:*)",
+      "Bash(sort:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(which:*)",
+      "Bash(whoami:*)",
+      "Bash(gh:*)",
+      "Bash(uv:*)",
+      "Bash(pytest:*)",
+      "Bash(ruff:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(pnpm:*)",
+      "Bash(bun:*)",
+      "Bash(trash:*)",
+      "Bash(committer:*)",
+      "Bash(swift build:*)",
+      "Bash(swift test:*)"
+    ],
+    "deny": [
+      "Delete",
+      "Bash(rm:*)",
+      "Bash(git reset:*)",
+      "Bash(git clean:*)",
+      "Bash(sudo:*)"
+    ]
+  }
+}

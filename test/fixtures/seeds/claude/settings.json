@@ -1,0 +1,6 @@
+{
+  "env": {
+    "SOME_OLD_VAR": "old-value"
+  },
+  "customKey": "preserved"
+}
