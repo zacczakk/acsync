@@ -37,9 +37,9 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 
 ### Pull E2E
 
-- [ ] **PULL-01**: Pull commands from all 4 real CLI targets and verify canonical format
-- [ ] **PULL-02**: Pull agents from all 4 real CLI targets and verify canonical format
-- [ ] **PULL-03**: Pull skills from all 4 real CLI targets and verify canonical format
+- [x] **PULL-01**: Pull commands from all 4 real CLI targets and verify canonical format
+- [x] **PULL-02**: Pull agents from all 4 real CLI targets and verify canonical format
+- [x] **PULL-03**: Pull skills from all 4 real CLI targets and verify canonical format
 - [x] **PULL-04**: Pull settings from all 4 real CLI targets and verify canonical format
 - [x] **PULL-05**: Pull MCP servers from all 4 real CLI targets and verify canonical format
 - [x] **PULL-06**: Pull instructions from all 4 real CLI targets and verify canonical format
@@ -90,9 +90,9 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 | PUSH-05 | Phase 11 | Complete |
 | PUSH-06 | Phase 11 | Complete |
 | PUSH-07 | Phase 11 | Complete |
-| PULL-01 | Phase 12 | Pending |
-| PULL-02 | Phase 12 | Pending |
-| PULL-03 | Phase 12 | Pending |
+| PULL-01 | Phase 12 | Complete |
+| PULL-02 | Phase 12 | Complete |
+| PULL-03 | Phase 12 | Complete |
 | PULL-04 | Phase 12 | Complete |
 | PULL-05 | Phase 12 | Complete |
 | PULL-06 | Phase 12 | Complete |
