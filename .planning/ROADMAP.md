@@ -8,7 +8,7 @@ Deterministic CLI that renders canonical agent configs to 4 target CLI formats, 
 
 - ✅ **v1.0 Foundation** - Phases 1-5 (shipped 2026-02-22)
 - ✅ **v2.0 Simplify Canonical** - Phases 6-9 (shipped 2026-02-25)
-- 🚧 **v3.0 Harden Test Suite** - Phases 10-12 (in progress)
+- ✅ **v3.0 Harden Test Suite** - Phases 10-12 (shipped 2026-02-25)
 
 ## Phases
 
@@ -152,13 +152,13 @@ Plans:
 
 </details>
 
-### 🚧 v3.0 Harden Test Suite (In Progress)
+### ✅ v3.0 Harden Test Suite (Shipped 2026-02-25)
 
 **Milestone Goal:** E2E fixture-based tests covering push and pull across all 4 CLI targets for all 6 config types, with backup/restore safety.
 
 - [x] **Phase 10: Fixtures Infrastructure + Test Health** - Committed fixture data, backup/restore harness, fix failing tests (completed 2026-02-25)
 - [x] **Phase 11: Push E2E Tests** - Push all 6 config types to all 4 targets, verify output format (completed 2026-02-25)
-- [ ] **Phase 12: Pull E2E Tests** - Pull all 6 config types from all 4 targets, verify canonical format
+- [x] **Phase 12: Pull E2E Tests** - Pull all 6 config types from all 4 targets, verify canonical format (completed 2026-02-25)
 
 ### Phase 6: Flatten Canonical Structure
 **Goal**: Canonical configs live at `configs/` with no intermediate `common/` directory — all code, tests, and docs reference the new flat path
