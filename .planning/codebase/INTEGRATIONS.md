@@ -9,21 +9,21 @@
   - SDK/Client: `tavily-mcp` Python package (MCP server)
   - Auth: `TAVILY_API_KEY` env var
   - Transport: stdio (`python -m tavily_mcp`)
-  - Config: `configs/common/mcp/tavily.json`
+  - Config: `configs/mcp/tavily.json`
 
 **Library Documentation:**
 - Context7 — Programming library documentation retrieval
   - SDK/Client: HTTP MCP endpoint
   - Auth: `CONTEXT7_API_KEY` env var (sent as header)
   - Transport: HTTP (`https://mcp.context7.com/mcp`)
-  - Config: `configs/common/mcp/context7.json`
+  - Config: `configs/mcp/context7.json`
 
 **Enterprise Data Platform:**
 - Foundry Platform — Ontology access, dataset queries, builds
   - SDK/Client: `foundry-mcp` npm package (MCP server)
   - Auth: `FOUNDRY_TOKEN` env var
   - Transport: stdio (`npx -y foundry-mcp --foundry-api-url ${FOUNDRY_HOST}`)
-  - Config: `configs/common/mcp/foundry-mcp.json`
+  - Config: `configs/mcp/foundry-mcp.json`
   - Disabled for: Codex
 
 **AI Model Providers (OpenCode only):**
@@ -32,14 +32,14 @@
   - Auth: `CORP_BEDROCK_API_KEY` env var
   - Base URL: `${CORP_BASE_URL}/model/`
   - Models: Claude Sonnet 4.5, Claude Haiku 4.5, Claude Opus 4.5
-  - Config: `configs/common/settings/opencode.json` → `provider.corp-proxy-bedrock`
+  - Config: `configs/settings/opencode.json` → `provider.corp-proxy-bedrock`
 
 - Corp Proxy Foundry — Corporate proxy to Anthropic via Foundry LMS
   - SDK/Client: `@ai-sdk/anthropic` npm package
   - Auth: `ANTHROPIC_AUTH_TOKEN` env var (Bearer token)
   - Base URL: `{env:ANTHROPIC_BASE_URL}/v1`
   - Models: Claude Opus 4.6, Claude Opus 4.5, Claude Sonnet 4.5, Claude Haiku 4.5
-  - Config: `configs/common/settings/opencode.json` → `provider.corp-proxy-foundry`
+  - Config: `configs/settings/opencode.json` → `provider.corp-proxy-foundry`
 
 **Browser Automation:**
 - Chrome DevTools Protocol — Direct browser control
@@ -51,7 +51,7 @@
   - SDK/Client: `chrome-devtools-mcp` npm package
   - Auth: None
   - Transport: stdio (`npx -y chrome-devtools-mcp@latest`)
-  - Config: `configs/common/mcp/chrome-devtools-mcp.json`
+  - Config: `configs/mcp/chrome-devtools-mcp.json`
   - Disabled for: Codex
 
 **Component Libraries:**
@@ -59,14 +59,14 @@
   - SDK/Client: `liquid-carbon-mcp` binary on PATH
   - Auth: None
   - Transport: stdio
-  - Config: `configs/common/mcp/liquid-carbon.json`
+  - Config: `configs/mcp/liquid-carbon.json`
   - Disabled for: Codex
 
 - shadcn/ui — UI component library
   - SDK/Client: `shadcn@latest` npm package
   - Auth: None
   - Transport: stdio (`npx shadcn@latest mcp`)
-  - Config: `configs/common/mcp/shadcn.json`
+  - Config: `configs/mcp/shadcn.json`
   - Disabled for: Codex
 
 **Reasoning Tools:**
@@ -74,7 +74,7 @@
   - SDK/Client: `@modelcontextprotocol/server-sequential-thinking` npm package
   - Auth: None
   - Transport: stdio
-  - Config: `configs/common/mcp/sequential-thinking.json`
+  - Config: `configs/mcp/sequential-thinking.json`
   - Disabled for: Codex
 
 ## Data Storage
@@ -84,7 +84,7 @@
 
 **File Storage:**
 - Local filesystem only
-- Config files in `configs/common/`
+- Config files in `configs/`
 - Secrets in `.env` (gitignored)
 - Backups in `backups/` (gitignored)
 - Compiled binaries in `bin/` (gitignored)

@@ -66,7 +66,7 @@ expected: `configs/instructions/TOOLS.md` exists; AGENTS.md references it in ## 
 result: pass
 
 ### 14. No stale path references
-expected: Zero grep hits for `~/Repos/agents` (without trailing `s` from acsync) in configs/ and src/
+expected: Zero grep hits for `~/Repos/acsync` (without trailing `s` from acsync) in configs/ and src/
 result: pass
 
 ### 15. Tests pass

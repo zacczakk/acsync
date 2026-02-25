@@ -38,13 +38,13 @@
 
 **`foundry-mcp.json` uses `${FOUNDRY_HOST}` in args but doesn't declare it in `env_vars`**
 - Symptoms: If `FOUNDRY_HOST` is missing from `.env`, the sync push will inject the literal string `${FOUNDRY_HOST}` into the CLI config instead of a real URL. The `env_vars` validation (SYNC.md section 4) only checks `FOUNDRY_TOKEN`.
-- Files: `configs/common/mcp/foundry-mcp.json` (line 5)
+- Files: `configs/mcp/foundry-mcp.json` (line 5)
 - Trigger: Run sync push without `FOUNDRY_HOST` in `.env`.
 - Workaround: Manually ensure `FOUNDRY_HOST` is always set. But the validation step won't catch its absence.
 
 **SYNC.md secret table is incomplete**
 - Symptoms: `SYNC.md` section 4 ("Secret Variables") lists 4 vars: `TAVILY_API_KEY`, `CONTEXT7_API_KEY`, `CORP_BEDROCK_API_KEY`, `FOUNDRY_TOKEN`. But `.env.example` also has `FOUNDRY_HOST` and `CORP_BASE_URL`, which are used in `foundry-mcp.json` args and `opencode.json` settings respectively. The agent performing sync may not validate these.
-- Files: `SYNC.md` (section 4), `.env.example`, `configs/common/mcp/foundry-mcp.json`, `configs/common/settings/opencode.json`
+- Files: `SYNC.md` (section 4), `.env.example`, `configs/mcp/foundry-mcp.json`, `configs/settings/opencode.json`
 - Trigger: Agent follows SYNC.md literally and only validates the 4 documented vars.
 - Workaround: None — requires updating SYNC.md.
 
@@ -78,13 +78,13 @@
 
 **AGENTS.md injected into every session across all 4 CLIs**
 - Problem: AGENTS.md (264 lines) is concatenated with CLI addendums and injected as system instructions. With the sync learnings section, this is ~500+ tokens of operational history consuming context window in every session.
-- Files: `AGENTS.md`, `configs/common/instructions/*.md`
+- Files: `AGENTS.md`, `configs/instructions/*.md`
 - Cause: The "Agent Config Sync — Learnings" section (65 lines) is historical, not prescriptive.
 - Improvement path: Move historical content to `docs/`. Keep AGENTS.md lean with only rules and conventions.
 
 **Sync is fully agent-driven with no programmatic shortcuts**
 - Problem: Every sync operation requires the agent to read SYNC.md (777 lines), read all canonical sources, compute diffs mentally, and transform formats. This is expensive in tokens and time.
-- Files: `SYNC.md`, `configs/common/commands/zz-sync-agent-configs.md`
+- Files: `SYNC.md`, `configs/commands/zz-sync-agent-configs.md`
 - Cause: Design decision to use "agent as sync engine" (documented in `docs/overview.md`).
 - Improvement path: Not necessarily a bug — it's a deliberate tradeoff (no code to maintain). But consider a lightweight validation script that checks JSON validity and env var presence without needing the full agent workflow.
 
@@ -97,13 +97,13 @@
 - Test coverage: Zero. No tests exist anywhere in this repo.
 
 **MCP config format transformations across 4 CLIs**
-- Files: `configs/common/mcp/*.json`, `SYNC.md` (sections 2.5, 3)
+- Files: `configs/mcp/*.json`, `SYNC.md` (sections 2.5, 3)
 - Why fragile: Each MCP server definition must be correctly transformed into 4 different formats (Claude JSON, OpenCode JSON, Gemini JSON, Codex TOML). A single format mistake breaks MCP connectivity for that CLI. The `disabled_for` filtering and Codex HTTP-only rule add conditional logic.
 - Safe modification: After changing any MCP definition, run sync check against all 4 CLIs.
 - Test coverage: Zero.
 
 **Secret injection/redaction boundary**
-- Files: `.env`, `SYNC.md` (section 4), all `configs/common/mcp/*.json`, `configs/common/settings/opencode.json`
+- Files: `.env`, `SYNC.md` (section 4), all `configs/mcp/*.json`, `configs/settings/opencode.json`
 - Why fragile: Push replaces `${VAR}` with real values. Pull replaces real values back to `${VAR}`. The `FOUNDRY_TOKEN` alias (`FOUNDRY_TOKEN` in `.env` → `FOUNDRY_TOKEN` in config) must be handled correctly. If the agent misapplies the alias, secrets leak into the repo or configs break.
 - Safe modification: Always verify with `git diff` after a pull that no real secrets appear in committed files.
 - Test coverage: Zero.
@@ -140,7 +140,7 @@
 - Priority: High for `generate-docs.py` (parses YAML-like frontmatter with a hand-rolled parser that could silently misparse). Medium for `committer`. Low for `browser-tools.ts` (interactive tool, hard to unit test).
 
 **No JSON schema validation for MCP configs**
-- Problem: The 7 MCP config files in `configs/common/mcp/` have no schema validation. A typo (`"transprot"` instead of `"transport"`) would silently pass through sync and break MCP connectivity.
+- Problem: The 7 MCP config files in `configs/mcp/` have no schema validation. A typo (`"transprot"` instead of `"transport"`) would silently pass through sync and break MCP connectivity.
 - Blocks: Silent config errors that only surface when an agent tries to use the MCP server.
 
 **No automated drift detection**
@@ -163,7 +163,7 @@
 
 **MCP config correctness**
 - What's not tested: Whether all 7 MCP JSON files parse correctly, have required fields, and reference valid env vars.
-- Files: `configs/common/mcp/*.json`
+- Files: `configs/mcp/*.json`
 - Risk: A broken MCP config disables an MCP server for one or more CLIs. Only discovered when an agent tries to use that server.
 - Priority: High — easy to implement (JSON parse + field check).
 

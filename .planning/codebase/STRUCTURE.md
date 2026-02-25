@@ -5,7 +5,7 @@
 ## Directory Layout
 
 ```
-agents/
+acsync/
 ├── AGENTS.md                          # Ground truth agent operating system
 ├── SYNC.md                            # Sync playbook (777 lines, format specs + merge rules)
 ├── README.md                          # Setup guide and quick start
@@ -17,15 +17,14 @@ agents/
 ├── .gitignore                         # Ignores: .env, backups/, bin/, node_modules/
 │
 ├── configs/
-│   └── common/
-│       ├── commands/                  # 18 slash commands (zz-*.md)
-│       ├── agents/                    # 8 subagent definitions (zz-*.md)
-│       ├── instructions/              # 4 CLI-specific instruction addendums
-│       ├── mcp/                       # 7 MCP server definitions (.json)
-│       ├── settings/                  # 2 CLI settings (claude.json, opencode.json)
-│       └── skills/                    # 2 skill directories
-│           ├── web-design-guidelines/
-│           └── vercel-react-best-practices/
+│   ├── commands/                      # 18 slash commands (zz-*.md)
+│   ├── agents/                        # 8 subagent definitions (zz-*.md)
+│   ├── instructions/                  # Unified AGENTS.md + TOOLS.md
+│   ├── mcp/                           # 7 MCP server definitions (.json)
+│   ├── settings/                      # 2 CLI settings (claude.json, opencode.json)
+│   └── skills/                        # 2 skill directories
+│       ├── web-design-guidelines/
+│       └── vercel-react-best-practices/
 │
 ├── scripts/
 │   ├── committer                      # Bash git commit helper (112 lines)
@@ -68,33 +67,33 @@ agents/
 
 ## Directory Purposes
 
-**`configs/common/commands/`:**
+**`configs/commands/`:**
 - Purpose: Canonical slash command definitions for all 4 CLIs
 - Contains: 18 markdown files, each with YAML frontmatter (`description`, `argument-hint`, `allowed-tools`) + instruction body
 - Key files: `zz-sync-agent-configs.md` (primary sync command), `zz-gate.md` (CI gate), `zz-plan.md` (planning)
 - Naming: All prefixed `zz-` to namespace under the `zz` group
 
-**`configs/common/agents/`:**
+**`configs/agents/`:**
 - Purpose: Canonical subagent definitions for all 4 CLIs
 - Contains: 8 markdown files with frontmatter (`name`, `description`, `allowed-tools`) + role instructions
 - Key files: `zz-planner.md` (task planning), `zz-verifier.md` (verification), `zz-reviewer.md` (code review)
 - Naming: All prefixed `zz-`
 
-**`configs/common/instructions/`:**
+**`configs/instructions/`:**
 - Purpose: CLI-specific instruction addendums concatenated with AGENTS.md during push
 - Contains: 4 markdown files, one per CLI
 - Key files: `claude.md` (proxy workarounds, SSL), `opencode.md` (naming quirks, provider env vars)
 
-**`configs/common/mcp/`:**
+**`configs/mcp/`:**
 - Purpose: MCP server definitions in canonical JSON schema
 - Contains: 7 JSON files defining transport, command, args, env, secrets, per-CLI exclusions
 - Key files: `tavily.json` (web search, stdio), `context7.json` (docs retrieval, HTTP), `foundry-mcp.json` (data platform access, stdio)
 
-**`configs/common/settings/`:**
+**`configs/settings/`:**
 - Purpose: CLI-specific settings (permissions, providers, env)
 - Contains: `claude.json` (permissions + env), `opencode.json` (providers + permissions + model + plugin)
 
-**`configs/common/skills/`:**
+**`configs/skills/`:**
 - Purpose: Skill bundles copied verbatim to all CLIs
 - Contains: 2 skill directories with `SKILL.md` entry points
 - `web-design-guidelines/`: Single SKILL.md fetching external guidelines
@@ -129,7 +128,7 @@ agents/
 **Entry Points:**
 - `AGENTS.md`: Ground truth agent operating system — injected into all CLI instruction files
 - `SYNC.md`: Sync playbook — authoritative reference for all config transformations
-- `configs/common/commands/zz-sync-agent-configs.md`: Primary sync command
+- `configs/commands/zz-sync-agent-configs.md`: Primary sync command
 
 **Configuration:**
 - `package.json`: Node dependencies (commander, puppeteer-core)
@@ -139,7 +138,7 @@ agents/
 
 **Core Logic:**
 - `SYNC.md`: All transformation logic, merge rules, per-CLI specs (777 lines)
-- `configs/common/commands/zz-sync-agent-configs.md`: Sync command procedure
+- `configs/commands/zz-sync-agent-configs.md`: Sync command procedure
 - `scripts/committer`: Git commit safety wrapper
 
 **Documentation:**
@@ -162,7 +161,7 @@ agents/
 - Docs: `kebab-case.md` or `UPPERCASE.md` for special files (CHANGELOG, RELEASING)
 
 **Directories:**
-- `configs/common/{category}/`: Plural category names for collections
+- `configs/{category}/`: Plural category names for collections
 - `docs/{category}/`: Lowercase plural for doc subdirectories
 - `backups/<ISO-timestamp>/<cli>/`: Timestamp + CLI name for backup organization
 - Skills: `{skill-name}/` with `SKILL.md` entry point, optional `rules/` subdirectory
@@ -184,21 +183,21 @@ agents/
 ## Where to Add New Code
 
 **New Slash Command:**
-- Create: `configs/common/commands/zz-{name}.md`
+- Create: `configs/commands/zz-{name}.md`
 - Include frontmatter: `description`, `argument-hint` (optional), `allowed-tools`
-- Start body with: `READ ~/Repos/agents/AGENTS.md BEFORE ANYTHING ELSE.`
+- Start body with: `READ ~/Repos/acsync/AGENTS.md BEFORE ANYTHING ELSE.`
 - Push to CLIs: Run `/zz-sync-agent-configs push`
 - Current count: 18 commands
 
 **New Subagent:**
-- Create: `configs/common/agents/zz-{name}.md`
+- Create: `configs/agents/zz-{name}.md`
 - Include frontmatter: `name`, `description`, `allowed-tools`
-- Start body with: `READ ~/Repos/agents/AGENTS.md BEFORE ANYTHING (skip if missing).`
+- Start body with: `READ ~/Repos/acsync/AGENTS.md BEFORE ANYTHING (skip if missing).`
 - Push to CLIs: Run `/zz-sync-agent-configs push`
 - Current count: 8 agents
 
 **New MCP Server:**
-- Create: `configs/common/mcp/{server-name}.json`
+- Create: `configs/mcp/{server-name}.json`
 - Use canonical schema: `description`, `transport`, `command`/`url`, `args`/`headers`, `env_vars`, `env`, optional `disabled_for`
 - Add secret vars to `.env.example` and `.env`
 - Update `docs/tools.md` with new server entry
@@ -207,14 +206,14 @@ agents/
 - Current count: 7 MCP definitions
 
 **New Skill:**
-- Create: `configs/common/skills/{skill-name}/SKILL.md`
+- Create: `configs/skills/{skill-name}/SKILL.md`
 - Include frontmatter: `name`, `description`, optional `argument-hint`, optional `metadata`
 - Add rule files in `rules/` subdirectory if complex
 - Push to CLIs: Run `/zz-sync-agent-configs push`
 - Current count: 2 skills
 
 **New CLI Settings:**
-- Edit: `configs/common/settings/{cli}.json`
+- Edit: `configs/settings/{cli}.json`
 - Only claude.json and opencode.json exist; Gemini and Codex managed via MCP only
 - Update SYNC.md section 5 if new managed keys are added
 

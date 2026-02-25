@@ -146,7 +146,7 @@ abstract class BaseAdapter implements TargetAdapter {
 }
 ```
 
-**Key difference from vsync:** Our source is always `configs/common/` (not another adapter). Adapters only need write + read-for-diff. No source adapter selection.
+**Key difference from vsync:** Our source is always `configs/` (not another adapter). Adapters only need write + read-for-diff. No source adapter selection.
 
 ### Pattern 2: 3-Way Diff with Manifest (from vsync + chezmoi)
 
@@ -239,7 +239,7 @@ interface SyncReport {
 ### Sync Flow (primary path)
 
 ```
-configs/common/                    Target directories
+configs/                    Target directories
   commands/ (17 .md)               ~/.claude/commands/zz/
   agents/ (8 .md)         ───┐    ~/.config/opencode/agents/
   skills/ (2 dirs)            │    ~/.config/gemini/agents/
@@ -248,7 +248,7 @@ configs/common/                    Target directories
   instructions/ (4 .md)       │
                               ▼
                      ┌────────────────┐
-                     │  Source Reader  │  Read all items from configs/common/
+                     │  Source Reader  │  Read all items from configs/
                      │  (hash each)   │  Normalize to ConfigItem[]
                      └───────┬────────┘
                              │
@@ -399,12 +399,12 @@ No reverse dependencies. No circular imports. Each layer depends only on layers 
 
 | Resource | Path | Format | Notes |
 |----------|------|--------|-------|
-| Commands | `configs/common/commands/*.md` | Markdown + frontmatter | 17 files |
-| Agents | `configs/common/agents/*.md` | Markdown + frontmatter | 8 files |
-| Skills | `configs/common/skills/*/` | Directory with SKILL.md | 2 skill dirs |
-| MCP Servers | `configs/common/mcp/*.json` | JSON | 6 server configs |
-| Settings | `configs/common/settings/*.json` | JSON | 2 settings files |
-| Instructions | `configs/common/instructions/*.md` | Markdown | 4 instruction files |
+| Commands | `configs/commands/*.md` | Markdown + frontmatter | 17 files |
+| Agents | `configs/agents/*.md` | Markdown + frontmatter | 8 files |
+| Skills | `configs/skills/*/` | Directory with SKILL.md | 2 skill dirs |
+| MCP Servers | `configs/mcp/*.json` | JSON | 6 server configs |
+| Settings | `configs/settings/*.json` | JSON | 2 settings files |
+| Instructions | `configs/instructions/*.md` | Markdown | 4 instruction files |
 
 ### Target Directories (read + write)
 
@@ -429,7 +429,7 @@ No reverse dependencies. No circular imports. Each layer depends only on layers 
 
 - **vsync** (primary reference): `~/Repos/oss/vsync` — studied adapter pattern, diff engine, sync executor, parallel orchestrator, rollback, manifest manager, env var transformer, atomic write. 612 tests, production-grade. HIGH confidence.
 - **chezmoi** architecture: https://chezmoi.io/developer-guide/architecture/ — source state / target state / actual state model, persistent state with SHA256 hashes, System interface abstraction, path type safety. HIGH confidence (official docs).
-- **Domain knowledge**: existing sync script in `~/Repos/agents` (bash, ~400 LOC), 4 CLI target formats studied from AGENTS.md sync learnings. HIGH confidence (first-hand).
+- **Domain knowledge**: existing sync script in `~/Repos/acsync` (bash, ~400 LOC), 4 CLI target formats studied from AGENTS.md sync learnings. HIGH confidence (first-hand).
 
 ---
 *Architecture research for: deterministic config sync CLI tool*

@@ -22,7 +22,7 @@ This repo has no runtime application or sync engine. It stores canonical AI codi
 - Location: `AGENTS.md`
 - Contains: Agent protocol, core principles, language/stack notes, git rules, permissions, tool catalog
 - Depends on: Nothing
-- Used by: All CLIs at runtime (prepended to instruction addendums), all commands and agents via `READ ~/Repos/agents/AGENTS.md` directive
+- Used by: All CLIs at runtime (prepended to instruction addendums), all commands and agents via `READ ~/Repos/acsync/AGENTS.md` directive
 
 **Sync Playbook Layer:**
 - Purpose: Document format transformations, merge rules, per-CLI quirks, secret management
@@ -33,7 +33,7 @@ This repo has no runtime application or sync engine. It stores canonical AI codi
 
 **Canonical Source Layer:**
 - Purpose: Single source of truth for all CLI artifacts
-- Location: `configs/common/`
+- Location: `configs/`
 - Contains: Commands (`.md`), agents (`.md`), skills (directories), MCP definitions (`.json`), settings (`.json`), instruction addendums (`.md`)
 - Depends on: Nothing
 - Used by: Sync playbook transforms these into CLI-specific formats
@@ -66,7 +66,7 @@ This repo has no runtime application or sync engine. It stores canonical AI codi
 1. Agent reads `SYNC.md` (playbook)
 2. Agent loads `.env` and validates all 4 secret vars
 3. For each CLI (Claude, OpenCode, Gemini, Codex):
-   a. Read canonical sources from `configs/common/`
+   a. Read canonical sources from `configs/`
    b. Transform to CLI-specific format per SYNC.md specs
    c. Inject secrets (replace `${VAR}` with real values)
    d. Expand `~` paths to absolute paths
@@ -91,7 +91,7 @@ This repo has no runtime application or sync engine. It stores canonical AI codi
 **Instruction Concatenation Flow:**
 
 1. Read `AGENTS.md` (ground truth)
-2. Read CLI addendum from `configs/common/instructions/{cli}.md`
+2. Read CLI addendum from `configs/instructions/{cli}.md`
 3. Concatenate with double newline separator
 4. Write to CLI system instruction file (e.g., `~/.claude/CLAUDE.md`)
 
@@ -105,7 +105,7 @@ This repo has no runtime application or sync engine. It stores canonical AI codi
 
 **Canonical Config:**
 - Purpose: CLI-agnostic representation of a configuration artifact
-- Examples: `configs/common/commands/zz-gate.md`, `configs/common/mcp/tavily.json`
+- Examples: `configs/commands/zz-gate.md`, `configs/mcp/tavily.json`
 - Pattern: YAML frontmatter + markdown body (commands/agents), JSON schema (MCP/settings)
 
 **Format Transformation:**
@@ -131,12 +131,12 @@ This repo has no runtime application or sync engine. It stores canonical AI codi
 ## Entry Points
 
 **`/zz-sync-agent-configs` (primary):**
-- Location: `configs/common/commands/zz-sync-agent-configs.md`
+- Location: `configs/commands/zz-sync-agent-configs.md`
 - Triggers: User invokes slash command with `push`, `pull`, or `check` argument
 - Responsibilities: Full config sync across all 4 CLIs; reads SYNC.md as authoritative reference
 
 **`/zz-sync-agent-helpers`:**
-- Location: `configs/common/commands/zz-sync-agent-helpers.md`
+- Location: `configs/commands/zz-sync-agent-helpers.md`
 - Triggers: User invokes from another repo
 - Responsibilities: Copy `committer`, `generate-docs.py`, `browser-tools.ts` to target repo's `scripts/`
 

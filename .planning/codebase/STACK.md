@@ -6,12 +6,12 @@
 
 **Primary:**
 - TypeScript — Browser automation CLI (`scripts/browser-tools.ts`, ~1045 lines)
-- Markdown — All commands, agents, skills, instruction files (`configs/common/`)
+- Markdown — All commands, agents, skills, instruction files (`configs/`)
 
 **Secondary:**
 - Bash — Git commit helper (`scripts/committer`, ~112 lines)
 - Python 3 — Docs catalog generator (`scripts/generate-docs.py`, ~113 lines)
-- JSON — MCP server definitions, settings (`configs/common/mcp/`, `configs/common/settings/`)
+- JSON — MCP server definitions, settings (`configs/mcp/`, `configs/settings/`)
 
 ## Runtime
 
@@ -70,14 +70,14 @@
 - `browser-tools` is compiled via single Bun command; output is `bin/browser-tools` (gitignored)
 
 **Per-CLI Settings (canonical sources):**
-- `configs/common/settings/claude.json` — Permissions (allow/deny lists) + env vars
-- `configs/common/settings/opencode.json` — AI providers, model config, plugins, permissions
+- `configs/settings/claude.json` — Permissions (allow/deny lists) + env vars
+- `configs/settings/opencode.json` — AI providers, model config, plugins, permissions
 
 **Per-CLI Instructions (canonical sources):**
-- `configs/common/instructions/claude.md` — Claude Code addendum
-- `configs/common/instructions/opencode.md` — OpenCode addendum
-- `configs/common/instructions/gemini.md` — Gemini CLI addendum
-- `configs/common/instructions/codex.md` — Codex addendum
+- `configs/instructions/claude.md` — Claude Code addendum
+- `configs/instructions/opencode.md` — OpenCode addendum
+- `configs/instructions/gemini.md` — Gemini CLI addendum
+- `configs/instructions/codex.md` — Codex addendum
 
 ## Platform Requirements
 

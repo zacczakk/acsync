@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A deterministic TypeScript (bun) CLI tool that syncs AI coding tool configurations — commands, agents, skills, MCP servers, settings, and instructions — from a canonical repository (`~/Repos/agents`) to each CLI's global config directory. The tool handles format conversion, secret injection, and subset merging so agents don't burn tokens on mechanical transforms. Agents use the CLI for diffs and interactive sync; the heavy lifting is deterministic code.
+A deterministic TypeScript (bun) CLI tool that syncs AI coding tool configurations — commands, agents, skills, MCP servers, settings, and instructions — from a canonical repository (`~/Repos/acsync`) to each CLI's global config directory. The tool handles format conversion, secret injection, and subset merging so agents don't burn tokens on mechanical transforms. Agents use the CLI for diffs and interactive sync; the heavy lifting is deterministic code.
 
 ## Core Value
 
@@ -13,10 +13,10 @@ Make config sync fast, cheap, and reliable by moving all mechanical transforms i
 **Goal:** Flatten canonical structure, unify instructions, rename repo — breaking changes for cleaner architecture.
 
 **Target features:**
-- Flatten `configs/common/` to `configs/`
+- ~~Flatten `configs/common/` to `configs/`~~ ✅
 - Merge 4 per-CLI instruction addendums into single AGENTS.md
 - Add canonical TOOLS.md (referenced by absolute path, not rendered)
-- Rename repo folder `~/Repos/agents` -> `~/Repos/acsync`
+- ~~Rename repo folder `~/Repos/agents` -> `~/Repos/acsync`~~ ✅
 - Fix OpenCode `opencode.json` instructions path
 
 ## Requirements
@@ -39,16 +39,16 @@ Make config sync fast, cheap, and reliable by moving all mechanical transforms i
 
 ### Active
 
-- [ ] Flatten `configs/common/` one level up to `configs/`
-- [ ] Move AGENTS.md into `configs/instructions/AGENTS.md`
-- [ ] Merge per-CLI addendums (claude.md, opencode.md, gemini.md, codex.md) into single AGENTS.md
-- [ ] Update `renderInstructions()` to single-file model (no addendum)
-- [ ] Update instruction output filenames (OpenCode: AGENTS.md, Gemini: AGENTS.md, Codex: AGENTS.md)
-- [ ] Create canonical `configs/instructions/TOOLS.md` referenced by absolute path from AGENTS.md
-- [ ] Rename repo folder `~/Repos/agents` -> `~/Repos/acsync` + re-register binary
-- [ ] Fix OpenCode `opencode.json` instructions path to point to AGENTS.md
-- [ ] Update all source code paths referencing `configs/common/`
-- [ ] Clean up stale target files (OPENCODE.md, GEMINI.md, instructions.md)
+- [x] Flatten `configs/common/` one level up to `configs/`
+- [x] Move AGENTS.md into `configs/instructions/AGENTS.md`
+- [x] Merge per-CLI addendums (claude.md, opencode.md, gemini.md, codex.md) into single AGENTS.md
+- [x] Update `renderInstructions()` to single-file model (no addendum)
+- [x] Update instruction output filenames (OpenCode: AGENTS.md, Gemini: AGENTS.md, Codex: AGENTS.md)
+- [x] Create canonical `configs/instructions/TOOLS.md` referenced by absolute path from AGENTS.md
+- [x] Rename repo folder `~/Repos/agents` -> `~/Repos/acsync` + re-register binary
+- [x] Fix OpenCode `opencode.json` instructions path to point to AGENTS.md
+- [x] Update all source code paths referencing `configs/common/`
+- [x] Clean up stale target files (OPENCODE.md, GEMINI.md, instructions.md)
 
 ### Out of Scope
 
@@ -66,12 +66,12 @@ Make config sync fast, cheap, and reliable by moving all mechanical transforms i
 - **Current state**: Sync is agent-driven via 777-line SYNC.md playbook. Works but is slow (~tokens), fragile (agent interpretation varies), and untestable. v1 was 3,500 LOC Python with 6,800 LOC tests — replaced by "trust the agent" in v2.
 - **Pain points**: Every sync run costs significant tokens. All 4 CLI targets have different formats (JSON, JSONC, TOML, flat markdown). Settings merge rules are complex (subset keys, deep vs wholesale merge). Secret handling has edge cases (FOUNDRY_TOKEN env var, OpenCode `{env:...}` syntax). Codex is an outlier (HTTP-only MCP, TOML, merged prompts dir).
 - **vsync learnings**: Adapter pattern for tool-specific logic. Hash manifest for 3-way diff. Atomic writes with rollback. Env var transformer with canonical intermediate form. JSONC surgical edits via `jsonc-parser`. Parallel execution with `Promise.allSettled`. Zod for config validation.
-- **Canonical repo**: `~/Repos/agents/configs/common/` contains commands (17), agents (8), skills (2), MCP servers (6), settings (2), instructions (4).
+- **Canonical repo**: `~/Repos/acsync/configs/` contains commands (17), agents (8), skills (2), MCP servers (6), settings (2), instructions (AGENTS.md + TOOLS.md).
 
 ## Constraints
 
 - **Tech stack**: TypeScript, bun runtime — consistent with vsync patterns, repo already uses bun
-- **Canonical source**: `~/Repos/agents` is always source of truth; CLI configs are targets
+- **Canonical source**: `~/Repos/acsync` is always source of truth; CLI configs are targets
 - **Backward compatibility**: Must preserve non-canonical items in CLI configs (user-added skills, commands)
 - **Secret safety**: Never commit real secrets; `.env` stays gitignored; push injects, pull masks
 - **Existing SYNC.md**: Current playbook documents all transform rules — use as specification, eventually replace

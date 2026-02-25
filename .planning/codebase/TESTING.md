@@ -47,7 +47,7 @@ While this repo has no tests, it defines a **strong testing philosophy** enforce
 | Refactor | behavior unchanged + tests pass + CI green |
 | Docs | render/preview if available + links valid |
 
-### Mock Policy (from `configs/common/agents/zz-test-writer.md`)
+### Mock Policy (from `configs/agents/zz-test-writer.md`)
 
 ```
 - NEVER mock the system under test
@@ -62,7 +62,7 @@ While this repo has no tests, it defines a **strong testing philosophy** enforce
 
 Testing in this ecosystem is handled by **agent subagents**, not traditional test suites:
 
-### zz-verifier Agent (`configs/common/agents/zz-verifier.md`)
+### zz-verifier Agent (`configs/agents/zz-verifier.md`)
 
 Auto-discovers and runs CI gate for any repo. Invoked by `/zz-gate` and `/zz-verify` commands.
 
@@ -89,7 +89,7 @@ Auto-discovers and runs CI gate for any repo. Invoked by `/zz-gate` and `/zz-ver
 | Build     | `npm run build`    | PASS        | 8.2s  |
 ```
 
-### zz-test-writer Agent (`configs/common/agents/zz-test-writer.md`)
+### zz-test-writer Agent (`configs/agents/zz-test-writer.md`)
 
 Writes tests for specified scope. Invoked by `/zz-test` command.
 
