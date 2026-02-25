@@ -7,45 +7,48 @@
 
 All 37 v1 requirements satisfied. See MILESTONES.md for details.
 
-## v2.0 Requirements
+## v2.0 Requirements (Complete)
 
-Requirements for Simplify Canonical milestone. Flatten structure, unify instructions, rename repo.
+All 24 v2.0 requirements satisfied. See MILESTONES.md for details.
 
-### Canonical Structure
+## v3.0 Requirements
 
-- [x] **STRUCT-01**: `configs/common/` directory flattened — all subdirs (agents, commands, mcp, settings, skills, instructions) live directly under `configs/`
-- [x] **STRUCT-02**: All source code path references updated from `configs/common/X` to `configs/X`
-- [x] **STRUCT-03**: All test fixtures and assertions updated for new path structure
-- [x] **STRUCT-04**: Help text and error messages reference `configs/` (not `configs/common/`)
-- [x] **STRUCT-05**: `configs/common/` directory no longer exists
+Requirements for Harden Test Suite milestone. E2E fixture-based tests covering push and pull across all 4 CLI targets for all 6 config types.
 
-### Instructions Unification
+### Fixtures Infrastructure
 
-- [x] **INST-01**: AGENTS.md lives at `configs/instructions/AGENTS.md` (moved from repo root)
-- [x] **INST-02**: No AGENTS.md at repo root
-- [x] **INST-03**: AGENTS.md contains `## CLI-Specific Notes` section with merged content from all 4 per-CLI addendums
-- [x] **INST-04**: Per-CLI addendum files deleted (claude.md, opencode.md, gemini.md, codex.md)
-- [x] **INST-05**: `renderInstructions()` accepts single content parameter (no addendum)
-- [x] **INST-06**: `readCanonicalInstructions()` reads single file from `configs/instructions/AGENTS.md`
-- [x] **INST-07**: OpenCode instructions output file is `AGENTS.md` (not `OPENCODE.md`)
-- [x] **INST-08**: Gemini instructions output file is `AGENTS.md` (not `GEMINI.md`)
-- [x] **INST-09**: Codex instructions output file is `AGENTS.md` (not `instructions.md`)
-- [x] **INST-10**: Claude instructions output file remains `CLAUDE.md` (unchanged)
+- [ ] **FIX-01**: Committed fixture directory exists at `test/fixtures/` with canonical and per-target subdirectories
+- [ ] **FIX-02**: Canonical fixtures cover all 6 config types (commands, agents, skills, settings, MCP, instructions)
+- [ ] **FIX-03**: Per-target fixture sets exist for Claude, OpenCode, Gemini, Codex (expected push outputs)
+- [ ] **FIX-04**: Test harness backs up real target directories before E2E tests
+- [ ] **FIX-05**: Test harness restores real target directories after E2E tests
+- [ ] **FIX-06**: Cleanup runs reliably even on test failure (try/finally pattern)
+- [ ] **FIX-07**: Fixture data exercises format-specific features (frontmatter, TOML, JSONC comments, flat markdown)
 
-### TOOLS.md
+### Push E2E
 
-- [x] **TOOL-01**: `configs/instructions/TOOLS.md` exists with tool-use documentation
-- [x] **TOOL-02**: AGENTS.md `## Tools` section references TOOLS.md by absolute path
-- [x] **TOOL-03**: TOOLS.md is not rendered/synced to any CLI target (reference only)
+- [ ] **PUSH-01**: Push commands to all 4 real CLI targets and verify output format
+- [ ] **PUSH-02**: Push agents to all 4 real CLI targets and verify output format
+- [ ] **PUSH-03**: Push skills to all 4 real CLI targets and verify output format
+- [ ] **PUSH-04**: Push settings to all 4 real CLI targets and verify output format
+- [ ] **PUSH-05**: Push MCP servers to all 4 real CLI targets and verify output format
+- [ ] **PUSH-06**: Push instructions to all 4 real CLI targets and verify output format
+- [ ] **PUSH-07**: Push removes non-canonical items from targets (with warning)
 
-### Repo Identity
+### Pull E2E
 
-- [x] **REPO-01**: Repo folder renamed from `~/Repos/agents` to `~/Repos/acsync`
-- [x] **REPO-02**: All internal path references updated (`~/Repos/agents` -> `~/Repos/acsync`)
-- [x] **REPO-03**: `acsync` binary re-registered via `bun link` from new location
-- [x] **REPO-04**: `acsync push --force` propagates all path changes to targets
-- [x] **REPO-05**: OpenCode `opencode.json` instructions array points to `AGENTS.md` (not `OPENCODE.md`)
-- [x] **REPO-06**: Stale target files cleaned up: `~/.config/opencode/OPENCODE.md`, `~/.gemini/GEMINI.md`, `~/.codex/instructions.md`
+- [ ] **PULL-01**: Pull commands from all 4 real CLI targets and verify canonical format
+- [ ] **PULL-02**: Pull agents from all 4 real CLI targets and verify canonical format
+- [ ] **PULL-03**: Pull skills from all 4 real CLI targets and verify canonical format
+- [ ] **PULL-04**: Pull settings from all 4 real CLI targets and verify canonical format
+- [ ] **PULL-05**: Pull MCP servers from all 4 real CLI targets and verify canonical format
+- [ ] **PULL-06**: Pull instructions from all 4 real CLI targets and verify canonical format
+- [ ] **PULL-07**: Pull overwrites existing canonical items (with warning)
+
+### Test Health
+
+- [ ] **HLTH-01**: Failing tests that overlap with fixture/E2E code paths are fixed
+- [ ] **HLTH-02**: `package.json` has a `test` script
 
 ## Future Requirements (v2.1 — vsync-alignment)
 
@@ -73,36 +76,35 @@ Requirements for Simplify Canonical milestone. Flatten structure, unify instruct
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STRUCT-01 | Phase 6 | Complete |
-| STRUCT-02 | Phase 6 | Complete |
-| STRUCT-03 | Phase 6 | Complete |
-| STRUCT-04 | Phase 6 | Complete |
-| STRUCT-05 | Phase 6 | Complete |
-| INST-01 | Phase 7 | Complete |
-| INST-02 | Phase 7 | Complete |
-| INST-03 | Phase 7 | Complete |
-| INST-04 | Phase 7 | Complete |
-| INST-05 | Phase 7 | Complete |
-| INST-06 | Phase 7 | Complete |
-| INST-07 | Phase 7 | Complete |
-| INST-08 | Phase 7 | Complete |
-| INST-09 | Phase 7 | Complete |
-| INST-10 | Phase 7 | Complete |
-| TOOL-01 | Phase 8 | Complete |
-| TOOL-02 | Phase 8 | Complete |
-| TOOL-03 | Phase 8 | Complete |
-| REPO-01 | Phase 8 | Complete |
-| REPO-02 | Phase 8 | Complete |
-| REPO-03 | Phase 8 | Complete |
-| REPO-04 | Phase 8 | Complete |
-| REPO-05 | Phase 8 | Complete |
-| REPO-06 | Phase 8 | Complete |
+| FIX-01 | — | Pending |
+| FIX-02 | — | Pending |
+| FIX-03 | — | Pending |
+| FIX-04 | — | Pending |
+| FIX-05 | — | Pending |
+| FIX-06 | — | Pending |
+| FIX-07 | — | Pending |
+| PUSH-01 | — | Pending |
+| PUSH-02 | — | Pending |
+| PUSH-03 | — | Pending |
+| PUSH-04 | — | Pending |
+| PUSH-05 | — | Pending |
+| PUSH-06 | — | Pending |
+| PUSH-07 | — | Pending |
+| PULL-01 | — | Pending |
+| PULL-02 | — | Pending |
+| PULL-03 | — | Pending |
+| PULL-04 | — | Pending |
+| PULL-05 | — | Pending |
+| PULL-06 | — | Pending |
+| PULL-07 | — | Pending |
+| HLTH-01 | — | Pending |
+| HLTH-02 | — | Pending |
 
 **Coverage:**
-- v2.0 requirements: 24 total
-- Mapped to phases: 24
-- Unmapped: 0
+- v3.0 requirements: 23 total
+- Mapped to phases: 0
+- Unmapped: 23 ⚠️
 
 ---
-*Requirements defined: 2026-02-23*
-*Last updated: 2026-02-25 — all 24 v2.0 requirements complete*
+*Requirements defined: 2026-02-25*
+*Last updated: 2026-02-25 after v3.0 milestone definition*
