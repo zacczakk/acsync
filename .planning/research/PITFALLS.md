@@ -300,7 +300,7 @@ Phase 1 (core exclusion filter). Must be in place before any directory-level syn
 
 ## Sources
 
-- `~/Repos/agents/SYNC.md` — 777-line battle-tested playbook documenting all edge cases (HIGH confidence)
+- `~/Repos/acsync/SYNC.md` — 777-line battle-tested playbook documenting all edge cases (HIGH confidence)
 - vsync source code (`~/Repos/oss/vsync/cli/src/`) — atomic writes, manifest management, env var transformation, JSONC/TOML handling (HIGH confidence)
 - lodash/lodash#5089 — array merge semantics are a known source of bugs (HIGH confidence)
 - chezmoi design FAQ (chezmoi.io) — template-based dotfile management approach; secret handling via password managers (MEDIUM confidence)

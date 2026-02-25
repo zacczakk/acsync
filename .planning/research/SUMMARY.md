@@ -155,7 +155,7 @@ Phases with standard patterns (skip research-phase):
 ### Primary (HIGH confidence)
 - vsync source code (`~/Repos/oss/vsync`) — adapter pattern, diff engine, atomic writes, JSONC handling, env var transforms
 - chezmoi official docs (Context7 `/twpayne/chezmoi`) — architecture, feature comparison, secret management
-- SYNC.md (`~/Repos/agents/SYNC.md`) — 777-line battle-tested sync playbook with all edge cases
+- SYNC.md (`~/Repos/acsync/SYNC.md`) — 777-line battle-tested sync playbook with all edge cases
 - AGENTS.md sync learnings (2026-02-18) — first-hand format transformation experience
 - Context7: `/tj/commander.js`, `/jonschlinkert/gray-matter`, `/websites/zod_dev_v4`, `/vitest-dev/vitest`
 

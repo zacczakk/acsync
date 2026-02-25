@@ -196,7 +196,7 @@ read_when:
 ```
 
 **Body conventions:**
-- First line after frontmatter: `READ ~/Repos/agents/AGENTS.md BEFORE ANYTHING ELSE.` (commands) or `READ ~/Repos/agents/AGENTS.md BEFORE ANYTHING (skip if missing).` (agents)
+- First line after frontmatter: `READ ~/Repos/acsync/AGENTS.md BEFORE ANYTHING ELSE.` (commands) or `READ ~/Repos/acsync/AGENTS.md BEFORE ANYTHING (skip if missing).` (agents)
 - Sections use `##` and `###` headings
 - Procedure steps numbered: `### Step 1 — Description`
 - Anti-patterns listed in tables
