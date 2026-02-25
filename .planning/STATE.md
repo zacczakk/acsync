@@ -2,24 +2,24 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-24)
+See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Make config sync fast and cheap by moving mechanical transforms into deterministic code
-**Current focus:** Phase 9 — verification closure and doc cleanup
+**Current focus:** v2.0 milestone complete — all 9 phases shipped
 
 ## Current Position
 
 Phase: 9 of 9 (Verification, Closure, Doc Cleanup)
-Plan: 1 of 2 — COMPLETE
-Status: 09-01 complete, 09-02 pending
-Last activity: 2026-02-25 — 09-01 completed (Phase 8 verification + REQUIREMENTS.md closure)
+Plan: 2 of 2 — COMPLETE
+Status: All plans complete. v2.0 milestone shipped.
+Last activity: 2026-02-25 — 09-02 completed (stale reference cleanup + milestone closure)
 
-Progress: [████████████████████▒] ~96% (22/23 plans)
+Progress: [█████████████████████] 100% (23/23 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22
+- Total plans completed: 23
 - Average duration: 6min
 - Total execution time: ~2 hours
 
@@ -35,12 +35,12 @@ Progress: [████████████████████▒] ~96%
 | 06-flatten-canonical-structure | 2 | 46min | 23min |
 | 07-unify-instructions | 2 | 10min | 5min |
 | 08-tools-repo-rename | 2 | 16min | 8min |
+| 09-verification-closure-doc-cleanup | 2 | 6min | 3min |
 
 | Phase 08 P01 | 1min | 2 tasks | 2 files |
 | Phase 08 P02 | 15min | 4 tasks | 15 files |
-| 09-verification-closure-doc-cleanup | 1 | 3min | n/a |
-
 | Phase 09 P01 | 3min | 2 tasks | 2 files |
+| Phase 09 P02 | 3min | 2 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -59,6 +59,7 @@ Key decisions across the project:
 - PROJECT_ROOT via import.meta.dir — acsync works from any cwd
 - Settings sync (opencode.json) not in push pipeline — manual fix for now
 - Phase attribution: TOOL/REPO requirements credited to Phase 8, verified in Phase 9
+- Historical path references preserved in requirement/feature definitions for clarity
 
 ### Pending Todos
 
@@ -66,10 +67,10 @@ Key decisions across the project:
 
 ### Blockers/Concerns
 
-None — all phases complete.
+None — all phases complete. v2.0 milestone shipped.
 
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 09-01-PLAN.md
+Stopped at: Completed 09-02-PLAN.md — v2.0 milestone fully closed
 Resume file: N/A

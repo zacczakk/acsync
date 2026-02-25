@@ -7,7 +7,7 @@ Deterministic CLI that renders canonical agent configs to 4 target CLI formats, 
 ## Milestones
 
 - ✅ **v1.0 Foundation** - Phases 1-5 (shipped 2026-02-22)
-- ✅ **v2.0 Simplify Canonical** - Phases 6-9 (shipped 2026-02-24)
+- ✅ **v2.0 Simplify Canonical** - Phases 6-9 (shipped 2026-02-25)
 
 ## Phases
 
@@ -148,7 +148,7 @@ Plans:
 - [x] **Phase 6: Flatten Canonical Structure** - Move `configs/common/*` up to `configs/`, update all path references in code/tests/docs (completed 2026-02-24)
 - [x] **Phase 7: Unify Instructions** - Merge 4 per-CLI addendums into single AGENTS.md, simplify rendering pipeline, fix output filenames (completed 2026-02-24)
 - [x] **Phase 8: TOOLS.md + Repo Rename** - Create canonical TOOLS.md, rename repo to `~/Repos/acsync`, propagate paths, clean up stale files (completed 2026-02-24)
-- [ ] **Phase 9: Verification Closure + Doc Cleanup** - Run Phase 8 verification, update REQUIREMENTS.md checkboxes, clean stale .planning/ references
+- [x] **Phase 9: Verification Closure + Doc Cleanup** - Run Phase 8 verification, update REQUIREMENTS.md checkboxes, clean stale .planning/ references (completed 2026-02-25)
 
 ### Phase 6: Flatten Canonical Structure
 **Goal**: Canonical configs live at `configs/` with no intermediate `common/` directory — all code, tests, and docs reference the new flat path
@@ -211,11 +211,11 @@ Plans:
   5. Zero stale `~/Repos/agents` references in `.planning/` docs
   6. Re-audit scores 24/24 requirements satisfied
 
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 09-01-PLAN.md — Live verification attestation for Phase 8 + REQUIREMENTS.md checkbox update
-- [ ] 09-02-PLAN.md — Stale reference cleanup in living docs + audit/milestone closure
+- [x] 09-02-PLAN.md — Stale reference cleanup in living docs + audit/milestone closure
 
 ## Progress
 
@@ -232,4 +232,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Flatten Canonical Structure | v2.0 | 2/2 | Complete | 2026-02-24 |
 | 7. Unify Instructions | v2.0 | 2/2 | Complete | 2026-02-24 |
 | 8. TOOLS.md + Repo Rename | v2.0 | 2/2 | Complete | 2026-02-24 |
-| 9. Verification Closure + Doc Cleanup | v2.0 | 1/2 | In Progress | — |
+| 9. Verification Closure + Doc Cleanup | v2.0 | 2/2 | Complete | 2026-02-25 |

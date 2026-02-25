@@ -39,9 +39,25 @@ Built the core acsync CLI: deterministic config transforms for all 4 CLI targets
 
 ---
 
-## v2.0 — Simplify Canonical (Active)
+## v2.0 — Simplify Canonical (Complete)
 
-**Phases:** 6+ (TBD)
+**Phases:** 6-9 (8 plans)
 **Started:** 2026-02-23
+**Completed:** 2026-02-25
 
-Flatten canonical structure, merge per-CLI instruction addendums into single AGENTS.md, add TOOLS.md reference, rename repo folder, fix instruction paths. Breaking changes to canonical layout and CLI config paths.
+Flattened canonical structure (`configs/common/` → `configs/`), merged 4 per-CLI instruction addendums into single AGENTS.md, added canonical TOOLS.md (referenced by absolute path), renamed repo folder (`~/Repos/agents` → `~/Repos/acsync`), fixed instruction output filenames, cleaned up stale target files. All 24 v2.0 requirements satisfied. Formal verification attestation for all phases.
+
+### v2.0 Requirements
+
+- 5 STRUCT requirements (Phase 6): Canonical structure flattened
+- 10 INST requirements (Phase 7): Instructions unified
+- 3 TOOL requirements (Phase 8): TOOLS.md created and referenced
+- 6 REPO requirements (Phase 8): Repo renamed and paths updated
+
+### Key Decisions (v2.0)
+
+- TOOLS.md referenced by absolute path, not rendered to targets
+- Claude keeps CLAUDE.md filename; other 3 targets use AGENTS.md
+- Per-CLI addendums merged into `## CLI-Specific Notes` section
+- `renderInstructions()` simplified to single-file passthrough
+- Phase attribution: requirements credited to implementation phase, verified in Phase 9
