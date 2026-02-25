@@ -2,12 +2,13 @@
 
 ## Overview
 
-Deterministic CLI that renders canonical agent configs to 4 target CLI formats, detects drift via hash-based diffs, and pushes changes with atomic writes. v1.0 built the core. v2.0 simplifies canonical structure: flatten paths, unify instructions, add TOOLS.md, rename repo.
+Deterministic CLI that renders canonical agent configs to 4 target CLI formats, detects drift via hash-based diffs, and pushes changes with atomic writes. v1.0 built the core. v2.0 simplified canonical structure. v3.0 hardens the test suite with E2E fixture-based tests covering push and pull across all 4 targets for all 6 config types.
 
 ## Milestones
 
 - ✅ **v1.0 Foundation** - Phases 1-5 (shipped 2026-02-22)
 - ✅ **v2.0 Simplify Canonical** - Phases 6-9 (shipped 2026-02-25)
+- 🚧 **v3.0 Harden Test Suite** - Phases 10-12 (in progress)
 
 ## Phases
 
@@ -141,14 +142,23 @@ Plans:
 
 </details>
 
-### v2.0 Simplify Canonical
-
-**Milestone Goal:** Flatten canonical structure, unify instructions, rename repo — breaking changes for cleaner architecture.
+<details>
+<summary>✅ v2.0 Simplify Canonical (Phases 6-9) - SHIPPED 2026-02-25</summary>
 
 - [x] **Phase 6: Flatten Canonical Structure** - Move `configs/common/*` up to `configs/`, update all path references in code/tests/docs (completed 2026-02-24)
 - [x] **Phase 7: Unify Instructions** - Merge 4 per-CLI addendums into single AGENTS.md, simplify rendering pipeline, fix output filenames (completed 2026-02-24)
 - [x] **Phase 8: TOOLS.md + Repo Rename** - Create canonical TOOLS.md, rename repo to `~/Repos/acsync`, propagate paths, clean up stale files (completed 2026-02-24)
 - [x] **Phase 9: Verification Closure + Doc Cleanup** - Run Phase 8 verification, update REQUIREMENTS.md checkboxes, clean stale .planning/ references (completed 2026-02-25)
+
+</details>
+
+### 🚧 v3.0 Harden Test Suite (In Progress)
+
+**Milestone Goal:** E2E fixture-based tests covering push and pull across all 4 CLI targets for all 6 config types, with backup/restore safety.
+
+- [ ] **Phase 10: Fixtures Infrastructure + Test Health** - Committed fixture data, backup/restore harness, fix failing tests
+- [ ] **Phase 11: Push E2E Tests** - Push all 6 config types to all 4 targets, verify output format
+- [ ] **Phase 12: Pull E2E Tests** - Pull all 6 config types from all 4 targets, verify canonical format
 
 ### Phase 6: Flatten Canonical Structure
 **Goal**: Canonical configs live at `configs/` with no intermediate `common/` directory — all code, tests, and docs reference the new flat path
@@ -217,10 +227,46 @@ Plans:
 - [x] 09-01-PLAN.md — Live verification attestation for Phase 8 + REQUIREMENTS.md checkbox update
 - [x] 09-02-PLAN.md — Stale reference cleanup in living docs + audit/milestone closure
 
+</details>
+
+### Phase 10: Fixtures Infrastructure + Test Health
+**Goal**: Committed fixture data and backup/restore harness exist — all existing tests pass on a clean baseline before new E2E tests are added
+**Depends on**: Phase 9
+**Requirements**: FIX-01, FIX-02, FIX-03, FIX-04, FIX-05, FIX-06, FIX-07, HLTH-01, HLTH-02
+**Success Criteria** (what must be TRUE):
+  1. `test/fixtures/` directory exists with `canonical/` and per-target subdirectories (`claude/`, `opencode/`, `gemini/`, `codex/`), all committed to git
+  2. Canonical fixtures cover all 6 config types (commands, agents, skills, settings, MCP, instructions) and exercise format-specific features (frontmatter, TOML, JSONC comments, flat markdown)
+  3. Per-target fixture sets contain expected push outputs for all 4 CLI targets
+  4. Test harness backs up real target directories before E2E tests and restores them after, even on test failure (try/finally)
+  5. `bun test` runs via `package.json` test script with zero failures
+**Plans**: TBD
+
+### Phase 11: Push E2E Tests
+**Goal**: E2E tests verify that pushing each of the 6 config types to all 4 real CLI targets produces correct output — 24 push test cells covered
+**Depends on**: Phase 10
+**Requirements**: PUSH-01, PUSH-02, PUSH-03, PUSH-04, PUSH-05, PUSH-06, PUSH-07
+**Success Criteria** (what must be TRUE):
+  1. Push commands to all 4 targets: output files match expected format (frontmatter for OpenCode, TOML for Gemini, flat markdown for Codex, nested JSON for Claude)
+  2. Push agents, skills, settings, MCP, and instructions each verified against expected output for all 4 targets
+  3. Push with `--force --delete` removes non-canonical items from targets (verified by checking target directory contents post-push)
+  4. All 24 push cells (6 types × 4 targets) covered by at least one assertion
+**Plans**: TBD
+
+### Phase 12: Pull E2E Tests
+**Goal**: E2E tests verify that pulling each of the 6 config types from all 4 real CLI targets produces correct canonical format — 24 pull test cells covered
+**Depends on**: Phase 10
+**Requirements**: PULL-01, PULL-02, PULL-03, PULL-04, PULL-05, PULL-06, PULL-07
+**Success Criteria** (what must be TRUE):
+  1. Pull commands from all 4 targets: canonical output matches expected format (markdown with frontmatter, no target-specific syntax)
+  2. Pull agents, skills, settings, MCP, and instructions each verified against expected canonical output from all 4 targets
+  3. Pull overwrites existing canonical items when target has newer/different content (verified by pre-populating canonical dir)
+  4. All 24 pull cells (6 types × 4 targets) covered by at least one assertion
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9
+Phases execute in numeric order: 1 → ... → 9 → 10 → 11 → 12
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -232,4 +278,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Flatten Canonical Structure | v2.0 | 2/2 | Complete | 2026-02-24 |
 | 7. Unify Instructions | v2.0 | 2/2 | Complete | 2026-02-24 |
 | 8. TOOLS.md + Repo Rename | v2.0 | 2/2 | Complete | 2026-02-24 |
-| 9. Verification Closure + Doc Cleanup | v2.0 | Complete    | 2026-02-25 | 2026-02-25 |
+| 9. Verification Closure + Doc Cleanup | v2.0 | 2/2 | Complete | 2026-02-25 |
+| 10. Fixtures Infrastructure + Test Health | v3.0 | 0/? | Not started | - |
+| 11. Push E2E Tests | v3.0 | 0/? | Not started | - |
+| 12. Pull E2E Tests | v3.0 | 0/? | Not started | - |

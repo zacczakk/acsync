@@ -76,34 +76,34 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FIX-01 | — | Pending |
-| FIX-02 | — | Pending |
-| FIX-03 | — | Pending |
-| FIX-04 | — | Pending |
-| FIX-05 | — | Pending |
-| FIX-06 | — | Pending |
-| FIX-07 | — | Pending |
-| PUSH-01 | — | Pending |
-| PUSH-02 | — | Pending |
-| PUSH-03 | — | Pending |
-| PUSH-04 | — | Pending |
-| PUSH-05 | — | Pending |
-| PUSH-06 | — | Pending |
-| PUSH-07 | — | Pending |
-| PULL-01 | — | Pending |
-| PULL-02 | — | Pending |
-| PULL-03 | — | Pending |
-| PULL-04 | — | Pending |
-| PULL-05 | — | Pending |
-| PULL-06 | — | Pending |
-| PULL-07 | — | Pending |
-| HLTH-01 | — | Pending |
-| HLTH-02 | — | Pending |
+| FIX-01 | Phase 10 | Pending |
+| FIX-02 | Phase 10 | Pending |
+| FIX-03 | Phase 10 | Pending |
+| FIX-04 | Phase 10 | Pending |
+| FIX-05 | Phase 10 | Pending |
+| FIX-06 | Phase 10 | Pending |
+| FIX-07 | Phase 10 | Pending |
+| PUSH-01 | Phase 11 | Pending |
+| PUSH-02 | Phase 11 | Pending |
+| PUSH-03 | Phase 11 | Pending |
+| PUSH-04 | Phase 11 | Pending |
+| PUSH-05 | Phase 11 | Pending |
+| PUSH-06 | Phase 11 | Pending |
+| PUSH-07 | Phase 11 | Pending |
+| PULL-01 | Phase 12 | Pending |
+| PULL-02 | Phase 12 | Pending |
+| PULL-03 | Phase 12 | Pending |
+| PULL-04 | Phase 12 | Pending |
+| PULL-05 | Phase 12 | Pending |
+| PULL-06 | Phase 12 | Pending |
+| PULL-07 | Phase 12 | Pending |
+| HLTH-01 | Phase 10 | Pending |
+| HLTH-02 | Phase 10 | Pending |
 
 **Coverage:**
 - v3.0 requirements: 23 total
-- Mapped to phases: 0
-- Unmapped: 23 ⚠️
+- Mapped to phases: 23 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-25*
