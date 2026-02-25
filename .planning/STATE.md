@@ -5,14 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Make config sync fast and cheap by moving mechanical transforms into deterministic code
-**Current focus:** v3.0 Harden Test Suite
+**Current focus:** Phase 10 — Fixtures Infrastructure + Test Health
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-25 — Milestone v3.0 started
+Phase: 10 of 12 (Fixtures Infrastructure + Test Health)
+Plan: 0 of ? in current phase
+Status: Ready to plan
+Last activity: 2026-02-25 — Roadmap created for v3.0 Harden Test Suite
+
+Progress: [██████████████████████░░░░░░░░] 76% (23/30 plans est.)
 
 ## Performance Metrics
 
@@ -35,11 +37,6 @@ Last activity: 2026-02-25 — Milestone v3.0 started
 | 08-tools-repo-rename | 2 | 16min | 8min |
 | 09-verification-closure-doc-cleanup | 2 | 6min | 3min |
 
-| Phase 08 P01 | 1min | 2 tasks | 2 files |
-| Phase 08 P02 | 15min | 4 tasks | 15 files |
-| Phase 09 P01 | 3min | 2 tasks | 2 files |
-| Phase 09 P02 | 9min | 2 tasks | 16 files |
-
 ## Accumulated Context
 
 ### Decisions
@@ -47,17 +44,12 @@ Last activity: 2026-02-25 — Milestone v3.0 started
 Decisions are logged in PROJECT.md Key Decisions table.
 Key decisions across the project:
 
-- TOOLS.md by reference only (Option B) — not rendered to targets
-- Repo rename must be last phase (changes all path references)
-- Claude keeps CLAUDE.md filename; other 3 targets change to AGENTS.md
-- Per-CLI addendums merge into `## CLI-Specific Notes` section in single AGENTS.md
-- `renderInstructions()` simplifies to single-file passthrough (no addendum parameter)
-- Path constants in canonical.ts as single source of truth for all config paths
-- Plain mv (not git mv) for file moves — git detects renames automatically
+- TOOLS.md by reference only — not rendered to targets
+- Claude keeps CLAUDE.md filename; other 3 targets use AGENTS.md
+- `renderInstructions()` simplifies to single-file passthrough
+- Path constants in canonical.ts as single source of truth
 - PROJECT_ROOT via import.meta.dir — acsync works from any cwd
-- Settings sync (opencode.json) not in push pipeline — manual fix for now
-- Phase attribution: TOOL/REPO requirements credited to Phase 8, verified in Phase 9
-- Historical path references preserved in requirement/feature definitions for clarity
+- Phase attribution: requirements credited to implementation phase, verified in next
 
 ### Pending Todos
 
@@ -65,10 +57,10 @@ Key decisions across the project:
 
 ### Blockers/Concerns
 
-None — all phases complete. v2.0 milestone shipped.
+None.
 
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 09-02-PLAN.md — v2.0 milestone fully closed
+Stopped at: Roadmap created for v3.0 — ready to plan Phase 10
 Resume file: N/A
