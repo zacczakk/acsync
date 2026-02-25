@@ -67,16 +67,17 @@ acsync/
   src/                        TypeScript sync engine (adapters, diff, secrets, formats)
   .env                        Secrets (gitignored)
   configs/
-    commands/*.md              8 slash commands (canonical)
+    commands/*.md              6 slash commands (canonical)
     agents/                    Agent definitions (canonical, currently empty)
-    skills/                    2 skill directories (canonical)
-    mcp/*.json                 3 MCP server definitions (canonical)
+    skills/                    3 skill directories (canonical)
+    mcp/*.json                 7 MCP server definitions (canonical)
     settings/*.json            2 settings definitions (claude, opencode)
     instructions/AGENTS.md     Unified agent operating system (ground truth)
     instructions/TOOLS.md      Tool-use reference
   scripts/
     committer                  Git commit helper
-    generate-docs.py           Docs catalog generator
+    ask-model                  Cross-model consultation
+    docs-list.ts               Docs catalog generator
     browser-tools.ts           Chrome DevTools CLI
   docs/                        Operational documentation
   backups/                     Pre-sync backups (gitignored)

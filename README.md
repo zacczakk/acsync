@@ -30,7 +30,7 @@ Code-driven sync across Claude Code, OpenCode, Gemini CLI, and Codex.
 ## Quick Start
 
 ```bash
-acsync check --pretty            # drift detection (read-only)
+acsync check                     # drift detection (read-only)
 acsync diff                      # unified diff of all drift
 acsync push --force --delete     # push all + delete stale files
 acsync pull -s claude            # pull from Claude to canonical
@@ -42,10 +42,10 @@ acsync pull -s claude            # pull from Claude to canonical
 .env                         Secrets (gitignored)
 
 configs/
-  commands/*.md              8 slash commands
+  commands/*.md              6 slash commands
   agents/                    Agent definitions (currently empty)
-  skills/                    2 skill directories
-  mcp/*.json                 3 MCP server definitions
+  skills/                    3 skill directories
+  mcp/*.json                 7 MCP server definitions
   settings/*.json            2 settings definitions (claude, opencode)
   instructions/AGENTS.md     Unified agent operating system (ground truth)
   instructions/TOOLS.md      Tool-use reference
@@ -60,7 +60,8 @@ src/                         TypeScript sync engine
 
 scripts/
   committer                  Git commit helper
-  generate-docs.py           Docs catalog generator
+  ask-model                  Cross-model consultation (Claude/Codex/Gemini)
+  docs-list.ts               Docs catalog generator
   browser-tools.ts           Chrome DevTools CLI
 
 docs/                        Operational docs
@@ -106,7 +107,7 @@ Secrets are injected during push and redacted during pull. Never committed.
 
 ## Docs
 
-Run `python scripts/generate-docs.py` for the full docs catalog.
+Run `bin/docs-list` (or `bun scripts/docs-list.ts`) for the full docs catalog.
 
 | Doc | When to Read |
 |-----|-------------|

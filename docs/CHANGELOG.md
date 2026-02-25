@@ -6,11 +6,15 @@ read_when:
 
 # Changelog
 
-<!-- TODO: review — 20+ commits since 2026-02-18, changelog not updated -->
+## 2026-02-25
+
+- Added `acsync helpers -p <path>` subcommand — copies helper scripts to target repos
+- Restored 4 disabled MCP server definitions (chrome-devtools-mcp, palantir-mcp, liquid-carbon, shadcn)
+- Documentation groom: fixed 43 issues (stale refs, wrong counts, dead links)
 
 ## 2026-02-18
 
 - Initial full sync push across all 4 CLIs (Claude, OpenCode, Gemini, Codex)
 - Path migration: `.tasks/` → `docs/plans/`
-- Added `/zz-groom-docs` command
+- Added `groom-docs` command
 - 96 files backed up, 97 files written

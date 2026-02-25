@@ -246,7 +246,7 @@ Remove chrome-devtools/palantir/liquid-carbon/shadcn from canonical MCP configs.
 ### Step 9: Sync + verify
 
 ```bash
-/zz-sync-agent-configs
+acsync push
 mcporter list --json                              # health check
 mcporter call chrome-devtools.take_snapshot        # daemon test
 ```

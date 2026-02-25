@@ -1,0 +1,8 @@
+{
+  "description": "shadcn/ui component library MCP server",
+  "transport": "stdio",
+  "command": "npx",
+  "args": ["shadcn@latest", "mcp"],
+  "enabled": false,
+  "disabled_for": ["codex"]
+}

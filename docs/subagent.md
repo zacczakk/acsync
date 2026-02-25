@@ -32,6 +32,6 @@ read_when:
 
 ## Operational rules
 - Update only `configs/agents/` and `configs/commands/` for shared behavior changes.
-- Do not hand-edit system files; use `/zz-sync-agent-configs push` to distribute.
+- Do not hand-edit system files; use `acsync push` to distribute.
 - If you need CLI-specific behavior, add a section to `configs/instructions/AGENTS.md` and push.
 - Full format specification lives in `docs/design/sync-spec.md` sections 2.1 through 2.5.

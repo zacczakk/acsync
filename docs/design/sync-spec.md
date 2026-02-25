@@ -42,10 +42,10 @@ merges commands and agents into a single `prompts/` directory.
 ### Canonical Sources (This Repo)
 
 ```
-configs/commands/*.md              8 slash commands
+configs/commands/*.md              6 slash commands
 configs/agents/                    Agent definitions (currently empty)
-configs/skills/                    2 skill directories
-configs/mcp/*.json                 3 MCP server definitions
+configs/skills/                    3 skill directories
+configs/mcp/*.json                 7 MCP server definitions
 configs/settings/*.json            2 settings definitions (claude, opencode)
 configs/instructions/AGENTS.md     Unified agent operating system
 configs/instructions/TOOLS.md      Tool-use reference
@@ -68,12 +68,11 @@ Never touch these during sync:
 
 #### Claude Code — Nest Under `zz/` Subdirectory
 
-Canonical command files are named `zz-{name}.md`. For Claude Code, strip the
-`zz-` prefix from the filename and place the file inside a `zz/` subdirectory:
+For Claude Code, command files are placed inside a `zz/` subdirectory:
 
-- Canonical: `configs/commands/zz-gate.md`
-- Claude system: `~/.claude/commands/zz/gate.md`
-- Invoked as: `/zz:gate`
+- Canonical: `configs/commands/groom-docs.md`
+- Claude system: `~/.claude/commands/zz/groom-docs.md`
+- Invoked as: `/zz:groom-docs`
 
 The body content is copied verbatim (no frontmatter transformation needed).
 Claude Code supports nested directories in `~/.claude/commands/`; a file at
@@ -183,8 +182,8 @@ Rules:
 
 Strip `zz-` prefix and place in `~/.claude/agents/zz/` subdirectory (same pattern as commands).
 
-- Canonical: `configs/agents/zz-planner.md`
-- Claude system: `~/.claude/agents/zz/planner.md`
+- Canonical: `configs/agents/{name}.md`
+- Claude system: `~/.claude/agents/zz/{name}.md`
 
 Body content copied verbatim.
 

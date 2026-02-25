@@ -1,6 +1,5 @@
 ---
-description: Scan docs/ for staleness, dead links, and drift. Reports issues, offers fixes.
-allowed-tools: [Read, Glob, Grep, Bash, Edit, Write]
+description: 'Scan docs/ for staleness, dead links, and drift. Reports issues, offers fixes.'
 ---
 
 # acsync-groom-docs
@@ -42,10 +41,10 @@ For each doc in `docs/`:
 
 ### 4. Front-matter compliance
 
-If `scripts/generate-docs.py` exists:
-- Run it in dry-run mode (or manually check docs/ for front-matter)
+If `scripts/docs-list.ts` or `bin/docs-list` exists:
+- Run it to check docs/ for front-matter compliance
 - Flag docs missing required front-matter
-- Note: this is best-effort; if script doesn't support dry-run, skip
+- Note: this is best-effort; skip if not installed
 
 ### 5. Dead code references
 
@@ -81,7 +80,7 @@ If yes:
 - **Broken links** — offer to remove or replace with placeholder
 - **Missing files** — offer to create stub or remove reference
 - **Stale docs** — flag for manual review (add `<!-- TODO: review after X commit -->`)
-- **Front-matter** — run `generate-docs.py` to auto-add
+- **Front-matter** — run `docs-list` to check compliance
 
 Batch fixes into a single commit or open individual fixup edits per file.
 
