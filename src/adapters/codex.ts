@@ -122,6 +122,36 @@ export class CodexAdapter extends BaseAdapter {
     return { name, content: body, metadata };
   }
 
+  /** Parse Codex TOML MCP config → canonical MCPServer[] (HTTP-only) */
+  override parseMCPServers(content: string): MCPServer[] {
+    try {
+      const parsed = readToml<Record<string, unknown>>(content);
+      const mcpServers = parsed.mcp_servers as Record<string, Record<string, unknown>> | undefined;
+      if (!mcpServers) return [];
+
+      const servers: MCPServer[] = [];
+      for (const [name, cfg] of Object.entries(mcpServers)) {
+        const server: MCPServer = { name, transport: 'http' };
+        server.url = cfg.url as string;
+
+        // bearer_token_env_var → Authorization header with ${VAR}
+        if (cfg.bearer_token_env_var) {
+          server.headers = { Authorization: `Bearer \${${cfg.bearer_token_env_var}}` };
+        }
+
+        // env_vars: array of bare variable names
+        if (cfg.env_vars && Array.isArray(cfg.env_vars)) {
+          server.envVars = cfg.env_vars as string[];
+        }
+
+        servers.push(server);
+      }
+      return servers;
+    } catch {
+      return [];
+    }
+  }
+
   /** Codex uses mcp_servers in TOML */
   override parseExistingMCPServerNames(content: string): string[] {
     try {

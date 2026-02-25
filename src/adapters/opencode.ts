@@ -68,11 +68,65 @@ export class OpenCodeAdapter extends BaseAdapter {
       .map((s) => s.name);
   }
 
+  /** Parse OpenCode JSONC MCP config → canonical MCPServer[] */
+  override parseMCPServers(content: string): MCPServer[] {
+    try {
+      const parsed = readJsonc<Record<string, unknown>>(content);
+      const mcp = parsed.mcp as Record<string, Record<string, unknown>> | undefined;
+      if (!mcp) return [];
+
+      const servers: MCPServer[] = [];
+      for (const [name, cfg] of Object.entries(mcp)) {
+        const type = cfg.type as string | undefined;
+        const transport: 'stdio' | 'http' = type === 'remote' ? 'http' : 'stdio';
+        const server: MCPServer = { name, transport };
+
+        if (transport === 'stdio') {
+          // OpenCode: command is [binary, ...args] array
+          const cmdArr = cfg.command as string[] | undefined;
+          if (cmdArr && cmdArr.length > 0) {
+            server.command = cmdArr[0];
+            if (cmdArr.length > 1) server.args = cmdArr.slice(1);
+          }
+          // OpenCode: environment uses {env:VAR} syntax
+          if (cfg.environment && typeof cfg.environment === 'object') {
+            const rawEnv = cfg.environment as Record<string, string>;
+            // Convert {env:VAR} → ${VAR} (claude-code canonical format)
+            server.env = EnvVarTransformer.fromOpenCode(rawEnv) as Record<string, string>;
+            server.envVars = Object.keys(rawEnv);
+          }
+        } else {
+          server.url = cfg.url as string;
+        }
+
+        // OpenCode natively supports enabled
+        if (cfg.enabled === false) server.enabled = false;
+
+        servers.push(server);
+      }
+      return servers;
+    } catch {
+      return [];
+    }
+  }
+
+  /** Keys that use deep-merge (canonical wins on conflict, user extras preserved) */
+  private static readonly DEEP_MERGE_KEYS = new Set(['permission']);
+
   /** OpenCode uses JSONC — override to preserve comments and $schema */
   override renderSettings(settings: CanonicalSettings, existingContent?: string): string {
     let text = existingContent ?? '{}';
+    const existing = existingContent ? readJsonc<Record<string, unknown>>(existingContent) : {};
+
     for (const [key, value] of Object.entries(settings.keys)) {
-      text = modifyJsonc(text, [key], value) as string;
+      if (OpenCodeAdapter.DEEP_MERGE_KEYS.has(key) && isPlainObject(value) && isPlainObject(existing[key])) {
+        // Deep-merge: canonical wins on conflict, user extras preserved
+        const merged = deepMergeObjects(existing[key] as Record<string, unknown>, value as Record<string, unknown>);
+        text = modifyJsonc(text, [key], merged) as string;
+      } else {
+        // Wholesale replace
+        text = modifyJsonc(text, [key], value) as string;
+      }
     }
     return text;
   }
@@ -89,7 +143,7 @@ export class OpenCodeAdapter extends BaseAdapter {
     return JSON.stringify(extracted, null, 2) + '\n';
   }
 
-  renderMCPServers(servers: MCPServer[], existingContent?: string): string {
+  override renderMCPServers(servers: MCPServer[], existingContent?: string): string {
     // Filter out servers disabled for this target (but keep enabled: false — render as disabled)
     const filtered = servers.filter((s) => !s.disabledFor?.includes('opencode'));
 
@@ -121,4 +175,27 @@ export class OpenCodeAdapter extends BaseAdapter {
 
     return text;
   }
+}
+
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null && !Array.isArray(v);
+}
+
+/**
+ * Deep-merge two objects: canonical wins on conflict, user extras preserved.
+ * Recurses into nested plain objects; arrays and primitives use canonical value.
+ */
+function deepMergeObjects(
+  existing: Record<string, unknown>,
+  canonical: Record<string, unknown>,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...existing };
+  for (const [key, canonicalValue] of Object.entries(canonical)) {
+    if (isPlainObject(canonicalValue) && isPlainObject(result[key])) {
+      result[key] = deepMergeObjects(result[key] as Record<string, unknown>, canonicalValue);
+    } else {
+      result[key] = canonicalValue;
+    }
+  }
+  return result;
 }

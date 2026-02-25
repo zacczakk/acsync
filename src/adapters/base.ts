@@ -76,6 +76,9 @@ export interface ToolAdapter {
    */
   extractSettingsKeys(canonicalKeys: string[], targetContent: string): string;
 
+  /** Parse target MCP config content back to canonical MCPServer[] */
+  parseMCPServers(content: string): MCPServer[];
+
   /** Expose path resolver for orchestrator use */
   getPaths(): AdapterPathResolver;
 }
@@ -251,6 +254,40 @@ export abstract class BaseAdapter implements ToolAdapter {
       }
     }
     return JSON.stringify(extracted, null, 2) + '\n';
+  }
+
+  /** Default: parse mcpServers from JSON config → canonical MCPServer[] */
+  parseMCPServers(content: string): MCPServer[] {
+    try {
+      const parsed = JSON.parse(content) as Record<string, unknown>;
+      const mcpServers = parsed.mcpServers as Record<string, Record<string, unknown>> | undefined;
+      if (!mcpServers) return [];
+
+      const servers: MCPServer[] = [];
+      for (const [name, cfg] of Object.entries(mcpServers)) {
+        const transport: 'stdio' | 'http' = cfg.command ? 'stdio' : 'http';
+        const server: MCPServer = { name, transport };
+
+        if (transport === 'stdio') {
+          server.command = cfg.command as string;
+          if (cfg.args) server.args = cfg.args as string[];
+          if (cfg.env && typeof cfg.env === 'object') {
+            server.env = cfg.env as Record<string, string>;
+            server.envVars = Object.keys(cfg.env as Record<string, string>);
+          }
+        } else {
+          server.url = cfg.url as string;
+          if (cfg.headers && typeof cfg.headers === 'object') {
+            server.headers = cfg.headers as Record<string, string>;
+          }
+        }
+
+        servers.push(server);
+      }
+      return servers;
+    } catch {
+      return [];
+    }
   }
 
   /** Expose path resolver for orchestrator use */

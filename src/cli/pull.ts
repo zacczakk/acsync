@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
 import { readdir, readFile, mkdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { Command } from 'commander';
 import pc from 'picocolors';
@@ -8,7 +9,7 @@ import { createBackup, restoreAll, cleanupAll } from '../core/rollback';
 import { atomicWrite } from '../infra/atomic-write';
 import { createExclusionFilter } from '../infra/exclusion';
 import { stringifyFrontmatter } from '../formats/markdown';
-import { ALL_TARGETS, COMMANDS_DIR, AGENTS_DIR, SKILLS_DIR, PROJECT_ROOT, createAdapter } from './canonical';
+import { ALL_TARGETS, COMMANDS_DIR, AGENTS_DIR, SKILLS_DIR, SETTINGS_DIR, MCP_DIR, INSTRUCTIONS_DIR, PROJECT_ROOT, createAdapter, readCanonicalSettings } from './canonical';
 import { confirm, validatePullSource } from './cli-helpers';
 import type { TargetName } from '../types';
 import type { BackupInfo } from '../core/rollback';
@@ -18,13 +19,14 @@ export interface PullOptions {
   force?: boolean;
   dryRun?: boolean;
   pretty?: boolean;
+  json?: boolean;
   projectDir?: string;
   /** When set, only pull items whose "type/name" key is in this set */
   onlyKeys?: Set<string>;
 }
 
 export interface PullItem {
-  type: 'command' | 'agent' | 'skill';
+  type: 'command' | 'agent' | 'skill' | 'settings' | 'mcp' | 'instruction';
   name: string;
   action: 'create' | 'skip';
   targetPath: string;
@@ -46,12 +48,26 @@ export interface PullAllOptions {
   force?: boolean;
   dryRun?: boolean;
   pretty?: boolean;
+  json?: boolean;
   projectDir?: string;
 }
 
 /** Map internal target name to user-facing display name */
 function displayTarget(target: TargetName): string {
   return target === 'claude-code' ? 'claude' : target;
+}
+
+/** Map target name to canonical settings filename */
+function settingsFileName(target: TargetName): string {
+  switch (target) {
+    case 'claude-code': return 'claude.json';
+    default:            return `${target}.json`;
+  }
+}
+
+/** Check if a canonical settings file exists */
+function existingSettingsFile(filePath: string): boolean {
+  return existsSync(filePath);
 }
 
 /**
@@ -147,12 +163,105 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
     }
   }
 
+  // Settings pull: compare installed settings to canonical, pull if drifted
+  if (caps.settings) {
+    const settingsPath = paths.getSettingsPath();
+    const canonicalSettingsPath = join(projectDir, SETTINGS_DIR, settingsFileName(options.source));
+
+    if (!options.onlyKeys || options.onlyKeys.has('settings/settings')) {
+      try {
+        const file = Bun.file(settingsPath);
+        if (await file.exists()) {
+          const installedContent = await file.text();
+          const canonicalSettings = await readCanonicalSettings(projectDir, options.source);
+          const canonicalKeys = canonicalSettings ? Object.keys(canonicalSettings.keys) : [];
+
+          if (canonicalKeys.length > 0) {
+            // Extract managed keys from installed file for comparison
+            const installedExtracted = adapter.extractSettingsKeys(canonicalKeys, installedContent);
+            const canonicalExtracted = canonicalSettings
+              ? (() => {
+                  const sorted: Record<string, unknown> = {};
+                  for (const key of [...canonicalKeys].sort()) {
+                    sorted[key] = canonicalSettings.keys[key];
+                  }
+                  return JSON.stringify(sorted, null, 2) + '\n';
+                })()
+              : '';
+
+            const hasDrift = installedExtracted !== canonicalExtracted;
+
+            if (hasDrift) {
+              if (options.force || !existingSettingsFile(canonicalSettingsPath)) {
+                items.push({ type: 'settings', name: 'settings', action: 'create', targetPath: canonicalSettingsPath });
+              } else {
+                items.push({ type: 'settings', name: 'settings', action: 'create', targetPath: canonicalSettingsPath });
+              }
+            } else {
+              items.push({ type: 'settings', name: 'settings', action: 'skip', targetPath: canonicalSettingsPath });
+            }
+          }
+        }
+      } catch {
+        // Settings file missing or unreadable — skip
+      }
+    }
+  }
+
+  // MCP pull: parse MCP config from target, create canonical JSON per server
+  if (caps.mcp) {
+    const mcpConfigPath = paths.getMCPConfigPath();
+    try {
+      const mcpFile = Bun.file(mcpConfigPath);
+      if (await mcpFile.exists()) {
+        const mcpContent = await mcpFile.text();
+        const servers = adapter.parseMCPServers(mcpContent);
+        for (const server of servers) {
+          if (options.onlyKeys && !options.onlyKeys.has(`mcp/${server.name}`)) continue;
+
+          const targetPath = join(projectDir, MCP_DIR, `${server.name}.json`);
+
+          if (!options.force && existsSync(targetPath)) {
+            items.push({ type: 'mcp', name: server.name, action: 'skip', targetPath });
+            continue;
+          }
+
+          items.push({ type: 'mcp', name: server.name, action: 'create', targetPath });
+        }
+      }
+    } catch {
+      // MCP config missing or unreadable — skip
+    }
+  }
+
+  // Instructions pull: copy instructions file to canonical location
+  if (caps.instructions) {
+    const instructionsPath = paths.getInstructionsPath();
+    if (!options.onlyKeys || options.onlyKeys.has('instruction/AGENTS')) {
+      try {
+        const instrFile = Bun.file(instructionsPath);
+        if (await instrFile.exists()) {
+          const targetPath = join(projectDir, INSTRUCTIONS_DIR, 'AGENTS.md');
+
+          if (!options.force && existsSync(targetPath)) {
+            items.push({ type: 'instruction', name: 'AGENTS', action: 'skip', targetPath });
+          } else {
+            items.push({ type: 'instruction', name: 'AGENTS', action: 'create', targetPath });
+          }
+        }
+      } catch {
+        // Instructions file missing or unreadable — skip
+      }
+    }
+  }
+
   const pulled = items.filter((i) => i.action === 'create').length;
   const skipped = items.filter((i) => i.action === 'skip').length;
 
   // Dry-run: skip writes
   if (options.dryRun) {
-    const output = formatPullResult(items, options.source, options.pretty ?? false, true);
+    const pretty = options.pretty ?? !options.json;
+    const output = formatPullResult(items, options.source, pretty, true);
     return { items, pulled, skipped, dryRun: true, rolledBack: false, output };
   }
 
@@ -190,6 +299,32 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
         if (skill.supportFiles && skill.supportFiles.length > 0) {
           await writeSupportFiles(skillDir, skill.supportFiles);
         }
+      } else if (item.type === 'settings') {
+        // Pull settings: extract managed keys from installed file, write to canonical
+        const installedContent = await readFile(paths.getSettingsPath(), 'utf-8');
+        const canonicalSettings = await readCanonicalSettings(projectDir, options.source);
+        const canonicalKeys = canonicalSettings ? Object.keys(canonicalSettings.keys) : [];
+        // Use adapter's extractSettingsKeys (handles JSONC with trailing commas)
+        const rendered = adapter.extractSettingsKeys(canonicalKeys, installedContent);
+        await mkdir(join(projectDir, SETTINGS_DIR), { recursive: true });
+        await atomicWrite(item.targetPath, rendered);
+      } else if (item.type === 'mcp') {
+        // Pull MCP: parse all servers from target, write matching one as canonical JSON
+        const mcpContent = await readFile(paths.getMCPConfigPath(), 'utf-8');
+        const servers = adapter.parseMCPServers(mcpContent);
+        const server = servers.find((s) => s.name === item.name);
+        if (server) {
+          // Write canonical JSON format (same shape as existing configs/mcp/*.json)
+          const { name: _, ...rest } = server;
+          const canonical = JSON.stringify(rest, null, 2) + '\n';
+          await mkdir(join(projectDir, MCP_DIR), { recursive: true });
+          await atomicWrite(item.targetPath, canonical);
+        }
+      } else if (item.type === 'instruction') {
+        // Pull instructions: identity passthrough — read and write as-is
+        const instrContent = await readFile(paths.getInstructionsPath(), 'utf-8');
+        await mkdir(join(projectDir, INSTRUCTIONS_DIR), { recursive: true });
+        await atomicWrite(item.targetPath, instrContent);
       }
     }
 
@@ -201,7 +336,8 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
     rolledBack = true;
   }
 
-  const output = formatPullResult(items, options.source, options.pretty ?? false, false);
+  const prettyOut = options.pretty ?? !options.json;
+  const output = formatPullResult(items, options.source, prettyOut, false);
   return { items, pulled, skipped, dryRun: false, rolledBack, output };
 }
 
@@ -267,7 +403,8 @@ export async function runPullAll(options: PullAllOptions = {}): Promise<Orchestr
   const totalSkipped = [...uniqueKeys].filter((k) => !claimed.has(k)).length;
 
   if (options.dryRun) {
-    const output = formatPullAllResult(allItems, options.pretty ?? false, true);
+    const pretty = options.pretty ?? !options.json;
+    const output = formatPullAllResult(allItems, pretty, true);
     return { items: allItems, pulled: totalPulled, skipped: totalSkipped, dryRun: true, rolledBack: false, output };
   }
 
@@ -283,7 +420,8 @@ export async function runPullAll(options: PullAllOptions = {}): Promise<Orchestr
     });
   }
 
-  const output = formatPullAllResult(allItems, options.pretty ?? false, false);
+  const prettyAll = options.pretty ?? !options.json;
+  const output = formatPullAllResult(allItems, prettyAll, false);
   return { items: allItems, pulled: totalPulled, skipped: totalSkipped, dryRun: false, rolledBack: false, output };
 }
 
@@ -405,13 +543,13 @@ Examples:
   acsync pull -s opencode --force       Pull from OpenCode, overwrite existing
   acsync pull -s claude --dry-run       Preview what would be pulled`)
   .requiredOption('-s, --source <target>', 'Source target: all, claude, gemini, codex, opencode')
-  .option('--pretty', 'Human-readable colored output (default: JSON)')
+  .option('--json', 'Machine-readable JSON output')
   .option('--force', 'Overwrite existing canonical items')
   .option('--dry-run', 'Show what would be pulled without writing')
   .action(
     async (options: {
       source: string;
-      pretty?: boolean;
+      json?: boolean;
       force?: boolean;
       dryRun?: boolean;
     }) => {
@@ -419,7 +557,8 @@ Examples:
         validatePullSource(options.source);
 
         const isAll = options.source === 'all';
-        const baseOpts = { force: options.force, pretty: options.pretty };
+        const pretty = !options.json;
+        const baseOpts = { force: options.force, pretty, json: options.json };
 
         const doPull = (dryRun?: boolean) => {
           if (isAll) {
