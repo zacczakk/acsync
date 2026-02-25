@@ -271,7 +271,7 @@ Plans:
   2. Pull agents, skills, settings, MCP, and instructions each verified against expected canonical output from all 4 targets
   3. Pull overwrites existing canonical items when target has newer/different content (verified by pre-populating canonical dir)
   4. All 24 pull cells (6 types × 4 targets) covered by at least one assertion
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 12-01-PLAN.md — Extend pull pipeline: add MCP + instructions pull support (parseMCPServers adapters + pull.ts wiring)
@@ -296,4 +296,4 @@ Phases execute in numeric order: 1 → ... → 9 → 10 → 11 → 12
 | 9. Verification Closure + Doc Cleanup | v2.0 | 2/2 | Complete | 2026-02-25 |
 | 10. Fixtures Infrastructure + Test Health | 3/3 | Complete    | 2026-02-25 | - |
 | 11. Push E2E Tests | 3/3 | Complete    | 2026-02-25 | - |
-| 12. Pull E2E Tests | v3.0 | 0/3 | Not started | - |
+| 12. Pull E2E Tests | 1/3 | In Progress|  | - |
