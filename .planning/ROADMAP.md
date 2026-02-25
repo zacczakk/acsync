@@ -214,7 +214,7 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — Live verification attestation for Phase 8 + REQUIREMENTS.md checkbox update
+- [x] 09-01-PLAN.md — Live verification attestation for Phase 8 + REQUIREMENTS.md checkbox update
 - [ ] 09-02-PLAN.md — Stale reference cleanup in living docs + audit/milestone closure
 
 ## Progress
@@ -232,4 +232,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. Flatten Canonical Structure | v2.0 | 2/2 | Complete | 2026-02-24 |
 | 7. Unify Instructions | v2.0 | 2/2 | Complete | 2026-02-24 |
 | 8. TOOLS.md + Repo Rename | v2.0 | 2/2 | Complete | 2026-02-24 |
-| 9. Verification Closure + Doc Cleanup | v2.0 | 0/0 | Pending | — |
+| 9. Verification Closure + Doc Cleanup | v2.0 | 1/2 | In Progress | — |
