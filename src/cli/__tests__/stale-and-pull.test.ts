@@ -325,6 +325,7 @@ describe('runPullAll', () => {
     const result = await runPullAll({
       dryRun: true,
       projectDir: tmpDir,
+      json: true,
     });
 
     const parsed = JSON.parse(result.output);

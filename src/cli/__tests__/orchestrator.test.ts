@@ -100,14 +100,14 @@ describe('runCheck', () => {
     }
   });
 
-  test('JSON output by default', async () => {
+  test('pretty output by default', async () => {
     const result = await runCheck({ projectDir: tmpDir });
-    expect(() => JSON.parse(result.output)).not.toThrow();
+    expect(result.output).toContain('acsync check');
   });
 
-  test('pretty output when options.pretty=true', async () => {
-    const result = await runCheck({ projectDir: tmpDir, pretty: true });
-    expect(result.output).toContain('acsync check');
+  test('JSON output when options.json=true', async () => {
+    const result = await runCheck({ projectDir: tmpDir, json: true });
+    expect(() => JSON.parse(result.output)).not.toThrow();
   });
 
   test('excludes gsd-* items from diff', async () => {
@@ -198,6 +198,7 @@ describe('runPush', () => {
       projectDir: tmpDir,
       dryRun: true,
       targets: ['claude-code'],
+      json: true,
     });
     expect(() => JSON.parse(result.output)).not.toThrow();
   });
@@ -253,28 +254,27 @@ describe('runPush', () => {
     }
   });
 
-  test('push output is valid JSON', async () => {
+  test('push pretty output by default', async () => {
     const result = await runPush({
       projectDir: tmpDir,
       force: true,
       targets: ['claude-code'],
       types: ['command'],
     });
-    expect(() => JSON.parse(result.output)).not.toThrow();
-  });
-
-  test('push with --pretty produces acsync push output', async () => {
-    const result = await runPush({
-      projectDir: tmpDir,
-      force: true,
-      targets: ['claude-code'],
-      types: ['command'],
-      pretty: true,
-    });
-    // When items are written, output should be push result
-    // When no drift (shouldn't happen with unique salt), returns check output
+    // Pretty output by default — should contain acsync text, not raw JSON
     if (result.written > 0) {
       expect(result.output).toContain('acsync push');
     }
+  });
+
+  test('push JSON output with --json', async () => {
+    const result = await runPush({
+      projectDir: tmpDir,
+      force: true,
+      targets: ['claude-code'],
+      types: ['command'],
+      json: true,
+    });
+    expect(() => JSON.parse(result.output)).not.toThrow();
   });
 });
