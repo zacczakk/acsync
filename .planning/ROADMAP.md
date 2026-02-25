@@ -239,7 +239,7 @@ Plans:
   3. Per-target fixture sets contain expected push outputs for all 4 CLI targets
   4. Test harness backs up real target directories before E2E tests and restores them after, even on test failure (try/finally)
   5. `bun test` runs via `package.json` test script with zero failures
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [ ] 10-01-PLAN.md — Fix 2 failing tests + add package.json test script (health baseline)
@@ -284,6 +284,6 @@ Phases execute in numeric order: 1 → ... → 9 → 10 → 11 → 12
 | 7. Unify Instructions | v2.0 | 2/2 | Complete | 2026-02-24 |
 | 8. TOOLS.md + Repo Rename | v2.0 | 2/2 | Complete | 2026-02-24 |
 | 9. Verification Closure + Doc Cleanup | v2.0 | 2/2 | Complete | 2026-02-25 |
-| 10. Fixtures Infrastructure + Test Health | 1/3 | In Progress|  | - |
+| 10. Fixtures Infrastructure + Test Health | 2/3 | In Progress|  | - |
 | 11. Push E2E Tests | v3.0 | 0/? | Not started | - |
 | 12. Pull E2E Tests | v3.0 | 0/? | Not started | - |
