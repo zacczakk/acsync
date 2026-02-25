@@ -1,4 +1,4 @@
-import { cpSync, rmSync, mkdtempSync, existsSync } from 'node:fs';
+import { cpSync, rmSync, mkdtempSync, existsSync, writeFileSync, unlinkSync, openSync, closeSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import os from 'node:os';
@@ -16,6 +16,43 @@ interface BackupEntry {
   dir: string;
   backupPath: string;
   existed: boolean;
+}
+
+/**
+ * Filesystem-based mutex for withTargetBackup.
+ *
+ * Bun runs test files in parallel. Multiple files calling withTargetBackup
+ * concurrently causes race conditions: Test A backs up, Test B backs up
+ * (capturing Test A's mutations), restores clobber each other.
+ *
+ * This lock serializes all withTargetBackup calls across parallel test files
+ * using O_EXCL atomic file creation.
+ */
+const LOCK_PATH = join(tmpdir(), 'acsync-target-backup.lock');
+const LOCK_POLL_MS = 100;
+const LOCK_TIMEOUT_MS = 120_000;
+
+async function acquireLock(): Promise<void> {
+  const deadline = Date.now() + LOCK_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    try {
+      const fd = openSync(LOCK_PATH, 'wx');
+      writeFileSync(fd, `${process.pid}\n`);
+      closeSync(fd);
+      return;
+    } catch (err: unknown) {
+      if ((err as NodeJS.ErrnoException).code === 'EEXIST') {
+        await new Promise((r) => setTimeout(r, LOCK_POLL_MS));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw new Error(`[withTargetBackup] Lock acquisition timed out after ${LOCK_TIMEOUT_MS}ms`);
+}
+
+function releaseLock(): void {
+  try { unlinkSync(LOCK_PATH); } catch { /* already removed */ }
 }
 
 /**
@@ -70,7 +107,16 @@ export async function withBackup(dirs: string[], fn: () => Promise<void>): Promi
   }
 }
 
-/** Convenience: back up all 4 target config directories */
+/**
+ * Back up all 4 target config directories with cross-process locking.
+ *
+ * Serializes access so parallel test files don't race on the same real dirs.
+ */
 export async function withTargetBackup(fn: () => Promise<void>): Promise<void> {
-  return withBackup(TARGET_DIRS, fn);
+  await acquireLock();
+  try {
+    await withBackup(TARGET_DIRS, fn);
+  } finally {
+    releaseLock();
+  }
 }
