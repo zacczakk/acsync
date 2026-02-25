@@ -239,7 +239,12 @@ Plans:
   3. Per-target fixture sets contain expected push outputs for all 4 CLI targets
   4. Test harness backs up real target directories before E2E tests and restores them after, even on test failure (try/finally)
   5. `bun test` runs via `package.json` test script with zero failures
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 10-01-PLAN.md — Fix 2 failing tests + add package.json test script (health baseline)
+- [ ] 10-02-PLAN.md — Create canonical fixture files for all 6 config types + withBackup harness
+- [ ] 10-03-PLAN.md — Generate per-target golden fixtures via renderers + smoke test
 
 ### Phase 11: Push E2E Tests
 **Goal**: E2E tests verify that pushing each of the 6 config types to all 4 real CLI targets produces correct output — 24 push test cells covered
