@@ -57,11 +57,12 @@ Key decisions across the project:
 - [Phase 10-02]: Trimmed opencode.json fixture to single provider; obsidian/AGENTS.md trimmed for fixture brevity
 - [Phase 10-03]: Golden files generated via actual renderers — guarantees accuracy vs hand-crafting
 - [Phase 11-01]: MCP goldens reflect actual overwrite behavior; settings goldens show merge with non-canonical key preservation
-- [Phase 11-02]: E2E_TIMEOUT 60s for push tests; each test file uses isolated projectDir + withTargetBackup
-- [Phase 11-03]: Combined all MCP/settings/instructions assertions into single withTargetBackup blocks to avoid backup overhead
+- [Phase 11-02]: E2E_TIMEOUT 60s for push tests; each test file uses isolated projectDir
+- [Phase 11-03]: Combined all MCP/settings/instructions assertions into single test blocks to avoid overhead
 - [Phase 12-01]: parseMCPServers default in BaseAdapter for JSON targets; OpenCode/Codex override for JSONC/TOML
 - [Phase 12-02]: Lossy adapters (Gemini TOML, Codex flat MD, OpenCode agents) get structural body comparison vs exact match
 - [Phase 12-03]: Round-trip push→pull E2E strategy for MCP/settings/instructions; field-level comparison for pulled canonical JSON
+- [Post-12]: Replaced withTargetBackup with homeDir isolation — E2E tests never touch real target dirs; eliminates parallel race condition
 
 ### Pending Todos
 

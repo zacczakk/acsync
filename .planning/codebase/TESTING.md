@@ -1,31 +1,28 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-02-19
+**Updated:** 2026-02-25
 
 ## Test Framework
 
-**Runner:**
-- No test framework configured in this repo
-- No `jest.config.*`, `vitest.config.*`, `pytest.ini`, or equivalent
-- No test runner in `package.json` scripts
-- No `devDependencies` section in `package.json`
-
-**Rationale (from `docs/overview.md`):**
-> v1 had a 3,500 LOC Python sync engine with 6,800 LOC of tests [...] v2 replaces all of that with ~400 lines of playbook + slash commands. The agent does the work interactively. No code to maintain. No tests needed for a document.
+**Runner:** Bun's built-in test runner (`bun:test`)
 
 **Run Commands:**
 ```bash
-# No test commands available for this repo
+bun test                          # Full suite (unit + E2E)
+bun test test/__tests__/          # E2E tests only
+bun test src/                     # Unit tests only
+bun test test/__tests__/pull-mcp.test.ts  # Single file
 ```
 
 ## Test File Organization
 
 **Location:**
-- No test files exist anywhere in the codebase
-- No `*.test.*`, `*.spec.*`, `test_*.*`, or `__tests__/` directories
+- Unit tests: colocated at `src/**/__tests__/*.test.ts`
+- E2E tests: `test/__tests__/*.test.ts`
+- Fixtures: `test/fixtures/` (canonical/, claude/, opencode/, gemini/, codex/, seeds/)
+- Helpers: `test/helpers/backup.ts`
 
-**Naming:**
-- Not applicable (no tests exist)
+**Naming:** `{module}.test.ts` or `{feature}-{type}.test.ts` (e.g., `push-commands.test.ts`)
 
 ## Test Philosophy (from AGENTS.md)
 
@@ -194,28 +191,31 @@ cargo test                # Test
 cargo build               # Build
 ```
 
-## Validation of This Repo
+## E2E Test Isolation (homeDir pattern)
 
-This repo (`agents`) has **no automated tests** by design. Quality is ensured through:
+E2E tests exercise real push/pull pipelines but **never touch real target directories** (`~/.claude`, `~/.config/opencode`, `~/.gemini`, `~/.codex`).
 
-1. **Document validation**: `scripts/generate-docs.py` enforces front-matter on all `docs/*.md` files
-2. **Drift detection**: `/zz-sync-agent-configs check` verifies system files match canonical sources
-3. **Interactive sync**: Every write during push/pull requires human confirmation
-4. **Agent-driven verification**: The zz-verifier agent runs when invoked, discovering available checks
+**How it works:**
 
-The repo's `scripts/generate-docs.py` is the closest thing to a test — it validates front-matter structure and exits with code 1 on issues:
+1. `AdapterPathResolver` accepts optional `homeDir` — redirects all `~` expansion to a temp dir
+2. Threaded through: `BaseAdapter` → concrete adapters → `createAdapter(target, homeDir)` → `runPush`/`runPull`/`runCheck`
+3. Each test creates an isolated fake home: `createTestHome('my-test')` returns `/tmp/acsync-home-my-test-xxxxx`
+4. Target paths resolve inside the fake home (e.g., `fakeHome/.claude/commands/` instead of `~/.claude/commands/`)
 
-```python
-if errors:
-    print(f"\n{errors} file(s) with front-matter issues.", file=sys.stderr)
-    sys.exit(1)
-```
+**Test helpers** (`test/helpers/backup.ts`):
 
-Run it with:
-```bash
-python scripts/generate-docs.py
-```
+| Helper | Purpose |
+|--------|---------|
+| `createTestHome(label)` | Isolated fake `~` directory |
+| `createTestProject(label, fixtureRoot)` | Temp dir with canonical fixtures in `configs/` |
+| `createEmptyProject(label)` | Temp dir with empty `configs/` |
+| `seedTargetFixtures(fakeHome, fixtureRoot, target, type)` | Plant push golden fixtures into fakeHome |
+| `withBackup(dirs, fn)` | Generic dir backup/restore (for harness tests only) |
+
+**Why not backup/restore:** Prior approach used `withTargetBackup` to backup real `~/.claude` etc., run tests, then restore. This failed under bun's parallel test execution — multiple files racing on the same directories caused backup/restore to clobber each other, deleting real configs. The `homeDir` approach eliminates the problem by construction.
+
+**Coverage:** 457 tests, 1133 assertions, 42 files. 48 E2E cells (6 config types × 4 targets × push + pull). Suite runs in ~600ms.
 
 ---
 
-*Testing analysis: 2026-02-19*
+*Updated: 2026-02-25*
