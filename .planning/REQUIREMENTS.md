@@ -27,13 +27,13 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 
 ### Push E2E
 
-- [ ] **PUSH-01**: Push commands to all 4 real CLI targets and verify output format
-- [ ] **PUSH-02**: Push agents to all 4 real CLI targets and verify output format
-- [ ] **PUSH-03**: Push skills to all 4 real CLI targets and verify output format
+- [x] **PUSH-01**: Push commands to all 4 real CLI targets and verify output format
+- [x] **PUSH-02**: Push agents to all 4 real CLI targets and verify output format
+- [x] **PUSH-03**: Push skills to all 4 real CLI targets and verify output format
 - [x] **PUSH-04**: Push settings to all 4 real CLI targets and verify output format
 - [x] **PUSH-05**: Push MCP servers to all 4 real CLI targets and verify output format
 - [ ] **PUSH-06**: Push instructions to all 4 real CLI targets and verify output format
-- [ ] **PUSH-07**: Push removes non-canonical items from targets (with warning)
+- [x] **PUSH-07**: Push removes non-canonical items from targets (with warning)
 
 ### Pull E2E
 
@@ -83,13 +83,13 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 | FIX-05 | Phase 10 | Complete |
 | FIX-06 | Phase 10 | Complete |
 | FIX-07 | Phase 10 | Complete |
-| PUSH-01 | Phase 11 | Pending |
-| PUSH-02 | Phase 11 | Pending |
-| PUSH-03 | Phase 11 | Pending |
+| PUSH-01 | Phase 11 | Complete |
+| PUSH-02 | Phase 11 | Complete |
+| PUSH-03 | Phase 11 | Complete |
 | PUSH-04 | Phase 11 | Complete |
 | PUSH-05 | Phase 11 | Complete |
 | PUSH-06 | Phase 11 | Pending |
-| PUSH-07 | Phase 11 | Pending |
+| PUSH-07 | Phase 11 | Complete |
 | PULL-01 | Phase 12 | Pending |
 | PULL-02 | Phase 12 | Pending |
 | PULL-03 | Phase 12 | Pending |
