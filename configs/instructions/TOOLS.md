@@ -19,6 +19,7 @@ Agent Config Sync CLI. Syncs canonical configs to AI CLI targets (claude-code, o
 | `acsync pull` | Reverse-sync from target back to canonical. |
 | `acsync diff` | Unified text diff of all drift. |
 | `acsync render` | Render single item to target format (debug). |
+| `acsync helpers` | Copy helper scripts to a target repo's `scripts/`. |
 
 ### Common flags
 - `-t, --target <name>` — Scope to target (repeatable): `claude`, `opencode`, `gemini`, `codex`
@@ -38,6 +39,8 @@ acsync push --force --delete              # Sync everything
 acsync push -t opencode --type commands   # Narrow scope
 acsync pull -s claude --dry-run           # Preview reverse sync
 acsync render --type command --name gate  # Debug single item
+acsync helpers -p ~/Repos/my-project     # Copy helpers to repo
+acsync helpers -p . --force              # Overwrite without prompt
 ```
 
 ## committer
@@ -50,6 +53,64 @@ Safe git commit helper. Stages only listed paths — never `git add .`.
 ```bash
 committer "fix: update config" src/app.ts README.md
 committer "feat(08-01): add TOOLS.md" configs/instructions/TOOLS.md
+```
+
+## ask-model
+
+Cross-model consultation. Query Codex (OpenAI) or Gemini (Google) non-interactively from any agent session. Supports blocking and async modes with timeout protection.
+
+- **Location:** `~/Repos/acsync/scripts/ask-model` (on PATH via scripts dir)
+- **Usage:** `ask-model [flags] <codex|gemini> "your question"`
+- **Output:** Model answer to stdout (blocking) or to file (async).
+
+### Flags
+
+| Flag | Default | Purpose |
+|------|---------|---------|
+| `--async` | off | Run in background; requires `--output` |
+| `--output, -o FILE` | — | Write answer to file |
+| `--model, -m NAME` | engine default | Override model (e.g. `gpt-5.3-codex`, `gemini-3.1-pro`) |
+| `--timeout SECS` | 120 | Max wait; env `ASK_MODEL_TIMEOUT` also works |
+
+### Engines
+
+| Engine | CLI | Auth | Notes |
+|--------|-----|------|-------|
+| `codex` | `codex exec` | ChatGPT login or `CODEX_API_KEY` | `--ephemeral --skip-git-repo-check` applied automatically |
+| `gemini` | `gemini -p` | Google OAuth or `GEMINI_API_KEY` | Free tier: 60 req/min, 1000 req/day |
+
+### Examples
+```bash
+# Blocking (default) — answer printed to stdout
+ask-model gemini "what is the idiomatic way to handle errors in Go?"
+ask-model codex "review this approach to caching: LRU with TTL expiry"
+
+# Specific model
+ask-model -m gpt-5.3-codex codex "explain coroutines vs goroutines"
+ask-model -m gemini-3.1-pro gemini "compare WAL vs rollback journal in SQLite"
+
+# Capture output in a variable (agent use)
+answer=$(ask-model gemini "explain the tradeoffs of WAL mode in SQLite")
+
+# Async — returns PID, writes answer to file when done
+pid=$(ask-model --async -o /tmp/answer.txt gemini "long analysis question")
+# ... do other work ...
+wait "$pid" && cat /tmp/answer.txt
+
+# Custom timeout
+ask-model --timeout 60 codex "quick question"
+```
+
+### Direct CLI usage (without wrapper)
+```bash
+# Codex non-interactive (model: gpt-5.3-codex)
+codex exec --ephemeral --skip-git-repo-check --model gpt-5.3-codex "your question"
+
+# Gemini non-interactive (model: gemini-3.1-pro)
+gemini -p -m gemini-3.1-pro "your question"
+
+# Gemini JSON output
+gemini -p "your question" --output-format json
 ```
 
 ## trash

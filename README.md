@@ -51,7 +51,7 @@ configs/
   instructions/TOOLS.md      Tool-use reference
 
 src/                         TypeScript sync engine
-  cli/                       check, push, pull, diff, render commands
+  cli/                       check, push, pull, diff, render, helpers commands
   adapters/                  Per-CLI renderers (claude, opencode, gemini, codex)
   core/                      Diff engine, formatter, manifest tracking
   formats/                   Parsers (markdown, JSON, JSONC, TOML)
@@ -80,9 +80,16 @@ The `acsync` CLI handles all sync operations programmatically:
 
 ## Helper Scripts
 
-To sync helper scripts into another repo, use the `/acsync-helpers` slash
-command from any CLI. Copies `committer`, `generate-docs.py`, and
-`browser-tools.ts` into the target repo's `scripts/` directory.
+Copy canonical helper scripts into another repo:
+
+```bash
+acsync helpers -p ~/Repos/my-project          # interactive confirm
+acsync helpers -p ~/Repos/my-project --force   # no prompt
+acsync helpers -p . --dry-run                  # preview only
+```
+
+Writes all files from `scripts/` into `<path>/scripts/`, skipping files
+already up to date (SHA-256 match). Supports `--json` for machine output.
 
 ## Secrets
 
