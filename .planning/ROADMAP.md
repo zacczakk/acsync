@@ -156,7 +156,7 @@ Plans:
 
 **Milestone Goal:** E2E fixture-based tests covering push and pull across all 4 CLI targets for all 6 config types, with backup/restore safety.
 
-- [ ] **Phase 10: Fixtures Infrastructure + Test Health** - Committed fixture data, backup/restore harness, fix failing tests
+- [x] **Phase 10: Fixtures Infrastructure + Test Health** - Committed fixture data, backup/restore harness, fix failing tests (completed 2026-02-25)
 - [ ] **Phase 11: Push E2E Tests** - Push all 6 config types to all 4 targets, verify output format
 - [ ] **Phase 12: Pull E2E Tests** - Pull all 6 config types from all 4 targets, verify canonical format
 
@@ -239,7 +239,7 @@ Plans:
   3. Per-target fixture sets contain expected push outputs for all 4 CLI targets
   4. Test harness backs up real target directories before E2E tests and restores them after, even on test failure (try/finally)
   5. `bun test` runs via `package.json` test script with zero failures
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] 10-01-PLAN.md — Fix 2 failing tests + add package.json test script (health baseline)
@@ -284,6 +284,6 @@ Phases execute in numeric order: 1 → ... → 9 → 10 → 11 → 12
 | 7. Unify Instructions | v2.0 | 2/2 | Complete | 2026-02-24 |
 | 8. TOOLS.md + Repo Rename | v2.0 | 2/2 | Complete | 2026-02-24 |
 | 9. Verification Closure + Doc Cleanup | v2.0 | 2/2 | Complete | 2026-02-25 |
-| 10. Fixtures Infrastructure + Test Health | 2/3 | In Progress|  | - |
+| 10. Fixtures Infrastructure + Test Health | 3/3 | Complete   | 2026-02-25 | - |
 | 11. Push E2E Tests | v3.0 | 0/? | Not started | - |
 | 12. Pull E2E Tests | v3.0 | 0/? | Not started | - |

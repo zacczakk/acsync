@@ -19,7 +19,7 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 
 - [x] **FIX-01**: Committed fixture directory exists at `test/fixtures/` with canonical and per-target subdirectories
 - [x] **FIX-02**: Canonical fixtures cover all 6 config types (commands, agents, skills, settings, MCP, instructions)
-- [ ] **FIX-03**: Per-target fixture sets exist for Claude, OpenCode, Gemini, Codex (expected push outputs)
+- [x] **FIX-03**: Per-target fixture sets exist for Claude, OpenCode, Gemini, Codex (expected push outputs)
 - [x] **FIX-04**: Test harness backs up real target directories before E2E tests
 - [x] **FIX-05**: Test harness restores real target directories after E2E tests
 - [x] **FIX-06**: Cleanup runs reliably even on test failure (try/finally pattern)
@@ -78,7 +78,7 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 |-------------|-------|--------|
 | FIX-01 | Phase 10 | Complete |
 | FIX-02 | Phase 10 | Complete |
-| FIX-03 | Phase 10 | Pending |
+| FIX-03 | Phase 10 | Complete |
 | FIX-04 | Phase 10 | Complete |
 | FIX-05 | Phase 10 | Complete |
 | FIX-06 | Phase 10 | Complete |
