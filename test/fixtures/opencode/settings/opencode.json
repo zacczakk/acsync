@@ -1,0 +1,67 @@
+// OpenCode settings
+{
+  "model": "throttle-tux/claude-opus-4-6",
+  "customKey": "preserved",
+  "instructions": [
+    "~/.config/opencode/AGENTS.md"
+  ],
+  "permission": {
+    "*": "allow",
+    "bash": {
+      "*": "allow",
+      "rm *": "deny",
+      "cat *.env": "deny",
+      "cat *.env.*": "deny",
+      "cat */.env": "deny",
+      "cat */.env.*": "deny",
+      "cat */.env.example": "allow",
+      "cat ~/.zshrc_secrets": "deny",
+      "git push *": "ask",
+      "git reset --hard *": "deny"
+    },
+    "external_directory": {
+      "*": "ask",
+      "~/Vaults/**": "allow",
+      "~/.config/opencode/agents/*": "allow"
+    },
+    "read": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow",
+      "~/.zshrc_secrets": "deny",
+      "~/.config/opencode/agents/*": "allow",
+      "~/.config/opencode/commands/*": "allow",
+      "~/.config/opencode/skills/*": "allow"
+    }
+  },
+  "plugin": [
+    "opencode-agent-browser"
+  ],
+  "provider": {
+    "throttle-tux": {
+      "npm": "@ai-sdk/anthropic",
+      "name": "Tux",
+      "options": {
+        "baseURL": "http://127.0.0.1:18080/v1",
+        "apiKey": "does-not-matter"
+      },
+      "models": {
+        "claude-opus-4-6": {
+          "name": "Claude Opus 4.6",
+          "limit": {
+            "context": 180000,
+            "output": 64000
+          }
+        },
+        "claude-sonnet-4-6": {
+          "name": "Claude Sonnet 4.6",
+          "limit": {
+            "context": 180000,
+            "output": 64000
+          }
+        }
+      }
+    }
+  }
+}

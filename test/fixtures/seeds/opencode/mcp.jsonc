@@ -1,0 +1,10 @@
+// OpenCode MCP config
+{
+  "mcp": {
+    "existing-server": {
+      "type": "local",
+      "command": ["node", "server.js"],
+      "enabled": true
+    }
+  }
+}

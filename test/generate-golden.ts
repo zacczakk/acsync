@@ -9,11 +9,12 @@ import { OpenCodeAdapter } from '../src/adapters/opencode';
 import { GeminiAdapter } from '../src/adapters/gemini';
 import { CodexAdapter } from '../src/adapters/codex';
 import { parseFrontmatter } from '../src/formats/markdown';
-import type { CanonicalItem, TargetName } from '../src/types';
+import type { CanonicalItem, CanonicalSettings, MCPServer, TargetName } from '../src/types';
 import type { ToolAdapter } from '../src/adapters/base';
 
 const FIXTURE_ROOT = join(import.meta.dir, 'fixtures');
 const CANONICAL = join(FIXTURE_ROOT, 'canonical');
+const SEEDS = join(FIXTURE_ROOT, 'seeds');
 
 const adapters: { name: TargetName; adapter: ToolAdapter }[] = [
   { name: 'claude-code', adapter: new ClaudeCodeAdapter() },
@@ -112,6 +113,62 @@ const instructionFilenames: Record<TargetName, string> = {
 for (const { name: target } of adapters) {
   const outDir = join(FIXTURE_ROOT, targetDir[target], 'instructions');
   writeGolden(outDir, instructionFilenames[target], instructionsContent);
+  fileCount++;
+}
+
+// ── MCP Servers (merged into seed state) ──────────────────────────────────
+
+const mcpFiles = readdirSync(join(CANONICAL, 'mcp')).filter(f => f.endsWith('.json'));
+const servers: MCPServer[] = mcpFiles.map(file => {
+  const raw = readFileSync(join(CANONICAL, 'mcp', file), 'utf-8');
+  const server = JSON.parse(raw) as MCPServer;
+  if (!server.name) server.name = basename(file, '.json');
+  return server;
+});
+
+// Seed filenames and output filenames per target
+const mcpSeedFile: Record<TargetName, string> = {
+  'claude-code': 'mcp.json',
+  'opencode': 'mcp.jsonc',
+  'gemini': 'mcp.json',
+  'codex': 'mcp.toml',
+};
+
+const mcpOutFile: Record<TargetName, string> = {
+  'claude-code': 'settings.json',
+  'opencode': 'opencode.jsonc',
+  'gemini': 'settings.json',
+  'codex': 'mcp_servers.toml',
+};
+
+for (const { name: target, adapter } of adapters) {
+  const seedPath = join(SEEDS, targetDir[target], mcpSeedFile[target]);
+  const existingContent = readFileSync(seedPath, 'utf-8');
+  const rendered = adapter.renderMCPServers(servers, existingContent);
+  if (rendered) {
+    const outDir = join(FIXTURE_ROOT, targetDir[target], 'mcp');
+    writeGolden(outDir, mcpOutFile[target], rendered);
+    fileCount++;
+  }
+}
+
+// ── Settings (merged into seed state) ─────────────────────────────────────
+
+const settingsTargets: { target: TargetName; canonicalFile: string; seedFile: string; outFile: string }[] = [
+  { target: 'claude-code', canonicalFile: 'claude.json', seedFile: 'settings.json', outFile: 'settings.json' },
+  { target: 'opencode', canonicalFile: 'opencode.json', seedFile: 'settings.jsonc', outFile: 'opencode.json' },
+];
+
+for (const { target, canonicalFile, seedFile, outFile } of settingsTargets) {
+  const adapter = adapters.find(a => a.name === target)!.adapter;
+  const canonicalRaw = readFileSync(join(CANONICAL, 'settings', canonicalFile), 'utf-8');
+  const keys = JSON.parse(canonicalRaw) as Record<string, unknown>;
+  const settings: CanonicalSettings = { target, keys };
+  const seedPath = join(SEEDS, targetDir[target], seedFile);
+  const existingContent = readFileSync(seedPath, 'utf-8');
+  const rendered = adapter.renderSettings(settings, existingContent);
+  const outDir = join(FIXTURE_ROOT, targetDir[target], 'settings');
+  writeGolden(outDir, outFile, rendered);
   fileCount++;
 }
 
