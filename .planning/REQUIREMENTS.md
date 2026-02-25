@@ -40,10 +40,10 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 - [ ] **PULL-01**: Pull commands from all 4 real CLI targets and verify canonical format
 - [ ] **PULL-02**: Pull agents from all 4 real CLI targets and verify canonical format
 - [ ] **PULL-03**: Pull skills from all 4 real CLI targets and verify canonical format
-- [ ] **PULL-04**: Pull settings from all 4 real CLI targets and verify canonical format
+- [x] **PULL-04**: Pull settings from all 4 real CLI targets and verify canonical format
 - [x] **PULL-05**: Pull MCP servers from all 4 real CLI targets and verify canonical format
 - [x] **PULL-06**: Pull instructions from all 4 real CLI targets and verify canonical format
-- [ ] **PULL-07**: Pull overwrites existing canonical items (with warning)
+- [x] **PULL-07**: Pull overwrites existing canonical items (with warning)
 
 ### Test Health
 
@@ -93,10 +93,10 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 | PULL-01 | Phase 12 | Pending |
 | PULL-02 | Phase 12 | Pending |
 | PULL-03 | Phase 12 | Pending |
-| PULL-04 | Phase 12 | Pending |
+| PULL-04 | Phase 12 | Complete |
 | PULL-05 | Phase 12 | Complete |
 | PULL-06 | Phase 12 | Complete |
-| PULL-07 | Phase 12 | Pending |
+| PULL-07 | Phase 12 | Complete |
 | HLTH-01 | Phase 10 | Complete |
 | HLTH-02 | Phase 10 | Complete |
 

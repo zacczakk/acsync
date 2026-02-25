@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 12 of 12 (Pull E2E Tests)
-Plan: 1 of 3 in current phase
-Status: In Progress
-Last activity: 2026-02-25 — Plan 12-01 complete
+Plan: 3 of 3 in current phase
+Status: Complete
+Last activity: 2026-02-25 — Plan 12-03 complete
 
-Progress: [██████████████████████████████] 94% (30/32 plans)
+Progress: [██████████████████████████████] 100% (32/32 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 30
+- Total plans completed: 32
 - Average duration: 6min
-- Total execution time: ~2.6 hours
+- Total execution time: ~2.8 hours
 
 **By Phase:**
 
@@ -38,7 +38,7 @@ Progress: [███████████████████████
 | 09-verification-closure-doc-cleanup | 2 | 6min | 3min |
 | 10-fixtures-infrastructure-test-health | 3 | 11min | 3.7min |
 | 11-push-e2e-tests | 3 | 41min | 13.7min |
-| 12-pull-e2e-tests | 1/3 | 6min | 6min |
+| 12-pull-e2e-tests | 3/3 | 18min | 6min |
 
 ## Accumulated Context
 
@@ -60,6 +60,8 @@ Key decisions across the project:
 - [Phase 11-02]: E2E_TIMEOUT 60s for push tests; each test file uses isolated projectDir + withTargetBackup
 - [Phase 11-03]: Combined all MCP/settings/instructions assertions into single withTargetBackup blocks to avoid backup overhead
 - [Phase 12-01]: parseMCPServers default in BaseAdapter for JSON targets; OpenCode/Codex override for JSONC/TOML
+- [Phase 12-02]: Lossy adapters (Gemini TOML, Codex flat MD, OpenCode agents) get structural body comparison vs exact match
+- [Phase 12-03]: Round-trip push→pull E2E strategy for MCP/settings/instructions; field-level comparison for pulled canonical JSON
 
 ### Pending Todos
 
@@ -72,5 +74,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 12-01-PLAN.md
+Stopped at: Completed 12-03-PLAN.md
 Resume file: None
