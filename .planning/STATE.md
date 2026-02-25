@@ -5,16 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Make config sync fast and cheap by moving mechanical transforms into deterministic code
-**Current focus:** v2.0 milestone complete — all 9 phases shipped
+**Current focus:** v3.0 Harden Test Suite
 
 ## Current Position
 
-Phase: 9 of 9 (Verification, Closure, Doc Cleanup)
-Plan: 2 of 2 — COMPLETE
-Status: All plans complete. v2.0 milestone shipped.
-Last activity: 2026-02-25 — 09-02 completed (stale reference cleanup + milestone closure)
-
-Progress: [█████████████████████] 100% (23/23 plans)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-25 — Milestone v3.0 started
 
 ## Performance Metrics
 

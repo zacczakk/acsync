@@ -8,16 +8,17 @@ A deterministic TypeScript (bun) CLI tool that syncs AI coding tool configuratio
 
 Make config sync fast, cheap, and reliable by moving all mechanical transforms into deterministic code, leaving only genuinely complex decisions to agents.
 
-## Current Milestone: v2.0 Simplify Canonical
+## Current Milestone: v3.0 Harden Test Suite
 
-**Goal:** Flatten canonical structure, unify instructions, rename repo — breaking changes for cleaner architecture.
+**Goal:** E2E fixture-based tests covering push and pull across all 4 CLI targets for all 6 config types, using committed fixtures and real target directories with backup/restore safety.
 
 **Target features:**
-- ~~Flatten `configs/common/` to `configs/`~~ ✅
-- Merge 4 per-CLI instruction addendums into single AGENTS.md
-- Add canonical TOOLS.md (referenced by absolute path, not rendered)
-- ~~Rename repo folder `~/Repos/agents` -> `~/Repos/acsync`~~ ✅
-- Fix OpenCode `opencode.json` instructions path
+- Committed fixture data for all 6 config types (commands, agents, skills, settings, MCP, instructions)
+- E2E push tests: canonical fixtures → push to real CLI targets → verify output → cleanup
+- E2E pull tests: target fixtures → pull to canonical → verify → cleanup
+- Full coverage matrix: 2 ops × 4 targets × 6 types = 48 test cells
+- Backup/restore safety for real target directory tests
+- Fix failing tests that overlap with fixture work
 
 ## Requirements
 
@@ -39,16 +40,11 @@ Make config sync fast, cheap, and reliable by moving all mechanical transforms i
 
 ### Active
 
-- [x] Flatten `configs/common/` one level up to `configs/`
-- [x] Move AGENTS.md into `configs/instructions/AGENTS.md`
-- [x] Merge per-CLI addendums (claude.md, opencode.md, gemini.md, codex.md) into single AGENTS.md
-- [x] Update `renderInstructions()` to single-file model (no addendum)
-- [x] Update instruction output filenames (OpenCode: AGENTS.md, Gemini: AGENTS.md, Codex: AGENTS.md)
-- [x] Create canonical `configs/instructions/TOOLS.md` referenced by absolute path from AGENTS.md
-- [x] Rename repo folder `~/Repos/agents` -> `~/Repos/acsync` + re-register binary
-- [x] Fix OpenCode `opencode.json` instructions path to point to AGENTS.md
-- [x] Update all source code paths referencing `configs/common/`
-- [x] Clean up stale target files (OPENCODE.md, GEMINI.md, instructions.md)
+- [ ] Committed fixture data for all 6 config types across all 4 targets
+- [ ] E2E push tests with real target directories
+- [ ] E2E pull tests with real target directories
+- [ ] Backup/restore safety harness for E2E tests
+- [ ] Fix overlapping failing tests
 
 ### Out of Scope
 
@@ -89,4 +85,4 @@ Make config sync fast, cheap, and reliable by moving all mechanical transforms i
 | TOOLS.md by reference, not render | Agents always have access to ~/Repos/acsync; no need for rendering overhead | -- Pending |
 
 ---
-*Last updated: 2026-02-23 after v2.0 milestone start*
+*Last updated: 2026-02-25 after v3.0 milestone start*
