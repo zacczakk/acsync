@@ -255,7 +255,7 @@ Plans:
   2. Push agents, skills, settings, MCP, and instructions each verified against expected output for all 4 targets
   3. Push with `--force --delete` removes non-canonical items from targets (verified by checking target directory contents post-push)
   4. All 24 push cells (6 types × 4 targets) covered by at least one assertion
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 11-01-PLAN.md — Seed fixtures + MCP/settings golden generation + cleanup old push tests
@@ -290,5 +290,5 @@ Phases execute in numeric order: 1 → ... → 9 → 10 → 11 → 12
 | 8. TOOLS.md + Repo Rename | v2.0 | 2/2 | Complete | 2026-02-24 |
 | 9. Verification Closure + Doc Cleanup | v2.0 | 2/2 | Complete | 2026-02-25 |
 | 10. Fixtures Infrastructure + Test Health | 3/3 | Complete    | 2026-02-25 | - |
-| 11. Push E2E Tests | v3.0 | 0/3 | Planned | - |
+| 11. Push E2E Tests | 1/3 | In Progress|  | - |
 | 12. Pull E2E Tests | v3.0 | 0/? | Not started | - |
