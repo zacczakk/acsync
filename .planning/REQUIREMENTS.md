@@ -40,12 +40,12 @@ Requirements for Simplify Canonical milestone. Flatten structure, unify instruct
 
 ### Repo Identity
 
-- [ ] **REPO-01**: Repo folder renamed from `~/Repos/agents` to `~/Repos/acsync`
-- [ ] **REPO-02**: All internal path references updated (`~/Repos/agents` -> `~/Repos/acsync`)
-- [ ] **REPO-03**: `acsync` binary re-registered via `bun link` from new location
-- [ ] **REPO-04**: `acsync push --force` propagates all path changes to targets
-- [ ] **REPO-05**: OpenCode `opencode.json` instructions array points to `AGENTS.md` (not `OPENCODE.md`)
-- [ ] **REPO-06**: Stale target files cleaned up: `~/.config/opencode/OPENCODE.md`, `~/.gemini/GEMINI.md`, `~/.codex/instructions.md`
+- [x] **REPO-01**: Repo folder renamed from `~/Repos/agents` to `~/Repos/acsync`
+- [x] **REPO-02**: All internal path references updated (`~/Repos/agents` -> `~/Repos/acsync`)
+- [x] **REPO-03**: `acsync` binary re-registered via `bun link` from new location
+- [x] **REPO-04**: `acsync push --force` propagates all path changes to targets
+- [x] **REPO-05**: OpenCode `opencode.json` instructions array points to `AGENTS.md` (not `OPENCODE.md`)
+- [x] **REPO-06**: Stale target files cleaned up: `~/.config/opencode/OPENCODE.md`, `~/.gemini/GEMINI.md`, `~/.codex/instructions.md`
 
 ## Future Requirements (v2.1 — vsync-alignment)
 
@@ -88,15 +88,15 @@ Requirements for Simplify Canonical milestone. Flatten structure, unify instruct
 | INST-08 | Phase 7 | Complete |
 | INST-09 | Phase 7 | Complete |
 | INST-10 | Phase 7 | Complete |
-| TOOL-01 | Phase 9 | Pending |
-| TOOL-02 | Phase 9 | Pending |
-| TOOL-03 | Phase 9 | Pending |
-| REPO-01 | Phase 9 | Pending |
-| REPO-02 | Phase 9 | Pending |
-| REPO-03 | Phase 9 | Pending |
-| REPO-04 | Phase 9 | Pending |
-| REPO-05 | Phase 9 | Pending |
-| REPO-06 | Phase 9 | Pending |
+| TOOL-01 | Phase 8 | Complete |
+| TOOL-02 | Phase 8 | Complete |
+| TOOL-03 | Phase 8 | Complete |
+| REPO-01 | Phase 8 | Complete |
+| REPO-02 | Phase 8 | Complete |
+| REPO-03 | Phase 8 | Complete |
+| REPO-04 | Phase 8 | Complete |
+| REPO-05 | Phase 8 | Complete |
+| REPO-06 | Phase 8 | Complete |
 
 **Coverage:**
 - v2.0 requirements: 24 total
@@ -105,4 +105,4 @@ Requirements for Simplify Canonical milestone. Flatten structure, unify instruct
 
 ---
 *Requirements defined: 2026-02-23*
-*Last updated: 2026-02-23 after v2.0 initial definition*
+*Last updated: 2026-02-25 — all 24 v2.0 requirements complete*
