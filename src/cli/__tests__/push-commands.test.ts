@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync, existsSync, writeFileSync } from 'node:fs';
+import { readFileSync, existsSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir, tmpdir } from 'node:os';
 import { cpSync, mkdtempSync } from 'node:fs';
@@ -25,10 +25,18 @@ const TARGET_PATHS = {
   codex: join(homedir(), '.codex', 'prompts'),
 };
 
+/** Remove command files from all targets so push always detects drift */
+function clearTargetCommands(): void {
+  for (const dir of Object.values(TARGET_PATHS)) {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 describe('push-commands E2E', () => {
   test('pushes commands to all 4 targets matching golden fixtures', async () => {
     await withTargetBackup(async () => {
       const projectDir = setupProjectDir();
+      clearTargetCommands();
       const result = await runPush({ projectDir, force: true, types: ['command'] });
 
       // OrchestratorPushResult assertions

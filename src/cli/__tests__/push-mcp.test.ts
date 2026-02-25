@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync, cpSync, mkdirSync } from 'node:fs';
+import { readFileSync, cpSync, mkdirSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import os from 'node:os';
 import { withTargetBackup } from '../../../test/helpers/backup';
@@ -18,7 +18,7 @@ function setupProjectDir(): string {
   return dir;
 }
 
-/** Seed real target MCP files with pre-existing content from seeds/ */
+/** Clear then seed real target MCP files with pre-existing content from seeds/ */
 function seedMCPTargets(): void {
   const targets: Array<{ target: TargetName; seedFile: string }> = [
     { target: 'claude-code', seedFile: join(SEEDS_ROOT, 'claude/mcp.json') },
@@ -30,6 +30,7 @@ function seedMCPTargets(): void {
   for (const { target, seedFile } of targets) {
     const adapter = createAdapter(target);
     const mcpPath = adapter.getPaths().getMCPConfigPath();
+    rmSync(mcpPath, { force: true });
     mkdirSync(dirname(mcpPath), { recursive: true });
     cpSync(seedFile, mcpPath);
   }
