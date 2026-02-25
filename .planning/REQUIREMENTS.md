@@ -17,13 +17,13 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 
 ### Fixtures Infrastructure
 
-- [ ] **FIX-01**: Committed fixture directory exists at `test/fixtures/` with canonical and per-target subdirectories
-- [ ] **FIX-02**: Canonical fixtures cover all 6 config types (commands, agents, skills, settings, MCP, instructions)
+- [x] **FIX-01**: Committed fixture directory exists at `test/fixtures/` with canonical and per-target subdirectories
+- [x] **FIX-02**: Canonical fixtures cover all 6 config types (commands, agents, skills, settings, MCP, instructions)
 - [ ] **FIX-03**: Per-target fixture sets exist for Claude, OpenCode, Gemini, Codex (expected push outputs)
-- [ ] **FIX-04**: Test harness backs up real target directories before E2E tests
-- [ ] **FIX-05**: Test harness restores real target directories after E2E tests
-- [ ] **FIX-06**: Cleanup runs reliably even on test failure (try/finally pattern)
-- [ ] **FIX-07**: Fixture data exercises format-specific features (frontmatter, TOML, JSONC comments, flat markdown)
+- [x] **FIX-04**: Test harness backs up real target directories before E2E tests
+- [x] **FIX-05**: Test harness restores real target directories after E2E tests
+- [x] **FIX-06**: Cleanup runs reliably even on test failure (try/finally pattern)
+- [x] **FIX-07**: Fixture data exercises format-specific features (frontmatter, TOML, JSONC comments, flat markdown)
 
 ### Push E2E
 
@@ -76,13 +76,13 @@ Requirements for Harden Test Suite milestone. E2E fixture-based tests covering p
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FIX-01 | Phase 10 | Pending |
-| FIX-02 | Phase 10 | Pending |
+| FIX-01 | Phase 10 | Complete |
+| FIX-02 | Phase 10 | Complete |
 | FIX-03 | Phase 10 | Pending |
-| FIX-04 | Phase 10 | Pending |
-| FIX-05 | Phase 10 | Pending |
-| FIX-06 | Phase 10 | Pending |
-| FIX-07 | Phase 10 | Pending |
+| FIX-04 | Phase 10 | Complete |
+| FIX-05 | Phase 10 | Complete |
+| FIX-06 | Phase 10 | Complete |
+| FIX-07 | Phase 10 | Complete |
 | PUSH-01 | Phase 11 | Pending |
 | PUSH-02 | Phase 11 | Pending |
 | PUSH-03 | Phase 11 | Pending |
