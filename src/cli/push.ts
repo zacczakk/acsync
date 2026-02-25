@@ -67,7 +67,8 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
   }
 
   if (options.dryRun) {
-    const { output, hasDrift } = formatDryRunResult(checkResult.diffs, options.pretty ?? false);
+    const pretty = options.pretty ?? !options.json;
+    const { output, hasDrift } = formatDryRunResult(checkResult.diffs, pretty);
     return {
       diffs: checkResult.diffs,
       hasDrift,
@@ -86,7 +87,7 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
 
   for (const diff of checkResult.diffs) {
     const target = diff.target;
-    const adapter = createAdapter(target);
+    const adapter = createAdapter(target, options.homeDir);
     const caps = adapter.getCapabilities();
     const writeOps = diff.operations.filter((op) => op.type === 'create' || op.type === 'update');
     const deleteOps = diff.operations.filter((op) => op.type === 'delete');
@@ -219,7 +220,8 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
     await saveManifest(manifest, projectDir);
   }
 
-  const output = formatPushResult(pushResults, options.pretty ?? false);
+  const prettyOut = options.pretty ?? !options.json;
+  const output = formatPushResult(pushResults, prettyOut);
   return {
     diffs: checkResult.diffs,
     hasDrift: totalWritten > 0 || totalFailed > 0,
@@ -247,8 +249,7 @@ Examples:
   acsync push --delete                  Push and remove stale target files
   acsync push -t claude --type commands Push commands to Claude Code only
   acsync push --force --delete          Full sync: push all + clean stale`)
-  .option('--pretty', 'Human-readable colored output (default: JSON)')
-  .option('--json', 'Output JSON (default behavior, explicit for scripts)')
+  .option('--json', 'Machine-readable JSON output')
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
   .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings', collect, [] as string[])
   .option('--dry-run', 'Show execution plan without writing')
@@ -256,7 +257,7 @@ Examples:
   .option('--delete', 'Delete stale target files not in canonical source (default: skip)')
   .action(
     async (options: {
-      pretty?: boolean;
+      json?: boolean;
       target: string[];
       type: string[];
       dryRun?: boolean;
@@ -267,12 +268,13 @@ Examples:
         validateTargets(options.target);
         validateTypes(options.type);
 
+        const pretty = !options.json;
         const syncOpts = {
           targets: mapTargets(options.target),
           types: mapTypes(options.type),
           dryRun: options.dryRun,
           force: options.force,
-          pretty: options.pretty,
+          pretty,
           deleteStale: options.delete,
         };
 
@@ -288,7 +290,7 @@ Examples:
           const check = await runCheck({
             targets: syncOpts.targets,
             types: syncOpts.types,
-            pretty: options.pretty,
+            pretty,
           });
 
           process.stdout.write(check.output + '\n');

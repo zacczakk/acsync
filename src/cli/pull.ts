@@ -21,6 +21,7 @@ export interface PullOptions {
   pretty?: boolean;
   json?: boolean;
   projectDir?: string;
+  homeDir?: string;             // override home directory (for test isolation)
   /** When set, only pull items whose "type/name" key is in this set */
   onlyKeys?: Set<string>;
 }
@@ -50,6 +51,7 @@ export interface PullAllOptions {
   pretty?: boolean;
   json?: boolean;
   projectDir?: string;
+  homeDir?: string;
 }
 
 /** Map internal target name to user-facing display name */
@@ -76,7 +78,7 @@ function existingSettingsFile(filePath: string): boolean {
  */
 export async function runPull(options: PullOptions): Promise<OrchestratorPullResult> {
   const projectDir = options.projectDir ?? PROJECT_ROOT;
-  const adapter = createAdapter(options.source);
+  const adapter = createAdapter(options.source, options.homeDir);
   const isExcluded = createExclusionFilter(['gsd-*', '.acsync-backup-*']);
   const paths = adapter.getPaths();
 
@@ -360,6 +362,7 @@ export async function runPullAll(options: PullAllOptions = {}): Promise<Orchestr
       force: options.force,
       dryRun: true,
       projectDir,
+      homeDir: options.homeDir,
     });
     discoveries.set(target, result.items);
   }
@@ -416,6 +419,7 @@ export async function runPullAll(options: PullAllOptions = {}): Promise<Orchestr
       source: target,
       force: options.force,
       projectDir,
+      homeDir: options.homeDir,
       onlyKeys: keys,
     });
   }

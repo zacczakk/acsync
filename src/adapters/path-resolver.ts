@@ -5,9 +5,15 @@ import type { TargetName } from '../types';
 /**
  * Centralized path construction for all 4 target CLIs.
  * All paths are fully expanded (no ~ in output) and write-ready.
+ *
+ * Pass `homeDir` to redirect all paths to an isolated directory (for tests).
  */
 export class AdapterPathResolver {
-  constructor(private readonly target: TargetName) {}
+  private readonly homeDir: string;
+
+  constructor(private readonly target: TargetName, homeDir?: string) {
+    this.homeDir = homeDir ?? os.homedir();
+  }
 
   /** Base config directory for the target */
   getBaseDir(): string {
@@ -54,10 +60,10 @@ export class AdapterPathResolver {
     return path.join(this.getAgentsDir(), this.agentFileName(name));
   }
 
-  /** Expand ~ to the user's home directory */
+  /** Expand ~ to the home directory (real or overridden) */
   expandHome(p: string): string {
-    if (p === '~') return os.homedir();
-    if (p.startsWith('~/')) return path.join(os.homedir(), p.slice(2));
+    if (p === '~') return this.homeDir;
+    if (p.startsWith('~/')) return path.join(this.homeDir, p.slice(2));
     return p;
   }
 

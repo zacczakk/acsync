@@ -11,8 +11,8 @@ import type {
 } from '../types';
 
 export class OpenCodeAdapter extends BaseAdapter {
-  constructor() {
-    super('opencode', 'OpenCode');
+  constructor(homeDir?: string) {
+    super('opencode', 'OpenCode', homeDir);
   }
 
   getCapabilities(): AdapterCapabilities {
