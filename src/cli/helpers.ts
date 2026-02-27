@@ -31,6 +31,7 @@ async function readHelpers(): Promise<HelperFile[]> {
   const entries = await readdir(SCRIPTS_DIR);
   const helpers: HelperFile[] = [];
   for (const entry of entries) {
+    if (entry.startsWith('.')) continue;
     const sourcePath = join(SCRIPTS_DIR, entry);
     const info = await stat(sourcePath);
     if (!info.isFile()) continue;
@@ -100,14 +101,15 @@ export async function runHelpers(targetRoot: string, options: { dryRun?: boolean
   const ops = await planOps(helpers, targetDir);
 
   const writeOps = ops.filter((op) => op.action !== 'skip');
+  const upToDate = ops.filter((op) => op.action === 'skip').length;
 
   if (writeOps.length === 0) {
     const output = formatPlan(ops, targetDir, pretty);
-    return { written: 0, skipped: ops.length, output };
+    return { written: 0, skipped: upToDate, output };
   }
 
   if (options.dryRun) {
-    return { written: 0, skipped: ops.length, output: formatPlan(ops, targetDir, pretty) };
+    return { written: 0, skipped: upToDate, output: formatPlan(ops, targetDir, pretty) };
   }
 
   if (!options.force) {
@@ -115,7 +117,7 @@ export async function runHelpers(targetRoot: string, options: { dryRun?: boolean
     const ok = await confirm('Write helpers?');
     if (!ok) {
       process.stderr.write('Cancelled.\n');
-      return { written: 0, skipped: ops.length, output: '' };
+      return { written: 0, skipped: upToDate, output: '' };
     }
   }
 
@@ -125,7 +127,7 @@ export async function runHelpers(targetRoot: string, options: { dryRun?: boolean
   }
 
   const output = formatResult(ops, pretty);
-  return { written: writeOps.length, skipped: ops.length - writeOps.length, output };
+  return { written: writeOps.length, skipped: upToDate, output };
 }
 
 export const helpersCommand = new Command('helpers')

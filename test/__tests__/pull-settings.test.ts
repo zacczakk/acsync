@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync, cpSync, mkdirSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, cpSync, mkdirSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import os from 'node:os';
 import { createTestHome } from '../helpers/backup';
@@ -65,6 +65,33 @@ describe('pull settings E2E', () => {
         expect(JSON.stringify(pulled[key])).toBe(JSON.stringify(canonical[key]));
       }
     }
+  }, E2E_TIMEOUT);
+
+  test('pull collapses expanded home paths to ~', async () => {
+    const fakeHome = createTestHome('pull-settings-collapse');
+    const pullDir = setupProjectDir('collapse');
+
+    // Seed installed settings with expanded fakeHome paths
+    const adapter = createAdapter('claude-code', fakeHome);
+    const settingsPath = adapter.getPaths().getSettingsPath();
+    mkdirSync(dirname(settingsPath), { recursive: true });
+    writeFileSync(settingsPath, JSON.stringify({
+      env: {
+        SSL_CERT_FILE: `${fakeHome}/.claude/cacert.pem`,
+        NODE_EXTRA_CA_CERTS: `${fakeHome}/.claude/cacert.pem`,
+      },
+      permissions: { allow: ['Read'], deny: [] },
+    }, null, 2) + '\n');
+
+    const pullResult = await runPull({ source: 'claude-code', force: true, projectDir: pullDir, homeDir: fakeHome });
+    expect(pullResult.rolledBack).toBe(false);
+
+    const pulledPath = join(pullDir, 'configs/settings', 'claude.json');
+    const pulledContent = readFileSync(pulledPath, 'utf-8');
+
+    // Expanded paths must be collapsed to ~
+    expect(pulledContent).not.toContain(fakeHome);
+    expect(pulledContent).toContain('~/.claude/cacert.pem');
   }, E2E_TIMEOUT);
 
   test('gemini and codex have no settings capability', () => {
