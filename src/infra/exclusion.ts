@@ -1,4 +1,25 @@
-export function createExclusionFilter(patterns: string[]): (name: string) => boolean {
+/**
+ * Canonical exclusion patterns — single source of truth.
+ * Matches sync-spec.md §Exclusion Rules + acsync internal backups.
+ *
+ * Never touch these during sync:
+ * - gsd-*                   GSD-managed commands/agents
+ * - gsd                     GSD command subdirectory (bare dirname)
+ * - .sync-manifest.json     GSD artifact
+ * - .gsd-file-manifest.json GSD artifact
+ * - .DS_Store               macOS junk
+ * - .acsync-backup-*        acsync internal backups
+ */
+export const EXCLUSION_PATTERNS = [
+  'gsd-*',
+  'gsd',
+  '.acsync-backup-*',
+  '.sync-manifest.json',
+  '.gsd-file-manifest.json',
+  '.DS_Store',
+] as const;
+
+export function createExclusionFilter(patterns: readonly string[] = EXCLUSION_PATTERNS): (name: string) => boolean {
   const globs = patterns.map((p) => new Bun.Glob(p));
 
   return (name: string): boolean => {

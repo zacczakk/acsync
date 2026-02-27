@@ -42,7 +42,7 @@ export interface OrchestratorPushResult {
 export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPushResult> {
   const projectDir = options.projectDir ?? PROJECT_ROOT;
   const targets = options.targets && options.targets.length > 0 ? options.targets : ALL_TARGETS;
-  const isExcluded = createExclusionFilter(['gsd-*', '.acsync-backup-*']);
+  const isExcluded = createExclusionFilter();
 
   const manifest = await loadManifest(projectDir);
 

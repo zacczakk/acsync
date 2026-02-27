@@ -14,7 +14,7 @@ const projectDir = join(import.meta.dir, '..', '..', '..');
 
 describe('render subcommand logic', () => {
   test('renders a canonical command for all 4 targets', async () => {
-    const isExcluded = createExclusionFilter(['gsd-*']);
+    const isExcluded = createExclusionFilter();
     const commands = await readCanonicalCommands(projectDir, isExcluded);
     expect(commands.length).toBeGreaterThan(0);
 
@@ -37,7 +37,7 @@ describe('render subcommand logic', () => {
   });
 
   test('renders a canonical skill for targets that support skills', async () => {
-    const isExcluded = createExclusionFilter(['gsd-*']);
+    const isExcluded = createExclusionFilter();
     const skills = await readCanonicalSkills(projectDir, isExcluded);
     if (skills.length === 0) return;
 
@@ -52,7 +52,7 @@ describe('render subcommand logic', () => {
   });
 
   test('single target filter returns only that target rendering', async () => {
-    const isExcluded = createExclusionFilter(['gsd-*']);
+    const isExcluded = createExclusionFilter();
     const commands = await readCanonicalCommands(projectDir, isExcluded);
     expect(commands.length).toBeGreaterThan(0);
 
@@ -63,7 +63,7 @@ describe('render subcommand logic', () => {
   });
 
   test('nonexistent command is not found in canonical list', async () => {
-    const isExcluded = createExclusionFilter(['gsd-*']);
+    const isExcluded = createExclusionFilter();
     const commands = await readCanonicalCommands(projectDir, isExcluded);
     const missing = commands.find((c) => c.name === 'this-does-not-exist-xyz');
     expect(missing).toBeUndefined();

@@ -95,7 +95,7 @@ Examples:
           }
           content = adapter.renderInstructions(instructionContent);
         } else if (itemType === 'skill') {
-          const isExcluded = createExclusionFilter(['gsd-*', '.acsync-backup-*']);
+          const isExcluded = createExclusionFilter();
           const skills = await readCanonicalSkills(projectDir, isExcluded);
           const item = skills.find((s) => s.name === name);
           if (!item) {
