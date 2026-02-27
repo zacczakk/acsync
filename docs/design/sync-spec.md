@@ -31,7 +31,7 @@ read_when:
 
 | CLI | Commands | Agents | Skills |
 |-----|----------|--------|--------|
-| Claude | `~/.claude/commands/zz/*.md` | `~/.claude/agents/zz/*.md` | `~/.claude/skills/` |
+| Claude | `~/.claude/commands/*.md` | `~/.claude/agents/*.md` | `~/.claude/skills/` |
 | OpenCode | `~/.config/opencode/command/*.md` | `~/.config/opencode/agents/*.md` | `~/.config/opencode/skill/` |
 | Gemini | `~/.gemini/commands/*.toml` | `~/.gemini/agents/*.md` | `~/.gemini/skills/` |
 | Codex | `~/.codex/prompts/*.md` | `~/.codex/prompts/agent-*.md` | `~/.codex/skills/` |
@@ -66,17 +66,13 @@ Never touch these during sync:
 
 ### 2.1 Commands
 
-#### Claude Code — Nest Under `zz/` Subdirectory
-
-For Claude Code, command files are placed inside a `zz/` subdirectory:
+#### Claude Code
 
 - Canonical: `configs/commands/groom-docs.md`
-- Claude system: `~/.claude/commands/zz/groom-docs.md`
-- Invoked as: `/zz:groom-docs`
+- Claude system: `~/.claude/commands/groom-docs.md`
+- Invoked as: `/groom-docs`
 
 The body content is copied verbatim (no frontmatter transformation needed).
-Claude Code supports nested directories in `~/.claude/commands/`; a file at
-`commands/zz/gate.md` becomes `/zz:gate`.
 
 #### OpenCode — Rebuild Frontmatter + Translate Tools
 
@@ -142,7 +138,7 @@ Body content is passed through unchanged.
 ```toml
 description = "Full CI gate..."
 prompt = """
-# /zz-gate -- Full CI Gate
+# /gate -- Full CI Gate
 
 [body content here]
 """
@@ -159,7 +155,7 @@ Rules:
 #### Codex — Flat Markdown
 
 ```markdown
-# /zz-gate
+# /gate
 
 Full CI gate -- binary shippable/not-shippable verdict.
 
@@ -178,23 +174,19 @@ Rules:
 
 ### 2.2 Agents
 
-#### Claude Code — Nest Under `zz/` Subdirectory
-
-Strip `zz-` prefix and place in `~/.claude/agents/zz/` subdirectory (same pattern as commands).
+#### Claude Code
 
 - Canonical: `configs/agents/{name}.md`
-- Claude system: `~/.claude/agents/zz/{name}.md`
+- Claude system: `~/.claude/agents/{name}.md`
 
 Body content copied verbatim.
 
 #### OpenCode — Rebuild Frontmatter + Translate Tools
 
-Keep `zz-` prefix in filename (e.g., `zz-planner.md`).
-
 Canonical agent frontmatter:
 ```yaml
 ---
-name: zz-planner
+name: planner
 description: Goal-backward task planning...
 allowed-tools: [Read, Glob, Grep, Edit, Write, Bash]
 ---
@@ -212,7 +204,6 @@ tools:
 ```
 
 Rules:
-- Keep `zz-` prefix in filename.
 - Drop `name` (OpenCode derives it from filename).
 - Drop `allowed-tools` and translate to `tools` map using the same
   translation table as commands (section 2.1).
@@ -223,12 +214,10 @@ Rules:
 
 #### Gemini CLI — Add `kind: local`
 
-Keep `zz-` prefix in filename (e.g., `zz-planner.md`).
-
 Canonical agent frontmatter:
 ```yaml
 ---
-name: zz-planner
+name: planner
 description: Goal-backward task planning...
 allowed-tools: [Read, Glob, Grep, Edit, Write, Bash]
 ---
@@ -237,7 +226,7 @@ allowed-tools: [Read, Glob, Grep, Edit, Write, Bash]
 Gemini rendered agent frontmatter:
 ```yaml
 ---
-name: zz-planner
+name: planner
 description: Goal-backward task planning...
 allowed-tools: [Read, Glob, Grep, Edit, Write, Bash]
 kind: local
@@ -245,14 +234,13 @@ kind: local
 ```
 
 Rules:
-- Keep `zz-` prefix in filename.
 - Add `kind: local` to frontmatter.
 - Keep everything else as-is.
 
 #### Codex — Flat Markdown in `prompts/agent-{name}.md`
 
 ```markdown
-# Agent: zz-planner
+# Agent: planner
 
 **Role**: Goal-backward task planning...
 
@@ -262,7 +250,7 @@ Rules:
 ```
 
 Rules:
-- Filename: `prompts/agent-{name}.md` (e.g., `agent-zz-planner.md`).
+- Filename: `prompts/agent-{name}.md`
 - No frontmatter.
 - Start with `# Agent: {name}` heading.
 - Add `**Role**: {description}` line.
