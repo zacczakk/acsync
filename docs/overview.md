@@ -69,16 +69,19 @@ acsync/
   configs/
     commands/*.md              6 slash commands (canonical)
     agents/                    Agent definitions (canonical, currently empty)
-    skills/                    3 skill directories (canonical)
+    skills/                    20 skill directories (canonical)
     mcp/*.json                 7 MCP server definitions (canonical)
     settings/*.json            2 settings definitions (claude, opencode)
     instructions/AGENTS.md     Unified agent operating system (ground truth)
     instructions/TOOLS.md      Tool-use reference
-  scripts/
+  scripts/                     Source scripts (on PATH)
     committer                  Git commit helper
     ask-model                  Cross-model consultation
     docs-list.ts               Docs catalog generator
     browser-tools.ts           Chrome DevTools CLI
+  bin/                         Compiled binaries (on PATH, gitignored)
+    context7, tavily, ...      7 MCP CLI binaries (mcporter generate-cli --compile)
+    docs-list, browser-tools   Compiled from scripts/*.ts
   docs/                        Operational documentation
   backups/                     Pre-sync backups (gitignored)
 ```

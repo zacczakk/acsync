@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# ask-model: non-interactive query to claude, codex, or gemini CLI
+# Supports blocking (default) and async modes with timeout protection.
+set -euo pipefail
+
+TIMEOUT="${ASK_MODEL_TIMEOUT:-120}"
+ASYNC=false
+MODEL=""
+OUTPUT_FILE=""
+
+usage() {
+  cat >&2 <<'EOF'
+Usage: ask-model [flags] <claude|codex|gemini> "question"
+
+Flags:
+  --async           Run in background, write to --output file
+  --output, -o FILE Output file (required with --async, optional otherwise)
+  --model, -m NAME  Override model (e.g. opus, gpt-5.3-codex, gemini-3.1-pro-preview)
+  --timeout SECS    Max wait seconds (default: 120, env: ASK_MODEL_TIMEOUT)
+  --help, -h        Show this help
+EOF
+  exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --async)       ASYNC=true; shift ;;
+    --output|-o)   OUTPUT_FILE="$2"; shift 2 ;;
+    --model|-m)    MODEL="$2"; shift 2 ;;
+    --timeout)     TIMEOUT="$2"; shift 2 ;;
+    --help|-h)     usage ;;
+    -*)            echo "Unknown flag: $1" >&2; usage ;;
+    *)             break ;;
+  esac
+done
+
+engine="${1:?$(usage)}"
+shift
+question="$*"
+[[ -z "$question" ]] && { echo "Error: no question provided" >&2; exit 1; }
+
+if $ASYNC && [[ -z "$OUTPUT_FILE" ]]; then
+  echo "Error: --async requires --output FILE" >&2
+  exit 1
+fi
+
+# portable timeout: prefer coreutils timeout/gtimeout, fall back to bash bg+kill
+_timeout() {
+  local secs="$1"; shift
+  if command -v timeout &>/dev/null; then
+    timeout "$secs" "$@"
+  elif command -v gtimeout &>/dev/null; then
+    gtimeout "$secs" "$@"
+  else
+    "$@" &
+    local pid=$!
+    ( sleep "$secs" && kill "$pid" 2>/dev/null ) &
+    local watchdog=$!
+    if wait "$pid" 2>/dev/null; then
+      kill "$watchdog" 2>/dev/null; wait "$watchdog" 2>/dev/null
+      return 0
+    else
+      local rc=$?
+      kill "$watchdog" 2>/dev/null; wait "$watchdog" 2>/dev/null
+      return $rc
+    fi
+  fi
+}
+
+run_query() {
+  case "$engine" in
+    claude)
+      local model_flag=""
+      [[ -n "$MODEL" ]] && model_flag="--model $MODEL"
+      _timeout "$TIMEOUT" claude -p --no-session-persistence $model_flag "$question"
+      ;;
+    codex)
+      local model_flag=""
+      [[ -n "$MODEL" ]] && model_flag="--model $MODEL"
+      _timeout "$TIMEOUT" codex exec --ephemeral --skip-git-repo-check $model_flag "$question"
+      ;;
+    gemini)
+      local model_flag=""
+      [[ -n "$MODEL" ]] && model_flag="-m $MODEL"
+      _timeout "$TIMEOUT" gemini $model_flag -p "$question"
+      ;;
+    *)
+      echo "Unknown engine: $engine (use claude, codex, or gemini)" >&2
+      return 1
+      ;;
+  esac
+}
+
+if $ASYNC; then
+  (
+    if run_query > "$OUTPUT_FILE" 2>/dev/null; then
+      echo "[ask-model] async complete: $OUTPUT_FILE" >&2
+    else
+      echo "[ask-model] async failed (exit $?)" > "$OUTPUT_FILE"
+    fi
+  ) &
+  echo "$!" # print PID so caller can wait/check
+else
+  run_query
+fi
