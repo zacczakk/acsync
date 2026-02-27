@@ -32,14 +32,14 @@
   - Auth: `CORP_BEDROCK_API_KEY` env var
   - Base URL: `${CORP_BASE_URL}/model/`
   - Models: Claude Sonnet 4.5, Claude Haiku 4.5, Claude Opus 4.5
-  - Config: `configs/settings/opencode.json` → `provider.corp-proxy-bedrock`
+  - Config: `configs/settings/opencode.json` → `provider.uptimize-bedrock`
 
 - Corp Proxy Foundry — Corporate proxy to Anthropic via Foundry LMS
   - SDK/Client: `@ai-sdk/anthropic` npm package
   - Auth: `ANTHROPIC_AUTH_TOKEN` env var (Bearer token)
   - Base URL: `{env:ANTHROPIC_BASE_URL}/v1`
   - Models: Claude Opus 4.6, Claude Opus 4.5, Claude Sonnet 4.5, Claude Haiku 4.5
-  - Config: `configs/settings/opencode.json` → `provider.corp-proxy-foundry`
+  - Config: `configs/settings/opencode.json` → `provider.uptimize-foundry`
 
 **Browser Automation:**
 - Chrome DevTools Protocol — Direct browser control

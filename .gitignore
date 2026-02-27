@@ -2,8 +2,9 @@
 backups/
 bin/
 node_modules/
+package-lock.json
 __pycache__/
 .DS_Store
 bun.lock*
-package-lock.json
 .acsync/
+session-*.md

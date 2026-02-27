@@ -9,9 +9,9 @@
 
 | Requirement | Check | Result | Evidence |
 |-------------|-------|--------|----------|
-| REPO-01 | Repo folder renamed to `~/Repos/acsync` | **PASS** | `ls -d ~/Repos/acsync` → `/Users/m332023/Repos/acsync`; `ls ~/Repos/agents` → `No such file or directory` |
+| REPO-01 | Repo folder renamed to `~/Repos/acsync` | **PASS** | `ls -d ~/Repos/acsync` → `~/Repos/acsync`; `ls ~/Repos/agents` → `No such file or directory` |
 | REPO-02 | All internal path refs updated | **PASS** | `rg "~/Repos/agents" src/ configs/` → zero matches |
-| REPO-03 | `acsync` binary re-registered | **PASS** | `which acsync` → `/Users/m332023/.bun/bin/acsync`; `acsync --help` from `/tmp` → executes correctly |
+| REPO-03 | `acsync` binary re-registered | **PASS** | `which acsync` → `~/.bun/bin/acsync`; `acsync --help` from `/tmp` → executes correctly |
 | REPO-04 | Push propagates path changes | **PASS** | `acsync check --pretty` → `54 up to date, 0 drift`; `rg "~/Repos/agents"` in all 4 target instruction files → zero matches |
 | REPO-05 | OpenCode instructions path correct | **PASS** | `opencode.json` → `"instructions": ["~/.config/opencode/AGENTS.md"]` |
 | REPO-06 | Stale target files cleaned | **PASS** | `ls ~/.config/opencode/OPENCODE.md ~/.gemini/GEMINI.md ~/.codex/instructions.md` → all `No such file or directory` |
