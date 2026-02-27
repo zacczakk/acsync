@@ -1,8 +1,6 @@
 import { describe, it, expect } from 'bun:test';
-import { readFileSync, existsSync, mkdtempSync, writeFileSync, rmSync, mkdirSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
-import { tmpdir } from 'node:os';
-import { withBackup } from '../helpers/backup';
 import { ClaudeCodeAdapter } from '../../src/adapters/claude-code';
 import { OpenCodeAdapter } from '../../src/adapters/opencode';
 import { GeminiAdapter } from '../../src/adapters/gemini';
@@ -153,68 +151,3 @@ describe('Golden file accuracy', () => {
   });
 });
 
-// ── withBackup harness ────────────────────────────────────────────────────
-
-describe('withBackup harness', () => {
-  it('restores files after normal operation', async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), 'backup-test-'));
-    const testFile = join(tempDir, 'hello.txt');
-    writeFileSync(testFile, 'original content');
-
-    await withBackup([tempDir], async () => {
-      // Delete the file inside the callback
-      rmSync(testFile);
-      expect(existsSync(testFile)).toBe(false);
-    });
-
-    // File should be restored
-    expect(existsSync(testFile)).toBe(true);
-    expect(readFileSync(testFile, 'utf-8')).toBe('original content');
-
-    // Cleanup
-    rmSync(tempDir, { recursive: true, force: true });
-  });
-
-  it('restores files after error and re-throws', async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), 'backup-test-'));
-    const testFile = join(tempDir, 'hello.txt');
-    writeFileSync(testFile, 'original content');
-
-    let caught = false;
-    try {
-      await withBackup([tempDir], async () => {
-        rmSync(testFile);
-        throw new Error('deliberate test error');
-      });
-    } catch (err) {
-      caught = true;
-      expect((err as Error).message).toBe('deliberate test error');
-    }
-
-    expect(caught).toBe(true);
-    // File should still be restored despite the error
-    expect(existsSync(testFile)).toBe(true);
-    expect(readFileSync(testFile, 'utf-8')).toBe('original content');
-
-    rmSync(tempDir, { recursive: true, force: true });
-  });
-
-  it('cleans up directories that did not exist before', async () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), 'backup-test-'));
-    const nonExistent = join(tempRoot, 'does-not-exist');
-
-    expect(existsSync(nonExistent)).toBe(false);
-
-    await withBackup([nonExistent], async () => {
-      // Create the directory inside the callback
-      mkdirSync(nonExistent, { recursive: true });
-      writeFileSync(join(nonExistent, 'created.txt'), 'test');
-      expect(existsSync(nonExistent)).toBe(true);
-    });
-
-    // Should be cleaned up since it didn't exist before
-    expect(existsSync(nonExistent)).toBe(false);
-
-    rmSync(tempRoot, { recursive: true, force: true });
-  });
-});

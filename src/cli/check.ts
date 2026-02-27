@@ -114,7 +114,7 @@ async function detectStaleItems(
 export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorCheckResult> {
   const projectDir = options.projectDir ?? PROJECT_ROOT;
   const targets = options.targets && options.targets.length > 0 ? options.targets : ALL_TARGETS;
-  const isExcluded = createExclusionFilter(['gsd-*', '.acsync-backup-*']);
+  const isExcluded = createExclusionFilter();
 
   const manifest = await loadManifest(projectDir);
 

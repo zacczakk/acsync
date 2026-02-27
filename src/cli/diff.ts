@@ -53,7 +53,7 @@ Exit codes: 0 = no drift, 2 = drift found, 1 = error`)
         process.exit(0);
       }
 
-      const isExcluded = createExclusionFilter(['gsd-*', '.acsync-backup-*']);
+      const isExcluded = createExclusionFilter();
 
       // Cache canonical items (loaded once)
       const [commands, agents, mcpServers, skills] = await Promise.all([

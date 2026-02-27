@@ -33,34 +33,54 @@ async function setupProject(dir: string, salt: string): Promise<void> {
   );
 }
 
+/** Seed a fake home with pre-existing target files for stale detection */
+async function seedFakeHome(homeDir: string, salt: string): Promise<void> {
+  const claudeCommands = join(homeDir, '.claude', 'commands');
+  await mkdir(claudeCommands, { recursive: true });
+  await writeFile(
+    join(claudeCommands, `existing-${salt}.md`),
+    `Existing command ${salt}.\n`,
+  );
+
+  const opencodeCommands = join(homeDir, '.config', 'opencode', 'command');
+  await mkdir(opencodeCommands, { recursive: true });
+  await writeFile(
+    join(opencodeCommands, `existing-${salt}.md`),
+    `Existing command ${salt}.\n`,
+  );
+}
+
 function makeSalt(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 describe('runCheck', () => {
   let tmpDir: string;
+  let fakeHome: string;
   let salt: string;
 
   beforeEach(async () => {
     salt = makeSalt();
     tmpDir = await mkdtemp(join(tmpdir(), 'orchestrator-test-'));
+    fakeHome = await mkdtemp(join(tmpdir(), 'orchestrator-home-'));
     await setupProject(tmpDir, salt);
   });
 
   test('empty project detects stale target items as drift', async () => {
     const emptyDir = await mkdtemp(join(tmpdir(), 'orchestrator-empty-'));
-    const result = await runCheck({ projectDir: emptyDir });
-    expect(result.diffs).toHaveLength(4);
-    // Empty canonical against real target dirs: all target items are stale (delete ops)
-    for (const diff of result.diffs) {
-      for (const op of diff.operations) {
-        expect(op.type).toBe('delete');
-      }
+    const seededHome = await mkdtemp(join(tmpdir(), 'orchestrator-stale-home-'));
+    await seedFakeHome(seededHome, salt);
+    const result = await runCheck({ projectDir: emptyDir, homeDir: seededHome });
+    // Seeded home has files in claude-code and opencode targets → stale deletes
+    const allOps = result.diffs.flatMap((d) => d.operations);
+    expect(allOps.length).toBeGreaterThan(0);
+    for (const op of allOps) {
+      expect(op.type).toBe('delete');
     }
   });
 
   test('returns diffs for all 4 targets', async () => {
-    const result = await runCheck({ projectDir: tmpDir });
+    const result = await runCheck({ projectDir: tmpDir, homeDir: fakeHome });
     expect(result.diffs).toHaveLength(4);
     const targets = result.diffs.map((d) => d.target);
     expect(targets).toContain('claude-code');
@@ -70,9 +90,9 @@ describe('runCheck', () => {
   });
 
   test('hasDrift is true when canonical items have unique content not yet synced', async () => {
-    // Unique salt → target files don't exist with this name → should create
     const result = await runCheck({
       projectDir: tmpDir,
+      homeDir: fakeHome,
       targets: ['claude-code'],
       types: ['command'],
     });
@@ -81,7 +101,7 @@ describe('runCheck', () => {
   });
 
   test('scopes to specific target via options.targets', async () => {
-    const result = await runCheck({ projectDir: tmpDir, targets: ['claude-code'] });
+    const result = await runCheck({ projectDir: tmpDir, homeDir: fakeHome, targets: ['claude-code'] });
     expect(result.diffs).toHaveLength(1);
     expect(result.diffs[0].target).toBe('claude-code');
   });
@@ -89,6 +109,7 @@ describe('runCheck', () => {
   test('scopes to specific type — only command ops returned', async () => {
     const result = await runCheck({
       projectDir: tmpDir,
+      homeDir: fakeHome,
       targets: ['claude-code'],
       types: ['command'],
     });
@@ -99,12 +120,12 @@ describe('runCheck', () => {
   });
 
   test('pretty output by default', async () => {
-    const result = await runCheck({ projectDir: tmpDir });
+    const result = await runCheck({ projectDir: tmpDir, homeDir: fakeHome });
     expect(result.output).toContain('acsync check');
   });
 
   test('JSON output when options.json=true', async () => {
-    const result = await runCheck({ projectDir: tmpDir, json: true });
+    const result = await runCheck({ projectDir: tmpDir, homeDir: fakeHome, json: true });
     expect(() => JSON.parse(result.output)).not.toThrow();
   });
 
@@ -116,6 +137,7 @@ describe('runCheck', () => {
     );
     const result = await runCheck({
       projectDir: tmpDir,
+      homeDir: fakeHome,
       targets: ['claude-code'],
       types: ['command'],
     });
@@ -127,6 +149,7 @@ describe('runCheck', () => {
   test('command items appear in diff with correct names', async () => {
     const result = await runCheck({
       projectDir: tmpDir,
+      homeDir: fakeHome,
       targets: ['claude-code'],
       types: ['command'],
     });
@@ -139,6 +162,7 @@ describe('runCheck', () => {
   test('agent items appear in diff', async () => {
     const result = await runCheck({
       projectDir: tmpDir,
+      homeDir: fakeHome,
       targets: ['claude-code'],
       types: ['agent'],
     });
@@ -150,6 +174,7 @@ describe('runCheck', () => {
   test('all new canonical items have create operation type', async () => {
     const result = await runCheck({
       projectDir: tmpDir,
+      homeDir: fakeHome,
       targets: ['claude-code'],
       types: ['command'],
     });

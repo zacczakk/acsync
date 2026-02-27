@@ -2,6 +2,7 @@
 import { readdir, readFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import os from 'node:os';
 import { Command } from 'commander';
 import pc from 'picocolors';
 import { writeSupportFiles } from '../infra/support-files';
@@ -54,6 +55,15 @@ export interface PullAllOptions {
   homeDir?: string;
 }
 
+/**
+ * Replace absolute home directory paths with ~ in pulled content.
+ * Ensures canonical configs stay portable across machines.
+ */
+function collapseHomePaths(content: string, homeDir: string): string {
+  if (!homeDir) return content;
+  return content.replaceAll(homeDir + '/', '~/');
+}
+
 /** Map internal target name to user-facing display name */
 function displayTarget(target: TargetName): string {
   return target === 'claude-code' ? 'claude' : target;
@@ -78,8 +88,9 @@ function existingSettingsFile(filePath: string): boolean {
  */
 export async function runPull(options: PullOptions): Promise<OrchestratorPullResult> {
   const projectDir = options.projectDir ?? PROJECT_ROOT;
+  const homeDir = options.homeDir ?? os.homedir();
   const adapter = createAdapter(options.source, options.homeDir);
-  const isExcluded = createExclusionFilter(['gsd-*', '.acsync-backup-*']);
+  const isExcluded = createExclusionFilter();
   const paths = adapter.getPaths();
 
   // Discover existing canonical names to detect conflicts
@@ -179,8 +190,7 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
           const canonicalKeys = canonicalSettings ? Object.keys(canonicalSettings.keys) : [];
 
           if (canonicalKeys.length > 0) {
-            // Extract managed keys from installed file for comparison
-            const installedExtracted = adapter.extractSettingsKeys(canonicalKeys, installedContent);
+            const installedExtracted = collapseHomePaths(adapter.extractSettingsKeys(canonicalKeys, installedContent), homeDir);
             const canonicalExtracted = canonicalSettings
               ? (() => {
                   const sorted: Record<string, unknown> = {};
@@ -282,19 +292,19 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
         const filePath = paths.getCommandFilePath(item.name);
         const content = await readFile(filePath, 'utf-8');
         const canonical = adapter.parseCommand(item.name, content);
-        const rendered = stringifyFrontmatter(canonical.content, canonical.metadata);
+        const rendered = collapseHomePaths(stringifyFrontmatter(canonical.content, canonical.metadata), homeDir);
         await mkdir(join(projectDir, COMMANDS_DIR), { recursive: true });
         await atomicWrite(item.targetPath, rendered);
       } else if (item.type === 'agent') {
         const filePath = paths.getAgentFilePath(item.name);
         const content = await readFile(filePath, 'utf-8');
         const canonical = adapter.parseAgent(item.name, content);
-        const rendered = stringifyFrontmatter(canonical.content, canonical.metadata);
+        const rendered = collapseHomePaths(stringifyFrontmatter(canonical.content, canonical.metadata), homeDir);
         await mkdir(join(projectDir, AGENTS_DIR), { recursive: true });
         await atomicWrite(item.targetPath, rendered);
       } else if (item.type === 'skill') {
         const skill = await adapter.readSkill(item.name);
-        const rendered = stringifyFrontmatter(skill.content, skill.metadata);
+        const rendered = collapseHomePaths(stringifyFrontmatter(skill.content, skill.metadata), homeDir);
         const skillDir = join(projectDir, SKILLS_DIR, item.name);
         await mkdir(skillDir, { recursive: true });
         await atomicWrite(join(skillDir, 'SKILL.md'), rendered);
@@ -302,29 +312,24 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
           await writeSupportFiles(skillDir, skill.supportFiles);
         }
       } else if (item.type === 'settings') {
-        // Pull settings: extract managed keys from installed file, write to canonical
         const installedContent = await readFile(paths.getSettingsPath(), 'utf-8');
         const canonicalSettings = await readCanonicalSettings(projectDir, options.source);
         const canonicalKeys = canonicalSettings ? Object.keys(canonicalSettings.keys) : [];
-        // Use adapter's extractSettingsKeys (handles JSONC with trailing commas)
-        const rendered = adapter.extractSettingsKeys(canonicalKeys, installedContent);
+        const rendered = collapseHomePaths(adapter.extractSettingsKeys(canonicalKeys, installedContent), homeDir);
         await mkdir(join(projectDir, SETTINGS_DIR), { recursive: true });
         await atomicWrite(item.targetPath, rendered);
       } else if (item.type === 'mcp') {
-        // Pull MCP: parse all servers from target, write matching one as canonical JSON
         const mcpContent = await readFile(paths.getMCPConfigPath(), 'utf-8');
         const servers = adapter.parseMCPServers(mcpContent);
         const server = servers.find((s) => s.name === item.name);
         if (server) {
-          // Write canonical JSON format (same shape as existing configs/mcp/*.json)
           const { name: _, ...rest } = server;
-          const canonical = JSON.stringify(rest, null, 2) + '\n';
+          const canonical = collapseHomePaths(JSON.stringify(rest, null, 2) + '\n', homeDir);
           await mkdir(join(projectDir, MCP_DIR), { recursive: true });
           await atomicWrite(item.targetPath, canonical);
         }
       } else if (item.type === 'instruction') {
-        // Pull instructions: identity passthrough — read and write as-is
-        const instrContent = await readFile(paths.getInstructionsPath(), 'utf-8');
+        const instrContent = collapseHomePaths(await readFile(paths.getInstructionsPath(), 'utf-8'), homeDir);
         await mkdir(join(projectDir, INSTRUCTIONS_DIR), { recursive: true });
         await atomicWrite(item.targetPath, instrContent);
       }
