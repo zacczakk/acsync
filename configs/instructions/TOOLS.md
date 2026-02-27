@@ -1,10 +1,10 @@
 # Tools
 
-Canonical tool-use documentation for agents. Read on demand — not rendered to any CLI target.
+CLI tools on `$PATH`. Sources: `~/Repos/acsync/scripts/` and `~/Repos/acsync/bin/mcp-cli/`.
 
 ## acsync
 
-Agent Config Sync CLI. Syncs canonical configs to AI CLI targets (claude-code, opencode, gemini, codex).
+Agent Config Sync CLI. Canonical configs sync to AI CLI targets (`claude`, `opencode`, `gemini`, `codex`).
 
 - **Source:** `~/Repos/acsync/src/cli/`
 - **Canonical configs:** `~/Repos/acsync/configs/` (commands, agents, mcp, instructions, skills, settings)
@@ -27,27 +27,27 @@ Agent Config Sync CLI. Syncs canonical configs to AI CLI targets (claude-code, o
 - `--pretty` / `--json` — Output format
 - `--dry-run` — Preview without writing (push/pull)
 - `--force` — Skip confirmation (push) or overwrite existing (pull)
-- `--delete` — Delete stale files not in canonical (push only)
+- `--delete` — Skip delete confirmation (push only)
 - `-s, --source <target>` — Required for pull: `all`, `claude`, `opencode`, `gemini`, `codex`
 - `--name <name>` + `--type <type>` — Required for render
 
 ### Quick ref
 ```bash
-acsync check --pretty                     # What's drifted?
+acsync check --json                       # What's drifted?
 acsync diff                               # Detailed changes
 acsync push --force --delete              # Sync everything
 acsync push -t opencode --type commands   # Narrow scope
 acsync pull -s claude --dry-run           # Preview reverse sync
 acsync render --type command --name gate  # Debug single item
-acsync helpers -p ~/Repos/my-project     # Copy helpers to repo
-acsync helpers -p . --force              # Overwrite without prompt
+acsync helpers -p ~/Repos/my-project      # Copy helpers to repo
+acsync helpers -p . --force               # Overwrite without prompt
 ```
 
 ## committer
 
 Safe git commit helper. Stages only listed paths — never `git add .`.
 
-- **Location:** PATH (system-wide). Repo may also ship `./scripts/committer`.
+- **Source:** `~/Repos/acsync/scripts/committer`
 - **Usage:** `committer "commit message" file1 file2 ...`
 
 ```bash
@@ -59,7 +59,7 @@ committer "feat(08-01): add TOOLS.md" configs/instructions/TOOLS.md
 
 Cross-model consultation. Query Claude (Anthropic), Codex (OpenAI), or Gemini (Google) non-interactively from any agent session. Supports blocking and async modes with timeout protection.
 
-- **Location:** `~/Repos/acsync/scripts/ask-model` (on PATH via scripts dir)
+- **Source:** `~/Repos/acsync/scripts/ask-model`
 - **Usage:** `ask-model [flags] <claude|codex|gemini> "your question"`
 - **Output:** Model answer to stdout (blocking) or to file (async).
 
@@ -76,9 +76,9 @@ Cross-model consultation. Query Claude (Anthropic), Codex (OpenAI), or Gemini (G
 
 | Engine | CLI | Auth | Notes |
 |--------|-----|------|-------|
-| `claude` | `claude -p` | Anthropic login or `ANTHROPIC_API_KEY` | `--no-session-persistence` applied automatically. Cleanest output. |
-| `codex` | `codex exec` | ChatGPT login or `CODEX_API_KEY` | `--ephemeral --skip-git-repo-check` applied automatically |
-| `gemini` | `gemini -p` | Google OAuth or `GEMINI_API_KEY` | Free tier: 60 req/min, 1000 req/day |
+| `claude` | `claude -p` | `ANTHROPIC_API_KEY` (env var is set) | `--no-session-persistence` applied automatically. Cleanest output. |
+| `codex` | `codex exec` | ChatGPT login | `--ephemeral --skip-git-repo-check` applied automatically |
+| `gemini` | `gemini -p` | Google OAuth | AI Pro subscription |
 
 ### Examples
 ```bash
@@ -121,7 +121,7 @@ gemini -p "your question" --output-format json
 
 ## trash
 
-Move files to macOS Trash instead of `rm`. Required for safe deletes.
+macOS system command to delete file. Required for safe deletes. Never is `rm`.
 
 ```bash
 trash path/to/file
@@ -133,8 +133,7 @@ trash path/to/directory
 Lists `docs/` catalog and enforces front-matter compliance.
 
 - **Source:** `~/Repos/acsync/scripts/docs-list.ts`
-- **Binary:** `~/Repos/acsync/bin/docs-list`
-- **Usage:** `bin/docs-list` (or `bun scripts/docs-list.ts`)
+- **Usage:** `docs-list` (or `bun scripts/docs-list.ts`)
 - **Rebuild:** `bun build scripts/docs-list.ts --compile --outfile bin/docs-list`
 - **Run:** After adding/modifying docs; honors `read_when` hints in front-matter.
 
@@ -143,7 +142,6 @@ Lists `docs/` catalog and enforces front-matter compliance.
 Lightweight Chrome DevTools helper for browser automation.
 
 - **Source:** `~/Repos/acsync/scripts/browser-tools.ts`
-- **Binary:** `~/Repos/acsync/bin/browser-tools`
 - **Rebuild:** `bun build scripts/browser-tools.ts --compile --target bun --outfile bin/browser-tools`
 
 ### Subcommands
@@ -184,57 +182,171 @@ tmux kill-session -t codex-shell  # Kill session
 
 ## mcporter
 
-MCP launcher for non-native servers. Keeps chrome-devtools warm via daemon.
+MCP client/CLI. All canonical servers registered in `~/.mcporter/mcporter.json`.
 
-- **Config:** `~/.mcporter/mcporter.json`
-- **Daemon:** Auto-starts on first keep-alive call; `mcporter daemon stop` to tear down.
+- **Config:** `~/.mcporter/mcporter.json` (system-level, no imports)
+- **Binaries:** `bin/` on PATH (Bun-compiled standalone CLIs per server)
+- **Daemon:** chrome-devtools has `lifecycle: keep-alive`; auto-starts on first call.
 
-### Usage
+### Access methods (fastest first)
+
+| Method | When | Speed |
+|---|---|---|
+| `<name> <tool> --flag val` | Standalone binary on PATH, baked-in schemas | Fastest (~0.3s discovery) |
+| `mcporter call <server>.<tool>` | Ad-hoc calls from any agent | ~800ms overhead vs binary |
+| `mcporter config list` | List registered servers (no connection) | 77ms |
+| `mcporter list <server>` | Tool signatures for one server | 2-3s (connects) |
+
+**Never run bare `mcporter list`** — connects to all servers including editor imports. Slow.
+
+### Quick ref
 ```bash
-mcporter call <server>.<tool> <args>   # Call a tool
-mcporter list <server>                 # List server tools
+# Discovery (fast, no connections)
+mcporter config list
+
+# Tool signatures (single server)
+mcporter list <server>
+
+# Call via standalone binary (fastest, --flag syntax, on PATH)
+context7 resolve-library-id --query "react hooks" --library-name react
+
+# Call via mcporter (ad-hoc, key=value syntax)
+mcporter call context7.resolve-library-id query="react hooks" libraryName=react
+
+# Daemon (chrome-devtools)
+mcporter daemon status
+mcporter daemon stop
 ```
 
-### Available Servers
-- `chrome-devtools` (daemon) — Browser automation via DevTools protocol.
-- `palantir-mcp` — Foundry access (requires `PALANTIR_FOUNDRY_TOKEN`).
-- `liquid-carbon` — Domain-specific MCP server.
-- `shadcn` — shadcn/ui component library (disabled by default).
+### Servers
+
+| Server | Transport | Binary (on PATH) | Notes |
+|---|---|---|---|
+| `context7` | HTTP | `context7` | Library docs |
+| `tavily` | stdio | `tavily` | Web search (`TAVILY_API_KEY`) |
+| `chrome-devtools` | stdio/daemon | `chrome-devtools` | Browser automation (keep-alive) |
+| `palantir-mcp` | stdio | `palantir` | Foundry (`PALANTIR_FOUNDRY_TOKEN`) |
+| `liquid-carbon` | stdio | `liquid-carbon` | Component library |
+| `shadcn` | stdio | `shadcn` | shadcn/ui |
+| `sequential-thinking` | stdio | `sequential-thinking` | Reasoning |
+
+## obsidian
+
+CLI for Obsidian vault operations. **Required for all vault reads/writes** — no raw file I/O.
+
+- **Vaults:** `Knowledge` (personal notes, projects, docs) and `Memory` (agent operational memory).
+- **Location:** `~/Vaults/` (symlinks to iCloud vaults).
+- **Rule:** Specify vault in every call: `vault=Knowledge` or `vault=Memory`.
+- **Full guide:** `~/Vaults/AGENTS.md`
+
+### Subcommands
+
+| Command | Purpose |
+|---------|---------|
+| `obsidian vault=V files [folder=F]` | List files (optionally scoped to folder) |
+| `obsidian vault=V read path="..."` | Read note content |
+| `obsidian vault=V search query="..."` | Search vault |
+| `obsidian vault=V search:context query="..."` | Search with surrounding context |
+| `obsidian vault=V create path="..." content="..."` | Create note |
+| `obsidian vault=V append path="..." content="..."` | Append to note |
+| `obsidian vault=V move path="..." to="folder"` | Move note (Knowledge only) |
+| `obsidian vault=V delete path="..."` | Delete note |
+| `obsidian vault=V task path="..." line=N done` | Mark task complete (Knowledge only) |
+| `obsidian vault=V tasks [todo] [path="..."]` | List tasks (Knowledge only) |
+
+### Quick ref
+```bash
+# Knowledge vault
+obsidian vault=Knowledge files folder=01_inbox
+obsidian vault=Knowledge read path="02_backlog/note.md"
+obsidian vault=Knowledge search query="term"
+obsidian vault=Knowledge create path="02_backlog/item.md" content="..."
+obsidian vault=Knowledge task path="02_backlog/item.md" line=3 done
+obsidian vault=Knowledge move path="03_active/project.md" to="04_archive"
+
+# Memory vault
+obsidian vault=Memory files
+obsidian vault=Memory search:context query="topic"
+obsidian vault=Memory create path="descriptive-name.md" content="..."
+```
+
+## qmd
+
+Local vector search over indexed markdown collections. Runs entirely on-device (Metal GPU). Used for semantic search over the Memory vault (`~/Vaults/Memory`).
+
+- **Index:** `~/.cache/qmd/index.sqlite`
+- **Collections:** `memory` → `~/Vaults/Memory/**/*.md`
+- **Models:** embedding (embeddinggemma-300M), reranking (Qwen3-0.6B), query expansion (1.7B) — all local GGUF.
+
+### Key commands
+
+| Command | Purpose |
+|---------|---------|
+| `qmd query "..."` | Semantic search w/ query expansion + reranking (best quality) |
+| `qmd search "..."` | BM25 keyword search (fast, no LLM) |
+| `qmd vsearch "..."` | Vector similarity search (no reranking) |
+| `qmd query "..." -c memory` | Scope to memory collection |
+| `qmd query "..." --full` | Return full documents instead of snippets |
+| `qmd query "..." --files` | Return file paths + scores only |
+| `qmd get qmd://memory/path/to/file.md` | Read a specific indexed document |
+| `qmd ls memory` | List files in collection |
+| `qmd update` | Re-index all collections |
+| `qmd embed` | Rebuild vector embeddings |
+
+### Search flags
+
+| Flag | Purpose |
+|------|---------|
+| `-n <num>` | Number of results (default: 5) |
+| `--full` | Full document content |
+| `--files` | File paths + scores (default: 20 results) |
+| `--json` / `--md` / `--xml` / `--csv` | Output format |
+| `-c <name>` | Filter to collection |
+| `--min-score <num>` | Minimum similarity threshold |
+| `--line-numbers` | Add line numbers to output |
+
+### Quick ref
+```bash
+# Semantic search (recommended — uses query expansion + reranking)
+qmd query "claude code adapter settings" -c memory
+
+# Keyword search (fast, no GPU)
+qmd search "collapseHomePaths" -c memory
+
+# Full document retrieval
+qmd query "acsync pull" --full -c memory
+
+# File paths only (good for discovery)
+qmd query "mcp transport" --files -c memory
+
+# Read specific file from index
+qmd get qmd://memory/projects/acsync-claude-code-adapter-fixes.md
+
+# Re-index after adding new notes
+qmd update && qmd embed
+```
+
+### When to use qmd vs obsidian search
+
+| Use case | Tool |
+|----------|------|
+| Semantic/fuzzy recall ("things related to X") | `qmd query` |
+| Exact keyword match in vault | `obsidian vault=Memory search query="..."` |
+| Read/write/create notes | `obsidian` CLI |
+| Discovery before deep read | `qmd query --files` then `obsidian read` |
 
 ## MCP Servers
 
 Canonical definitions in `configs/mcp/*.json`. Rendered to each CLI via `acsync push`.
+All servers also registered in `~/.mcporter/mcporter.json` and compiled to `bin/` (on PATH).
 
-| Server | Status | CLIs | Notes |
-|--------|--------|------|-------|
-| `tavily` | Enabled | Claude, OpenCode, Gemini | Web search/extract |
-| `context7` | Enabled | All | Library documentation retrieval |
-| `sequential-thinking` | Disabled | — | `enabled: false` globally |
-| `chrome-devtools-mcp` | Disabled | — | Browser automation; also available via MCPorter daemon |
-| `palantir-mcp` | Disabled | — | Requires `PALANTIR_FOUNDRY_TOKEN`; also via MCPorter |
-| `liquid-carbon` | Disabled | — | Component library; also via MCPorter |
-| `shadcn` | Disabled | — | shadcn/ui; also via MCPorter |
+| Server | Native MCP | Binary (on PATH) | Notes |
+|--------|-----------|------------------|-------|
+| `context7` | All CLIs | `context7` | HTTP; library docs |
+| `tavily` | Claude, OpenCode, Gemini | `tavily` | `TAVILY_API_KEY` |
+| `chrome-devtools` | — | `chrome-devtools` | Daemon keep-alive via mcporter |
+| `palantir-mcp` | — | `palantir` | `PALANTIR_FOUNDRY_TOKEN` |
+| `liquid-carbon` | — | `liquid-carbon` | Component library |
+| `shadcn` | — | `shadcn` | shadcn/ui |
+| `sequential-thinking` | — | `sequential-thinking` | Reasoning; native MCP disabled |
 
-Incident response: `docs/runbooks/mcp-incident.md`
-
-## Common CLI
-
-Standard tools available in all environments:
-
-- `git` — Version control. Safe by default (see AGENTS.md ## Git).
-- `rg` (ripgrep) — Fast content search. Preferred over `grep`.
-- `bun` — JS/TS runtime and package manager (this repo's PM).
-- `node` — Node.js runtime.
-- `python3` — Python interpreter. Use with `ruff`, `uv`, `pyproject.toml`.
-- `pytest` — Python test runner.
-
-## Evaluated (not adopted)
-
-### oracle (@steipete/oracle)
-- CLI tool: bundles prompt + files, sends to AI model for one-shot answer.
-- Supports custom `ANTHROPIC_BASE_URL` and `ANTHROPIC_API_KEY`.
-- **Does NOT work with Foundry LMS** (two blockers):
-  1. Hardcodes `x-api-key` header; Foundry requires `Authorization: Bearer`.
-  2. Mangles model names (`claude-4.5-sonnet` -> `claude-sonnet-4-5`); Foundry needs exact names.
-- Fixable with throttle-proxy header translation (~5 LOC) + exact model names. Not implemented; low priority.
-- Evaluated: 2026-02-19.

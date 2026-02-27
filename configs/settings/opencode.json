@@ -1,4 +1,47 @@
 {
+  "instructions": [
+    "~/.config/opencode/AGENTS.md",
+    "~/Vaults/Memory/SOUL.md",
+    "~/Vaults/Memory/IDENTITY.md",
+    "~/Vaults/Memory/USER.md",
+    "~/Vaults/Memory/MEMORY.md"
+  ],
+  "model": "throttle-tux/claude-opus-4-6",
+  "permission": {
+    "*": "allow",
+    "bash": {
+      "*": "allow",
+      "rm *": "deny",
+      "cat *.env": "deny",
+      "cat *.env.*": "deny",
+      "cat */.env": "deny",
+      "cat */.env.*": "deny",
+      "cat */.env.example": "allow",
+      "cat ~/.zshrc_secrets": "deny",
+      "git push *": "ask",
+      "git reset --hard *": "deny"
+    },
+    "external_directory": {
+      "*": "ask",
+      "~/Vaults/**": "allow",
+      "~/Vaults/Memory/system/grooming-reports/*": "allow",
+      "~/.config/opencode/agents/*": "allow",
+      "~/.config/opencode/get-shit-done/templates/*": "allow"
+    },
+    "read": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow",
+      "~/.zshrc_secrets": "deny",
+      "~/.config/opencode/agents/*": "allow",
+      "~/.config/opencode/commands/*": "allow",
+      "~/.config/opencode/skills/*": "allow"
+    }
+  },
+  "plugin": [
+    "opencode-agent-browser"
+  ],
   "provider": {
     "uptimize-bedrock": {
       "npm": "@ai-sdk/openai-compatible",
@@ -84,29 +127,5 @@
         }
       }
     }
-  },
-  "plugin": [
-    "opencode-agent-browser"
-  ],
-  "permission": {
-    "*": "allow",
-    "bash": {
-      "*": "allow",
-      "rm *": "deny",
-      "git push *": "ask",
-      "git reset --hard *": "deny"
-    },
-    "external_directory": {
-      "*": "ask",
-      "~/Vaults/**": "allow",
-      "~/.config/opencode/agents/*": "allow"
-    },
-    "read": {
-      "~/.config/opencode/agents/*": "allow"
-    }
-  },
-  "model": "throttle-tux/claude-opus-4-6",
-  "instructions": [
-    "~/.config/opencode/AGENTS.md"
-  ]
+  }
 }
