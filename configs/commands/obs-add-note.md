@@ -1,5 +1,7 @@
 ---
-description: "Quick capture a note to the inbox (e.g., /obs-add-note check out this tool: https://...)"
+description: >-
+  Quick capture a note to the inbox (e.g., /obs-add-note check out this tool:
+  https://...)
 ---
 
 # Add Note
