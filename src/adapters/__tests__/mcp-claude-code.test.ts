@@ -42,6 +42,7 @@ describe('ClaudeCodeAdapter.renderMCPServers', () => {
     const parsed = JSON.parse(result);
 
     expect(parsed.mcpServers.tavily).toEqual({
+      type: 'http',
       url: 'https://mcp.tavily.com/mcp',
       headers: { Authorization: 'Bearer ${TAVILY_API_KEY}' },
     });

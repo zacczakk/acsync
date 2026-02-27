@@ -51,7 +51,7 @@ export class ClaudeCodeAdapter extends BaseAdapter {
         if (server.env && Object.keys(server.env).length > 0) cfg.env = server.env;
         mcpServers[server.name] = cfg;
       } else {
-        const cfg: Record<string, unknown> = { url: server.url };
+        const cfg: Record<string, unknown> = { type: 'http', url: server.url };
         if (server.headers && Object.keys(server.headers).length > 0) cfg.headers = server.headers;
         mcpServers[server.name] = cfg;
       }
