@@ -1,8 +1,9 @@
 #!/usr/bin/env bun
 import { readFile } from 'node:fs/promises';
+import checkbox from '@inquirer/checkbox';
 import { Command } from 'commander';
+import pc from 'picocolors';
 import {
-  ALL_TARGETS,
   PROJECT_ROOT,
   createAdapter,
   readCanonicalCommands,
@@ -15,26 +16,139 @@ import {
 import { runCheck } from './check';
 import { mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
 import { createExclusionFilter } from '../infra/exclusion';
-import type { TargetName, ItemType, CanonicalItem } from '../types';
+import type { TargetName, CanonicalItem, Operation } from '../types';
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+interface DriftOp {
+  op: Operation;
+  target: TargetName;
+  label: string;
+  key: string;
+}
+
+interface CanonicalCache {
+  commands: CanonicalItem[];
+  agents: CanonicalItem[];
+  mcpServers: CanonicalItem[];
+  skills: CanonicalItem[];
+  projectDir: string;
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function tildify(p: string): string {
+  const home = process.env.HOME ?? '';
+  if (home && p.startsWith(home)) return '~' + p.slice(home.length);
+  return p;
+}
+
+function displayTarget(target: TargetName): string {
+  return target === 'claude-code' ? 'claude' : target;
+}
+
+function opLabel(op: Operation, target: TargetName): string {
+  const t = displayTarget(target);
+  const path = op.targetPath ? tildify(op.targetPath) : '';
+  const status = op.type === 'create' ? 'new' : 'modified';
+  return `[${t}] ${op.itemType}/${op.name}  ${pc.dim(`(${status})`)}  ${pc.dim(path)}`;
+}
+
+// ---------------------------------------------------------------------------
+// Render a single operation's unified diff
+// ---------------------------------------------------------------------------
+
+async function renderOpDiff(
+  op: Operation,
+  target: TargetName,
+  cache: CanonicalCache,
+): Promise<string | null> {
+  if (!op.targetPath) return null;
+
+  const adapter = createAdapter(target);
+  const caps = adapter.getCapabilities();
+
+  let rendered: string;
+  if (op.itemType === 'command') {
+    const item = cache.commands.find((c) => c.name === op.name);
+    if (!item) return null;
+    rendered = adapter.renderCommand(item).content;
+  } else if (op.itemType === 'agent') {
+    const item = cache.agents.find((a) => a.name === op.name);
+    if (!item) return null;
+    rendered = adapter.renderAgent(item).content;
+  } else if (op.itemType === 'mcp') {
+    let existingContent: string | undefined;
+    try {
+      existingContent = await readFile(op.targetPath, 'utf-8');
+    } catch {
+      // No existing file
+    }
+    rendered = adapter.renderMCPServers(cache.mcpServers, existingContent);
+  } else if (op.itemType === 'instruction') {
+    const instructionContent = await readCanonicalInstructions(cache.projectDir);
+    if (!instructionContent) return null;
+    rendered = adapter.renderInstructions(instructionContent);
+  } else if (op.itemType === 'skill') {
+    if (!caps.skills) return null;
+    const item = cache.skills.find((s) => s.name === op.name);
+    if (!item) return null;
+    rendered = adapter.renderSkill(item).content;
+  } else if (op.itemType === 'settings') {
+    if (!caps.settings) return null;
+    const settings = await readCanonicalSettings(cache.projectDir, target);
+    if (!settings) return null;
+    let existingContent: string | undefined;
+    try {
+      existingContent = await readFile(op.targetPath, 'utf-8');
+    } catch {
+      // No existing file
+    }
+    rendered = adapter.renderSettings(settings, existingContent);
+  } else {
+    return null;
+  }
+
+  let existing = '';
+  if (op.type === 'update') {
+    try {
+      existing = await readFile(op.targetPath, 'utf-8');
+    } catch {
+      // Treat as empty
+    }
+  }
+
+  return unifiedDiff(existing, rendered, op.targetPath);
+}
+
+// ---------------------------------------------------------------------------
+// Command
+// ---------------------------------------------------------------------------
 
 export const diffCommand = new Command('diff')
   .description(
     `Show unified text diff between rendered canonical and on-disk target configs.
 
-Runs check first, then for each drifted item shows a git-style unified diff
-(--- a/path, +++ b/path, @@ hunks) comparing the current on-disk content
-against what canonical would render. Only items with create/update drift are shown.
+Runs check first, then for each drifted item shows a git-style unified diff.
+When multiple items have drift and stdout is a TTY, presents an interactive
+picker to select which diffs to view ('a' = toggle all, 'i' = invert).
 
 Examples:
-  acsync diff                           Diff all targets, all types
-  acsync diff -t claude                 Diff Claude Code only
-  acsync diff --type mcps               Diff MCP configs only
-  acsync diff -t opencode --type commands  Diff OpenCode commands only
+  acsync diff                              Interactive picker (TTY) or all (piped)
+  acsync diff -t opencode --type settings  Diff OpenCode settings only
+  acsync diff --name AGENTS                Diff items named "AGENTS" across targets
+  acsync diff --all                        Show all diffs without picker
 
 Exit codes: 0 = no drift, 2 = drift found, 1 = error`)
-  .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
-  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings', collect, [] as string[])
-  .action(async (options: { target: string[]; type: string[] }) => {
+  .option('-t, --target <name>', 'Scope to specific target (repeatable)', collect, [] as string[])
+  .option('--type <name>', 'Scope to config type (repeatable)', collect, [] as string[])
+  .option('--name <item>', 'Filter by item name, case-insensitive (repeatable)', collect, [] as string[])
+  .option('--all', 'Show all diffs without interactive selection')
+  .action(async (options: { target: string[]; type: string[]; name: string[]; all?: boolean }) => {
     try {
       validateTargets(options.target);
       validateTypes(options.type);
@@ -43,104 +157,89 @@ Exit codes: 0 = no drift, 2 = drift found, 1 = error`)
       const targets = mapTargets(options.target);
       const types = mapTypes(options.type);
 
-      const checkResult = await runCheck({
-        targets,
-        types,
-        projectDir,
-      });
+      const checkResult = await runCheck({ targets, types, projectDir });
 
       if (!checkResult.hasDrift) {
+        process.stderr.write('No drift detected — nothing to diff.\n');
         process.exit(0);
       }
 
       const isExcluded = createExclusionFilter();
-
-      // Cache canonical items (loaded once)
       const [commands, agents, mcpServers, skills] = await Promise.all([
         readCanonicalCommands(projectDir, isExcluded),
         readCanonicalAgents(projectDir, isExcluded),
         readCanonicalMCPServers(projectDir),
         readCanonicalSkills(projectDir, isExcluded),
       ]);
+      const cache: CanonicalCache = { commands, agents, mcpServers, skills, projectDir };
 
-      let hasOutput = false;
+      // Collect all drifted operations across targets
+      const driftOps: DriftOp[] = [];
+      const seen = new Set<string>();
 
       for (const diff of checkResult.diffs) {
         const target = diff.target;
-        const adapter = createAdapter(target);
-        const caps = adapter.getCapabilities();
-        const driftOps = diff.operations.filter(
-          (op) => op.type === 'create' || op.type === 'update',
-        );
-
-        if (driftOps.length === 0) continue;
-
-        // Deduplicate by targetPath (MCP/instructions share a path)
-        const seen = new Set<string>();
-
-        for (const op of driftOps) {
+        for (const op of diff.operations) {
+          if (op.type !== 'create' && op.type !== 'update') continue;
           if (!op.targetPath) continue;
           const key = `${target}:${op.targetPath}`;
           if (seen.has(key)) continue;
           seen.add(key);
+          driftOps.push({ op, target, label: opLabel(op, target), key });
+        }
+      }
 
-          // Render canonical content
-          let rendered: string;
-          if (op.itemType === 'command') {
-            const item = commands.find((c) => c.name === op.name);
-            if (!item) continue;
-            rendered = adapter.renderCommand(item).content;
-          } else if (op.itemType === 'agent') {
-            const item = agents.find((a) => a.name === op.name);
-            if (!item) continue;
-            rendered = adapter.renderAgent(item).content;
-          } else if (op.itemType === 'mcp') {
-            let existingContent: string | undefined;
-            try {
-              existingContent = await readFile(op.targetPath, 'utf-8');
-            } catch {
-              // No existing file
-            }
-            rendered = adapter.renderMCPServers(mcpServers, existingContent);
-          } else if (op.itemType === 'instruction') {
-            const instructionContent = await readCanonicalInstructions(projectDir);
-            if (!instructionContent) continue;
-            rendered = adapter.renderInstructions(instructionContent);
-          } else if (op.itemType === 'skill') {
-            if (!caps.skills) continue;
-            const item = skills.find((s) => s.name === op.name);
-            if (!item) continue;
-            rendered = adapter.renderSkill(item).content;
-          } else if (op.itemType === 'settings') {
-            if (!caps.settings) continue;
-            const settings = await readCanonicalSettings(projectDir, target);
-            if (!settings) continue;
-            let existingContent: string | undefined;
-            try {
-              existingContent = await readFile(op.targetPath, 'utf-8');
-            } catch {
-              // No existing file
-            }
-            rendered = adapter.renderSettings(settings, existingContent);
-          } else {
-            continue;
-          }
+      if (driftOps.length === 0) {
+        process.stderr.write('No drift detected — nothing to diff.\n');
+        process.exit(0);
+      }
 
-          // Read existing on-disk content
-          let existing = '';
-          if (op.type === 'update') {
-            try {
-              existing = await readFile(op.targetPath, 'utf-8');
-            } catch {
-              // Treat as empty
-            }
-          }
+      // Apply --name filter
+      let filtered = driftOps;
+      if (options.name.length > 0) {
+        const names = options.name.map((n) => n.toLowerCase());
+        filtered = driftOps.filter((d) => names.includes(d.op.name.toLowerCase()));
+        if (filtered.length === 0) {
+          process.stderr.write(`No drifted items matching: ${options.name.join(', ')}\n`);
+          process.exit(0);
+        }
+      }
 
-          const diffOutput = unifiedDiff(existing, rendered, op.targetPath);
-          if (diffOutput) {
-            process.stdout.write(diffOutput + '\n');
-            hasOutput = true;
-          }
+      // Determine which ops to show
+      let selected: DriftOp[];
+      const skipPicker = options.all || options.name.length > 0 || !process.stdin.isTTY;
+
+      if (skipPicker || filtered.length === 1) {
+        selected = filtered;
+      } else {
+        const choices = filtered.map((d) => ({
+          name: d.label,
+          value: d.key,
+        }));
+
+        const picked = await checkbox({
+          message: `${filtered.length} items with drift — select which to diff`,
+          choices,
+          shortcuts: { all: 'a', invert: 'i' },
+          pageSize: 15,
+          loop: false,
+        });
+
+        if (picked.length === 0) {
+          process.exit(0);
+        }
+
+        const pickedSet = new Set(picked);
+        selected = filtered.filter((d) => pickedSet.has(d.key));
+      }
+
+      // Render and output diffs
+      let hasOutput = false;
+      for (const { op, target } of selected) {
+        const diffOutput = await renderOpDiff(op, target, cache);
+        if (diffOutput) {
+          process.stdout.write(diffOutput + '\n');
+          hasOutput = true;
         }
       }
 
@@ -153,6 +252,10 @@ Exit codes: 0 = no drift, 2 = drift found, 1 = error`)
     }
   });
 
+// ---------------------------------------------------------------------------
+// Unified diff engine
+// ---------------------------------------------------------------------------
+
 /**
  * Produce a minimal unified diff between two strings.
  * Shows --- / +++ headers and changed lines with - / + prefixes.
@@ -162,7 +265,6 @@ export function unifiedDiff(a: string, b: string, path: string): string | null {
   const aLines = a ? a.split('\n') : [];
   const bLines = b ? b.split('\n') : [];
 
-  // If identical, no diff
   if (a === b) return null;
 
   const lines: string[] = [];
@@ -170,7 +272,6 @@ export function unifiedDiff(a: string, b: string, path: string): string | null {
   lines.push(`+++ b/${path}`);
 
   if (aLines.length === 0) {
-    // All additions (create)
     lines.push(`@@ -0,0 +1,${bLines.length} @@`);
     for (const line of bLines) {
       lines.push(`+${line}`);
@@ -178,26 +279,21 @@ export function unifiedDiff(a: string, b: string, path: string): string | null {
     return lines.join('\n');
   }
 
-  // Simple line-by-line diff: find changed, added, removed lines
-  // Uses longest common subsequence for minimal diff
   const lcs = computeLCS(aLines, bLines);
   let ai = 0;
   let bi = 0;
 
-  // Collect hunks
   const hunks: Array<{ aStart: number; aCount: number; bStart: number; bCount: number; lines: string[] }> = [];
   let currentHunk: typeof hunks[number] | null = null;
   let contextAfter = 0;
   const CONTEXT = 3;
 
   for (const [la, lb] of lcs) {
-    // Emit removals (lines in a before this match)
     while (ai < la) {
       if (!currentHunk) {
         const aStart = Math.max(0, ai - CONTEXT);
         const bStart = Math.max(0, bi - CONTEXT);
         currentHunk = { aStart, aCount: 0, bStart, bCount: 0, lines: [] };
-        // Add leading context
         for (let c = aStart; c < ai; c++) {
           currentHunk.lines.push(` ${aLines[c]}`);
           currentHunk.aCount++;
@@ -210,7 +306,6 @@ export function unifiedDiff(a: string, b: string, path: string): string | null {
       contextAfter = 0;
     }
 
-    // Emit additions (lines in b before this match)
     while (bi < lb) {
       if (!currentHunk) {
         const aStart = Math.max(0, ai - CONTEXT);
@@ -228,7 +323,6 @@ export function unifiedDiff(a: string, b: string, path: string): string | null {
       contextAfter = 0;
     }
 
-    // This line is common
     if (currentHunk) {
       currentHunk.lines.push(` ${aLines[ai]}`);
       currentHunk.aCount++;
@@ -245,7 +339,6 @@ export function unifiedDiff(a: string, b: string, path: string): string | null {
     bi++;
   }
 
-  // Remaining removals
   while (ai < aLines.length) {
     if (!currentHunk) {
       const aStart = Math.max(0, ai - CONTEXT);
@@ -262,7 +355,6 @@ export function unifiedDiff(a: string, b: string, path: string): string | null {
     ai++;
   }
 
-  // Remaining additions
   while (bi < bLines.length) {
     if (!currentHunk) {
       const aStart = Math.max(0, ai - CONTEXT);
@@ -293,20 +385,14 @@ export function unifiedDiff(a: string, b: string, path: string): string | null {
   return lines.join('\n');
 }
 
-/**
- * Compute longest common subsequence indices.
- * Returns array of [indexInA, indexInB] pairs for matching lines.
- */
 function computeLCS(a: string[], b: string[]): Array<[number, number]> {
   const m = a.length;
   const n = b.length;
 
-  // For large files, use a simpler greedy approach
   if (m * n > 1_000_000) {
     return greedyLCS(a, b);
   }
 
-  // Standard DP approach
   const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
 
   for (let i = 1; i <= m; i++) {
@@ -319,7 +405,6 @@ function computeLCS(a: string[], b: string[]): Array<[number, number]> {
     }
   }
 
-  // Backtrack to find matching pairs
   const result: Array<[number, number]> = [];
   let i = m;
   let j = n;
@@ -338,11 +423,7 @@ function computeLCS(a: string[], b: string[]): Array<[number, number]> {
   return result;
 }
 
-/**
- * Greedy LCS for large files — matches lines in order using a hash map.
- */
 function greedyLCS(a: string[], b: string[]): Array<[number, number]> {
-  // Build index of b lines
   const bIndex = new Map<string, number[]>();
   for (let j = 0; j < b.length; j++) {
     const line = b[j];
@@ -356,7 +437,6 @@ function greedyLCS(a: string[], b: string[]): Array<[number, number]> {
   for (let i = 0; i < a.length; i++) {
     const positions = bIndex.get(a[i]);
     if (!positions) continue;
-    // Find smallest j > lastJ
     for (const j of positions) {
       if (j > lastJ) {
         result.push([i, j]);
