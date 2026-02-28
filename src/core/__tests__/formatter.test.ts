@@ -77,6 +77,19 @@ describe('formatDiffJson', () => {
     expect(parsed.summary.totalUpdate).toBe(0);
     expect(parsed.summary.totalSkip).toBe(0);
   });
+
+  test('filters skip operations from operations array by default', () => {
+    const results = [makeResult('claude-code', [makeOp('create', 'a'), makeOp('skip', 'b')])];
+    const parsed = JSON.parse(formatDiffJson(results));
+    expect(parsed.targets['claude'].operations).toHaveLength(1);
+    expect(parsed.targets['claude'].skip).toBe(1);
+  });
+
+  test('verbose mode includes skip operations in operations array', () => {
+    const results = [makeResult('claude-code', [makeOp('create', 'a'), makeOp('skip', 'b')])];
+    const parsed = JSON.parse(formatDiffJson(results, true));
+    expect(parsed.targets['claude'].operations).toHaveLength(2);
+  });
 });
 
 describe('formatDiffPretty', () => {
@@ -88,6 +101,17 @@ describe('formatDiffPretty', () => {
     const output = formatDiffPretty(results);
     expect(output).toContain('claude');
     expect(output).not.toContain('claude-code');
+    // opencode only has skip ops — hidden by default
+    expect(output).not.toContain('opencode');
+  });
+
+  test('verbose mode shows all targets including skip-only', () => {
+    const results = [
+      makeResult('claude-code', [makeOp('create', 'cmd1')]),
+      makeResult('opencode', [makeOp('skip', 'cmd2', 'opencode')]),
+    ];
+    const output = formatDiffPretty(results, true);
+    expect(output).toContain('claude');
     expect(output).toContain('opencode');
   });
 
@@ -106,10 +130,19 @@ describe('formatDiffPretty', () => {
     expect(output).toContain('~');
   });
 
-  test('contains ✓ symbol for skip operations', () => {
+  test('hides skip operations by default', () => {
     const results = [makeResult('claude-code', [makeOp('skip', 'up-to-date')])];
     const output = formatDiffPretty(results);
+    expect(output).not.toContain('✓');
+    expect(output).not.toContain('up-to-date');
+    expect(output).toContain('up to date');
+  });
+
+  test('verbose mode contains ✓ symbol for skip operations', () => {
+    const results = [makeResult('claude-code', [makeOp('skip', 'up-to-date')])];
+    const output = formatDiffPretty(results, true);
     expect(output).toContain('✓');
+    expect(output).toContain('up-to-date');
   });
 
   test('contains summary line', () => {

@@ -314,7 +314,8 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
   }
 
   const pretty = options.pretty ?? !options.json;
-  const { output, hasDrift } = formatCheckResult(diffs, pretty);
+  const verbose = options.verbose ?? false;
+  const { output, hasDrift } = formatCheckResult(diffs, pretty, verbose);
   return { diffs, hasDrift, output };
 }
 
@@ -324,11 +325,13 @@ export const checkCommand = new Command('check')
     `Detect drift between canonical configs and installed target files.
 
 Compares rendered canonical output against on-disk target files using SHA-256 hashes.
-Reports create/update/skip/delete operations per target.
+By default only shows items with drift (create/update/delete). Use --verbose to
+also list up-to-date items.
 
 Examples:
-  acsync check                          Human-readable colored output (default)
+  acsync check                          Show only drifted items (default)
   acsync status                         Alias for check
+  acsync check --verbose                Include up-to-date items
   acsync check --json                   Machine-readable JSON output
   acsync check -t claude                Check Claude Code only
   acsync check --type commands          Check commands only across all targets
@@ -336,9 +339,10 @@ Examples:
 
 Exit codes: 0 = no drift, 2 = drift detected, 1 = error`)
   .option('--json', 'Machine-readable JSON output')
+  .option('-v, --verbose', 'Show all items including up-to-date')
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
   .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings', collect, [] as string[])
-  .action(async (options: { json?: boolean; target: string[]; type: string[] }) => {
+  .action(async (options: { json?: boolean; verbose?: boolean; target: string[]; type: string[] }) => {
     try {
       validateTargets(options.target);
       validateTypes(options.type);
@@ -347,6 +351,7 @@ Exit codes: 0 = no drift, 2 = drift detected, 1 = error`)
         targets: mapTargets(options.target),
         types: mapTypes(options.type),
         json: options.json,
+        verbose: options.verbose,
       });
 
       process.stdout.write(result.output + '\n');
