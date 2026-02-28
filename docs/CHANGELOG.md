@@ -6,6 +6,13 @@ read_when:
 
 # Changelog
 
+## 2026-02-28
+
+- **`acsync diff` rewrite** — interactive picker (TTY), `--name` filter, `--all` flag, extracted types/helpers
+- `diff` now prints "No drift detected — nothing to diff." instead of silent exit
+- `check` settings drift uses `renderSettings` for accurate comparison (fixes false-positive drift)
+- Added `@inquirer/checkbox` dependency
+
 ## 2026-02-25
 
 - **v3.0 Harden Test Suite shipped** — 12 phases, 32 plans complete

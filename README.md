@@ -31,7 +31,8 @@ Code-driven sync across Claude Code, OpenCode, Gemini CLI, and Codex.
 
 ```bash
 acsync check                     # drift detection (read-only)
-acsync diff                      # unified diff of all drift
+acsync diff                      # interactive diff picker (TTY) or all (piped)
+acsync diff --all                # unified diff of all drift
 acsync push --force --delete     # push all + delete stale files
 acsync pull -s claude            # pull from Claude to canonical
 ```

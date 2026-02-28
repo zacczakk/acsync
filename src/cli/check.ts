@@ -264,32 +264,26 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
       }
     }
 
-    // Settings
+    // Settings — hash what renderSettings would produce vs raw on-disk content
     if (!options.types || options.types.includes('settings')) {
       if (caps.settings) {
         const settings = await readCanonicalSettings(projectDir, target);
         if (settings) {
-          const canonicalKeys = Object.keys(settings.keys);
-          // Source hash: stable JSON of canonical keys (sorted)
-          const extracted: Record<string, unknown> = {};
-          for (const key of [...canonicalKeys].sort()) {
-            extracted[key] = settings.keys[key];
-          }
-          const sourceHash = hashContent(JSON.stringify(extracted, null, 2) + '\n');
-
-          // Target hash: extract only canonical keys from installed file
           const settingsPath = adapter.getPaths().getSettingsPath();
+          let existingContent: string | undefined;
           let targetHash: string | null = null;
           try {
             const file = Bun.file(settingsPath);
             if (await file.exists()) {
-              const targetContent = await file.text();
-              const targetExtracted = adapter.extractSettingsKeys(canonicalKeys, targetContent);
-              targetHash = hashContent(targetExtracted);
+              existingContent = await file.text();
+              targetHash = hashContent(existingContent);
             }
           } catch {
             // File missing or unreadable
           }
+
+          const rendered = adapter.renderSettings(settings, existingContent);
+          const sourceHash = hashContent(rendered);
 
           sourceItems.push({
             type: 'settings',
