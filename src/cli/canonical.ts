@@ -31,6 +31,7 @@ export interface SyncOptions {
   force?: boolean;              // --force (skip confirmation)
   pretty?: boolean;             // --pretty (human output, default)
   json?: boolean;               // --json (machine output)
+  verbose?: boolean;            // --verbose (show up-to-date items)
   projectDir?: string;          // project root (default: repo root via import.meta.dir)
   deleteStale?: boolean;        // --delete (remove stale target files)
   homeDir?: string;             // override home directory (for test isolation)

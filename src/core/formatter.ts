@@ -18,7 +18,7 @@ function displayTarget(target: TargetName): string {
   return target === 'claude-code' ? 'claude' : target;
 }
 
-export function formatDiffJson(results: DiffResult[]): string {
+export function formatDiffJson(results: DiffResult[], verbose = false): string {
   const targets: Record<
     string,
     { create: number; update: number; skip: number; delete: number; operations: Operation[]; mcpWarning?: MCPWarning }
@@ -30,12 +30,13 @@ export function formatDiffJson(results: DiffResult[]): string {
   let totalDelete = 0;
 
   for (const result of results) {
+    const ops = verbose ? result.operations : result.operations.filter((o) => o.type !== 'skip');
     const entry: (typeof targets)[string] = {
       create: result.summary.create,
       update: result.summary.update,
       skip: result.summary.skip,
       delete: result.summary.delete,
-      operations: result.operations,
+      operations: ops,
     };
     if (result.mcpWarning) entry.mcpWarning = result.mcpWarning;
     targets[displayTarget(result.target)] = entry;
@@ -57,7 +58,7 @@ export function formatDiffJson(results: DiffResult[]): string {
   );
 }
 
-export function formatDiffPretty(results: DiffResult[]): string {
+export function formatDiffPretty(results: DiffResult[], verbose = false): string {
   const lines: string[] = ['', 'acsync check', ''];
 
   let totalCreate = 0;
@@ -66,12 +67,19 @@ export function formatDiffPretty(results: DiffResult[]): string {
   let totalRemove = 0;
 
   for (const result of results) {
-    lines.push(`  ${pc.bold(displayTarget(result.target))}`);
-
     const creates = result.operations.filter((op) => op.type === 'create');
     const updates = result.operations.filter((op) => op.type === 'update');
     const deletes = result.operations.filter((op) => op.type === 'delete');
     const skips = result.operations.filter((op) => op.type === 'skip');
+
+    const hasActionable = creates.length > 0 || updates.length > 0 || deletes.length > 0 || !!result.mcpWarning;
+
+    if (!verbose && !hasActionable) {
+      totalSkip += skips.length;
+      continue;
+    }
+
+    lines.push(`  ${pc.bold(displayTarget(result.target))}`);
 
     for (const op of creates) {
       const label = `[${op.itemType}]`.padEnd(14);
@@ -89,14 +97,18 @@ export function formatDiffPretty(results: DiffResult[]): string {
         `    ${pc.red('−')} ${label} ${op.name.padEnd(30)} ${pc.dim('(stale)')}`,
       );
     }
-    for (const op of skips) {
-      const label = `[${op.itemType}]`.padEnd(14);
-      lines.push(
-        `    ${pc.dim('✓')} ${label} ${pc.dim(op.name.padEnd(30))} ${pc.dim('(up to date)')}`,
-      );
+    if (verbose) {
+      for (const op of skips) {
+        const label = `[${op.itemType}]`.padEnd(14);
+        lines.push(
+          `    ${pc.dim('✓')} ${label} ${pc.dim(op.name.padEnd(30))} ${pc.dim('(up to date)')}`,
+        );
+      }
     }
 
-    if (result.operations.length === 0) {
+    if (!verbose && !hasActionable) {
+      lines.push(`    ${pc.dim('(no items)')}`);
+    } else if (verbose && result.operations.length === 0) {
       lines.push(`    ${pc.dim('(no items)')}`);
     }
 
@@ -127,7 +139,11 @@ export function formatDiffPretty(results: DiffResult[]): string {
     summaryParts.push(pc.red(`${totalRemove} to remove`));
   if (totalSkip > 0) summaryParts.push(pc.dim(`${totalSkip} up to date`));
 
-  lines.push(`  Summary: ${summaryParts.join(', ')}`);
+  if (summaryParts.length === 0) {
+    lines.push(`  ${pc.dim('All targets up to date.')}`);
+  } else {
+    lines.push(`  Summary: ${summaryParts.join(', ')}`);
+  }
   lines.push('');
 
   return lines.join('\n');
@@ -308,10 +324,10 @@ export function formatDryRunResult(results: DiffResult[], pretty: boolean): Chec
   return { output, hasDrift };
 }
 
-export function formatCheckResult(results: DiffResult[], pretty: boolean): CheckResult {
+export function formatCheckResult(results: DiffResult[], pretty: boolean, verbose = false): CheckResult {
   const hasDrift = results.some(
     (r) => r.summary.create > 0 || r.summary.update > 0 || r.summary.delete > 0,
   );
-  const output = pretty ? formatDiffPretty(results) : formatDiffJson(results);
+  const output = pretty ? formatDiffPretty(results, verbose) : formatDiffJson(results, verbose);
   return { output, hasDrift };
 }

@@ -8,6 +8,7 @@ read_when:
 
 ## 2026-02-28
 
+- **`acsync check` compact output** — only shows drifted items (create/update/delete) by default; `--verbose` to include up-to-date items
 - **`acsync diff` rewrite** — interactive picker (TTY), `--name` filter, `--all` flag, extracted types/helpers
 - `diff` now prints "No drift detected — nothing to diff." instead of silent exit
 - `check` settings drift uses `renderSettings` for accurate comparison (fixes false-positive drift)

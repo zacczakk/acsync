@@ -30,7 +30,8 @@ Code-driven sync across Claude Code, OpenCode, Gemini CLI, and Codex.
 ## Quick Start
 
 ```bash
-acsync check                     # drift detection (read-only)
+acsync check                     # show only drifted items (default)
+acsync check --verbose           # include up-to-date items
 acsync diff                      # interactive diff picker (TTY) or all (piped)
 acsync diff --all                # unified diff of all drift
 acsync push --force --delete     # push all + delete stale files
