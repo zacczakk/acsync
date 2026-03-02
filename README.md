@@ -44,9 +44,9 @@ acsync pull -s claude            # pull from Claude to canonical
 .env                         Secrets (gitignored)
 
 configs/
-  commands/*.md              6 slash commands
-  agents/                    Agent definitions (currently empty)
-  skills/                    3 skill directories
+  commands/*.md              8 slash commands
+  agents/                    Agent definitions
+  skills/                    21 skill directories
   mcp/*.json                 7 MCP server definitions
   settings/*.json            2 settings definitions (claude, opencode)
   instructions/AGENTS.md     Unified agent operating system (ground truth)
