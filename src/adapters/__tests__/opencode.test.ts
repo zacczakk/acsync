@@ -49,6 +49,24 @@ describe('OpenCodeAdapter.renderCommand', () => {
     // gray-matter omits frontmatter delimiters when data is empty — body only
     expect(result.content).toContain('This is the command body.');
   });
+
+  it('passes through agent key in frontmatter', () => {
+    const item = { ...baseCommandItem, metadata: { ...baseCommandItem.metadata, agent: 'release' } };
+    const result = adapter.renderCommand(item);
+    expect(result.content).toContain('agent: release');
+  });
+
+  it('passes through model key in frontmatter', () => {
+    const item = { ...baseCommandItem, metadata: { ...baseCommandItem.metadata, model: 'anthropic/claude-sonnet-4' } };
+    const result = adapter.renderCommand(item);
+    expect(result.content).toContain('model: anthropic/claude-sonnet-4');
+  });
+
+  it('passes through subtask key in frontmatter', () => {
+    const item = { ...baseCommandItem, metadata: { ...baseCommandItem.metadata, subtask: true } };
+    const result = adapter.renderCommand(item);
+    expect(result.content).toContain('subtask: true');
+  });
 });
 
 describe('OpenCodeAdapter.renderAgent', () => {
@@ -90,6 +108,41 @@ describe('OpenCodeAdapter.renderAgent', () => {
   it('includes body verbatim', () => {
     const result = adapter.renderAgent(agentItem);
     expect(result.content).toContain('Agent body content.');
+  });
+
+  it('passes through permission in agent frontmatter', () => {
+    const item = {
+      ...agentItem,
+      metadata: {
+        ...agentItem.metadata,
+        permission: { bash: { '*': 'allow', 'git push *': 'allow' } },
+      },
+    };
+    const result = adapter.renderAgent(item);
+    expect(result.content).toContain('permission:');
+    expect(result.content).toContain('git push *');
+  });
+
+  it('passes through tools in agent frontmatter', () => {
+    const item = {
+      ...agentItem,
+      metadata: {
+        ...agentItem.metadata,
+        tools: { bash: true, edit: true, write: true },
+      },
+    };
+    const result = adapter.renderAgent(item);
+    expect(result.content).toContain('tools:');
+    expect(result.content).toContain('bash: true');
+  });
+
+  it('passes through color in agent frontmatter', () => {
+    const item = {
+      ...agentItem,
+      metadata: { ...agentItem.metadata, color: '#22C55E' },
+    };
+    const result = adapter.renderAgent(item);
+    expect(result.content).toContain("color: '#22C55E'");
   });
 });
 

@@ -19,11 +19,15 @@ export class OpenCodeAdapter extends BaseAdapter {
     return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: true };
   }
 
+  /** Keys that only exist in the canonical format — strip before rendering */
+  private static readonly CANONICAL_ONLY_KEYS = new Set(['allowed-tools', 'argument-hint', 'name']);
+
   renderCommand(item: CanonicalItem): RenderedFile {
-    // Rebuild frontmatter: keep description only
-    // Strip: allowed-tools, argument-hint (OpenCode commands don't use these)
+    // Pass through all frontmatter except canonical-only keys
     const metadata: Record<string, unknown> = {};
-    if (item.metadata.description) metadata.description = item.metadata.description;
+    for (const [key, value] of Object.entries(item.metadata)) {
+      if (!OpenCodeAdapter.CANONICAL_ONLY_KEYS.has(key)) metadata[key] = value;
+    }
 
     const content = stringifyFrontmatter(item.content, metadata);
     return {
@@ -33,9 +37,11 @@ export class OpenCodeAdapter extends BaseAdapter {
   }
 
   renderAgent(item: CanonicalItem): RenderedFile {
-    // Strip name + allowed-tools, add mode: subagent
+    // Pass through all frontmatter except canonical-only keys, inject mode: subagent
     const metadata: Record<string, unknown> = {};
-    if (item.metadata.description) metadata.description = item.metadata.description;
+    for (const [key, value] of Object.entries(item.metadata)) {
+      if (!OpenCodeAdapter.CANONICAL_ONLY_KEYS.has(key)) metadata[key] = value;
+    }
     metadata.mode = 'subagent';
 
     const content = stringifyFrontmatter(item.content, metadata);
