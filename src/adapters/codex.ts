@@ -170,13 +170,11 @@ export class CodexAdapter extends BaseAdapter {
       .map((s) => s.name);
   }
 
-  renderMCPServers(servers: MCPServer[], _existingContent?: string): string {
+  renderMCPServers(servers: MCPServer[], existingContent?: string): string {
     // Codex supports HTTP-only — skip all stdio servers and globally disabled
     const filtered = servers.filter(
       (s) => s.transport === 'http' && !s.disabledFor?.includes('codex') && s.enabled !== false,
     );
-
-    if (filtered.length === 0) return '';
 
     const mcp_servers: Record<string, unknown> = {};
     for (const server of filtered) {
@@ -198,6 +196,17 @@ export class CodexAdapter extends BaseAdapter {
       mcp_servers[server.name] = cfg;
     }
 
-    return writeToml({ mcp_servers });
+    let base: Record<string, unknown> = {};
+    if (existingContent) {
+      try {
+        base = readToml<Record<string, unknown>>(existingContent);
+      } catch {
+        // Unparseable existing file — start fresh
+      }
+    }
+
+    if (filtered.length === 0 && Object.keys(base).length === 0) return '';
+
+    return writeToml({ ...base, mcp_servers });
   }
 }
