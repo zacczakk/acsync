@@ -45,6 +45,14 @@ Before touching any files, verify the release is safe:
 5. **Docs and README are current** — review `docs/`, `README.md`, and `docs/changelog.md` for staleness. If any doc references outdated behavior, stale version numbers, or is missing coverage for recent changes: stop, list what needs updating, and ask user to fix before releasing. Do not skip this step.
 6. **Tests pass** — run the project's test suite. If tests fail: stop, report failures.
 7. **Build succeeds** — run the project's build command. If build fails: stop, report errors.
+8. **No personal information disclosed** — scan all tracked files (excluding lockfiles and `.git/`) for leaked personal information. Look for:
+   - Real names, usernames, or handles (outside CONTRIBUTORS/AUTHORS files)
+   - Absolute home-directory paths (e.g., `/Users/…`, `/home/…`, `C:\Users\…`)
+   - Machine-specific paths or hostnames
+   - API keys, tokens, passwords, or secrets (even if placeholders look real)
+   - Email addresses (outside CONTRIBUTORS/AUTHORS files)
+   - Private IP addresses or internal URLs
+   If any are found: stop, list each occurrence with file and line number, and ask the user to fix before releasing. Do not skip this step.
 
 ### 4. Update version strings
 
