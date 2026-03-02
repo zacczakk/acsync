@@ -67,9 +67,9 @@ acsync/
   src/                        TypeScript sync engine (adapters, diff, secrets, formats)
   .env                        Secrets (gitignored)
   configs/
-    commands/*.md              6 slash commands (canonical)
+    commands/*.md              8 slash commands (canonical)
     agents/                    Agent definitions (canonical, currently empty)
-    skills/                    20 skill directories (canonical)
+    skills/                    21 skill directories (canonical)
     mcp/*.json                 7 MCP server definitions (canonical)
     settings/*.json            2 settings definitions (claude, opencode)
     instructions/AGENTS.md     Unified agent operating system (ground truth)

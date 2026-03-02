@@ -39,7 +39,7 @@ Exit codes:
 const program = new Command()
   .name('acsync')
   .description(DESCRIPTION)
-  .version('1.1.0');
+  .version('1.1.1');
 
 program.addCommand(checkCommand);
 program.addCommand(pushCommand);
