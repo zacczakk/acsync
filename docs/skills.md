@@ -1,5 +1,5 @@
 ---
-summary: Skills catalog — all 20 on-demand skills with sources, triggers, and trimming notes.
+summary: Skills catalog — all 21 on-demand skills with sources, triggers, and trimming notes.
 read_when:
   - Adding or modifying skills
   - Reviewing what's available
@@ -8,14 +8,14 @@ read_when:
 
 # Skills Catalog
 
-20 skills in `configs/skills/`, synced to all 4 targets via `acsync push`.
+21 skills in `configs/skills/`, synced to all 4 targets via `acsync push`.
 Skills load on-demand when the agent's task matches the skill description.
 
 ## Sources
 
 | Source | Repo | Count | Notes |
 |---|---|---|---|
-| Custom | this repo | 10 | Obsidian (6), design (2), workflow (2) |
+| Custom | this repo | 11 | Obsidian (6), design (2), workflow (3) |
 | Anthropic | `~/Repos/oss/anthropic-skills` | 8 | Adopted as-is (upstream-only) |
 | Superpowers | `~/Repos/oss/superpowers` | 2 | Trimmed to telegraphic style on adoption |
 
@@ -35,6 +35,7 @@ Skills load on-demand when the agent's task matches the skill description.
 | `vercel-react-best-practices` | Writing/reviewing/refactoring React/Next.js code | — |
 | `frontend-aesthetics` | Building web UI, CSS, components, styling (merged w/ Anthropic's frontend-design) | 29 |
 | `screenshot-workflow` | "Use a screenshot" or replacing/optimizing image assets | 13 |
+| `session-notes` | Writing atomic session notes to Memory vault (decisions, discoveries, checkpoints) | — |
 
 ### Anthropic Skills (upstream, not trimmed)
 
