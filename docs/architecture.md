@@ -10,9 +10,9 @@ read_when:
 ## Layers
 
 - **configs/** — Canonical source for all CLI artifacts.
-  - `commands/` — Slash commands (6 .md files)
+  - `commands/` — Slash commands (8 .md files)
   - `agents/` — Subagent definitions (currently empty)
-  - `skills/` — Skill bundles (3 directories)
+  - `skills/` — Skill bundles (21 directories)
   - `mcp/` — MCP server definitions (7 .json files)
   - `settings/` — Per-CLI settings (claude, opencode)
   - `instructions/AGENTS.md` — Unified agent operating system (ground truth)
