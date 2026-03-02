@@ -59,6 +59,23 @@ function opLabel(op: Operation, target: TargetName): string {
 }
 
 // ---------------------------------------------------------------------------
+// Colorize
+// ---------------------------------------------------------------------------
+
+function colorizeDiff(raw: string): string {
+  return raw
+    .split('\n')
+    .map((line) => {
+      if (line.startsWith('---') || line.startsWith('+++')) return pc.bold(line);
+      if (line.startsWith('@@')) return pc.cyan(line);
+      if (line.startsWith('+')) return pc.green(line);
+      if (line.startsWith('-')) return pc.red(line);
+      return line;
+    })
+    .join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // Render a single operation's unified diff
 // ---------------------------------------------------------------------------
 
@@ -218,16 +235,14 @@ Exit codes: 0 = no drift, 2 = drift found, 1 = error`)
         }));
 
         const picked = await checkbox({
-          message: `${filtered.length} items with drift — select which to diff`,
+          message: `${filtered.length} items with drift — select which to diff (Space to toggle, Enter to submit)`,
           choices,
+          required: true,
           shortcuts: { all: 'a', invert: 'i' },
           pageSize: 15,
           loop: false,
+          theme: { icon: { cursor: ' ' } },
         });
-
-        if (picked.length === 0) {
-          process.exit(0);
-        }
 
         const pickedSet = new Set(picked);
         selected = filtered.filter((d) => pickedSet.has(d.key));
@@ -238,7 +253,8 @@ Exit codes: 0 = no drift, 2 = drift found, 1 = error`)
       for (const { op, target } of selected) {
         const diffOutput = await renderOpDiff(op, target, cache);
         if (diffOutput) {
-          process.stdout.write(diffOutput + '\n');
+          const colored = process.stdout.isTTY ? colorizeDiff(diffOutput) : diffOutput;
+          process.stdout.write(colored + '\n');
           hasOutput = true;
         }
       }
