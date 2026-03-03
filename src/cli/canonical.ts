@@ -49,7 +49,7 @@ export function createAdapter(target: TargetName, homeDir?: string): ToolAdapter
 }
 
 export function hashContent(content: string): string {
-  return createHash('sha256').update(content, 'utf-8').digest('hex');
+  return createHash('sha256').update(content.trimEnd(), 'utf-8').digest('hex');
 }
 
 /** Hash a rendered file content to use as source hash */
