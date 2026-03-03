@@ -18,7 +18,18 @@
       "Bash(date:*)",
       "Bash(echo:*)",
       "Bash(find:*)",
-      "Bash(git:*)",
+      "Bash(git add:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git commit:*)",
+      "Bash(git diff:*)",
+      "Bash(git fetch:*)",
+      "Bash(git log:*)",
+      "Bash(git remote:*)",
+      "Bash(git show:*)",
+      "Bash(git stash:*)",
+      "Bash(git status:*)",
+      "Bash(git tag:*)",
       "Bash(head:*)",
       "Bash(ls:*)",
       "Bash(pwd:*)",
@@ -53,7 +64,13 @@
       "Bash(rm:*)",
       "Bash(git reset:*)",
       "Bash(git clean:*)",
-      "Bash(sudo:*)"
+      "Bash(git restore:*)",
+      "Bash(sudo:*)",
+      "Bash(cat *.env:*)",
+      "Bash(cat *.env.*:*)",
+      "Bash(cat */.env:*)",
+      "Bash(cat */.env.*:*)",
+      "Bash(cat ~/.zshrc_secrets:*)"
     ]
   }
 }
