@@ -6,6 +6,11 @@ read_when:
 
 # Changelog
 
+## 2026-03-03
+
+- **Fix phantom MCP drift** — `hashContent()` now normalizes trailing whitespace before hashing, preventing perpetual drift when external tools (e.g. Claude Code) rewrite config files without trailing newline
+- Fix double-slash in `diff` path display (`--- a//Users/...` → `--- a/Users/...`)
+
 ## 2026-02-28
 
 - **`acsync check` compact output** — only shows drifted items (create/update/delete) by default; `--verbose` to include up-to-date items
