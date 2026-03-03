@@ -284,8 +284,9 @@ export function unifiedDiff(a: string, b: string, path: string): string | null {
   if (a === b) return null;
 
   const lines: string[] = [];
-  lines.push(`--- a/${path}`);
-  lines.push(`+++ b/${path}`);
+  const display = path.startsWith('/') ? path : `/${path}`;
+  lines.push(`--- a${display}`);
+  lines.push(`+++ b${display}`);
 
   if (aLines.length === 0) {
     lines.push(`@@ -0,0 +1,${bLines.length} @@`);
