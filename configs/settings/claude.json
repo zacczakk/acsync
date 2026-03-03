@@ -18,14 +18,7 @@
       "Bash(date:*)",
       "Bash(echo:*)",
       "Bash(find:*)",
-      "Bash(git status:*)",
-      "Bash(git diff:*)",
-      "Bash(git log:*)",
-      "Bash(git show:*)",
-      "Bash(git branch:*)",
-      "Bash(git remote:*)",
-      "Bash(git tag:*)",
-      "Bash(git stash list:*)",
+      "Bash(git:*)",
       "Bash(head:*)",
       "Bash(ls:*)",
       "Bash(pwd:*)",
@@ -49,7 +42,10 @@
       "Bash(trash:*)",
       "Bash(committer:*)",
       "Bash(swift build:*)",
-      "Bash(swift test:*)"
+      "Bash(swift test:*)",
+      "Bash(acsync:*)",
+      "Bash(basename:*)",
+      "Bash(xxd:*)"
     ],
     "deny": [
       "Delete",
