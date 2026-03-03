@@ -45,7 +45,8 @@
       "Bash(swift test:*)",
       "Bash(acsync:*)",
       "Bash(basename:*)",
-      "Bash(xxd:*)"
+      "Bash(xxd:*)",
+      "Bash(grep:*)"
     ],
     "deny": [
       "Delete",
