@@ -57,7 +57,6 @@
     "deny": [
       "Delete",
       "Bash(rm:*)",
-      "Bash(git push:*)",
       "Bash(git reset:*)",
       "Bash(git clean:*)",
       "Bash(git restore:*)",

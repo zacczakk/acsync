@@ -3,6 +3,9 @@ description: >-
   Bump version (major|minor|patch), update all version strings, commit,
   tag, push, and create a GitHub release. Usage: /bump-version patch
 agent: release
+allowed-tools:
+  - Bash(git push:*)
+  - Bash(gh release:*)
 ---
 
 # Bump Version
