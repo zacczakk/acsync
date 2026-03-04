@@ -6,6 +6,15 @@ read_when:
 
 # Changelog
 
+## v1.3.0 — 2026-03-04
+
+- **Expanded managed settings** — manage 8 keys: `$schema`, `permissions`, `env`, `alwaysThinkingEnabled`, `cleanupPeriodDays`, `teammateMode`, `prefersReducedMotion`, `sandbox`
+- **Hardened permissions** — replace `mcp__*` wildcard with per-server entries; deny `.env` reads, `git push`, `git restore`
+- **Vault context hook** — `vault-context-loader.js` SessionStart hook injects persona/memory files as additional context
+- Add `WebFetch`/`WebSearch` to allow list
+- Add env vars for agent teams and 200k context cap
+- Allow `/tmp` paths in OpenCode settings
+
 ## 2026-03-03
 
 - **Fix phantom MCP drift** — `hashContent()` now normalizes trailing whitespace before hashing, preventing perpetual drift when external tools (e.g. Claude Code) rewrite config files without trailing newline
