@@ -26,7 +26,9 @@
       "~/Vaults/**": "allow",
       "~/Vaults/Memory/system/grooming-reports/*": "allow",
       "~/.config/opencode/agents/*": "allow",
-      "~/.config/opencode/get-shit-done/templates/*": "allow"
+      "~/.config/opencode/get-shit-done/templates/*": "allow",
+      "/private/tmp/**": "allow",
+      "/tmp/**": "allow"
     },
     "read": {
       "*": "allow",

@@ -4,9 +4,14 @@
     "NODE_EXTRA_CA_CERTS": "~/.claude/cacert.pem"
   },
   "customKey": "preserved",
+  "alwaysThinkingEnabled": true,
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
-      "mcp__*",
+      "mcp__context7",
+      "mcp__tavily",
+      "WebFetch",
+      "WebSearch",
       "Read",
       "Edit",
       "Create",
@@ -59,5 +64,12 @@
       "Bash(git clean:*)",
       "Bash(sudo:*)"
     ]
+  },
+  "cleanupPeriodDays": 365,
+  "teammateMode": "auto",
+  "prefersReducedMotion": true,
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
   }
 }
