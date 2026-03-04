@@ -11,6 +11,7 @@ read_when:
 - **Expanded managed settings** — manage 8 keys: `$schema`, `permissions`, `env`, `alwaysThinkingEnabled`, `cleanupPeriodDays`, `teammateMode`, `prefersReducedMotion`, `sandbox`
 - **Hardened permissions** — replace `mcp__*` wildcard with per-server entries; deny `.env` reads, `git push`, `git restore`
 - **Vault context hook** — `vault-context-loader.js` SessionStart hook injects persona/memory files as additional context
+- **Skill-scoped git push** — `bump-version` skill gets its own Bash permission for `git push`
 - Add `WebFetch`/`WebSearch` to allow list
 - Add env vars for agent teams and 200k context cap
 - Allow `/tmp` paths in OpenCode settings

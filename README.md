@@ -116,6 +116,6 @@ Run `bin/docs-list` (or `bun scripts/docs-list.ts`) for the full docs catalog.
 | `docs/overview.md` | First time in the repo |
 | `docs/architecture.md` | Understanding repo structure |
 | `docs/subagent.md` | Writing new commands or agents |
-| `docs/tools.md` | Understanding available tools |
+| `configs/instructions/TOOLS.md` | Understanding available tools |
 | `docs/tavily-reference.md` | Configuring Tavily MCP |
 | `docs/runbooks/mcp-incident.md` | MCP server outage |
