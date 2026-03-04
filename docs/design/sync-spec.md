@@ -603,11 +603,12 @@ Compare to canonical MCP definitions.
 
 **Canonical source**: `configs/settings/claude.json`
 
-**Managed keys**: `permissions`, `env`
+**Managed keys**: `$schema`, `permissions`, `env`,
+`alwaysThinkingEnabled`, `cleanupPeriodDays`, `teammateMode`,
+`prefersReducedMotion`, `sandbox`
 
-**Unmanaged keys** (preserve during sync): `$schema`,
-`alwaysThinkingEnabled`, `feedbackSurveyState`, `hooks`, `statusLine`
-(last two are GSD-owned).
+**Unmanaged keys** (preserve during sync): `feedbackSurveyState`,
+`hooks`, `statusLine` (last two are GSD-owned).
 
 **Deep-merge keys**: `permissions`
 The `permissions.allow` and `permissions.deny` arrays are merged:
@@ -615,15 +616,17 @@ canonical entries overwrite matching entries, user-added entries
 (e.g., machine-local `Read()` rules) survive. During pull, entries
 present in the system but not in canonical are flagged as user-added.
 
-**Wholesale-replace keys**: `env`
+**Wholesale-replace keys**: `env`, `$schema`, `alwaysThinkingEnabled`,
+`cleanupPeriodDays`, `teammateMode`, `prefersReducedMotion`, `sandbox`
 
 **Path expansion**: Canonical uses `~` in paths (e.g.,
 `~/.claude/cacert.pem`). Push expands `~` to the actual home
 directory. Pull collapses the home directory back to `~`.
 
-**Push**: Read system file. For `env`, replace value entirely (with `~`
-expanded). For `permissions`, deep-merge canonical into existing. Write
-back. Preserve all unmanaged keys.
+**Push**: Read system file. For `env` and other wholesale-replace keys,
+replace value entirely (with `~` expanded where applicable). For
+`permissions`, deep-merge canonical into existing. Write back. Preserve
+all unmanaged keys.
 
 **Pull**: Read system file. Extract managed keys. Collapse home
 directory paths to `~`. Compare to canonical settings file.

@@ -2,5 +2,6 @@
   "env": {
     "SOME_OLD_VAR": "old-value"
   },
-  "customKey": "preserved"
+  "customKey": "preserved",
+  "alwaysThinkingEnabled": false
 }

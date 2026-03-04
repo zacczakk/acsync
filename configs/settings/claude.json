@@ -1,11 +1,17 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "env": {
     "SSL_CERT_FILE": "~/.claude/cacert.pem",
-    "NODE_EXTRA_CA_CERTS": "~/.claude/cacert.pem"
+    "NODE_EXTRA_CA_CERTS": "~/.claude/cacert.pem",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1"
   },
   "permissions": {
     "allow": [
-      "mcp__*",
+      "mcp__context7",
+      "mcp__tavily",
+      "WebFetch",
+      "WebSearch",
       "Read",
       "Edit",
       "Create",
@@ -18,18 +24,7 @@
       "Bash(date:*)",
       "Bash(echo:*)",
       "Bash(find:*)",
-      "Bash(git add:*)",
-      "Bash(git branch:*)",
-      "Bash(git checkout:*)",
-      "Bash(git commit:*)",
-      "Bash(git diff:*)",
-      "Bash(git fetch:*)",
-      "Bash(git log:*)",
-      "Bash(git remote:*)",
-      "Bash(git show:*)",
-      "Bash(git stash:*)",
-      "Bash(git status:*)",
-      "Bash(git tag:*)",
+      "Bash(git:*)",
       "Bash(head:*)",
       "Bash(ls:*)",
       "Bash(pwd:*)",
@@ -62,6 +57,7 @@
     "deny": [
       "Delete",
       "Bash(rm:*)",
+      "Bash(git push:*)",
       "Bash(git reset:*)",
       "Bash(git clean:*)",
       "Bash(git restore:*)",
@@ -72,5 +68,13 @@
       "Bash(cat */.env.*:*)",
       "Bash(cat ~/.zshrc_secrets:*)"
     ]
+  },
+  "alwaysThinkingEnabled": true,
+  "cleanupPeriodDays": 365,
+  "teammateMode": "auto",
+  "prefersReducedMotion": true,
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
   }
 }
