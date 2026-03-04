@@ -86,13 +86,64 @@ If push fails (permissions, hooks, etc.): stop and report. Do not force-push.
 
 ### 8. Create GitHub release
 
-```bash
-gh release create "vX.Y.Z" --title "vX.Y.Z" --generate-notes
+#### 8a. Write release notes
+
+Do NOT use `--generate-notes`. Write release notes manually by analyzing all commits since the last tag (`git log <prev-tag>..HEAD --oneline`).
+
+Structure:
+
+```markdown
+## What's New
+
+<!-- 1-3 sentence plain-language summary of the release. What does this version do for the user?
+     Lead with the most important change. No jargon. -->
+
+## Changes
+
+<!-- Group changes under headings. Omit empty groups. Each entry is a single bullet.
+     Write from the user's perspective — what changed for them, not what files you touched.
+     Link to PRs/issues where relevant: (#123) -->
+
+### Features
+- <what the user can now do> (#PR)
+
+### Fixes
+- <what broke and is now fixed> (#PR)
+
+### Improvements
+- <perf, UX, DX improvements> (#PR)
+
+### Breaking Changes
+- <what broke and what to do about it>
+
+### Internal
+- <refactors, deps, CI changes — keep brief, users mostly skip this>
 ```
 
-Use `--generate-notes` to auto-generate release notes from commits since the last tag.
+Rules for good release notes:
+- **User-facing language.** "Added dark mode toggle" not "feat: add ThemeContext provider".
+- **One bullet per logical change**, not per commit. Squash related commits into a single entry.
+- **Lead with impact.** Most important changes first within each group.
+- **Breaking changes get migration instructions.** Even if it's one line: "Rename `foo` to `bar` in your config."
+- **Skip noise.** Typo fixes, formatting, trivial refactors — omit unless they fix user-facing bugs.
+- **Version comparison link** at the bottom: `**Full changelog**: https://github.com/OWNER/REPO/compare/vPREV...vX.Y.Z`
 
-### 9. Report
+#### 8b. Create the release
+
+```bash
+gh release create "vX.Y.Z" --title "vX.Y.Z" --notes-file <(cat <<'EOF'
+<release notes from 8a>
+EOF
+)
+```
+
+If `--notes-file` with process substitution fails, write notes to a temp file, create the release, then clean up.
+
+### 9. Release checklist
+
+If `docs/RELEASE.md` exists, read it and execute every step sequentially. Treat each step as mandatory — if any step fails, stop and report. Replace `{VERSION}` placeholders with the new version. Skip steps already covered earlier (e.g., tests, typecheck).
+
+### 10. Report
 
 Print a summary:
 
