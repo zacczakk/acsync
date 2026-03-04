@@ -10,7 +10,7 @@ allowed-tools:
 
 # Bump Version
 
-Bump the project version, commit all changes, push to remote, tag, and create a GitHub release.
+Bump the project version, commit all changes, push to remote, tag, and create a GitHub release. If `docs/RELEASE.md` exists, you MUST execute its steps before reporting success.
 
 User input: $ARGUMENTS
 
@@ -139,9 +139,16 @@ EOF
 
 If `--notes-file` with process substitution fails, write notes to a temp file, create the release, then clean up.
 
-### 9. Release checklist
+### 9. Release checklist (MANDATORY — do not skip)
 
-If `docs/RELEASE.md` exists, read it and execute every step sequentially. Treat each step as mandatory — if any step fails, stop and report. Replace `{VERSION}` placeholders with the new version. Skip steps already covered earlier (e.g., tests, typecheck).
+**Before reporting success**, check if `docs/RELEASE.md` exists. If it does:
+
+1. Read the entire file.
+2. Execute **every** step sequentially. Replace `{VERSION}` placeholders with the new version.
+3. Skip steps already completed earlier (e.g., tests, typecheck, build).
+4. If any step fails: stop and report. Do not mark the release as complete.
+
+The release is NOT done until this checklist is fully executed. Do not proceed to step 10 until every checklist item passes.
 
 ### 10. Report
 
