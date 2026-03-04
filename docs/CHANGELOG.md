@@ -6,6 +6,14 @@ read_when:
 
 # Changelog
 
+## v1.3.2 — 2026-03-04
+
+- **Updated bump-version command** — release notes template with structured format, user-facing language guidelines, and version comparison links
+
+## v1.3.1 — 2026-03-04
+
+- **Skill-scoped git push** — `bump-version` command gets its own Bash permission for `git push`
+
 ## v1.3.0 — 2026-03-04
 
 - **Expanded managed settings** — manage 8 keys: `$schema`, `permissions`, `env`, `alwaysThinkingEnabled`, `cleanupPeriodDays`, `teammateMode`, `prefersReducedMotion`, `sandbox`
