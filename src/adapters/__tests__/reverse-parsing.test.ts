@@ -75,7 +75,7 @@ describe('Gemini parseCommand (TOML reverse)', () => {
   const adapter = new GeminiAdapter();
 
   test('parses TOML with description and prompt, strips trailing User arguments suffix', () => {
-    const toml = `description = "Test"\nprompt = """\nDo the thing.\n\nUser arguments: {args}\n"""\n`;
+    const toml = `description = "Test"\nprompt = '''\nDo the thing.\n\nUser arguments: {{args}}\n'''\n`;
     const result = adapter.parseCommand('test', toml);
 
     expect(result.name).toBe('test');

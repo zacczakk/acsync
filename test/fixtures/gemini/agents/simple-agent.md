@@ -1,4 +1,5 @@
 ---
+name: simple-agent
 description: Minimal agent with no tool restrictions
 kind: local
 ---

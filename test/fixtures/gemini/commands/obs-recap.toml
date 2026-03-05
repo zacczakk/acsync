@@ -1,5 +1,5 @@
 description = "Write a session recap to Memory vault (e.g., /obs-recap or /obs-recap refactored auth module). Uses session-notes skill conventions."
-prompt = """
+prompt = '''
 # Recap — End-of-Session Summary
 
 Wrap up the current session as a recap note in `Memory/sessions/`.
@@ -74,5 +74,5 @@ User input: $ARGUMENTS
 - **No body `[[wikilinks]]` to other leaf notes.** Use plain text for references to other Memory vault notes.
 - Be concise — future agents should orient in 30 seconds.
 
-User arguments: {args}
-"""
+User arguments: {{args}}
+'''

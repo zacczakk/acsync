@@ -1,4 +1,5 @@
 ---
+name: test-agent
 description: A test agent for fixture validation
 allowed-tools:
   - Read

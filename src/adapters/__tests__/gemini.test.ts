@@ -38,15 +38,17 @@ describe('GeminiAdapter.renderCommand', () => {
     expect(result.content).toContain('description = "Plan a feature"');
   });
 
-  it('includes prompt with triple-quoted string', () => {
+  it('includes prompt with literal multiline string', () => {
     const result = adapter.renderCommand(baseCommandItem);
-    expect(result.content).toContain('prompt = """');
-    expect(result.content).toContain('"""');
+    expect(result.content).toContain("prompt = '''");
+    expect(result.content).toContain("'''");
+    // Must NOT use basic multiline (""") — backslashes get interpreted as escapes
+    expect(result.content).not.toContain('prompt = """');
   });
 
-  it('appends User arguments: {args} at end of prompt', () => {
+  it('appends User arguments: {{args}} at end of prompt', () => {
     const result = adapter.renderCommand(baseCommandItem);
-    expect(result.content).toContain('User arguments: {args}');
+    expect(result.content).toContain('User arguments: {{args}}');
   });
 
   it('includes original body in prompt', () => {
@@ -70,6 +72,19 @@ describe('GeminiAdapter.renderCommand', () => {
     const result = adapter.renderCommand(item);
     expect(result.content).toContain('description = ""');
   });
+
+  it('produces valid TOML when content contains backslashes', () => {
+    // Regression: C:\Users paths caused "invalid unicode escape" with """
+    const item = {
+      ...baseCommandItem,
+      content: 'Check paths like C:\\Users\\foo and \\newlines\n',
+    };
+    const result = adapter.renderCommand(item);
+    // Must parse without error
+    const { parse } = require('smol-toml');
+    const parsed = parse(result.content);
+    expect(parsed.prompt).toContain('C:\\Users\\foo');
+  });
 });
 
 describe('GeminiAdapter.renderAgent', () => {
@@ -81,6 +96,11 @@ describe('GeminiAdapter.renderAgent', () => {
   it('adds kind: local to frontmatter', () => {
     const result = adapter.renderAgent(agentItem);
     expect(result.content).toContain('kind: local');
+  });
+
+  it('adds name to frontmatter from item.name', () => {
+    const result = adapter.renderAgent(agentItem);
+    expect(result.content).toContain('name: my-agent');
   });
 
   it('keeps description in agent frontmatter', () => {

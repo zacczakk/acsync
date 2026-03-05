@@ -25,15 +25,15 @@ export class GeminiAdapter extends BaseAdapter {
   }
 
   renderCommand(item: CanonicalItem): RenderedFile {
-    // Gemini commands: TOML format with triple-quoted prompt string
-    // Strip allowed-tools and argument-hint from output
-    // Always append "User arguments: {args}" at end of prompt
+    // Gemini commands: TOML with literal multiline string (''') for prompt.
+    // Literal strings treat backslashes as-is — no escape interpretation.
+    // Triple-quoted basic strings (""") interpret \U, \n, etc., which breaks
+    // content containing paths like C:\Users.
     const body = item.content.trim();
-    const prompt = body + '\n\nUser arguments: {args}';
+    const prompt = body + '\n\nUser arguments: {{args}}';
     const description = String(item.metadata.description ?? '');
 
-    // Build TOML manually — smol-toml stringify doesn't produce triple-quoted strings
-    const tomlContent = `description = ${JSON.stringify(description)}\nprompt = """\n${prompt}\n"""\n`;
+    const tomlContent = `description = ${JSON.stringify(description)}\nprompt = '''\n${prompt}\n'''\n`;
 
     return {
       relativePath: this.paths.getCommandFilePath(item.name),
@@ -42,9 +42,10 @@ export class GeminiAdapter extends BaseAdapter {
   }
 
   renderAgent(item: CanonicalItem): RenderedFile {
-    // Gemini agents: markdown with frontmatter, add kind: local
-    // Keep description + allowed-tools, add kind: local
+    // Gemini agents: markdown with frontmatter
+    // Required fields: name (slug), description, kind
     const metadata: Record<string, unknown> = {};
+    metadata.name = item.name;
     if (item.metadata.description) metadata.description = item.metadata.description;
     if (item.metadata['allowed-tools']) metadata['allowed-tools'] = item.metadata['allowed-tools'];
     metadata.kind = 'local';
@@ -60,8 +61,8 @@ export class GeminiAdapter extends BaseAdapter {
   override parseCommand(name: string, content: string): CanonicalItem {
     const parsed = readToml<{ description?: string; prompt?: string }>(content);
     let body = parsed.prompt ?? '';
-    // Strip trailing "\n\nUser arguments: {args}\n" appended during render
-    body = body.replace(/\n\nUser arguments: \{args\}\s*$/, '');
+    // Strip trailing "\n\nUser arguments: {{args}}\n" appended during render
+    body = body.replace(/\n\nUser arguments: \{\{args\}\}\s*$/, '');
     return {
       name,
       content: body,
