@@ -65,7 +65,7 @@ User input: $ARGUMENTS
 - Always include `vault=Memory` in every `obsidian` command.
 - **Write notes via filesystem** (absolute path above), not `obsidian create` — backticks in content are eaten by the shell.
 - One note per topic. If multiple unrelated things need saving, create multiple notes.
-- **Tree-graph linking.** `related:` has parent first (matching `collection` note if one exists, otherwise nearest hub in MEMORY.md) + up to 2 direct dependencies. Max 3 entries. No sibling links. Cross-vault links only through hub notes.
-- Include `[[wikilinks]]` in body only for direct dependencies — notes the reader needs to understand this one.
+- **Tree-graph linking.** `related:` has **folder parent first**: `tools/` → `[[tools]]`, `patterns/` → `[[patterns]]`, `projects/` → `[[projects]]`, `sessions/` → `[[sessions]]`, `system/` → `[[obsidian-vault-system]]`. Use a same-folder collection instead if one exists for this topic. Max 3 entries. No sibling links. Cross-vault links only through hub notes.
+- **No body `[[wikilinks]]` to other leaf notes.** Use plain text for references to other Memory vault notes. Only parent/collection notes list children with wikilinks.
 - Kebab-case filenames, no date prefixes.
 - Place in the correct folder — `projects/`, `tools/`, `patterns/`, `system/`, or root.

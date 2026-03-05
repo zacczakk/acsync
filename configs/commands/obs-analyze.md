@@ -117,5 +117,6 @@ Analyzed: {repo-name}
 - Frontmatter required. Extra fields beyond base schema: `repo`, `language`, `framework`, `status`.
 - Idempotent — never overwrite populated notes. Skip and report.
 - Be concise — bullet points over prose. Future agents should orient in 60 seconds.
-- **Tree-graph linking.** `related:` has parent first (matching `collection` note if one exists) + up to 2 direct dependencies. Max 3 entries. No sibling links. `[[wikilinks]]` in body only for direct dependencies.
+- **Tree-graph linking.** `related:` has **`[[projects]]` as first entry** (folder parent for all project notes). Add up to 2 direct dependencies after. Max 3 entries. No sibling links.
+- **No body `[[wikilinks]]` to other leaf notes.** Use plain text for references to other Memory vault notes.
 - Don't duplicate repo-internal docs. Reference them: "See README.md for full setup."
