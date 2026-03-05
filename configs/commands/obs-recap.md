@@ -39,6 +39,7 @@ User input: $ARGUMENTS
    date: YYYY-MM-DD
    projects: [{repo-name}]
    tags: [session, recap]
+   related: ["[[sessions]]"]
    ---
 
    # {Session Title}
@@ -67,5 +68,6 @@ User input: $ARGUMENTS
 - Skip empty sections entirely.
 - Keep total note under 80 lines.
 - Frontmatter `projects`: repo name or project slug from MEMORY.md.
-- **Tree-graph linking.** `[[wikilinks]]` only for direct dependencies (project notes, tools referenced). Max 3 links. No sibling links to other sessions.
+- **Tree-graph linking.** `related:` has `[[sessions]]` as first entry (folder parent). Max 3 entries total. No sibling links to other sessions.
+- **No body `[[wikilinks]]` to other leaf notes.** Use plain text for references to other Memory vault notes.
 - Be concise — future agents should orient in 30 seconds.
