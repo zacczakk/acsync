@@ -1,6 +1,6 @@
 {
   "name": "acsync",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "Agent Config Sync — single source of truth for AI coding assistant configs",
   "bin": {
     "acsync": "./src/cli/index.ts"

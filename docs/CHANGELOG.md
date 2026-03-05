@@ -6,6 +6,18 @@ read_when:
 
 # Changelog
 
+## v1.3.4 — 2026-03-05
+
+- **Fix Gemini adapter** — use TOML literal strings (`'''`) instead of basic multiline (`"""`) to prevent backslash escape interpretation; add required `name` field to agent frontmatter; use `{{args}}` for Gemini argument interpolation
+- **New obs-fix-links command** — repairs stale parent links in Memory vault notes
+- **Obs command consolidation** — merged obs-jot + obs-lookup into obs-recap; renamed obs-add-note → obs-note, obs-triage-inbox → obs-triage
+- **Tree-graph linking rules** — folder parent always first in `related:`, no body leaf-leaf wikilinks
+- **Tooling docs** — added agent-browser native mode + bird CLI documentation
+
+## v1.3.3 — 2026-03-05
+
+- **Mandatory release checklist** — bump-version now enforces execution of `docs/RELEASE.md` steps before reporting success
+
 ## v1.3.2 — 2026-03-04
 
 - **Updated bump-version command** — release notes template with structured format, user-facing language guidelines, and version comparison links
