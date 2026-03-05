@@ -1,6 +1,6 @@
 ---
 description: >-
-  Quick capture a note to the inbox (e.g., /obs-add-note check out this tool:
+  Quick capture a note to the inbox (e.g., /obs-note check out this tool:
   https://...)
 ---
 
@@ -30,6 +30,6 @@ User input: $ARGUMENTS
 - Always include `vault=Knowledge` in every `obsidian` command.
 - Use `obsidian vault=Knowledge create` — not raw file I/O.
 - Kebab-case filenames, no date prefixes.
-- This is zero-friction capture — don't over-structure. Triage happens later via `/obs-triage-inbox`.
+- This is zero-friction capture — don't over-structure. Triage happens later via `/obs-triage`.
 - If the content is a URL, just capture it as-is. Enrichment happens during triage.
-- No `[[wikilinks]]`. This is raw capture — linking happens during triage (`/obs-triage-inbox`).
+- No `[[wikilinks]]`. This is raw capture — linking happens during triage (`/obs-triage`).

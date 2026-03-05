@@ -207,8 +207,8 @@ Chronological entries.
 
 ## Related Commands
 
-- `/obs-add-note` — Quick capture to inbox
-- `/obs-triage-inbox` — Process inbox into backlog
+- `/obs-note` — Quick capture to inbox
+- `/obs-triage` — Process inbox into backlog
 - `/obs-recap` — Write session summary to Memory
 - `/obs-analyze` — Scan repo, create project note in Memory
 - `/obs-fix-links` — Repair stale parent links after note moves
