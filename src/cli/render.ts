@@ -38,8 +38,8 @@ transformation for a given target. If no --target is specified, renders for all 
 targets with separator headers.
 
 Examples:
-  acsync render --type command --name obs-jot                Show obs-jot for all targets
-  acsync render --type command --name obs-jot -t claude      Show obs-jot for Claude only
+  acsync render --type command --name obs-recap               Show obs-recap for all targets
+  acsync render --type command --name obs-recap -t claude     Show obs-recap for Claude only
   acsync render --type mcp --name tavily                     Show tavily MCP for all targets
   acsync render --type agent --name my-planner -t codex      Show agent as Codex TOML
   acsync render --type instruction --name base -t opencode   Show instructions for OpenCode`)

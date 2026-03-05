@@ -35,9 +35,9 @@ describe('pull-commands E2E', () => {
     const canonicalGroom = readFileSync(join(FIXTURE_ROOT, 'canonical', 'commands', 'groom-docs.md'), 'utf-8');
     expect(claudeGroom).toBe(canonicalGroom);
 
-    const claudeObsJot = readFileSync(join(claudeDir, 'configs', 'commands', 'obs-jot.md'), 'utf-8');
-    const canonicalObsJot = readFileSync(join(FIXTURE_ROOT, 'canonical', 'commands', 'obs-jot.md'), 'utf-8');
-    expect(claudeObsJot).toBe(canonicalObsJot);
+    const claudeObsRecap = readFileSync(join(claudeDir, 'configs', 'commands', 'obs-recap.md'), 'utf-8');
+    const canonicalObsRecap = readFileSync(join(FIXTURE_ROOT, 'canonical', 'commands', 'obs-recap.md'), 'utf-8');
+    expect(claudeObsRecap).toBe(canonicalObsRecap);
 
     // Pull from OpenCode — also identity passthrough (frontmatter md)
     const opencodeDir = setupProjectDir();

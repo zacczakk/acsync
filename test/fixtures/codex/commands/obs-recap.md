@@ -1,8 +1,6 @@
----
-description: >-
-  Write a session recap to Memory vault (e.g., /obs-recap or /obs-recap
-  refactored auth module). Uses session-notes skill conventions.
----
+# /obs-recap
+
+Write a session recap to Memory vault (e.g., /obs-recap or /obs-recap refactored auth module). Uses session-notes skill conventions.
 
 # Recap — End-of-Session Summary
 

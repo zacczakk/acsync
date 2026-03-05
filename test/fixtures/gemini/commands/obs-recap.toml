@@ -1,9 +1,5 @@
----
-description: >-
-  Write a session recap to Memory vault (e.g., /obs-recap or /obs-recap
-  refactored auth module). Uses session-notes skill conventions.
----
-
+description = "Write a session recap to Memory vault (e.g., /obs-recap or /obs-recap refactored auth module). Uses session-notes skill conventions."
+prompt = """
 # Recap — End-of-Session Summary
 
 Wrap up the current session as a recap note in `Memory/sessions/`.
@@ -77,3 +73,6 @@ User input: $ARGUMENTS
 - **Tree-graph linking.** `related:` has `[[sessions]]` as first entry (folder parent), then up to 2 discovered dependency notes. Max 3 entries total. No sibling links to other sessions.
 - **No body `[[wikilinks]]` to other leaf notes.** Use plain text for references to other Memory vault notes.
 - Be concise — future agents should orient in 30 seconds.
+
+User arguments: {args}
+"""

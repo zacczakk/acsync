@@ -113,7 +113,7 @@ Extended fields by type:
 
 `depends-on:` captures hard dependencies — things that must exist or be understood first.
 
-Both fields are populated organically by agents during `/obs-jot`, `/obs-analyze`, and `/obs-recap`. No manual maintenance command.
+Both fields are populated organically by agents during `/obs-analyze`, `/obs-recap`, and the `session-notes` skill. No manual maintenance command.
 
 ## Automatic Behaviors
 
@@ -209,10 +209,9 @@ Chronological entries.
 
 - `/obs-add-note` — Quick capture to inbox
 - `/obs-triage-inbox` — Process inbox into backlog
-- `/obs-jot` — Distill conversation into Memory note
-- `/obs-lookup` — Search agent memory (replaced `/obs-recall`)
 - `/obs-recap` — Write session summary to Memory
 - `/obs-analyze` — Scan repo, create project note in Memory
+- `/obs-fix-links` — Repair stale parent links after note moves
 - `/obs-get-todos` — List open tasks
 
 ## Related Skills

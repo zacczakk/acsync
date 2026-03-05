@@ -37,7 +37,7 @@ describe('Fixture completeness', () => {
   });
 
   it('canonical commands has 2 files', () => {
-    const files = ['groom-docs.md', 'obs-jot.md'];
+    const files = ['groom-docs.md', 'obs-recap.md'];
     for (const f of files) {
       expect(existsSync(join(CANONICAL, 'commands', f))).toBe(true);
     }
@@ -75,7 +75,7 @@ describe('Fixture completeness', () => {
 // ── Golden file accuracy ──────────────────────────────────────────────────
 
 describe('Golden file accuracy', () => {
-  const commandNames = ['groom-docs', 'obs-jot'];
+  const commandNames = ['groom-docs', 'obs-recap'];
   const agentNames = ['test-agent', 'simple-agent'];
   const skillNames = ['obsidian', 'web-design-guidelines'];
 

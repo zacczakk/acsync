@@ -49,10 +49,10 @@ describe('push-commands E2E', () => {
     const codexGolden = readFileSync(join(FIXTURE_ROOT, 'codex', 'commands', 'groom-docs.md'), 'utf-8');
     expect(codexPushed).toBe(codexGolden);
 
-    // Also check obs-jot command across targets
-    const claudeObsJot = readFileSync(join(paths.claude, 'obs-jot.md'), 'utf-8');
-    const claudeObsJotGolden = readFileSync(join(FIXTURE_ROOT, 'claude', 'commands', 'obs-jot.md'), 'utf-8');
-    expect(claudeObsJot).toBe(claudeObsJotGolden);
+    // Also check obs-recap command across targets
+    const claudeObsRecap = readFileSync(join(paths.claude, 'obs-recap.md'), 'utf-8');
+    const claudeObsRecapGolden = readFileSync(join(FIXTURE_ROOT, 'claude', 'commands', 'obs-recap.md'), 'utf-8');
+    expect(claudeObsRecap).toBe(claudeObsRecapGolden);
   }, E2E_TIMEOUT);
 
   test('second push is idempotent (no drift)', async () => {
