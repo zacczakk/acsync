@@ -115,6 +115,6 @@ When work concludes (skip if trivial):
 - Unrecognized changes: assume other agent; keep going; focus your changes. If it causes issues, stop + ask user.
 
 ## Tools
-On PATH: `trash`, `acsync`, `committer`, `docs-list`, `browser-tools`, `mcporter`, `qmd`, `obsidian`, `gh`.
+On PATH: `trash`, `acsync`, `committer`, `docs-list`, `agent-browser`, `browser-tools`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`.
 Full catalog: `~/Repos/acsync/configs/instructions/TOOLS.md`.
 

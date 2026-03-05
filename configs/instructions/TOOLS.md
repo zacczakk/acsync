@@ -137,9 +137,53 @@ Lists `docs/` catalog and enforces front-matter compliance.
 - **Rebuild:** `bun build scripts/docs-list.ts --compile --outfile bin/docs-list`
 - **Run:** After adding/modifying docs; honors `read_when` hints in front-matter.
 
+## agent-browser
+
+Primary browser automation CLI. Rust binary with direct CDP. Persistent sessions with cookie retention. Snapshot + @ref workflow for agent-driven interaction.
+
+- **Install:** `npm install -g agent-browser` (Homebrew global prefix)
+- **Version:** 0.16.3
+- **Skill:** `load_agent_browser_skill` (OpenCode plugin: `opencode-agent-browser`)
+- **Docs:** Full skill at `/opt/homebrew/lib/node_modules/agent-browser/skills/agent-browser/SKILL.md`
+
+### Native mode (preferred)
+
+```bash
+# Rust binary → CDP → Chrome. No Node.js/Playwright at runtime.
+# Headless by default; use --headed only for visual debugging.
+agent-browser open https://example.com
+
+# Set env vars in shell config to avoid passing flags:
+export AGENT_BROWSER_NATIVE=1
+```
+
+Native mode also supports **Safari via WebDriver** — the only agent tool with Safari access.
+
+### Core workflow
+
+```bash
+agent-browser open <url>              # Navigate
+agent-browser snapshot -i             # Interactive elements with @refs
+agent-browser click @e2               # Click by ref
+agent-browser fill @e3 "text"         # Fill input
+agent-browser get text @e1            # Extract text
+agent-browser screenshot              # Capture viewport
+agent-browser eval 'document.title'   # Run JS
+```
+
+### When to use
+
+| Task | Tool |
+|---|---|
+| Browse, click, fill, interact | `agent-browser --native` |
+| Authenticated scraping | `agent-browser` (login once, cookies persist) |
+| Safari/WebKit testing | `agent-browser --native` (WebDriver) |
+| Debug running Chrome | `browser-tools` |
+| Complex test suites w/ assertions | `webapp-testing` skill (Python Playwright) |
+
 ## browser-tools
 
-Lightweight Chrome DevTools helper for browser automation.
+Lightweight Chrome DevTools helper. Connects to already-running Chrome via CDP port. Read-heavy — no click/fill automation.
 
 - **Source:** `~/Repos/acsync/scripts/browser-tools.ts`
 - **Rebuild:** `bun build scripts/browser-tools.ts --compile --target bun --outfile bin/browser-tools`
@@ -149,9 +193,12 @@ Lightweight Chrome DevTools helper for browser automation.
 - `nav <url>` — Navigate to URL.
 - `eval <js>` — Evaluate JavaScript in page context.
 - `screenshot` — Capture page screenshot.
+- `content <url>` — Extract readable content as markdown.
+- `search <query>` — Google search with optional content extraction.
 - `pick` — DOM element picker.
 - `cookies` — View/manage cookies.
-- `inspect` — Open DevTools inspector.
+- `console` — Capture console logs.
+- `inspect` — List Chrome DevTools instances.
 - `kill` — Close Chrome instance.
 
 ## gh
@@ -334,6 +381,26 @@ qmd update && qmd embed
 | Exact keyword match in vault | `obsidian vault=Memory search query="..."` |
 | Read/write/create notes | `obsidian` CLI |
 | Discovery before deep read | `qmd query --files` then `obsidian read` |
+
+## bird
+
+Twitter/X CLI for posting, replying, reading tweets.
+
+- **Location:** `~/Projects/bird/bird`
+
+### Commands
+
+```bash
+bird tweet "<text>"                    # Post a tweet
+bird reply <tweet-id-or-url> "<text>"  # Reply to a tweet
+bird read <tweet-id-or-url>            # Fetch tweet content
+bird replies <tweet-id-or-url>         # List replies to a tweet
+bird thread <tweet-id-or-url>          # Show full conversation thread
+bird search "<query>" [-n count]       # Search tweets
+bird mentions [-n count]               # Find tweets mentioning @clawdbot
+bird whoami                            # Show logged-in account
+bird check                             # Show credential sources
+```
 
 ## MCP Servers
 

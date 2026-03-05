@@ -6,7 +6,29 @@ license: Complete terms in LICENSE.txt
 
 # Web Application Testing
 
-To test local web applications, write native Python Playwright scripts.
+## Preferred: agent-browser CLI
+
+For most browser interaction, use `agent-browser --native` (Rust binary, direct CDP, no Node.js overhead). Persistent sessions with cookie retention. Snapshot + @ref workflow purpose-built for agents.
+
+```bash
+# Open and interact (headless by default; use --headed only for visual debugging)
+agent-browser open http://localhost:5173
+agent-browser snapshot -i          # Get interactive elements with @refs
+agent-browser click @e2            # Click by ref
+agent-browser fill @e3 "text"      # Fill input
+agent-browser screenshot out.png   # Capture
+```
+
+Set env vars to avoid passing flags every time:
+```bash
+export AGENT_BROWSER_NATIVE=1       # Rust binary, direct CDP, no Node.js
+```
+
+Use agent-browser for: browsing, clicking, form filling, scraping, screenshots, authenticated sessions, quick verifications.
+
+## Fallback: Python Playwright Scripts
+
+For complex multi-step test suites with assertions, conditional logic, or programmatic control, write native Python Playwright scripts.
 
 **Helper Scripts Available**:
 - `scripts/with_server.py` - Manages server lifecycle (supports multiple servers)
