@@ -67,5 +67,5 @@ User input: $ARGUMENTS
 - Skip empty sections entirely.
 - Keep total note under 80 lines.
 - Frontmatter `projects`: repo name or project slug from MEMORY.md.
-- Include `[[wikilinks]]` to related Memory notes where relevant.
+- **Tree-graph linking.** `[[wikilinks]]` only for direct dependencies (project notes, tools referenced). Max 3 links. No sibling links to other sessions.
 - Be concise — future agents should orient in 30 seconds.

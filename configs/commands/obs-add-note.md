@@ -32,4 +32,4 @@ User input: $ARGUMENTS
 - Kebab-case filenames, no date prefixes.
 - This is zero-friction capture — don't over-structure. Triage happens later via `/obs-triage-inbox`.
 - If the content is a URL, just capture it as-is. Enrichment happens during triage.
-- Include `[[wikilinks]]` to related notes where meaningful.
+- No `[[wikilinks]]`. This is raw capture — linking happens during triage (`/obs-triage-inbox`).

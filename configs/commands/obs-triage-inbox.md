@@ -89,5 +89,5 @@ Autonomously process all raw captures in `01_inbox/` into enriched `02_backlog/`
 - Use WebFetch or Tavily to fetch URLs — never skip URL enrichment.
 - Kebab-case filenames derived from content, not original filename.
 - No duplicates. If a URL already exists in `02_backlog/`, enhance the existing note — never create a second one.
-- Include `[[wikilinks]]` to related notes in either vault where meaningful.
+- **Tree-graph linking.** Backlog notes: add `See also: [[backlog]]` as parent link. Plus 0-2 dependency links max. No sibling links. Cross-vault links only through hub notes.
 - Project-specific items go directly into `03_active/` project notes — not `02_backlog/`. Only create backlog notes for items with no matching active project.

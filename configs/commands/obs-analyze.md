@@ -117,5 +117,5 @@ Analyzed: {repo-name}
 - Frontmatter required. Extra fields beyond base schema: `repo`, `language`, `framework`, `status`.
 - Idempotent — never overwrite populated notes. Skip and report.
 - Be concise — bullet points over prose. Future agents should orient in 60 seconds.
-- Include `[[wikilinks]]` to related Memory notes (tools, patterns) where relevant.
+- **Tree-graph linking.** `related:` has parent first (matching `collection` note if one exists) + up to 2 direct dependencies. Max 3 entries. No sibling links. `[[wikilinks]]` in body only for direct dependencies.
 - Don't duplicate repo-internal docs. Reference them: "See README.md for full setup."
