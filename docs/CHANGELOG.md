@@ -6,6 +6,11 @@ read_when:
 
 # Changelog
 
+## v1.3.5 — 2026-03-07
+
+- **Session-notes skill enhancements** — expanded triggers, added dead-end template, added consolidated field
+- **Compaction checkpoint hooks** — added hook documentation for compaction checkpoints
+
 ## v1.3.4 — 2026-03-05
 
 - **Fix Gemini adapter** — use TOML literal strings (`'''`) instead of basic multiline (`"""`) to prevent backslash escape interpretation; add required `name` field to agent frontmatter; use `{{args}}` for Gemini argument interpolation
