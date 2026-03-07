@@ -72,6 +72,7 @@ acsync/
     skills/                    21 skill directories (canonical)
     mcp/*.json                 7 MCP server definitions (canonical)
     settings/*.json            2 settings definitions (claude, opencode)
+    hooks/*.js                 Hook scripts (not deployed — absolute-path refs)
     instructions/AGENTS.md     Unified agent operating system (ground truth)
     instructions/TOOLS.md      Tool-use reference
   scripts/                     Source scripts (on PATH)

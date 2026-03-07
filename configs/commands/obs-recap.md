@@ -41,10 +41,11 @@ User input: $ARGUMENTS
    Format:
    ```markdown
    ---
-   type: recap
-   date: YYYY-MM-DD
-   projects: [{repo-name}]
-   tags: [session, recap]
+    type: recap
+    date: YYYY-MM-DD
+    projects: [{repo-name}]
+    tags: [session, recap]
+    consolidated: false
     related: ["[[sessions]]", "[[discovered-dep]]"]
    ---
 
