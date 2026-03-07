@@ -44,7 +44,8 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 
 ## Session Notes
 Write atomic notes to `~/Vaults/Memory/sessions/` using `session-notes` skill.
-Triggers: meaningful decision, discovery/correction, task completion, pre-compaction.
+Triggers: decision, discovery, dead end, surprising behavior, "need this later", task completion, pre-compaction.
+Write at point-of-discovery, not end-of-task. Bias toward writing — a redundant note costs less than a lost insight.
 Skip trivial decisions. One note per trigger, not batched.
 
 ## Session End

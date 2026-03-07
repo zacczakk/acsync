@@ -13,8 +13,14 @@ Atomic knowledge capture to `~/Vaults/Memory/sessions/`.
 **Triggers** — write a note when:
 - A meaningful decision is made (approach, tool, architecture, tradeoff)
 - Something is learned or corrected (struggled lookup, wrong assumption, new fact)
+- A dead end is hit (tried X, failed because Y, pivoted to Z)
+- An external reference changed a decision (docs, API behavior, version constraint)
+- Surprising tool/API behavior is observed
+- A "I'll need this later" moment occurs
 - A task or topic is completed
 - Compaction is imminent (capture context before it compresses)
+
+**Write at point-of-discovery, not end-of-task.** A redundant note costs less than a lost insight.
 
 **Skip** trivial decisions (variable names, formatting, obvious refactors).
 
@@ -32,6 +38,7 @@ type: decision
 date: YYYY-MM-DD
 projects: [project-name]
 tags: [session, decision]
+consolidated: false
 ---
 
 # <What was decided>
@@ -57,6 +64,7 @@ type: discovery
 date: YYYY-MM-DD
 projects: [project-name]
 tags: [session, discovery]
+consolidated: false
 ---
 
 # <What was learned>
@@ -78,6 +86,7 @@ type: checkpoint
 date: YYYY-MM-DD
 projects: [project-name]
 tags: [session, checkpoint]
+consolidated: false
 ---
 
 # Checkpoint: <current task/topic>
@@ -90,6 +99,29 @@ Where things stand right now.
 
 ## Key Context
 Details that would be lost in compaction.
+```
+
+### Dead End
+
+```md
+---
+type: dead-end
+date: YYYY-MM-DD
+projects: [project-name]
+tags: [session, dead-end]
+consolidated: false
+---
+
+# <What was tried>
+
+## Approach
+What was attempted and why it seemed viable.
+
+## Failure
+Why it didn't work.
+
+## Pivot
+What was done instead.
 ```
 
 ## Rules
