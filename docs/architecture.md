@@ -57,37 +57,12 @@ Registered in `~/.claude/settings.json` under the `hooks` key (a user extra pres
 | Script | Event | Purpose |
 |--------|-------|---------|
 | `vault-context-loader.js` | `SessionStart` | Injects IDENTITY/SOUL/USER/MEMORY into context |
-| `compaction-note.js` | `PreCompact` | Writes checkpoint note to Memory vault |
-
-Registration format:
-```json
-{
-  "hooks": {
-    "PreCompact": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/Users/.../Repos/acsync/configs/hooks/compaction-note.js\""
-          }
-        ]
-      }
-    ]
-  }
-}
-```
 
 Hook scripts receive JSON on stdin (session_id, source, cwd, etc.) and communicate via exit codes + stdout JSON. See [Claude Code hooks reference](https://docs.anthropic.com/en/docs/claude-code/hooks).
 
 ### OpenCode hooks
 
-OpenCode uses a **plugin system** instead of shell hooks. Local plugins are auto-loaded from `~/.config/opencode/plugins/`.
-
-| Plugin | Event | Purpose |
-|--------|-------|---------|
-| `compaction-note.ts` | `session.compacted` | Writes checkpoint note to Memory vault |
-
-The plugin imports `compaction-note.js` logic but uses OpenCode's `@opencode-ai/plugin` SDK and event API. See [OpenCode plugins docs](https://opencode.ai/docs/plugins/).
+OpenCode uses a **plugin system** instead of shell hooks. Local plugins are auto-loaded from `~/.config/opencode/plugins/`. See [OpenCode plugins docs](https://opencode.ai/docs/plugins/).
 
 ### Adding a new hook
 

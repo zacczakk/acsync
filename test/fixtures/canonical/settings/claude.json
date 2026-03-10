@@ -83,17 +83,6 @@
         ]
       }
     ],
-    "PreCompact": [
-      {
-        "_managed": "acsync",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/path/to/compaction-note.js\""
-          }
-        ]
-      }
-    ],
     "Notification": [
       {
         "_managed": "acsync",
