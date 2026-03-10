@@ -5,7 +5,7 @@ import type { Plugin } from "@opencode-ai/plugin"
 let loaded = false
 
 const ALERTER = "/opt/homebrew/bin/alerter"
-const ICON = "~/Repos/acsync/configs/assets/opencode-icon.png"
+const ICON = new URL("../assets/opencode-icon.png", import.meta.url).pathname
 
 function focusItermPane($: any) {
   const sessionId = process.env.ITERM_SESSION_ID
