@@ -1,8 +1,10 @@
 import { BaseAdapter } from './base';
 import { stringifyFrontmatter } from '../formats/markdown';
 import { readJson, writeJson } from '../formats/json';
+import { isPlainObject, mergeHooks, extractManagedHooks } from './merge';
 import type {
   CanonicalItem,
+  CanonicalSettings,
   MCPServer,
   RenderedFile,
   AdapterCapabilities,
@@ -35,6 +37,41 @@ export class ClaudeCodeAdapter extends BaseAdapter {
       relativePath: this.paths.getAgentFilePath(item.name),
       content,
     };
+  }
+
+  private static readonly HOOKS_KEY = 'hooks';
+
+  /** Hook-aware settings merge: per-event merge for hooks, wholesale replace for everything else */
+  override renderSettings(settings: CanonicalSettings, existingContent?: string): string {
+    const base: Record<string, unknown> = existingContent
+      ? readJson<Record<string, unknown>>(existingContent)
+      : {};
+    for (const [key, value] of Object.entries(settings.keys)) {
+      if (key === ClaudeCodeAdapter.HOOKS_KEY && isPlainObject(value) && isPlainObject(base[key])) {
+        base[key] = mergeHooks(
+          base[key] as Record<string, Array<Record<string, unknown>>>,
+          value as Record<string, Array<Record<string, unknown>>>,
+        );
+      } else {
+        base[key] = value;
+      }
+    }
+    return writeJson(base);
+  }
+
+  /** Extract only managed hook groups for drift comparison */
+  override extractSettingsKeys(canonicalKeys: string[], targetContent: string): string {
+    const parsed = readJson<Record<string, unknown>>(targetContent);
+    const extracted: Record<string, unknown> = {};
+    for (const key of [...canonicalKeys].sort()) {
+      if (key in parsed) {
+        extracted[key] =
+          key === ClaudeCodeAdapter.HOOKS_KEY && isPlainObject(parsed[key])
+            ? extractManagedHooks(parsed[key] as Record<string, Array<Record<string, unknown>>>)
+            : parsed[key];
+      }
+    }
+    return JSON.stringify(extracted, null, 2) + '\n';
   }
 
   renderMCPServers(servers: MCPServer[], existingContent?: string): string {
