@@ -2,6 +2,7 @@ import { BaseAdapter } from './base';
 import { stringifyFrontmatter } from '../formats/markdown';
 import { modifyJsonc, readJsonc } from '../formats/jsonc';
 import { EnvVarTransformer } from '../secrets/env-var-transformer';
+import { isPlainObject, deepMergeObjects } from './merge';
 import type {
   CanonicalItem,
   CanonicalSettings,
@@ -181,27 +182,4 @@ export class OpenCodeAdapter extends BaseAdapter {
 
     return text;
   }
-}
-
-function isPlainObject(v: unknown): v is Record<string, unknown> {
-  return typeof v === 'object' && v !== null && !Array.isArray(v);
-}
-
-/**
- * Deep-merge two objects: canonical wins on conflict, user extras preserved.
- * Recurses into nested plain objects; arrays and primitives use canonical value.
- */
-function deepMergeObjects(
-  existing: Record<string, unknown>,
-  canonical: Record<string, unknown>,
-): Record<string, unknown> {
-  const result: Record<string, unknown> = { ...existing };
-  for (const [key, canonicalValue] of Object.entries(canonical)) {
-    if (isPlainObject(canonicalValue) && isPlainObject(result[key])) {
-      result[key] = deepMergeObjects(result[key] as Record<string, unknown>, canonicalValue);
-    } else {
-      result[key] = canonicalValue;
-    }
-  }
-  return result;
 }
