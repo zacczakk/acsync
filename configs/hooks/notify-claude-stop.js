@@ -18,9 +18,13 @@ process.stdin.on('end', () => {
 
     if (data.stop_hook_active) process.exit(0);
 
+    const raw = (data.last_assistant_message || '').trim();
+    const firstLine = raw.split(/\n/)[0] || '';
+    const summary = firstLine.slice(0, 120) || 'Task complete';
+
     sendNotification({
       title: 'Claude is done',
-      message: (data.last_assistant_message || '').slice(0, 100) || 'Task complete',
+      message: summary,
       sound: 'Pop',
       timeout: 10,
       group: 'claude-stop',
