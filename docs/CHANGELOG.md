@@ -6,6 +6,14 @@ read_when:
 
 # Changelog
 
+## v1.3.6 — 2026-03-10
+
+- **Notification hooks overhaul** — alerter v26.5 double-dash flag fix, Stop hook with first-line summary, click-to-pane teleport via iTerm2 AppleScript, async hooks, removed dead PermissionRequest hook
+- **Hook-aware settings merge** — Claude adapter preserves user hooks during config sync
+- **provider docs skill** — router-pattern skill with on-demand chapter loading for provider platform documentation
+- **OpenCode notify plugin rewrite** — non-blocking alerter via Bun shell, double-load guard
+- **Obsidian CLI permission** — added to bash allow list
+
 ## v1.3.5 — 2026-03-07
 
 - **Session-notes skill enhancements** — expanded triggers, added dead-end template, added consolidated field
