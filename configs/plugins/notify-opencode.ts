@@ -7,12 +7,36 @@ let loaded = false
 const ALERTER = "/opt/homebrew/bin/alerter"
 const ICON = "~/Repos/acsync/configs/assets/opencode-icon.png"
 
+function focusItermPane($: any) {
+  const sessionId = process.env.ITERM_SESSION_ID
+  if (!sessionId) return
+  const uuid = sessionId.split(":")[1]
+  if (!uuid) return
+  const script = `tell application "iTerm2"
+    activate
+    repeat with w in windows
+      repeat with t in tabs of w
+        repeat with s in sessions of t
+          if unique ID of s is "${uuid}" then
+            select t
+            select s
+            return
+          end if
+        end repeat
+      end repeat
+    end repeat
+  end tell`
+  $`osascript -e ${script}`.quiet().nothrow().catch(() => {})
+}
+
 function notify($: any, title: string, message: string, opts?: { sound?: string; timeout?: number; group?: string }) {
   const args = ["--title", title, "--message", message, "--app-icon", ICON]
   if (opts?.sound) args.push("--sound", opts.sound)
   args.push("--timeout", String(opts?.timeout ?? 10))
   if (opts?.group) args.push("--group", opts.group)
-  $`${ALERTER} ${args}`.nothrow().then(() => {}).catch(() => {})
+  $`${ALERTER} ${args}`.quiet().nothrow().then((r: any) => {
+    if (r.text().trim() === "@ACTIONCLICKED") focusItermPane($)
+  }).catch(() => {})
 }
 
 export const NotifyPlugin: Plugin = async ({ $ }) => {
