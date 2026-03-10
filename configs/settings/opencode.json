@@ -42,7 +42,8 @@
     }
   },
   "plugin": [
-    "opencode-agent-browser"
+    "opencode-agent-browser",
+    "~/Repos/acsync/configs/plugins/notify-opencode.ts"
   ],
   "provider": {
     "provider-bedrock": {
