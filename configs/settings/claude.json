@@ -52,7 +52,8 @@
       "Bash(acsync:*)",
       "Bash(basename:*)",
       "Bash(xxd:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(obsidian:*)"
     ],
     "deny": [
       "Delete",
