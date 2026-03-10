@@ -84,7 +84,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"~/Repos/acsync/configs/hooks/vault-context-loader.js\""
+            "command": "node \"$HOME/Repos/acsync/configs/hooks/vault-context-loader.js\""
           }
         ]
       }
@@ -95,7 +95,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"~/Repos/acsync/configs/hooks/notify-claude-stop.js\"",
+            "command": "node \"$HOME/Repos/acsync/configs/hooks/notify-claude-stop.js\"",
             "async": true
           }
         ]
@@ -108,7 +108,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"~/Repos/acsync/configs/hooks/notify-claude.js\"",
+            "command": "node \"$HOME/Repos/acsync/configs/hooks/notify-claude.js\"",
             "async": true
           }
         ]
