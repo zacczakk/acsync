@@ -99,9 +99,21 @@
         ]
       }
     ],
+    "Stop": [
+      {
+        "_managed": "acsync",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"~/Repos/acsync/configs/hooks/notify-claude-stop.js\""
+          }
+        ]
+      }
+    ],
     "Notification": [
       {
         "_managed": "acsync",
+        "matcher": "idle_prompt|auth_success",
         "hooks": [
           {
             "type": "command",

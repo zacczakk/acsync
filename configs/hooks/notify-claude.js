@@ -1,17 +1,13 @@
 #!/usr/bin/env node
-// Claude Code Notification Hook — maps notification_type to alerter calls.
-// Registered as a Notification hook in settings.json.
+// Claude Code Notification Hook — handles delayed notification types.
+// PermissionRequest hook covers permission/elicitation prompts immediately.
+// This hook covers: idle_prompt, auth_success.
 
 const { sendNotification } = require('./notify');
 
 const ICON = 'claude-icon.png';
 
 const TYPE_MAP = {
-  permission_prompt: {
-    title: 'Permission needed',
-    sound: 'Ping',
-    timeout: 0,
-  },
   idle_prompt: {
     title: 'Claude is waiting',
     sound: undefined,
@@ -21,11 +17,6 @@ const TYPE_MAP = {
     title: 'Auth complete',
     sound: undefined,
     timeout: 5,
-  },
-  elicitation_dialog: {
-    title: 'Input needed',
-    sound: 'Ping',
-    timeout: 0,
   },
 };
 
@@ -41,22 +32,16 @@ process.stdin.on('end', () => {
     const type = data.notification_type || 'unknown';
     const config = TYPE_MAP[type];
 
-    if (!config) {
-      // Unknown notification type — skip silently
-      process.exit(0);
-    }
+    if (!config) process.exit(0);
 
     sendNotification({
       title: config.title,
       message: data.message || type,
-      subtitle: data.tool_name || undefined,
       sound: config.sound,
       timeout: config.timeout,
       group: `claude-${type}`,
       icon: ICON,
     });
-  } catch {
-    // Malformed input — skip
-  }
+  } catch {}
   process.exit(0);
 });
