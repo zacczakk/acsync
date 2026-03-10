@@ -8,7 +8,7 @@ const ALERTER = "/opt/homebrew/bin/alerter"
 const ICON = "~/Repos/acsync/configs/assets/opencode-icon.png"
 
 function notify($: any, title: string, message: string, opts?: { sound?: string; timeout?: number; group?: string }) {
-  const args = ["--title", title, "--message", message, "--app-icon", ICON, "--sender", "com.googlecode.iterm2"]
+  const args = ["--title", title, "--message", message, "--app-icon", ICON]
   if (opts?.sound) args.push("--sound", opts.sound)
   args.push("--timeout", String(opts?.timeout ?? 10))
   if (opts?.group) args.push("--group", opts.group)
