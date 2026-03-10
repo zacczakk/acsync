@@ -70,5 +70,40 @@
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": true
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "_managed": "acsync",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/path/to/vault-context-loader.js\""
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "_managed": "acsync",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/path/to/compaction-note.js\""
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "_managed": "acsync",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/path/to/notify-claude.js\""
+          }
+        ]
+      }
+    ]
   }
 }

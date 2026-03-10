@@ -5,6 +5,49 @@
   },
   "customKey": "preserved",
   "alwaysThinkingEnabled": true,
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo user-hook"
+          }
+        ]
+      },
+      {
+        "_managed": "acsync",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/path/to/vault-context-loader.js\""
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "_managed": "acsync",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/path/to/compaction-note.js\""
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "_managed": "acsync",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/path/to/notify-claude.js\""
+          }
+        ]
+      }
+    ]
+  },
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [

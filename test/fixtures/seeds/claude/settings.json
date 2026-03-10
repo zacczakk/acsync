@@ -3,5 +3,17 @@
     "SOME_OLD_VAR": "old-value"
   },
   "customKey": "preserved",
-  "alwaysThinkingEnabled": false
+  "alwaysThinkingEnabled": false,
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo user-hook"
+          }
+        ]
+      }
+    ]
+  }
 }
