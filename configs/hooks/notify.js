@@ -29,15 +29,15 @@ function sendNotification({ title, message, subtitle, sound, timeout, group, ico
     return;
   }
 
-  const args = ['-title', title, '-message', message];
-  if (subtitle) args.push('-subtitle', subtitle);
-  if (sound) args.push('-sound', sound);
-  if (timeout !== undefined) args.push('-timeout', String(timeout));
-  if (group) args.push('-group', group);
+  const args = ['--title', title, '--message', message];
+  if (subtitle) args.push('--subtitle', subtitle);
+  if (sound) args.push('--sound', sound);
+  if (timeout !== undefined) args.push('--timeout', String(timeout));
+  if (group) args.push('--group', group);
 
   if (icon) {
     const iconPath = path.join(ASSETS_DIR, icon);
-    args.push('-appIcon', iconPath);
+    args.push('--app-icon', iconPath);
   }
 
   execFile(ALERTER_PATH, args, (err) => {
