@@ -24,6 +24,7 @@
     "external_directory": {
       "*": "ask",
       "~/Vaults/**": "allow",
+      "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/**": "allow",
       "~/Vaults/Memory/system/grooming-reports/*": "allow",
       "~/.config/opencode/agents/*": "allow",
       "~/.config/opencode/get-shit-done/templates/*": "allow",
