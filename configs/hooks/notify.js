@@ -40,8 +40,30 @@ function sendNotification({ title, message, subtitle, sound, timeout, group, ico
     args.push('--app-icon', iconPath);
   }
 
-  execFile(ALERTER_PATH, args, (err) => {
-    if (err) process.stderr.write(`notify: ${err.message}\n`);
+  execFile(ALERTER_PATH, args, (err, stdout) => {
+    if (err) { process.stderr.write(`notify: ${err.message}\n`); return; }
+    if (stdout.trim() === '@ACTIONCLICKED') {
+      const sessionId = process.env.ITERM_SESSION_ID;
+      if (!sessionId) return;
+      const uuid = sessionId.split(':')[1];
+      if (!uuid) return;
+      const script = `
+        tell application "iTerm2"
+          activate
+          repeat with w in windows
+            repeat with t in tabs of w
+              repeat with s in sessions of t
+                if unique ID of s is "${uuid}" then
+                  select t
+                  select s
+                  return
+                end if
+              end repeat
+            end repeat
+          end repeat
+        end tell`;
+      execFile('osascript', ['-e', script]);
+    }
   });
 }
 

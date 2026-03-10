@@ -31,5 +31,4 @@ process.stdin.on('end', () => {
       icon: ICON,
     });
   } catch {}
-  process.exit(0);
 });
