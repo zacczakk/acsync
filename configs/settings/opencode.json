@@ -54,6 +54,7 @@
   },
   "plugin": [
     "opencode-agent-browser",
+    "opencode-token-tracker",
     "$HOME/Repos/acsync/configs/plugins/notify-opencode.ts"
   ],
   "provider": {

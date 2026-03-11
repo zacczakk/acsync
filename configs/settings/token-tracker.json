@@ -1,0 +1,28 @@
+{
+  "pricing": {
+    "claude-opus-4-6": {
+      "input": 1.45,
+      "output": 7.25,
+      "cacheRead": 0,
+      "cacheWrite": 1.45
+    },
+    "claude-sonnet-4-6": {
+      "input": 0.87,
+      "output": 4.35,
+      "cacheRead": 0,
+      "cacheWrite": 0.87
+    },
+    "claude-sonnet-4-5-20250929": {
+      "input": 0.87,
+      "output": 4.35,
+      "cacheRead": 0,
+      "cacheWrite": 0.87
+    },
+    "claude-haiku-4-5-20251001": {
+      "input": 0.29,
+      "output": 1.45,
+      "cacheRead": 0,
+      "cacheWrite": 0.29
+    }
+  }
+}
