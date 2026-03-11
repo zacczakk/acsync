@@ -8,14 +8,15 @@ read_when:
 
 # Skills Catalog
 
-21 skills in `configs/skills/`, synced to all 4 targets via `acsync push`.
+21 skills in `configs/skills/`, synced to all targets via `acsync push`.
 Skills load on-demand when the agent's task matches the skill description.
 
 ## Sources
 
 | Source | Repo | Count | Notes |
 |---|---|---|---|
-| Custom | this repo | 11 | Obsidian (6), design (2), workflow (3) |
+| Custom | this repo | 10 | Obsidian (6), design (1), workflow (3) |
+| Impeccable | `~/Repos/oss/impeccable` | 1 | frontend-design skill + 7 reference files (Apache 2.0) |
 | Anthropic | `~/Repos/oss/anthropic-skills` | 8 | Adopted as-is (upstream-only) |
 | Superpowers | `~/Repos/oss/superpowers` | 2 | Trimmed to telegraphic style on adoption |
 
@@ -33,7 +34,6 @@ Skills load on-demand when the agent's task matches the skill description.
 | `obsidian-vault-conventions` | Vault layout, folder lifecycle, naming conventions | — |
 | `web-design-guidelines` | Reviewing UI for Web Interface Guidelines compliance | — |
 | `vercel-react-best-practices` | Writing/reviewing/refactoring React/Next.js code | — |
-| `frontend-aesthetics` | Building web UI, CSS, components, styling (merged w/ Anthropic's frontend-design) | 29 |
 | `screenshot-workflow` | "Use a screenshot" or replacing/optimizing image assets | 13 |
 | `session-notes` | Writing atomic session notes to Memory vault (decisions, discoveries, checkpoints) | — |
 
@@ -56,6 +56,14 @@ Skills load on-demand when the agent's task matches the skill description.
 |---|---|---|
 | `brainstorming` | Before creating features, building components, adding functionality | 96 → 38 lines |
 | `test-driven-development` | Implementing features or bugfixes (test-first workflow) | 371 → 73 lines (+ 53-line anti-patterns ref) |
+
+### Impeccable Skill (pbakaus/impeccable, Apache 2.0)
+
+| Skill | Trigger | Files |
+|---|---|---|
+| `frontend-design` | Building web UI, pages, components, applications — distinctive, anti-AI-slop aesthetics | SKILL.md (127 lines) + 7 reference files |
+
+Replaces former `frontend-aesthetics`. Only `{{model}}` template var resolved (model-agnostic). Reference files copied verbatim. Command-skills (audit, polish, bolder) skipped — too Claude-specific.
 
 ## Adoption Guidelines
 
