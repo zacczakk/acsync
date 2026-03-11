@@ -1,5 +1,5 @@
 {
-  "pricing": {
+  "models": {
     "claude-opus-4-6": {
       "input": 1.45,
       "output": 7.25,
