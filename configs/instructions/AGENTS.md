@@ -77,6 +77,7 @@ When work concludes (skip if trivial):
 - Keep notes short; update docs when behavior/API changes (no ship w/o docs).
 - Staleness: dead links / stale refs = bugs; groom docs often.
 - Context7 MCP has library documentation.
+- **Memory vault lookup:** scan `summary:` frontmatter first (`rg '^summary:.*topic' ~/Vaults/Memory/ --glob '*.md' -i`). Only read full notes when summary matches or is unclear. Full guide in `~/Vaults/AGENTS.md`.
 
 ## Build / Test
 - No mocks; unit or e2e.
