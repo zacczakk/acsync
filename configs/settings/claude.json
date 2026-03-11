@@ -1,6 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "env": {
+    "GH_CA_BUNDLE": "~/.claude/cacert.pem",
     "SSL_CERT_FILE": "~/.claude/cacert.pem",
     "NODE_EXTRA_CA_CERTS": "~/.claude/cacert.pem",
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
@@ -61,6 +62,7 @@
       "Bash(git reset:*)",
       "Bash(git clean:*)",
       "Bash(git restore:*)",
+      "Bash(gh repo delete:*)",
       "Bash(sudo:*)",
       "Bash(cat *.env:*)",
       "Bash(cat *.env.*:*)",
@@ -69,13 +71,15 @@
       "Bash(cat ~/.zshrc_secrets:*)"
     ]
   },
+  "additionalDirectories": ["/tmp", "~/Vaults"],
   "alwaysThinkingEnabled": true,
   "cleanupPeriodDays": 365,
   "teammateMode": "auto",
   "prefersReducedMotion": true,
   "sandbox": {
     "enabled": true,
-    "autoAllowBashIfSandboxed": true
+    "autoAllowBashIfSandboxed": true,
+    "excludedCommands": ["gh"]
   },
   "hooks": {
     "SessionStart": [
