@@ -1,4 +1,4 @@
-// OpenCode Notification Plugin — macOS alerter for idle/permission/error.
+// OpenCode Notification Plugin — macOS alerter for idle/permission/question/error.
 // Requires: brew install vjeantet/tap/alerter
 import type { Plugin } from "@opencode-ai/plugin"
 
@@ -50,6 +50,9 @@ export const NotifyPlugin: Plugin = async ({ $ }) => {
       }
       if (event.type === "permission.asked") {
         notify($, "Permission needed", "Action requires approval", { sound: "Ping", timeout: 0, group: "oc-permission" })
+      }
+      if (event.type === "question.asked") {
+        notify($, "Question", "Agent is asking a question", { sound: "Ping", timeout: 0, group: "oc-question" })
       }
       if (event.type === "session.error") {
         notify($, "OpenCode", "Session error", { sound: "Basso", timeout: 15, group: "oc-error" })
