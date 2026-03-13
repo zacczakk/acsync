@@ -91,21 +91,21 @@
         "claude-opus-4-6": {
           "name": "Claude Opus 4.6",
           "limit": {
-            "context": 180000,
+            "context": 190000,
             "output": 64000
           }
         },
         "claude-sonnet-4-6": {
           "name": "Claude Sonnet 4.6",
           "limit": {
-            "context": 180000,
+            "context": 190000,
             "output": 64000
           }
         },
         "claude-haiku-4-5-20251001": {
           "name": "Claude Haiku 4.5",
           "limit": {
-            "context": 180000,
+            "context": 190000,
             "output": 64000
           }
         }
@@ -122,28 +122,28 @@
         "claude-opus-4-6": {
           "name": "Claude Opus 4.6",
           "limit": {
-            "context": 180000,
+            "context": 190000,
             "output": 64000
           }
         },
         "claude-opus-4-5-20251101": {
           "name": "Claude Opus 4.5",
           "limit": {
-            "context": 180000,
+            "context": 190000,
             "output": 64000
           }
         },
         "claude-sonnet-4-6": {
           "name": "Claude Sonnet 4.6",
           "limit": {
-            "context": 180000,
+            "context": 190000,
             "output": 64000
           }
         },
         "claude-haiku-4-5-20251001": {
           "name": "Claude Haiku 4.5",
           "limit": {
-            "context": 180000,
+            "context": 190000,
             "output": 64000
           }
         }
