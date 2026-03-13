@@ -1,0 +1,937 @@
+#!/usr/bin/env python3
+"""sessions — search, export, and browse OpenCode + Claude Code sessions.
+
+Usage:
+    sessions list   [--source opencode|claude] [--since DATE] [--limit N] [--project NAME]
+    sessions export [--source opencode|claude] [--since DATE] [--force]
+    sessions search <query> [--source opencode|claude] [--since DATE] [--limit N] [--role user|assistant] [--context N]
+    sessions read   <session_id> [--role user|assistant] [--no-tools]
+    sessions find   <query> [--limit N]
+    sessions stats
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sqlite3
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+# --- Paths -------------------------------------------------------------------
+
+OPENCODE_DB = Path.home() / ".local" / "share" / "opencode" / "opencode.db"
+CLAUDE_DIR = Path.home() / ".claude" / "projects"
+VAULT_DIR = Path.home() / "Vaults" / "Sessions"
+OPENCODE_VAULT = VAULT_DIR / "opencode"
+CLAUDE_VAULT = VAULT_DIR / "claude"
+LOCAL_DATA = Path.home() / ".local" / "share" / "sessions"
+FTS_DB = LOCAL_DATA / ".sessions-fts.db"
+EXPORT_STATE = LOCAL_DATA / ".export-state.json"
+
+
+# --- Helpers ------------------------------------------------------------------
+
+def ts_to_dt(ts_ms: int) -> datetime:
+    return datetime.fromtimestamp(ts_ms / 1000, tz=timezone.utc)
+
+
+def dt_to_str(dt: datetime) -> str:
+    return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def slugify(text: str, max_len: int = 60) -> str:
+    s = re.sub(r"[^\w\s-]", "", text.lower())
+    s = re.sub(r"[\s_]+", "-", s).strip("-")
+    return s[:max_len].rstrip("-")
+
+
+def parse_date(s: str | None) -> datetime | None:
+    if not s:
+        return None
+    for fmt in ("%Y-%m-%d", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%SZ"):
+        try:
+            return datetime.strptime(s, fmt).replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+    print(f"error: cannot parse date '{s}'", file=sys.stderr)
+    sys.exit(1)
+
+
+def load_export_state() -> dict:
+    if EXPORT_STATE.exists():
+        return json.loads(EXPORT_STATE.read_text())
+    return {"opencode_last_ts": 0, "claude_exported": []}
+
+
+def save_export_state(state: dict):
+    EXPORT_STATE.parent.mkdir(parents=True, exist_ok=True)
+    EXPORT_STATE.write_text(json.dumps(state, indent=2) + "\n")
+
+
+def project_name_from_dir(directory: str) -> str:
+    return Path(directory).name
+
+
+# --- OpenCode DB access -------------------------------------------------------
+
+def opencode_db() -> sqlite3.Connection:
+    if not OPENCODE_DB.exists():
+        print(f"error: OpenCode DB not found at {OPENCODE_DB}", file=sys.stderr)
+        sys.exit(1)
+    conn = sqlite3.connect(f"file:{OPENCODE_DB}?mode=ro", uri=True)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def opencode_list_sessions(since: datetime | None = None, limit: int = 20,
+                           project: str | None = None) -> list[dict]:
+    conn = opencode_db()
+    q = "SELECT s.id, s.title, s.directory, s.time_created, s.time_updated, s.parent_id FROM session s"
+    conds, params = [], []
+    if since:
+        conds.append("s.time_created >= ?")
+        params.append(int(since.timestamp() * 1000))
+    if project:
+        conds.append("s.directory LIKE ?")
+        params.append(f"%/{project}%")
+    if conds:
+        q += " WHERE " + " AND ".join(conds)
+    q += " ORDER BY s.time_created DESC LIMIT ?"
+    params.append(limit)
+    rows = conn.execute(q, params).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def opencode_read_session(session_id: str, role_filter: str | None = None,
+                          include_tools: bool = True) -> list[dict]:
+    """Return messages for a session, ordered chronologically."""
+    conn = opencode_db()
+    q = """
+        SELECT m.id as msg_id, json_extract(m.data, '$.role') as role,
+               m.time_created,
+               p.id as part_id, json_extract(p.data, '$.type') as ptype,
+               p.data as pdata
+        FROM message m
+        JOIN part p ON p.message_id = m.id
+        WHERE m.session_id = ?
+        ORDER BY m.time_created, p.time_created
+    """
+    rows = conn.execute(q, (session_id,)).fetchall()
+    conn.close()
+
+    messages = []
+    for r in rows:
+        ptype = r["ptype"]
+        role = r["role"]
+
+        if role_filter and role != role_filter:
+            continue
+
+        if ptype == "text":
+            data = json.loads(r["pdata"])
+            text = data.get("text", "").strip()
+            if text:
+                messages.append({"role": role, "type": "text", "text": text,
+                                 "ts": r["time_created"]})
+        elif ptype == "tool" and include_tools:
+            data = json.loads(r["pdata"])
+            tool_name = data.get("tool", "unknown")
+            state = data.get("state", {})
+            inp = state.get("input", {})
+            inp_summary = json.dumps(inp)[:200] if isinstance(inp, dict) else str(inp)[:200]
+            messages.append({"role": role, "type": "tool", "tool": tool_name,
+                             "input_summary": inp_summary, "ts": r["time_created"]})
+    return messages
+
+
+def opencode_session_to_markdown(session_id: str) -> str | None:
+    """Export a single OpenCode session as markdown."""
+    conn = opencode_db()
+    row = conn.execute(
+        "SELECT id, title, directory, time_created, time_updated, parent_id FROM session WHERE id = ?",
+        (session_id,)
+    ).fetchone()
+    if not row:
+        conn.close()
+        return None
+
+    title = row["title"]
+    directory = row["directory"]
+    created = ts_to_dt(row["time_created"])
+    parent_id = row["parent_id"]
+    project = project_name_from_dir(directory)
+
+    # Get model from first assistant message
+    model_row = conn.execute(
+        "SELECT json_extract(data, '$.modelID') as model FROM message WHERE session_id = ? AND json_extract(data, '$.role') = 'assistant' LIMIT 1",
+        (session_id,)
+    ).fetchone()
+    model = model_row["model"] if model_row else "unknown"
+    conn.close()
+
+    messages = opencode_read_session(session_id, include_tools=False)
+    if not messages:
+        return None
+
+    lines = [
+        "---",
+        f"session_id: {session_id}",
+        f"source: opencode",
+        f'title: "{title}"',
+        f"project: {project}",
+        f"directory: {directory}",
+        f"created: {dt_to_str(created)}",
+        f"model: {model}",
+    ]
+    if parent_id:
+        lines.append(f"parent_session: {parent_id}")
+    lines.append("---")
+    lines.append("")
+
+    current_role = None
+    for msg in messages:
+        if msg["role"] != current_role:
+            current_role = msg["role"]
+            label = "User" if current_role == "user" else "Assistant"
+            lines.append(f"## {label}")
+            lines.append("")
+        lines.append(msg["text"])
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+# --- Claude Code access -------------------------------------------------------
+
+def claude_list_sessions(since: datetime | None = None, limit: int = 20,
+                         project: str | None = None) -> list[dict]:
+    if not CLAUDE_DIR.exists():
+        return []
+
+    sessions = []
+    for jsonl in CLAUDE_DIR.rglob("*.jsonl"):
+        if "subagents" in str(jsonl):
+            # still index subagent sessions — extract parent from path
+            pass
+
+        try:
+            first_line = None
+            with open(jsonl) as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        d = json.loads(line)
+                        if d.get("type") in ("user", "assistant", "progress"):
+                            first_line = d
+                            break
+                    except json.JSONDecodeError:
+                        continue
+            if not first_line:
+                continue
+
+            ts_str = first_line.get("timestamp", "")
+            try:
+                ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+            except (ValueError, AttributeError):
+                continue
+
+            if since and ts < since:
+                continue
+
+            cwd = first_line.get("cwd", "")
+            proj = project_name_from_dir(cwd) if cwd else "unknown"
+
+            if project and project.lower() not in proj.lower():
+                continue
+
+            sid = first_line.get("sessionId", jsonl.stem)
+            is_subagent = "subagents" in str(jsonl)
+
+            sessions.append({
+                "id": sid,
+                "title": f"{'[sub] ' if is_subagent else ''}{proj} session",
+                "directory": cwd,
+                "time_created": int(ts.timestamp() * 1000),
+                "time_updated": int(ts.timestamp() * 1000),
+                "parent_id": None,
+                "source_file": str(jsonl),
+                "is_subagent": is_subagent,
+            })
+        except Exception:
+            continue
+
+    sessions.sort(key=lambda s: s["time_created"], reverse=True)
+    return sessions[:limit]
+
+
+def claude_read_session(jsonl_path: str, role_filter: str | None = None) -> list[dict]:
+    messages = []
+    with open(jsonl_path) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                d = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            msg_type = d.get("type")
+            if msg_type == "user":
+                if role_filter and role_filter != "user":
+                    continue
+                content = d.get("message", {}).get("content", "")
+                if isinstance(content, str) and content.strip():
+                    messages.append({
+                        "role": "user", "type": "text", "text": content.strip(),
+                        "ts": d.get("timestamp", "")
+                    })
+            elif msg_type == "assistant":
+                if role_filter and role_filter != "assistant":
+                    continue
+                content = d.get("message", {}).get("content", [])
+                if isinstance(content, list):
+                    for block in content:
+                        if block.get("type") == "text":
+                            text = block.get("text", "").strip()
+                            if text:
+                                messages.append({
+                                    "role": "assistant", "type": "text", "text": text,
+                                    "ts": d.get("timestamp", "")
+                                })
+    return messages
+
+
+def claude_session_to_markdown(jsonl_path: str) -> str | None:
+    """Export a single Claude Code session as markdown."""
+    meta = None
+    with open(jsonl_path) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                d = json.loads(line)
+                if d.get("type") in ("user", "assistant", "progress"):
+                    meta = d
+                    break
+            except json.JSONDecodeError:
+                continue
+
+    if not meta:
+        return None
+
+    sid = meta.get("sessionId", Path(jsonl_path).stem)
+    cwd = meta.get("cwd", "")
+    project = project_name_from_dir(cwd) if cwd else "unknown"
+    ts_str = meta.get("timestamp", "")
+    model = ""
+    is_subagent = "subagents" in jsonl_path
+
+    # find model from first assistant message
+    with open(jsonl_path) as f:
+        for line in f:
+            try:
+                d = json.loads(line)
+                if d.get("type") == "assistant":
+                    model = d.get("message", {}).get("model", "unknown")
+                    break
+            except json.JSONDecodeError:
+                continue
+
+    messages = claude_read_session(jsonl_path)
+    if not messages:
+        return None
+
+    # build title from first user message
+    title = "Claude Code session"
+    for m in messages:
+        if m["role"] == "user":
+            title = m["text"][:80]
+            break
+
+    lines = [
+        "---",
+        f"session_id: {sid}",
+        f"source: claude",
+        f'title: "{title}"',
+        f"project: {project}",
+        f"directory: {cwd}",
+        f"created: {ts_str}",
+        f"model: {model}",
+        f"is_subagent: {is_subagent}",
+        f"source_file: {jsonl_path}",
+        "---",
+        "",
+    ]
+
+    current_role = None
+    for msg in messages:
+        if msg["role"] != current_role:
+            current_role = msg["role"]
+            label = "User" if current_role == "user" else "Assistant"
+            lines.append(f"## {label}")
+            lines.append("")
+        lines.append(msg["text"])
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+# --- FTS5 Index ---------------------------------------------------------------
+
+def fts_db() -> sqlite3.Connection:
+    FTS_DB.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(FTS_DB))
+    conn.execute("""
+        CREATE VIRTUAL TABLE IF NOT EXISTS session_fts USING fts5(
+            session_id, source, role, text,
+            tokenize='porter unicode61'
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS fts_meta (
+            key TEXT PRIMARY KEY,
+            value TEXT
+        )
+    """)
+    conn.commit()
+    return conn
+
+
+def fts_index_opencode():
+    """Index OpenCode text parts into FTS5. Self-tracking via fts_meta."""
+    src = opencode_db()
+    dst = fts_db()
+
+    row = dst.execute("SELECT value FROM fts_meta WHERE key = 'opencode_last_ts'").fetchone()
+    since_ts = int(row[0]) if row else 0
+
+    q = """
+        SELECT m.session_id, json_extract(m.data, '$.role') as role,
+               json_extract(p.data, '$.text') as text,
+               p.time_created
+        FROM message m
+        JOIN part p ON p.message_id = m.id
+        WHERE json_extract(p.data, '$.type') = 'text'
+        AND p.time_created > ?
+        ORDER BY p.time_created
+    """
+    rows = src.execute(q, (since_ts,)).fetchall()
+    src.close()
+
+    batch = []
+    for r in rows:
+        text = r[2]
+        if not text or not text.strip():
+            continue
+        batch.append((r[0], "opencode", r[1], text.strip()))
+
+    if batch:
+        dst.executemany(
+            "INSERT INTO session_fts (session_id, source, role, text) VALUES (?, ?, ?, ?)",
+            batch
+        )
+        dst.execute(
+            "INSERT OR REPLACE INTO fts_meta (key, value) VALUES ('opencode_last_ts', ?)",
+            (str(rows[-1][3]),)
+        )
+        dst.commit()
+
+    dst.close()
+    return len(batch)
+
+
+def fts_index_claude():
+    """Index Claude Code sessions into FTS5."""
+    dst = fts_db()
+
+    # get already-indexed files
+    row = dst.execute(
+        "SELECT value FROM fts_meta WHERE key = 'claude_indexed_files'"
+    ).fetchone()
+    indexed = set(json.loads(row[0])) if row else set()
+
+    if not CLAUDE_DIR.exists():
+        dst.close()
+        return 0
+
+    count = 0
+    new_indexed = set(indexed)
+    for jsonl in CLAUDE_DIR.rglob("*.jsonl"):
+        path_str = str(jsonl)
+        if path_str in indexed:
+            continue
+
+        messages = claude_read_session(path_str)
+        # extract session id from first event
+        sid = jsonl.stem
+        try:
+            with open(jsonl) as f:
+                for line in f:
+                    d = json.loads(line.strip())
+                    if "sessionId" in d:
+                        sid = d["sessionId"]
+                        break
+        except Exception:
+            pass
+
+        batch = []
+        for m in messages:
+            if m["text"].strip():
+                batch.append((sid, "claude", m["role"], m["text"].strip()))
+
+        if batch:
+            dst.executemany(
+                "INSERT INTO session_fts (session_id, source, role, text) VALUES (?, ?, ?, ?)",
+                batch
+            )
+            count += len(batch)
+
+        new_indexed.add(path_str)
+
+    dst.execute(
+        "INSERT OR REPLACE INTO fts_meta (key, value) VALUES ('claude_indexed_files', ?)",
+        (json.dumps(list(new_indexed)),)
+    )
+    dst.commit()
+    dst.close()
+    return count
+
+
+def fts_search(query: str, source: str | None = None, role: str | None = None,
+               limit: int = 10, context: int = 0) -> list[dict]:
+    conn = fts_db()
+
+    # Build FTS match expression
+    fts_query = query
+    if source:
+        fts_query = f'source:"{source}" AND ({query})'
+    if role:
+        fts_query = f'role:"{role}" AND ({fts_query})'
+
+    try:
+        rows = conn.execute(
+            """SELECT session_id, source, role, snippet(session_fts, 3, '>>>', '<<<', '...', 64) as snippet,
+                      rank
+               FROM session_fts
+               WHERE session_fts MATCH ?
+               ORDER BY rank
+               LIMIT ?""",
+            (fts_query, limit)
+        ).fetchall()
+    except sqlite3.OperationalError:
+        # fallback: simpler query without column filters
+        rows = conn.execute(
+            """SELECT session_id, source, role, snippet(session_fts, 3, '>>>', '<<<', '...', 64) as snippet,
+                      rank
+               FROM session_fts
+               WHERE session_fts MATCH ?
+               ORDER BY rank
+               LIMIT ?""",
+            (query, limit)
+        ).fetchall()
+
+    conn.close()
+    return [{"session_id": r[0], "source": r[1], "role": r[2],
+             "snippet": r[3], "rank": r[4]} for r in rows]
+
+
+# --- Commands -----------------------------------------------------------------
+
+def cmd_list(args):
+    results = []
+    if args.source in (None, "opencode"):
+        since = parse_date(args.since)
+        sessions = opencode_list_sessions(since=since, limit=args.limit, project=args.project)
+        for s in sessions:
+            dt = ts_to_dt(s["time_created"])
+            proj = project_name_from_dir(s["directory"])
+            is_sub = " [sub]" if s["parent_id"] else ""
+            results.append((dt, f"[opencode{is_sub}] {dt.strftime('%Y-%m-%d %H:%M')}  {proj:20s}  {s['title'][:60]}  ({s['id']})"))
+
+    if args.source in (None, "claude"):
+        since = parse_date(args.since)
+        sessions = claude_list_sessions(since=since, limit=args.limit, project=args.project)
+        for s in sessions:
+            dt = ts_to_dt(s["time_created"])
+            proj = project_name_from_dir(s["directory"])
+            sub = " [sub]" if s.get("is_subagent") else ""
+            results.append((dt, f"[claude{sub}]   {dt.strftime('%Y-%m-%d %H:%M')}  {proj:20s}  {s['title'][:60]}"))
+
+    results.sort(key=lambda x: x[0], reverse=True)
+    for _, line in results[:args.limit]:
+        print(line)
+
+    if not results:
+        print("no sessions found")
+
+
+def cmd_export(args):
+    state = load_export_state()
+    force = args.force
+    total = 0
+
+    # Ensure vault dirs exist
+    OPENCODE_VAULT.mkdir(parents=True, exist_ok=True)
+    CLAUDE_VAULT.mkdir(parents=True, exist_ok=True)
+
+    if args.source in (None, "opencode"):
+        since_ts = 0 if force else state.get("opencode_last_ts", 0)
+        since = parse_date(args.since)
+        if since:
+            since_ts = max(since_ts, int(since.timestamp() * 1000))
+
+        conn = opencode_db()
+        q = "SELECT id, title, time_created FROM session WHERE time_created > ? ORDER BY time_created"
+        rows = conn.execute(q, (since_ts,)).fetchall()
+        conn.close()
+
+        max_ts = since_ts
+        for r in rows:
+            md = opencode_session_to_markdown(r["id"])
+            if not md:
+                continue
+            dt = ts_to_dt(r["time_created"])
+            slug = slugify(r["title"])
+            filename = f"{dt.strftime('%Y-%m-%d')}-{slug}.md"
+            (OPENCODE_VAULT / filename).write_text(md)
+            max_ts = max(max_ts, r["time_created"])
+            total += 1
+
+        state["opencode_last_ts"] = max_ts
+        print(f"exported {total} opencode sessions")
+
+    claude_count = 0
+    if args.source in (None, "claude"):
+        exported = set(state.get("claude_exported", []))
+        since = parse_date(args.since)
+
+        if force:
+            exported = set()
+
+        if CLAUDE_DIR.exists():
+            for jsonl in CLAUDE_DIR.rglob("*.jsonl"):
+                path_str = str(jsonl)
+                if path_str in exported:
+                    continue
+
+                md = claude_session_to_markdown(path_str)
+                if not md:
+                    exported.add(path_str)
+                    continue
+
+                # extract date from first event
+                try:
+                    with open(jsonl) as f:
+                        for line in f:
+                            d = json.loads(line.strip())
+                            if "timestamp" in d:
+                                ts_str = d["timestamp"]
+                                ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+                                if since and ts < since:
+                                    break
+                                date_prefix = ts.strftime("%Y-%m-%d")
+                                break
+                        else:
+                            date_prefix = "unknown"
+                except Exception:
+                    date_prefix = "unknown"
+
+                sid = jsonl.stem
+                is_sub = "subagents" in path_str
+                prefix = "sub-" if is_sub else ""
+                filename = f"{date_prefix}-{prefix}{slugify(sid[:30])}.md"
+                (CLAUDE_VAULT / filename).write_text(md)
+                exported.add(path_str)
+                claude_count += 1
+
+        state["claude_exported"] = list(exported)
+        print(f"exported {claude_count} claude sessions")
+
+    save_export_state(state)
+
+    # rebuild FTS index
+    print("rebuilding FTS index...")
+    fts_conn = fts_db()
+    if force:
+        fts_conn.execute("DELETE FROM session_fts")
+        fts_conn.execute("DELETE FROM fts_meta")
+        fts_conn.commit()
+    fts_conn.close()
+
+    # FTS tracks its own watermark via fts_meta table
+    oc_count = fts_index_opencode()
+    cl_count = fts_index_claude()
+    print(f"indexed {oc_count} opencode + {cl_count} claude text blocks")
+
+    # qmd collection index
+    if not args.no_index:
+        qmd_index(embed=True)
+
+
+def cmd_search(args):
+    results = fts_search(
+        query=args.query,
+        source=args.source,
+        role=args.role,
+        limit=args.limit,
+    )
+    if not results:
+        print("no matches")
+        return
+
+    for r in results:
+        snippet = r["snippet"].replace("\n", " ")
+        print(f"[{r['source']}] {r['session_id'][:30]}  ({r['role']})")
+        print(f"  {snippet}")
+        print()
+
+
+def cmd_read(args):
+    session_id = args.session_id
+
+    # try opencode first
+    conn = opencode_db()
+    row = conn.execute("SELECT id, title, directory FROM session WHERE id = ?", (session_id,)).fetchone()
+    conn.close()
+
+    if row:
+        print(f"# {row['title']}")
+        print(f"# project: {project_name_from_dir(row['directory'])}")
+        print()
+        messages = opencode_read_session(session_id, role_filter=args.role,
+                                         include_tools=not args.no_tools)
+        for m in messages:
+            if m["type"] == "text":
+                label = "User" if m["role"] == "user" else "Assistant"
+                print(f"## {label}")
+                print(m["text"])
+                print()
+            elif m["type"] == "tool":
+                print(f"  [{m['tool']}] {m['input_summary']}")
+        return
+
+    # try claude — session_id might be a file path or UUID
+    if Path(session_id).exists():
+        messages = claude_read_session(session_id, role_filter=args.role)
+        for m in messages:
+            label = "User" if m["role"] == "user" else "Assistant"
+            print(f"## {label}")
+            print(m["text"])
+            print()
+        return
+
+    # search claude files by session id
+    if CLAUDE_DIR.exists():
+        for jsonl in CLAUDE_DIR.rglob("*.jsonl"):
+            if session_id in jsonl.stem:
+                messages = claude_read_session(str(jsonl), role_filter=args.role)
+                for m in messages:
+                    label = "User" if m["role"] == "user" else "Assistant"
+                    print(f"## {label}")
+                    print(m["text"])
+                    print()
+                return
+
+    print(f"session not found: {session_id}", file=sys.stderr)
+    sys.exit(1)
+
+
+def qmd_ensure_collection():
+    """Create the sessions qmd collection if it doesn't exist."""
+    result = subprocess.run(["qmd", "collection", "list"], capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f"qmd error: {result.stderr.strip()}", file=sys.stderr)
+        return False
+    if "sessions" not in result.stdout:
+        print("creating qmd sessions collection...")
+        r = subprocess.run(
+            ["qmd", "collection", "add", str(VAULT_DIR), "--name", "sessions", "--mask", "**/*.md"],
+            capture_output=True, text=True
+        )
+        if r.returncode != 0:
+            print(f"qmd collection add failed: {r.stderr.strip()}", file=sys.stderr)
+            return False
+    return True
+
+
+def qmd_index(embed: bool = True):
+    """Update qmd index and optionally regenerate embeddings."""
+    if not qmd_ensure_collection():
+        return False
+
+    print("updating qmd index...")
+    r = subprocess.run(["qmd", "update"], capture_output=True, text=True)
+    if r.returncode != 0:
+        print(f"qmd update failed: {r.stderr.strip()}", file=sys.stderr)
+        return False
+    # print file count from output
+    for line in r.stdout.strip().splitlines():
+        if line.strip():
+            print(f"  {line.strip()}")
+
+    if embed:
+        print("generating embeddings...")
+        r = subprocess.run(["qmd", "embed"], capture_output=True, text=True)
+        if r.returncode != 0:
+            print(f"qmd embed failed: {r.stderr.strip()}", file=sys.stderr)
+            return False
+        for line in r.stdout.strip().splitlines():
+            if line.strip():
+                print(f"  {line.strip()}")
+
+    return True
+
+
+def cmd_index(args):
+    qmd_index(embed=not args.no_embed)
+
+
+def cmd_find(args):
+    if not qmd_ensure_collection():
+        sys.exit(1)
+
+    # qmd query (reranked) preferred; fall back to qmd search (BM25) if it fails
+    mode = "query" if not args.keyword else "search"
+    try:
+        result = subprocess.run(
+            ["qmd", mode, args.query, "-n", str(args.limit)],
+            capture_output=True, text=True, timeout=15
+        )
+        if result.returncode != 0:
+            if mode == "query":
+                # fallback to BM25
+                result = subprocess.run(
+                    ["qmd", "search", args.query, "-n", str(args.limit)],
+                    capture_output=True, text=True, timeout=15
+                )
+            if result.returncode != 0:
+                print(f"qmd error: {result.stderr.strip()}", file=sys.stderr)
+                sys.exit(1)
+        print(result.stdout, end="")
+    except subprocess.TimeoutExpired:
+        # query timed out (embeddings not ready?), try BM25
+        if mode == "query":
+            result = subprocess.run(
+                ["qmd", "search", args.query, "-n", str(args.limit)],
+                capture_output=True, text=True, timeout=15
+            )
+            if result.returncode == 0:
+                print(result.stdout, end="")
+            else:
+                print(f"qmd error: {result.stderr.strip()}", file=sys.stderr)
+                sys.exit(1)
+        else:
+            print("error: qmd search timed out", file=sys.stderr)
+            sys.exit(1)
+    except FileNotFoundError:
+        print("error: qmd not found on PATH", file=sys.stderr)
+        sys.exit(1)
+
+
+def cmd_stats(args):
+    # OpenCode stats
+    if OPENCODE_DB.exists():
+        conn = opencode_db()
+        total = conn.execute("SELECT count(*) FROM session").fetchone()[0]
+        top_level = conn.execute("SELECT count(*) FROM session WHERE parent_id IS NULL").fetchone()[0]
+        sub = total - top_level
+        msg_count = conn.execute("SELECT count(*) FROM message").fetchone()[0]
+        text_parts = conn.execute(
+            "SELECT count(*) FROM part WHERE json_extract(data, '$.type') = 'text'"
+        ).fetchone()[0]
+        conn.close()
+        print(f"opencode: {total} sessions ({top_level} top-level, {sub} subagent), {msg_count} messages, {text_parts} text parts")
+
+    # Claude stats
+    if CLAUDE_DIR.exists():
+        main = list(p for p in CLAUDE_DIR.rglob("*.jsonl") if "subagents" not in str(p))
+        subs = list(p for p in CLAUDE_DIR.rglob("*.jsonl") if "subagents" in str(p))
+        print(f"claude: {len(main)} sessions, {len(subs)} subagent sessions")
+
+    # FTS stats
+    if FTS_DB.exists():
+        conn = sqlite3.connect(str(FTS_DB))
+        count = conn.execute("SELECT count(*) FROM session_fts").fetchone()[0]
+        conn.close()
+        print(f"fts index: {count} text blocks")
+
+    # Vault stats
+    if VAULT_DIR.exists():
+        oc_files = list(OPENCODE_VAULT.glob("*.md")) if OPENCODE_VAULT.exists() else []
+        cl_files = list(CLAUDE_VAULT.glob("*.md")) if CLAUDE_VAULT.exists() else []
+        print(f"vault: {len(oc_files)} opencode + {len(cl_files)} claude exported files")
+
+
+# --- CLI ----------------------------------------------------------------------
+
+def main():
+    parser = argparse.ArgumentParser(prog="sessions", description="Search and browse coding sessions")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    # list
+    p_list = sub.add_parser("list", help="List sessions")
+    p_list.add_argument("--source", choices=["opencode", "claude"])
+    p_list.add_argument("--since", help="Date filter (YYYY-MM-DD)")
+    p_list.add_argument("--limit", type=int, default=20)
+    p_list.add_argument("--project", help="Filter by project name")
+
+    # export
+    p_export = sub.add_parser("export", help="Export sessions to vault")
+    p_export.add_argument("--source", choices=["opencode", "claude"])
+    p_export.add_argument("--since", help="Date filter (YYYY-MM-DD)")
+    p_export.add_argument("--force", action="store_true", help="Re-export all sessions")
+    p_export.add_argument("--no-index", action="store_true", help="Skip qmd indexing")
+
+    # search (FTS5)
+    p_search = sub.add_parser("search", help="Keyword search (FTS5)")
+    p_search.add_argument("query", help="Search query")
+    p_search.add_argument("--source", choices=["opencode", "claude"])
+    p_search.add_argument("--role", choices=["user", "assistant"])
+    p_search.add_argument("--limit", type=int, default=10)
+    p_search.add_argument("--context", type=int, default=0)
+
+    # read
+    p_read = sub.add_parser("read", help="Read a specific session")
+    p_read.add_argument("session_id", help="Session ID or JSONL path")
+    p_read.add_argument("--role", choices=["user", "assistant"])
+    p_read.add_argument("--no-tools", action="store_true", help="Hide tool calls")
+
+    # find (qmd semantic)
+    p_find = sub.add_parser("find", help="Semantic search via qmd")
+    p_find.add_argument("query", help="Search query")
+    p_find.add_argument("--limit", type=int, default=5)
+    p_find.add_argument("--keyword", action="store_true", help="Use BM25 keyword search instead of semantic")
+
+    # stats
+    sub.add_parser("stats", help="Show session statistics")
+
+    # index
+    p_index = sub.add_parser("index", help="Rebuild qmd collection index")
+    p_index.add_argument("--no-embed", action="store_true", help="Skip embedding generation")
+
+    args = parser.parse_args()
+
+    cmds = {
+        "list": cmd_list,
+        "export": cmd_export,
+        "search": cmd_search,
+        "read": cmd_read,
+        "find": cmd_find,
+        "stats": cmd_stats,
+        "index": cmd_index,
+    }
+    cmds[args.command](args)
+
+
+if __name__ == "__main__":
+    main()

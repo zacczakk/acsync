@@ -44,10 +44,11 @@ acsync pull -s claude            # pull from Claude to canonical
 .env                         Secrets (gitignored)
 
 configs/
-  commands/*.md              8 slash commands
+  commands/*.md              7 slash commands
   agents/                    Agent definitions
-  skills/                    21 skill directories
-  mcp/*.json                 7 MCP server definitions
+  skills/                    22 skill directories
+  plugins/*.ts               2 OpenCode plugins (identity-rendered)
+  mcp/*.json                 6 MCP server definitions
   settings/*.json            2 settings definitions (claude, opencode)
   instructions/AGENTS.md     Unified agent operating system (ground truth)
   instructions/TOOLS.md      Tool-use reference
@@ -63,6 +64,7 @@ src/                         TypeScript sync engine
 scripts/
   committer                  Git commit helper
   ask-model                  Cross-model consultation (Claude/Codex/Gemini)
+  sessions                   Session history search/export/browse (OpenCode + Claude)
   docs-list.ts               Docs catalog generator
   browser-tools.ts           Chrome DevTools CLI
 
