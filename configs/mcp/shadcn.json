@@ -7,7 +7,7 @@
     "shadcn@latest",
     "mcp"
   ],
-  "enabled": false,
+  "enabled": true,
   "disabled_for": [
     "codex"
   ]

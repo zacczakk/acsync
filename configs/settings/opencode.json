@@ -31,6 +31,7 @@
       "~/Vaults/Memory/system/grooming-reports/*": "allow",
       "~/Repos/**": "allow",
       "~/.config/opencode/agents/*": "allow",
+      "~/.config/opencode/skill/**": "allow",
       "~/.config/opencode/get-shit-done/templates/*": "allow",
       "~/.mcporter/**": "allow",
       "/private/tmp/**": "allow",
@@ -45,7 +46,7 @@
       "~/.zsh_secrets": "deny",
       "~/.config/opencode/agents/*": "allow",
       "~/.config/opencode/commands/*": "allow",
-      "~/.config/opencode/skills/*": "allow"
+      "~/.config/opencode/skill/**": "allow"
     },
     "edit": {
       "*": "allow",
