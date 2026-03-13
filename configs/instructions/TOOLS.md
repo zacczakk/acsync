@@ -393,15 +393,15 @@ Search, browse, and export coding session history from OpenCode and Claude Code.
 
 ### Subcommands
 
-| Command | Purpose |
-|---------|---------|
-| `sessions list` | List sessions (newest first) |
-| `sessions export` | Incremental export to vault (markdown + frontmatter) |
-| `sessions search "query"` | FTS5 keyword search with Porter stemming |
-| `sessions read <session_id>` | Read full session transcript |
-| `sessions find "query"` | Semantic search via qmd (query expansion + reranking) |
-| `sessions stats` | Session counts, message/part totals, index size |
-| `sessions index` | Rebuild qmd collection (re-register + embed) |
+| Command | Purpose | Needs export? |
+|---------|---------|:---:|
+| `sessions list` | List sessions (newest first) | No — queries source DBs live |
+| `sessions read <session_id>` | Read full session transcript | No — queries source DBs live |
+| `sessions stats` | Session counts, message/part totals, index size | No |
+| `sessions export` | Incremental export to vault (markdown + frontmatter) | — |
+| `sessions search "query"` | FTS5 keyword search with Porter stemming | Yes |
+| `sessions find "query"` | Semantic search via qmd (query expansion + reranking) | Yes |
+| `sessions index` | Rebuild qmd collection (re-register + embed) | Yes |
 
 ### Flags
 

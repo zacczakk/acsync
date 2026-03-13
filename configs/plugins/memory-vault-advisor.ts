@@ -19,11 +19,11 @@ const EXPLORATORY_TOOLS = new Set([
 ])
 
 const ADVISORY =
-  "\n<system-reminder>Check Memory vault for prior notes before broad searches: " +
-  '`qmd "query"` (semantic) or `obsidian search --vault Memory "query"` (structured). ' +
-  "~/Vaults/Memory/ has sessions, patterns, projects, tools, system. " +
-  "If Memory vault has no match, try `sessions search \"query\"` (keyword) or " +
-  '`sessions find "query"` (semantic) for past session history.</system-reminder>'
+  "\n<system-reminder>Check Memory vault first: " +
+  '`qmd query "..." -c memory` (semantic) or `obsidian search --vault Memory "..."` (structured). ' +
+  "If no match, fall back to session history: " +
+  '`sessions search "..."` (keyword, FTS5) or `sessions find "..."` (semantic, qmd -c sessions). ' +
+  "`sessions list` is always live; `search`/`find` need periodic `sessions export`.</system-reminder>"
 
 export const MemoryVaultAdvisor: Plugin = async () => {
   return {
