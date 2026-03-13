@@ -20,6 +20,7 @@ import {
   readCanonicalInstructions,
   readCanonicalSkills,
   readCanonicalSettings,
+  readCanonicalPlugins,
 } from './canonical';
 import { runCheck } from './check';
 import { confirm, mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
@@ -46,11 +47,12 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
 
   const manifest = await loadManifest(projectDir);
 
-  const [commands, agents, mcpServers, skills] = await Promise.all([
+  const [commands, agents, mcpServers, skills, plugins] = await Promise.all([
     readCanonicalCommands(projectDir, isExcluded),
     readCanonicalAgents(projectDir, isExcluded),
     readCanonicalMCPServers(projectDir),
     readCanonicalSkills(projectDir, isExcluded),
+    readCanonicalPlugins(projectDir, isExcluded),
   ]);
 
   const checkResult = await runCheck({ ...options, projectDir, targets });
@@ -147,6 +149,11 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
               await mkdir(skillDir, { recursive: true });
               await writeSupportFiles(skillDir, item.supportFiles);
             }
+          } else if (op.itemType === 'plugin') {
+            if (!caps.plugins) continue;
+            const item = plugins.find((p) => p.name === op.name);
+            if (!item) continue;
+            content = adapter.renderPlugin(item).content;
           } else if (op.itemType === 'settings') {
             if (!caps.settings) continue;
             const settings = await readCanonicalSettings(projectDir, target);
@@ -251,7 +258,7 @@ Examples:
   acsync push --force --delete          Full sync: push all + clean stale`)
   .option('--json', 'Machine-readable JSON output')
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
-  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings', collect, [] as string[])
+  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings, plugins', collect, [] as string[])
   .option('--dry-run', 'Show execution plan without writing')
   .option('--force', 'Skip confirmation prompt')
   .option('--delete', 'Delete stale target files not in canonical source (default: skip)')

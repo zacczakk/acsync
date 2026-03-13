@@ -50,6 +50,16 @@ export class AdapterPathResolver {
     return this.expandHome(this.rawSkillsDir());
   }
 
+  /** Plugins directory (only meaningful for opencode) */
+  getPluginsDir(): string {
+    return this.expandHome(this.rawPluginsDir());
+  }
+
+  /** Full path for a rendered plugin file given a logical name */
+  getPluginFilePath(name: string): string {
+    return path.join(this.getPluginsDir(), this.pluginFileName(name));
+  }
+
   /** Full path for a rendered command file given a logical name */
   getCommandFilePath(name: string): string {
     return path.join(this.getCommandsDir(), this.commandFileName(name));
@@ -129,6 +139,17 @@ export class AdapterPathResolver {
       // Other targets don't use skills
       default:            return path.join(this.rawBaseDir(), 'skills/');
     }
+  }
+
+  private rawPluginsDir(): string {
+    switch (this.target) {
+      case 'opencode':    return '~/.config/opencode/plugins/';
+      default:            return path.join(this.rawBaseDir(), 'plugins/');
+    }
+  }
+
+  private pluginFileName(name: string): string {
+    return `${name}.ts`;
   }
 
   /**

@@ -5,7 +5,7 @@ export interface ErrorContext {
 }
 
 // Config item types synced by acsync
-export type ItemType = 'command' | 'agent' | 'mcp' | 'instruction' | 'skill' | 'settings';
+export type ItemType = 'command' | 'agent' | 'mcp' | 'instruction' | 'skill' | 'settings' | 'plugin';
 
 export type OperationType = 'create' | 'update' | 'skip' | 'delete';
 
@@ -115,4 +115,5 @@ export interface AdapterCapabilities {
   instructions: boolean;
   skills: boolean;
   settings: boolean;
+  plugins: boolean;
 }

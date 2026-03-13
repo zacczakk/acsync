@@ -10,7 +10,7 @@ import { createBackup, restoreAll, cleanupAll } from '../core/rollback';
 import { atomicWrite } from '../infra/atomic-write';
 import { createExclusionFilter } from '../infra/exclusion';
 import { stringifyFrontmatter } from '../formats/markdown';
-import { ALL_TARGETS, COMMANDS_DIR, AGENTS_DIR, SKILLS_DIR, SETTINGS_DIR, MCP_DIR, INSTRUCTIONS_DIR, PROJECT_ROOT, createAdapter, readCanonicalSettings } from './canonical';
+import { ALL_TARGETS, COMMANDS_DIR, AGENTS_DIR, SKILLS_DIR, SETTINGS_DIR, MCP_DIR, INSTRUCTIONS_DIR, PLUGINS_DIR, PROJECT_ROOT, createAdapter, readCanonicalSettings } from './canonical';
 import { confirm, validatePullSource } from './cli-helpers';
 import type { TargetName } from '../types';
 import type { BackupInfo } from '../core/rollback';
@@ -28,7 +28,7 @@ export interface PullOptions {
 }
 
 export interface PullItem {
-  type: 'command' | 'agent' | 'skill' | 'settings' | 'mcp' | 'instruction';
+  type: 'command' | 'agent' | 'skill' | 'settings' | 'mcp' | 'instruction' | 'plugin';
   name: string;
   action: 'create' | 'skip';
   targetPath: string;
@@ -173,6 +173,35 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
       }
 
       items.push({ type: 'skill', name, action: 'create', targetPath });
+    }
+  }
+
+  // Plugins pull
+  if (caps.plugins) {
+    const pluginNames = await adapter.listExistingPluginNames();
+    const existingPluginNames = new Set<string>();
+
+    if (!options.force) {
+      const pluginDir = join(projectDir, PLUGINS_DIR);
+      try {
+        for (const entry of await readdir(pluginDir)) {
+          if (entry.endsWith('.ts')) existingPluginNames.add(entry.slice(0, -3));
+        }
+      } catch { /* dir doesn't exist yet */ }
+    }
+
+    for (const name of pluginNames) {
+      if (isExcluded(name)) continue;
+      if (options.onlyKeys && !options.onlyKeys.has(`plugin/${name}`)) continue;
+
+      const targetPath = join(projectDir, PLUGINS_DIR, `${name}.ts`);
+
+      if (!options.force && existingPluginNames.has(name)) {
+        items.push({ type: 'plugin', name, action: 'skip', targetPath });
+        continue;
+      }
+
+      items.push({ type: 'plugin', name, action: 'create', targetPath });
     }
   }
 
@@ -328,6 +357,11 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
           await mkdir(join(projectDir, MCP_DIR), { recursive: true });
           await atomicWrite(item.targetPath, canonical);
         }
+      } else if (item.type === 'plugin') {
+        const plugin = await adapter.readPlugin(item.name);
+        const rendered = collapseHomePaths(plugin.content, homeDir);
+        await mkdir(join(projectDir, PLUGINS_DIR), { recursive: true });
+        await atomicWrite(item.targetPath, rendered);
       } else if (item.type === 'instruction') {
         const instrContent = collapseHomePaths(await readFile(paths.getInstructionsPath(), 'utf-8'), homeDir);
         await mkdir(join(projectDir, INSTRUCTIONS_DIR), { recursive: true });

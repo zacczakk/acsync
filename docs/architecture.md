@@ -60,15 +60,24 @@ Registered in `~/.claude/settings.json` under the `hooks` key (a user extra pres
 
 Hook scripts receive JSON on stdin (session_id, source, cwd, etc.) and communicate via exit codes + stdout JSON. See [Claude Code hooks reference](https://docs.anthropic.com/en/docs/claude-code/hooks).
 
-### OpenCode hooks
+### OpenCode plugins
 
 OpenCode uses a **plugin system** instead of shell hooks. Local plugins are auto-loaded from `~/.config/opencode/plugins/`. See [OpenCode plugins docs](https://opencode.ai/docs/plugins/).
+
+Plugin source files live in `configs/plugins/` and are **deployed by `acsync push`** to `~/.config/opencode/plugins/`. Only the OpenCode adapter supports plugins (`plugins: true`).
+
+| Plugin | Event(s) | Purpose |
+|--------|----------|---------|
+| `notify-opencode.ts` | `session.idle`, `permission.asked`, `question.asked`, `session.error` | macOS alerter notifications with iTerm2 pane focus |
+| `memory-vault-advisor.ts` | `tool.execute.after` | Advisory reminder to check Memory vault before exploratory searches (grep, glob, task/explore, tavily_search, context7). Output mutation doesn't propagate for MCP tools — known OpenCode limitation. |
+
+Plugins are raw `.ts` files — identity-rendered (no frontmatter, no transformation). The `"plugin"` key in `opencode.json` (npm packages) is separately managed via settings wholesale-replace.
 
 ### Adding a new hook
 
 1. Create the script in `configs/hooks/`.
 2. **Claude Code:** Add registration entry to `~/.claude/settings.json` → `hooks` key. Use absolute path to `configs/hooks/`.
-3. **OpenCode:** Create or update a plugin in `~/.config/opencode/plugins/`. Reference shared logic from `configs/hooks/` if possible.
+3. **OpenCode:** Create a plugin `.ts` file in `configs/plugins/`. Run `acsync push --type plugins` to deploy. Reference shared logic from `configs/hooks/` if possible.
 4. Restart the CLI session for hooks to take effect (Claude Code snapshots hooks at startup).
 
 ## Test Isolation

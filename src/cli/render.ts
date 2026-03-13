@@ -14,12 +14,13 @@ import {
   readCanonicalInstructions,
   readCanonicalSkills,
   readCanonicalSettings,
+  readCanonicalPlugins,
 } from './canonical';
 import { createExclusionFilter } from '../infra/exclusion';
 import { parseFrontmatter } from '../formats/markdown';
 import type { TargetName, CanonicalItem } from '../types';
 
-const VALID_SINGULAR_TYPES = ['command', 'agent', 'mcp', 'instruction', 'skill', 'settings'] as const;
+const VALID_SINGULAR_TYPES = ['command', 'agent', 'mcp', 'instruction', 'skill', 'settings', 'plugin'] as const;
 type SingularType = (typeof VALID_SINGULAR_TYPES)[number];
 
 const VALID_TARGETS = ['claude', 'gemini', 'codex', 'opencode'] as const;
@@ -104,6 +105,16 @@ Examples:
             );
           }
           content = adapter.renderSkill(item).content;
+        } else if (itemType === 'plugin') {
+          const isExcluded2 = createExclusionFilter();
+          const allPlugins = await readCanonicalPlugins(projectDir, isExcluded2);
+          const item = allPlugins.find((p) => p.name === name);
+          if (!item) {
+            throw new Error(
+              `Canonical plugin "${name}" not found in configs/plugins/${name}.ts`,
+            );
+          }
+          content = adapter.renderPlugin(item).content;
         } else {
           // settings
           const settings = await readCanonicalSettings(projectDir, target);

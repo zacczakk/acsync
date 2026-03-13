@@ -23,6 +23,7 @@ export const MCP_DIR = join(CANONICAL_ROOT, 'mcp');
 export const INSTRUCTIONS_DIR = join(CANONICAL_ROOT, 'instructions');
 export const SKILLS_DIR = join(CANONICAL_ROOT, 'skills');
 export const SETTINGS_DIR = join(CANONICAL_ROOT, 'settings');
+export const PLUGINS_DIR = join(CANONICAL_ROOT, 'plugins');
 
 export interface SyncOptions {
   targets?: TargetName[];       // --target flag (all if empty)
@@ -194,6 +195,34 @@ export async function readCanonicalSettings(
   } catch {
     return null;
   }
+}
+
+/**
+ * Read canonical plugins from configs/plugins/*.ts
+ * Plugins are raw TypeScript files — no frontmatter parsing.
+ */
+export async function readCanonicalPlugins(
+  projectDir: string,
+  isExcluded: (name: string) => boolean,
+): Promise<CanonicalItem[]> {
+  const dir = join(projectDir, PLUGINS_DIR);
+  let entries: string[];
+  try {
+    entries = await readdir(dir);
+  } catch {
+    return [];
+  }
+
+  const items: CanonicalItem[] = [];
+  for (const entry of entries) {
+    if (!entry.endsWith('.ts')) continue;
+    const name = entry.slice(0, -3); // strip .ts
+    if (isExcluded(name)) continue;
+
+    const raw = await readFile(join(dir, entry), 'utf-8');
+    items.push({ name, content: raw, metadata: {} });
+  }
+  return items;
 }
 
 /**

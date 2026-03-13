@@ -17,7 +17,7 @@ export class OpenCodeAdapter extends BaseAdapter {
   }
 
   getCapabilities(): AdapterCapabilities {
-    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: true };
+    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: true, plugins: true };
   }
 
   /** Keys that only exist in the canonical format — strip before rendering */

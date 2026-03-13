@@ -9,6 +9,7 @@ import {
   ALL_TARGETS,
   COMMANDS_DIR,
   AGENTS_DIR,
+  PLUGINS_DIR,
   PROJECT_ROOT,
   createAdapter,
   hashRendered,
@@ -20,6 +21,7 @@ import {
   readCanonicalInstructions,
   readCanonicalSkills,
   readCanonicalSettings,
+  readCanonicalPlugins,
 } from './canonical';
 import { mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
 import type { SyncOptions } from './canonical';
@@ -46,6 +48,7 @@ async function detectStaleItems(
   canonicalCommandNames: Set<string>,
   canonicalAgentNames: Set<string>,
   canonicalSkillNames: Set<string>,
+  canonicalPluginNames: Set<string>,
   isExcluded: (name: string) => boolean,
   types?: ItemType[],
 ): Promise<Operation[]> {
@@ -105,6 +108,23 @@ async function detectStaleItems(
     }
   }
 
+  if ((!types || types.includes('plugin')) && caps.plugins) {
+    const existingPlugins = await adapter.listExistingPluginNames();
+    for (const name of existingPlugins) {
+      const entry = classifyEntry(name, canonicalPluginNames, isExcluded);
+      if (entry.status === 'non-canonical') {
+        deleteOps.push({
+          type: 'delete',
+          itemType: 'plugin',
+          name,
+          target,
+          reason: 'Item not in canonical source (stale)',
+          targetPath: paths.getPluginFilePath(name),
+        });
+      }
+    }
+  }
+
   return deleteOps;
 }
 
@@ -118,11 +138,12 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
 
   const manifest = await loadManifest(projectDir);
 
-  const [commands, agents, mcpServers, skills] = await Promise.all([
+  const [commands, agents, mcpServers, skills, plugins] = await Promise.all([
     readCanonicalCommands(projectDir, isExcluded),
     readCanonicalAgents(projectDir, isExcluded),
     readCanonicalMCPServers(projectDir),
     readCanonicalSkills(projectDir, isExcluded),
+    readCanonicalPlugins(projectDir, isExcluded),
   ]);
 
   const diffs: DiffResult[] = [];
@@ -264,6 +285,27 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
       }
     }
 
+    // Plugins
+    if (!options.types || options.types.includes('plugin')) {
+      if (caps.plugins) {
+        for (const item of plugins) {
+          const rendered = adapter.renderPlugin(item);
+          const sourceHash = hashRendered(rendered.content);
+          const targetHash = await hashTargetFile(rendered.relativePath);
+          sourceItems.push({
+            type: 'plugin',
+            name: item.name,
+            hash: sourceHash,
+            sourcePath: join(projectDir, PLUGINS_DIR, `${item.name}.ts`),
+            targetPath: rendered.relativePath,
+          });
+          if (targetHash !== null) {
+            targetHashes.set(`plugin/${item.name}`, targetHash);
+          }
+        }
+      }
+    }
+
     // Settings — hash what renderSettings would produce vs raw on-disk content
     if (!options.types || options.types.includes('settings')) {
       if (caps.settings) {
@@ -304,7 +346,8 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
     const canonicalCommandNames = new Set(commands.map((c) => c.name));
     const canonicalAgentNames = new Set(agents.map((a) => a.name));
     const canonicalSkillNames = new Set(skills.map((s) => s.name));
-    const staleOps = await detectStaleItems(adapter, canonicalCommandNames, canonicalAgentNames, canonicalSkillNames, isExcluded, options.types);
+    const canonicalPluginNames = new Set(plugins.map((p) => p.name));
+    const staleOps = await detectStaleItems(adapter, canonicalCommandNames, canonicalAgentNames, canonicalSkillNames, canonicalPluginNames, isExcluded, options.types);
     if (staleOps.length > 0) {
       diff.operations.push(...staleOps);
       diff.summary.delete = staleOps.length;
@@ -341,7 +384,7 @@ Exit codes: 0 = no drift, 2 = drift detected, 1 = error`)
   .option('--json', 'Machine-readable JSON output')
   .option('-v, --verbose', 'Show all items including up-to-date')
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
-  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings', collect, [] as string[])
+  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings, plugins', collect, [] as string[])
   .action(async (options: { json?: boolean; verbose?: boolean; target: string[]; type: string[] }) => {
     try {
       validateTargets(options.target);

@@ -62,6 +62,15 @@ export interface ToolAdapter {
   /** Read a skill from target: SKILL.md + support files → CanonicalItem */
   readSkill(name: string): Promise<CanonicalItem>;
 
+  /** Render a plugin → path + content (identity copy — raw .ts file) */
+  renderPlugin(item: CanonicalItem): RenderedFile;
+
+  /** List logical plugin names from target's plugins directory */
+  listExistingPluginNames(): Promise<string[]>;
+
+  /** Read a plugin from target → CanonicalItem */
+  readPlugin(name: string): Promise<CanonicalItem>;
+
   /**
    * Render settings: deep-merge canonical keys into existing target content.
    * Returns the full file content ready to write. Only touches canonical keys;
@@ -192,6 +201,35 @@ export abstract class BaseAdapter implements ToolAdapter {
     const { data, content } = parseFrontmatter(raw);
     const supportFiles = await readSupportFiles(dir, 'SKILL.md');
     return { name, content, metadata: data, supportFiles };
+  }
+
+  /** Plugins are identity-rendered: raw .ts file, no transformation */
+  renderPlugin(item: CanonicalItem): RenderedFile {
+    return {
+      relativePath: this.paths.getPluginFilePath(item.name),
+      content: item.content,
+    };
+  }
+
+  /** List plugin filenames from target's plugins dir */
+  async listExistingPluginNames(): Promise<string[]> {
+    const dir = this.paths.getPluginsDir();
+    let entries: string[];
+    try {
+      entries = await readdir(dir);
+    } catch {
+      return [];
+    }
+    return entries
+      .filter((e) => e.endsWith('.ts'))
+      .map((e) => e.slice(0, -3));
+  }
+
+  /** Read a plugin from target: raw .ts file → CanonicalItem */
+  async readPlugin(name: string): Promise<CanonicalItem> {
+    const filePath = this.paths.getPluginFilePath(name);
+    const raw = await readFile(filePath, 'utf-8');
+    return { name, content: raw, metadata: {} };
   }
 
   /** Default parse: assume canonical format (markdown frontmatter) */

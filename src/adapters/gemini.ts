@@ -15,7 +15,7 @@ export class GeminiAdapter extends BaseAdapter {
   }
 
   getCapabilities(): AdapterCapabilities {
-    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: false };
+    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: false, plugins: false };
   }
 
   /** Gemini commands are TOML files: my-plan.toml → my-plan */
