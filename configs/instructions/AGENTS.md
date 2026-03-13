@@ -33,7 +33,7 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Deterministic formatting hooks when available.
 - Hangs >5 min: stop, capture logs, ask user.
 - New dep: research health + fit; confirm w/ user.
-- Helpers in `scripts/` (`committer`, `ask-model`, `docs-list.ts`, `browser-tools.ts`)
+- Helpers in `scripts/` (`committer`, `ask-model`, `sessions`, `docs-list.ts`, `browser-tools.ts`)
 
 ## Proactive Behaviors
 - Dead code in files you're editing: clean without asking.
@@ -77,7 +77,7 @@ When work concludes (skip if trivial):
 - Keep notes short; update docs when behavior/API changes (no ship w/o docs).
 - Staleness: dead links / stale refs = bugs; groom docs often.
 - Context7 MCP has library documentation.
-- **Memory vault lookup:** scan `summary:` frontmatter first (`rg '^summary:.*topic' ~/Vaults/Memory/ --glob '*.md' -i`). Only read full notes when summary matches or is unclear. Full guide in `~/Vaults/AGENTS.md`.
+- **Memory vault lookup:** scan `summary:` frontmatter first (`rg '^summary:.*topic' ~/Vaults/Memory/ --glob '*.md' -i`). Only read full notes when summary matches or is unclear. If Memory vault has no relevant notes, fall back to `sessions search "query"` or `sessions find "query"` for past session history. Full guide in `~/Vaults/AGENTS.md`.
 
 ## Build / Test
 - No mocks; unit or e2e.
@@ -117,6 +117,6 @@ When work concludes (skip if trivial):
 - Unrecognized changes: assume other agent; keep going; focus your changes. If it causes issues, stop + ask user.
 
 ## Tools
-On PATH: `trash`, `acsync`, `committer`, `docs-list`, `agent-browser`, `browser-tools`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`.
+On PATH: `trash`, `acsync`, `committer`, `docs-list`, `sessions`, `agent-browser`, `browser-tools`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`.
 Full catalog: `~/Repos/acsync/configs/instructions/TOOLS.md`.
 

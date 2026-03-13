@@ -2,6 +2,8 @@
 // Fires on grep, glob, task (explore), tavily_search, context7 resolve.
 // Appends short reminder to tool output so the agent sees it inline.
 //
+// Search hierarchy: Memory vault (curated) → sessions (history) → web.
+//
 // Known limitation: output.output mutation doesn't propagate for MCP tools
 // (tavily_search, context7_resolve-library-id). These tools still match but
 // the advisory is silently dropped by OpenCode's MCP result pipeline.
@@ -19,7 +21,9 @@ const EXPLORATORY_TOOLS = new Set([
 const ADVISORY =
   "\n<system-reminder>Check Memory vault for prior notes before broad searches: " +
   '`qmd "query"` (semantic) or `obsidian search --vault Memory "query"` (structured). ' +
-  "~/Vaults/Memory/ has sessions, patterns, projects, tools, system.</system-reminder>"
+  "~/Vaults/Memory/ has sessions, patterns, projects, tools, system. " +
+  "If Memory vault has no match, try `sessions search \"query\"` (keyword) or " +
+  '`sessions find "query"` (semantic) for past session history.</system-reminder>'
 
 export const MemoryVaultAdvisor: Plugin = async () => {
   return {

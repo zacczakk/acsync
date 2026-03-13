@@ -7,7 +7,7 @@ CLI tools on `$PATH`. Sources: `~/Repos/acsync/scripts/` and `~/Repos/acsync/bin
 Agent Config Sync CLI. Canonical configs sync to AI CLI targets (`claude`, `opencode`, `gemini`, `codex`).
 
 - **Source:** `~/Repos/acsync/src/cli/`
-- **Canonical configs:** `~/Repos/acsync/configs/` (commands, agents, mcp, instructions, skills, settings)
+- **Canonical configs:** `~/Repos/acsync/configs/` (commands, agents, mcp, instructions, skills, settings, plugins)
 - **Installed via:** `bun link` (available on PATH as `acsync`)
 
 ### Subcommands
@@ -23,7 +23,7 @@ Agent Config Sync CLI. Canonical configs sync to AI CLI targets (`claude`, `open
 
 ### Common flags
 - `-t, --target <name>` — Scope to target (repeatable): `claude`, `opencode`, `gemini`, `codex`
-- `--type <name>` — Scope to config type (repeatable): `commands`, `agents`, `mcps`, `instructions`, `skills`, `settings`
+- `--type <name>` — Scope to config type (repeatable): `commands`, `agents`, `mcps`, `instructions`, `skills`, `settings`, `plugins`
 - `--pretty` / `--json` — Output format
 - `--dry-run` — Preview without writing (push/pull)
 - `--force` — Skip confirmation (push) or overwrite existing (pull)
@@ -273,7 +273,6 @@ mcporter daemon stop
 | `tavily` | stdio | `tavily` | Web search (`TAVILY_API_KEY`) |
 | `chrome-devtools` | stdio/daemon | `chrome-devtools` | Browser automation (keep-alive) |
 | `palantir-mcp` | stdio | `palantir` | Foundry (`FOUNDRY_TOKEN`) |
-| `liquid-carbon` | stdio | `liquid-carbon` | Component library |
 | `shadcn` | stdio | `shadcn` | shadcn/ui |
 | `sequential-thinking` | stdio | `sequential-thinking` | Reasoning |
 
@@ -382,6 +381,85 @@ qmd update && qmd embed
 | Read/write/create notes | `obsidian` CLI |
 | Discovery before deep read | `qmd query --files` then `obsidian read` |
 
+## sessions
+
+Search, browse, and export coding session history from OpenCode and Claude Code. Three-layer search: Memory vault (curated notes) → FTS5 (keyword precision) → qmd (semantic recall).
+
+- **Source:** `~/Repos/acsync/scripts/sessions`
+- **Vault:** `~/Vaults/Sessions/` (iCloud-backed symlink, Obsidian-visible)
+- **Sources:** OpenCode (`~/.local/share/opencode/opencode.db`), Claude Code (`~/.claude/projects/`)
+- **Indexes:** FTS5 DB + export state at `~/.local/share/sessions/` (machine-local)
+- **qmd collection:** `sessions` (2,172 files, semantic + BM25)
+
+### Subcommands
+
+| Command | Purpose |
+|---------|---------|
+| `sessions list` | List sessions (newest first) |
+| `sessions export` | Incremental export to vault (markdown + frontmatter) |
+| `sessions search "query"` | FTS5 keyword search with Porter stemming |
+| `sessions read <session_id>` | Read full session transcript |
+| `sessions find "query"` | Semantic search via qmd (query expansion + reranking) |
+| `sessions stats` | Session counts, message/part totals, index size |
+| `sessions index` | Rebuild qmd collection (re-register + embed) |
+
+### Flags
+
+| Flag | Commands | Purpose |
+|------|----------|---------|
+| `--source opencode\|claude` | list, export, search | Filter by source |
+| `--since YYYY-MM-DD` | list, export | Date filter |
+| `--limit N` | list, search, find | Max results |
+| `--project NAME` | list | Filter by project name |
+| `--role user\|assistant` | search, read | Filter by message role |
+| `--context N` | search | Context lines around matches |
+| `--keyword` | find | Use BM25 instead of semantic |
+| `--force` | export | Re-export all (ignore watermark) |
+| `--no-index` | export | Skip qmd re-indexing after export |
+| `--no-embed` | index | Skip embedding generation |
+| `--no-tools` | read | Hide tool call blocks |
+
+### Search strategy
+
+1. **Memory vault first** — curated notes (`qmd query "..." -c memory`)
+2. **sessions search** — keyword precision with FTS5 Porter stemming
+3. **sessions find** — semantic recall via qmd reranking (slower, fuzzier)
+
+### Quick ref
+```bash
+# Recent sessions
+sessions list --limit 10
+sessions list --source opencode --project acsync
+
+# Keyword search (fast, precise)
+sessions search "iCloud migration"
+sessions search "TypeScript adapter" --source opencode --limit 5
+
+# Semantic search (fuzzy recall)
+sessions find "how did we handle plugin sync"
+sessions find "error handling pattern" --keyword  # BM25 fallback
+
+# Read specific session
+sessions read ses_3190fbc8bffeVmNFzrofY3bdMd
+
+# Export new sessions + rebuild index
+sessions export
+sessions export --force --source claude
+
+# Stats
+sessions stats
+```
+
+### When to use sessions vs qmd vs obsidian
+
+| Use case | Tool |
+|----------|------|
+| Curated knowledge/patterns | `qmd query -c memory` or `obsidian vault=Memory search` |
+| "Did we do X before?" / past session recall | `sessions search` or `sessions find` |
+| Full session transcript | `sessions read <id>` |
+| Broad semantic discovery across sessions | `sessions find` |
+| Exact keyword in session history | `sessions search` |
+
 ## bird
 
 Twitter/X CLI for posting, replying, reading tweets.
@@ -413,7 +491,6 @@ All servers also registered in `~/.mcporter/mcporter.json` and compiled to `bin/
 | `tavily` | Claude, OpenCode, Gemini | `tavily` | `TAVILY_API_KEY` |
 | `chrome-devtools` | — | `chrome-devtools` | Daemon keep-alive via mcporter |
 | `palantir-mcp` | — | `palantir` | `FOUNDRY_TOKEN` |
-| `liquid-carbon` | — | `liquid-carbon` | Component library |
-| `shadcn` | — | `shadcn` | shadcn/ui |
+| `shadcn` | OpenCode | `shadcn` | shadcn/ui |
 | `sequential-thinking` | — | `sequential-thinking` | Reasoning; native MCP disabled |
 
