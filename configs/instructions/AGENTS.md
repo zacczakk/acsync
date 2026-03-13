@@ -118,5 +118,5 @@ When work concludes (skip if trivial):
 
 ## Tools
 On PATH: `trash`, `acsync`, `committer`, `docs-list`, `sessions`, `agent-browser`, `browser-tools`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`.
-Full catalog: `~/Repos/acsync/configs/instructions/TOOLS.md`.
+Full catalog: `~/Repos/acsync/configs/instructions/TOOLS.md`. Read when you need flags, subcommands, or usage patterns for any tool above.
 
