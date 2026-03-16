@@ -33,7 +33,7 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Deterministic formatting hooks when available.
 - Hangs >5 min: stop, capture logs, ask user.
 - New dep: research health + fit; confirm w/ user.
-- Helpers in `scripts/` (`committer`, `ask-model`, `sessions`, `docs-list.ts`, `browser-tools.ts`)
+- Helpers in `scripts/` (`committer`, `ask-model`, `sessions`, `docs-list.ts`)
 
 ## Proactive Behaviors
 - Dead code in files you're editing: clean without asking.
@@ -41,6 +41,12 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Better patterns in touched files: suggest refactor opportunities.
 - Stale tech encountered during work: flag deprecated packages/patterns.
 - Never guess API signatures, CLI flags, version numbers, config options. Look it up.
+
+## Browser
+- `agent-browser` auto-connects to Phil's running Chrome (SSO, cookies, extensions preserved).
+- **Tab hygiene:** close tabs you opened; never close tabs you didn't open. `agent-browser tab` to list, `agent-browser close` when done.
+- Chrome prerequisite: `chrome://inspect/#remote-debugging` enabled once. First connect per Chrome restart = user consent dialog.
+- Fallback: if Chrome isn't running, agent-browser launches its own headless Chromium (no SSO).
 
 ## Session Notes
 Write atomic notes to `~/Vaults/Memory/sessions/` using `session-notes` skill.
@@ -117,6 +123,6 @@ When work concludes (skip if trivial):
 - Unrecognized changes: assume other agent; keep going; focus your changes. If it causes issues, stop + ask user.
 
 ## Tools
-On PATH: `trash`, `acsync`, `committer`, `docs-list`, `sessions`, `agent-browser`, `browser-tools`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`.
+On PATH: `trash`, `acsync`, `committer`, `docs-list`, `sessions`, `agent-browser`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`.
 Full catalog: `~/Repos/acsync/configs/instructions/TOOLS.md`. Read when you need flags, subcommands, or usage patterns for any tool above.
 

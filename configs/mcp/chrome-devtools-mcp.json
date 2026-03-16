@@ -1,8 +1,8 @@
 {
-  "description": "Chrome DevTools for browser automation and debugging",
+  "description": "Chrome DevTools MCP — attaches to running Chrome 144+ via --autoConnect",
   "transport": "stdio",
   "command": "npx",
-  "args": ["-y", "chrome-devtools-mcp@latest"],
-  "enabled": false,
+  "args": ["-y", "chrome-devtools-mcp@latest", "--autoConnect"],
+  "enabled": true,
   "disabled_for": ["codex"]
 }

@@ -139,67 +139,33 @@ Lists `docs/` catalog and enforces front-matter compliance.
 
 ## agent-browser
 
-Primary browser automation CLI. Rust binary with direct CDP. Persistent sessions with cookie retention. Snapshot + @ref workflow for agent-driven interaction.
+Browser automation CLI. Auto-connects to running Chrome (SSO, cookies, extensions preserved). Rust/CDP.
 
-- **Install:** `npm install -g agent-browser` (Homebrew global prefix)
-- **Version:** 0.16.3
-- **Skill:** `load_agent_browser_skill` (OpenCode plugin: `opencode-agent-browser`)
-- **Docs:** Full skill at `/opt/homebrew/lib/node_modules/agent-browser/skills/agent-browser/SKILL.md`
-
-### Native mode (preferred)
+- **Install:** `npm --prefix /opt/homebrew install -g agent-browser@latest`
+- **Skill:** `load_agent_browser_skill`
+- **Env vars (pre-set):** `NATIVE=1` (Rust/CDP engine, bypasses Node.js/Playwright), `AUTO_CONNECT=1` (attaches to running Chrome, not a fresh Chromium)
+- **Fallback:** If Chrome not running, launches own headless Chromium (no SSO).
 
 ```bash
-# Rust binary → CDP → Chrome. No Node.js/Playwright at runtime.
-# Headless by default; use --headed only for visual debugging.
-agent-browser open https://example.com
-
-# Set env vars in shell config to avoid passing flags:
-export AGENT_BROWSER_NATIVE=1
-```
-
-Native mode also supports **Safari via WebDriver** — the only agent tool with Safari access.
-
-### Core workflow
-
-```bash
-agent-browser open <url>              # Navigate
+agent-browser open <url>              # Navigate (in user's Chrome)
 agent-browser snapshot -i             # Interactive elements with @refs
 agent-browser click @e2               # Click by ref
 agent-browser fill @e3 "text"         # Fill input
 agent-browser get text @e1            # Extract text
 agent-browser screenshot              # Capture viewport
-agent-browser eval 'document.title'   # Run JS
+agent-browser tab                     # List open tabs
+agent-browser close                   # Close current tab when done
 ```
 
-### When to use
+**Tab cleanup:** close what you opened; never close tabs you didn't open.
 
 | Task | Tool |
 |---|---|
-| Browse, click, fill, interact | `agent-browser --native` |
-| Authenticated scraping | `agent-browser` (login once, cookies persist) |
+| Browse, click, fill, interact | `agent-browser` (auto-connects to Chrome) |
+| Authenticated pages (SSO/cookies) | `agent-browser` (inherits Chrome session) |
 | Safari/WebKit testing | `agent-browser --native` (WebDriver) |
-| Debug running Chrome | `browser-tools` |
+| Debug running Chrome | `chrome-devtools-mcp` (MCP, 29 tools) |
 | Complex test suites w/ assertions | `webapp-testing` skill (Python Playwright) |
-
-## browser-tools
-
-Lightweight Chrome DevTools helper. Connects to already-running Chrome via CDP port. Read-heavy — no click/fill automation.
-
-- **Source:** `~/Repos/acsync/scripts/browser-tools.ts`
-- **Rebuild:** `bun build scripts/browser-tools.ts --compile --target bun --outfile bin/browser-tools`
-
-### Subcommands
-- `start` — Launch Chrome with DevTools protocol.
-- `nav <url>` — Navigate to URL.
-- `eval <js>` — Evaluate JavaScript in page context.
-- `screenshot` — Capture page screenshot.
-- `content <url>` — Extract readable content as markdown.
-- `search <query>` — Google search with optional content extraction.
-- `pick` — DOM element picker.
-- `cookies` — View/manage cookies.
-- `console` — Capture console logs.
-- `inspect` — List Chrome DevTools instances.
-- `kill` — Close Chrome instance.
 
 ## gh
 
@@ -271,7 +237,7 @@ mcporter daemon stop
 |---|---|---|---|
 | `context7` | HTTP | `context7` | Library docs |
 | `tavily` | stdio | `tavily` | Web search (`TAVILY_API_KEY`) |
-| `chrome-devtools` | stdio/daemon | `chrome-devtools` | Browser automation (keep-alive) |
+| `chrome-devtools` | stdio/daemon | `chrome-devtools` | Daemon keep-alive; `--autoConnect` to running Chrome |
 | `palantir-mcp` | stdio | `palantir` | Foundry (`FOUNDRY_TOKEN`) |
 | `shadcn` | stdio | `shadcn` | shadcn/ui |
 | `sequential-thinking` | stdio | `sequential-thinking` | Reasoning |
@@ -489,7 +455,7 @@ All servers also registered in `~/.mcporter/mcporter.json` and compiled to `bin/
 |--------|-----------|------------------|-------|
 | `context7` | All CLIs | `context7` | HTTP; library docs |
 | `tavily` | Claude, OpenCode, Gemini | `tavily` | `TAVILY_API_KEY` |
-| `chrome-devtools` | — | `chrome-devtools` | Daemon keep-alive via mcporter |
+| `chrome-devtools` | All CLIs | `chrome-devtools` | Daemon keep-alive; `--autoConnect` to running Chrome |
 | `palantir-mcp` | — | `palantir` | `FOUNDRY_TOKEN` |
 | `shadcn` | OpenCode | `shadcn` | shadcn/ui |
 | `sequential-thinking` | — | `sequential-thinking` | Reasoning; native MCP disabled |
