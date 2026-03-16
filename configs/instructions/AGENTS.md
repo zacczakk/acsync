@@ -44,6 +44,7 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 
 ## Browser
 - `agent-browser` auto-connects to Phil's running Chrome (SSO, cookies, extensions preserved).
+- **Never kill, restart, or relaunch Chrome.** Phil's personal tabs must survive agent sessions. If Chrome crashes during a connection attempt, stop and report immediately.
 - **Tab hygiene:** close tabs you opened; never close tabs you didn't open. `agent-browser tab` to list, `agent-browser close` when done.
 - Chrome prerequisite: `chrome://inspect/#remote-debugging` enabled once. First connect per Chrome restart = user consent dialog.
 - Fallback: if Chrome isn't running, agent-browser launches its own headless Chromium (no SSO).

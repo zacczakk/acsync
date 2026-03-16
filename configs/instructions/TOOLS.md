@@ -158,6 +158,7 @@ agent-browser close                   # Close current tab when done
 ```
 
 **Tab cleanup:** close what you opened; never close tabs you didn't open.
+**Never kill, restart, or relaunch Chrome.** User's personal tabs must survive agent sessions.
 
 | Task | Tool |
 |---|---|
@@ -237,7 +238,7 @@ mcporter daemon stop
 |---|---|---|---|
 | `context7` | HTTP | `context7` | Library docs |
 | `tavily` | stdio | `tavily` | Web search (`TAVILY_API_KEY`) |
-| `chrome-devtools` | stdio/daemon | `chrome-devtools` | Daemon keep-alive; `--autoConnect` to running Chrome |
+| `chrome-devtools` | stdio/daemon | `chrome-devtools` | Daemon keep-alive; `--autoConnect --no-usage-statistics` |
 | `palantir-mcp` | stdio | `palantir` | Foundry (`FOUNDRY_TOKEN`) |
 | `shadcn` | stdio | `shadcn` | shadcn/ui |
 | `sequential-thinking` | stdio | `sequential-thinking` | Reasoning |
@@ -455,7 +456,7 @@ All servers also registered in `~/.mcporter/mcporter.json` and compiled to `bin/
 |--------|-----------|------------------|-------|
 | `context7` | All CLIs | `context7` | HTTP; library docs |
 | `tavily` | Claude, OpenCode, Gemini | `tavily` | `TAVILY_API_KEY` |
-| `chrome-devtools` | All CLIs | `chrome-devtools` | Daemon keep-alive; `--autoConnect` to running Chrome |
+| `chrome-devtools` | All CLIs | `chrome-devtools` | Daemon keep-alive; `--autoConnect --no-usage-statistics` |
 | `palantir-mcp` | — | `palantir` | `FOUNDRY_TOKEN` |
 | `shadcn` | OpenCode | `shadcn` | shadcn/ui |
 | `sequential-thinking` | — | `sequential-thinking` | Reasoning; native MCP disabled |
