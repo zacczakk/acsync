@@ -6,6 +6,7 @@ import type { Adapter, EvalQuery, EvalResult, EvalSummary } from "./types";
 import { createOpenCodeAdapter } from "./adapters/opencode";
 import { createClaudeAdapter } from "./adapters/claude";
 import { generateReport } from "./report";
+import { improveDescription, applyDescription } from "./improve";
 
 const { values } = parseArgs({
   args: Bun.argv.slice(2),
@@ -179,6 +180,67 @@ if (values.report !== "none") {
 }
 
 if (values.improve) {
-  console.error("\n--- Description improvement not yet implemented ---");
-  console.error("Will route through the same adapter in a future update.");
+  const maxIter = parseInt(values.iterations, 10);
+  console.error(`\n--- Improving description (${maxIter} iterations) ---\n`);
+
+  const history: { iteration: number; description: string; passed: number; total: number; failures: string[] }[] = [];
+  let bestDesc = description;
+  let bestScore = summary.passed;
+  let currentSummary = summary;
+
+  for (let i = 1; i <= maxIter; i++) {
+    if (currentSummary.failed === 0) {
+      console.error(`All passed — stopping early at iteration ${i}.`);
+      break;
+    }
+
+    console.error(`Iteration ${i}/${maxIter}: improving...`);
+    const newDesc = await improveDescription({
+      adapter,
+      skillName,
+      skillPath: skillMd,
+      evalResults: currentSummary,
+      history,
+    });
+
+    console.error(`  Proposed (${newDesc.length} chars): ${newDesc.slice(0, 80)}...`);
+
+    history.push({
+      iteration: i,
+      description: currentSummary.description,
+      passed: currentSummary.passed,
+      total: currentSummary.total,
+      failures: currentSummary.results.filter((r) => !r.pass).map((r) => r.query),
+    });
+
+    // Apply and re-eval
+    applyDescription(skillMd, newDesc);
+    console.error(`  Re-evaluating...`);
+    const newResults = await runEval(adapter, evalSet, numWorkers);
+    const newPassed = newResults.filter((r) => r.pass).length;
+
+    currentSummary = {
+      skill: skillName,
+      description: newDesc,
+      total: newResults.length,
+      passed: newPassed,
+      failed: newResults.length - newPassed,
+      results: newResults,
+    };
+
+    console.error(`  Score: ${newPassed}/${newResults.length}`);
+
+    if (newPassed > bestScore) {
+      bestDesc = newDesc;
+      bestScore = newPassed;
+    }
+  }
+
+  if (bestDesc !== description) {
+    applyDescription(skillMd, bestDesc);
+    console.error(`\nBest description applied (${bestScore}/${summary.total}):`);
+    console.error(`  ${bestDesc.slice(0, 120)}...`);
+  } else {
+    console.error(`\nOriginal description was best — no changes applied.`);
+  }
 }
