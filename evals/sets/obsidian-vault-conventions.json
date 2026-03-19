@@ -1,0 +1,14 @@
+[
+  { "query": "I need to create a new project note in the Memory vault for the Verion repo. What's the correct structure and frontmatter?", "should_trigger": true },
+  { "query": "Triage the items in my Obsidian inbox — move them to the right folders in the Knowledge vault.", "should_trigger": true },
+  { "query": "I want to write a note to the Knowledge vault backlog. What conventions should I follow?", "should_trigger": true },
+  { "query": "Create a learning note in Memory about how the auth system works in this codebase.", "should_trigger": true },
+  { "query": "Move this completed backlog item to the knowledge folder and update the task status.", "should_trigger": true },
+  { "query": "What frontmatter fields are required for a session note in the Memory vault?", "should_trigger": true },
+  { "query": "Write a Python function to parse YAML frontmatter from markdown files.", "should_trigger": false },
+  { "query": "Help me set up a new Next.js project with TypeScript.", "should_trigger": false },
+  { "query": "Create a .canvas file with a flowchart of the deployment pipeline.", "should_trigger": false },
+  { "query": "Search my vault for notes about React performance patterns.", "should_trigger": false },
+  { "query": "Help me configure the Obsidian git sync plugin.", "should_trigger": false },
+  { "query": "Write an Obsidian Bases view that filters notes by tag.", "should_trigger": false }
+]

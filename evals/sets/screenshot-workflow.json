@@ -1,0 +1,12 @@
+[
+  { "query": "I just took a screenshot of the new dashboard. Use it to replace the hero image in the repo.", "should_trigger": true },
+  { "query": "Use a screenshot from my Desktop to update the Open Graph image for the landing page.", "should_trigger": true },
+  { "query": "I have a new app icon screenshot. Optimize it and commit it to replace the current one.", "should_trigger": true },
+  { "query": "There's a PNG on my Desktop — swap it in for the logo in public/images/ and make sure it's under 4MB.", "should_trigger": true },
+  { "query": "Update the README screenshot with the latest UI capture from Downloads.", "should_trigger": true },
+  { "query": "Take a screenshot of the current page in the browser and save it.", "should_trigger": false },
+  { "query": "Help me create a new React component for displaying images.", "should_trigger": false },
+  { "query": "Optimize the webpack bundle size for this project.", "should_trigger": false },
+  { "query": "Write CSS to make images responsive on mobile.", "should_trigger": false },
+  { "query": "Generate a favicon from the existing logo SVG.", "should_trigger": false }
+]

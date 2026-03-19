@@ -1,0 +1,14 @@
+[
+  { "query": "I just decided to use SQLite instead of Postgres for the local cache. Write a session note capturing this decision and the rationale.", "should_trigger": true },
+  { "query": "We hit a dead end trying to use WebSockets for the sync protocol. Document what we tried and why it failed.", "should_trigger": true },
+  { "query": "I'm about to compact this conversation. Capture the key context about what we're working on so it survives.", "should_trigger": true },
+  { "query": "We just discovered that the Bun test runner doesn't support --coverage with workspaces. Note this for future reference.", "should_trigger": true },
+  { "query": "I finished implementing the auth middleware. Write a checkpoint note before we move on.", "should_trigger": true },
+  { "query": "This API behavior is really surprising — fetch() in Bun doesn't follow redirects by default. Capture that.", "should_trigger": true },
+  { "query": "Write a unit test for the user validation function.", "should_trigger": false },
+  { "query": "Help me refactor this React component to use server actions.", "should_trigger": false },
+  { "query": "What's the best way to handle errors in a Next.js API route?", "should_trigger": false },
+  { "query": "Create a new Obsidian note in the Knowledge vault about TypeScript patterns.", "should_trigger": false },
+  { "query": "Run the test suite and fix any failures.", "should_trigger": false },
+  { "query": "Help me debug why the login page is showing a blank screen.", "should_trigger": false }
+]
