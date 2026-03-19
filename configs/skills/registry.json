@@ -41,7 +41,7 @@
       "repo": "https://github.com/obra/superpowers.git",
       "basePath": "skills",
       "skills": {
-        "brainstorming": { "sync": "manual", "note": "Removed phantom deps (writing-plans, spec-document-reviewer)" },
+        "brainstorming": { "sync": "auto" },
         "dispatching-parallel-agents": { "sync": "auto" },
         "executing-plans": { "sync": "auto" },
         "finishing-a-development-branch": { "sync": "auto" },

@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "Structured requirements exploration before implementation. Use before creating features, building components, adding functionality, or modifying behavior. Explores intent, requirements, and design before any code is written."
+description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."
 ---
 
 # Brainstorming Ideas Into Designs
@@ -26,9 +26,10 @@ You MUST create a task for each of these items and complete them in order:
 3. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
 4. **Propose 2-3 approaches** — with trade-offs and your recommendation
 5. **Present design** — in sections scaled to their complexity, get user approval after each section
-6. **Write design doc** — save to `docs/specs/YYYY-MM-DD-<topic>-design.md` and commit
-7. **User reviews written spec** — ask user to review the spec file before proceeding
-8. **Transition to implementation** — create a task list for implementation steps
+6. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and commit
+7. **Spec review loop** — dispatch spec-document-reviewer subagent with precisely crafted review context (never your session history); fix issues and re-dispatch until approved (max 3 iterations, then surface to human)
+8. **User reviews written spec** — ask user to review the spec file before proceeding
+9. **Transition to implementation** — invoke writing-plans skill to create implementation plan
 
 ## Process Flow
 
@@ -42,8 +43,10 @@ digraph brainstorming {
     "Present design sections" [shape=box];
     "User approves design?" [shape=diamond];
     "Write design doc" [shape=box];
+    "Spec review loop" [shape=box];
+    "Spec review passed?" [shape=diamond];
     "User reviews spec?" [shape=diamond];
-    "Begin implementation" [shape=doublecircle];
+    "Invoke writing-plans skill" [shape=doublecircle];
 
     "Explore project context" -> "Visual questions ahead?";
     "Visual questions ahead?" -> "Offer Visual Companion\n(own message, no other content)" [label="yes"];
@@ -54,13 +57,16 @@ digraph brainstorming {
     "Present design sections" -> "User approves design?";
     "User approves design?" -> "Present design sections" [label="no, revise"];
     "User approves design?" -> "Write design doc" [label="yes"];
-    "Write design doc" -> "User reviews spec?";
+    "Write design doc" -> "Spec review loop";
+    "Spec review loop" -> "Spec review passed?";
+    "Spec review passed?" -> "Spec review loop" [label="issues found,\nfix and re-dispatch"];
+    "Spec review passed?" -> "User reviews spec?" [label="approved"];
     "User reviews spec?" -> "Write design doc" [label="changes requested"];
-    "User reviews spec?" -> "Begin implementation" [label="approved"];
+    "User reviews spec?" -> "Invoke writing-plans skill" [label="approved"];
 }
 ```
 
-**The terminal state is beginning implementation.** After brainstorming, create a task list breaking the design into implementation steps.
+**The terminal state is invoking writing-plans.** Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.
 
 ## The Process
 
@@ -105,22 +111,29 @@ digraph brainstorming {
 
 **Documentation:**
 
-- Write the validated design (spec) to `docs/specs/YYYY-MM-DD-<topic>-design.md`
+- Write the validated design (spec) to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
   - (User preferences for spec location override this default)
-- Keep it concise and clearly structured
+- Use elements-of-style:writing-clearly-and-concisely skill if available
 - Commit the design document to git
 
+**Spec Review Loop:**
+After writing the spec document:
+
+1. Dispatch spec-document-reviewer subagent (see spec-document-reviewer-prompt.md)
+2. If Issues Found: fix, re-dispatch, repeat until Approved
+3. If loop exceeds 3 iterations, surface to human for guidance
+
 **User Review Gate:**
-After writing the spec, ask the user to review it before proceeding:
+After the spec review loop passes, ask the user to review the written spec before proceeding:
 
-> "Spec written and committed to `<path>`. Please review it and let me know if you want to make any changes before we start implementation."
+> "Spec written and committed to `<path>`. Please review it and let me know if you want to make any changes before we start writing out the implementation plan."
 
-Wait for the user's response. If they request changes, make them. Only proceed once the user approves.
+Wait for the user's response. If they request changes, make them and re-run the spec review loop. Only proceed once the user approves.
 
 **Implementation:**
 
-- Create a task list breaking the approved design into implementation steps
-- Begin implementation or hand off as appropriate
+- Invoke the writing-plans skill to create a detailed implementation plan
+- Do NOT invoke any other skill. writing-plans is the next step.
 
 ## Key Principles
 
