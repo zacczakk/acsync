@@ -1,5 +1,5 @@
 [
-  { "query": "I need to create a new project note in the Memory vault for the Verion repo. What's the correct structure and frontmatter?", "should_trigger": true },
+  { "query": "I need to create a new project note in the Memory vault for a new project. What's the correct structure and frontmatter?", "should_trigger": true },
   { "query": "Triage the items in my Obsidian inbox — move them to the right folders in the Knowledge vault.", "should_trigger": true },
   { "query": "I want to write a note to the Knowledge vault backlog. What conventions should I follow?", "should_trigger": true },
   { "query": "Create a learning note in Memory about how the auth system works in this codebase.", "should_trigger": true },

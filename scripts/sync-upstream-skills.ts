@@ -16,7 +16,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 const REGISTRY_PATH = join(ROOT, "configs/skills/registry.json");
 const TMP_BASE = "/tmp/skill-sync";
-const HOME = process.env.HOME ?? "~";
+const HOME = process.env.HOME ?? require("os").homedir();
 
 interface SkillEntry {
   localName?: string;

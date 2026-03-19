@@ -44,14 +44,21 @@ acsync pull -s claude            # pull from Claude to canonical
 .env                         Secrets (gitignored)
 
 configs/
-  commands/*.md              7 slash commands
+  commands/*.md              Slash commands
   agents/                    Agent definitions
-  skills/                    22 skill directories
-  plugins/*.ts               2 OpenCode plugins (identity-rendered)
-  mcp/*.json                 6 MCP server definitions
-  settings/*.json            2 settings definitions (claude, opencode)
+  skills/                    Skill directories (30+, with upstream sync)
+  plugins/*.ts               OpenCode plugins (identity-rendered)
+  mcp/*.json                 MCP server definitions
+  settings/*.json            Settings definitions (claude, opencode)
   instructions/AGENTS.md     Unified agent operating system (ground truth)
   instructions/TOOLS.md      Tool-use reference
+
+evals/
+  runner.ts                  CLI-agnostic skill eval runner
+  adapters/                  opencode, claude execution backends
+  sets/*.json                Eval query sets per skill
+  improve.ts                 Description optimization loop
+  report.ts                  HTML report generator
 
 src/                         TypeScript sync engine
   cli/                       check, push, pull, diff, render, helpers commands
@@ -65,6 +72,7 @@ scripts/
   committer                  Git commit helper
   ask-model                  Cross-model consultation (Claude/Codex/Gemini)
   sessions                   Session history search/export/browse (OpenCode + Claude)
+  sync-upstream-skills.ts    Nightly upstream skill sync
   docs-list.ts               Docs catalog generator
   browser-tools.ts           Chrome DevTools CLI
 
@@ -103,11 +111,40 @@ Copy `.env.example` to `.env` and fill in:
 ```
 TAVILY_API_KEY=
 CONTEXT7_API_KEY=
-provider_BEDROCK_API_KEY=
-FOUNDRY_TOKEN=
+# Add your own provider keys as needed
 ```
 
 Secrets are injected during push and redacted during pull. Never committed.
+
+## Skill Evals
+
+Test whether skill descriptions trigger correctly:
+
+```bash
+# Run evals for a skill (opencode adapter, default)
+bun evals/runner.ts --skill session-notes --verbose
+
+# Use claude adapter
+bun evals/runner.ts --skill session-notes --adapter claude
+
+# Auto-improve the description (eval + iterate)
+bun evals/runner.ts --skill session-notes --improve --iterations 3
+
+# Custom eval set, parallel workers, custom report path
+bun evals/runner.ts --skill my-skill --eval-set path/to/set.json --workers 4 --report out.html
+```
+
+Eval sets live in `evals/sets/<skill-name>.json`:
+
+```json
+[
+  { "query": "A prompt that should trigger the skill", "should_trigger": true },
+  { "query": "A prompt that should NOT trigger it", "should_trigger": false }
+]
+```
+
+The runner spawns `opencode run` (or `claude -p`) per query, streams the output,
+and detects whether the skill was loaded. Results go to stdout as JSON + an HTML report.
 
 ## Docs
 

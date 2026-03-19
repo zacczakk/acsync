@@ -60,9 +60,9 @@ Machine-readable companion: `registry.json` (consumed by `scripts/sync-upstream-
 
 ## Custom (4)
 
-| Skill | Author | Description |
-|-------|--------|-------------|
-| obsidian-vault-conventions | zacczakk | Vault layout, lifecycle, naming conventions |
-| session-notes | zacczakk | Atomic session note capture templates |
-| screenshot-workflow | zacczakk | Screenshot asset pipeline (macOS) |
-| provider-docs | zacczakk | organization provider platform documentation |
+| Skill | Description |
+|-------|-------------|
+| obsidian-vault-conventions | Vault layout, lifecycle, naming conventions |
+| session-notes | Atomic session note capture templates |
+| screenshot-workflow | Screenshot asset pipeline (macOS) |
+| provider-docs | Internal platform documentation |
