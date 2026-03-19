@@ -1,0 +1,61 @@
+{
+  "$schema": "Skill upstream registry. Consumed by scripts/sync-upstream-skills.ts",
+  "skillsDir": "configs/skills",
+  "summaryDir": "~/Vaults/Memory/system",
+  "upstreams": {
+    "anthropics": {
+      "repo": "https://github.com/anthropics/skills.git",
+      "basePath": "skills",
+      "skills": {
+        "doc-coauthoring": { "sync": "auto" },
+        "docx": { "sync": "auto" },
+        "frontend-design": { "sync": "auto" },
+        "mcp-builder": { "sync": "auto" },
+        "pdf": { "sync": "auto" },
+        "pptx": { "sync": "auto" },
+        "skill-creator": { "sync": "auto" },
+        "webapp-testing": { "sync": "manual" },
+        "xlsx": { "sync": "auto" }
+      }
+    },
+    "vercel": {
+      "repo": "https://github.com/vercel-labs/agent-skills.git",
+      "basePath": "skills",
+      "skills": {
+        "react-best-practices": { "localName": "vercel-react-best-practices", "sync": "manual", "note": "AGENTS.md moved to references/rules.md to prevent 3373-line auto-injection" },
+        "web-design-guidelines": { "sync": "auto" }
+      }
+    },
+    "kepano": {
+      "repo": "https://github.com/kepano/obsidian-skills.git",
+      "basePath": "skills",
+      "skills": {
+        "obsidian-cli": { "sync": "auto" },
+        "defuddle": { "localName": "obsidian-defuddle", "sync": "auto" },
+        "obsidian-markdown": { "sync": "auto" },
+        "json-canvas": { "localName": "obsidian-json-canvas", "sync": "auto" },
+        "obsidian-bases": { "sync": "auto" }
+      }
+    },
+    "obra": {
+      "repo": "https://github.com/obra/superpowers.git",
+      "basePath": "skills",
+      "skills": {
+        "brainstorming": { "sync": "manual", "note": "Removed phantom deps (writing-plans, spec-document-reviewer)" },
+        "dispatching-parallel-agents": { "sync": "auto" },
+        "executing-plans": { "sync": "auto" },
+        "finishing-a-development-branch": { "sync": "auto" },
+        "receiving-code-review": { "sync": "auto" },
+        "requesting-code-review": { "sync": "auto" },
+        "subagent-driven-development": { "sync": "auto" },
+        "systematic-debugging": { "sync": "auto" },
+        "test-driven-development": { "sync": "auto" },
+        "using-git-worktrees": { "sync": "auto" },
+        "using-superpowers": { "sync": "auto" },
+        "verification-before-completion": { "sync": "auto" },
+        "writing-plans": { "sync": "auto" },
+        "writing-skills": { "sync": "auto" }
+      }
+    }
+  }
+}
