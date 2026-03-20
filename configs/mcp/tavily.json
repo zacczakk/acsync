@@ -1,8 +1,8 @@
 {
   "description": "Tavily web search and content extraction",
   "transport": "stdio",
-  "command": "python",
-  "args": ["-m", "tavily_mcp"],
+  "command": "tavily-mcp",
+  "args": [],
   "env_vars": ["TAVILY_API_KEY"],
   "env": {
     "TAVILY_API_KEY": "${TAVILY_API_KEY}"
