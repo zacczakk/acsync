@@ -6,7 +6,6 @@
 
 <p align="center">Single source of truth for AI coding assistant configurations.</p>
 Code-driven sync across Claude Code, OpenCode, Gemini CLI, and Codex.
-OpenCode settings also register the **Cursor** provider (OAuth via the `opencode-cursor-oauth` npm plugin); see [docs/architecture.md](docs/architecture.md#opencode-plugins).
 
 ## First-Time Setup
 
