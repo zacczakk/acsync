@@ -6,6 +6,10 @@ read_when:
 
 # Changelog
 
+## v1.3.8 — 2026-03-20
+
+- **Notify plugin subagent filter** — suppress `session.idle` notifications for subagent sessions; track root sessions via `session.created`/`session.deleted` events; permission, question, and error notifications still fire for all sessions
+
 ## v1.3.7 — 2026-02-03
 
 - **OpenCode Cursor OAuth** — documented `opencode-cursor-oauth` plugin + `cursor` provider in README, `docs/`, Memory vault, and Knowledge vault

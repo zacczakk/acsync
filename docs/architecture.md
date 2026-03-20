@@ -68,7 +68,7 @@ Plugin source files live in `configs/plugins/` and are **deployed by `metronome 
 
 | Plugin | Event(s) | Purpose |
 |--------|----------|---------|
-| `notify-opencode.ts` | `session.idle`, `permission.asked`, `question.asked`, `session.error` | macOS alerter notifications with iTerm2 pane focus |
+| `notify-opencode.ts` | `session.created`, `session.deleted`, `session.idle`, `permission.asked`, `question.asked`, `session.error` | macOS alerter notifications with iTerm2 pane focus. Tracks root sessions via `session.created`/`deleted`; `session.idle` notifications only fire for root sessions (subagent idle suppressed). Permission, question, and error notifications fire for all sessions. |
 | `memory-vault-advisor.ts` | `tool.execute.after` | Advisory reminder to check Memory vault before exploratory searches (grep, glob, task/explore, tavily_search, context7). Output mutation doesn't propagate for MCP tools — known OpenCode limitation. |
 
 Plugins are raw `.ts` files — identity-rendered (no frontmatter, no transformation). The `"plugin"` key in `opencode.json` (npm packages) is separately managed via settings wholesale-replace.
