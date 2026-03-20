@@ -35,7 +35,8 @@
       "~/.config/opencode/get-shit-done/templates/*": "allow",
       "~/.mcporter/**": "allow",
       "/private/tmp/**": "allow",
-      "/tmp/**": "allow"
+      "/tmp/**": "allow",
+      "~/Downloads/**": "allow"
     },
     "read": {
       "*": "allow",
@@ -46,7 +47,8 @@
       "~/.zsh_secrets": "deny",
       "~/.config/opencode/agents/*": "allow",
       "~/.config/opencode/commands/*": "allow",
-      "~/.config/opencode/skill/**": "allow"
+      "~/.config/opencode/skill/**": "allow",
+      "~/Downloads/**": "allow"
     },
     "edit": {
       "*": "allow",
