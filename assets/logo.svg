@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect fill="#0D1117" width="512" height="512" rx="80"/>
+
+  <g transform="translate(256, 128)">
+
+    <!-- Tick marks — 4 CLI sync targets, arrayed symmetrically -->
+    <!-- Ticks at -36, -12, +12, +36 degrees -->
+    <line x1="0" y1="160" x2="0" y2="240" stroke="#30363D" stroke-width="14" stroke-linecap="round" transform="rotate(-36)"/>
+    <line x1="0" y1="160" x2="0" y2="240" stroke="#30363D" stroke-width="14" stroke-linecap="round" transform="rotate(-12)"/>
+    <!-- Active tick — bright white -->
+    <line x1="0" y1="160" x2="0" y2="240" stroke="#E6EDF3" stroke-width="14" stroke-linecap="round" transform="rotate(12)"/>
+    <line x1="0" y1="160" x2="0" y2="240" stroke="#30363D" stroke-width="14" stroke-linecap="round" transform="rotate(36)"/>
+
+    <!-- Pendulum: arm + bob, tilted to align with active tick at 12deg -->
+    <g transform="rotate(12)">
+      <line x1="0" y1="-28" x2="0" y2="222" stroke="#58A6FF" stroke-width="16" stroke-linecap="round"/>
+      <circle fill="#58A6FF" cx="0" cy="222" r="36"/>
+    </g>
+
+  </g>
+
+  <!-- Pivot dot -->
+  <circle fill="#58A6FF" cx="256" cy="128" r="22"/>
+</svg>
