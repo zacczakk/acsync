@@ -3,6 +3,7 @@
 import type { Plugin } from "@opencode-ai/plugin"
 
 let loaded = false
+const rootSessions = new Set<string>()
 
 const ALERTER = "/opt/homebrew/bin/alerter"
 const ICON = new URL("../assets/opencode-icon.png", import.meta.url).pathname
@@ -45,7 +46,18 @@ export const NotifyPlugin: Plugin = async ({ $ }) => {
 
   return {
     event: async ({ event }) => {
+      if (event.type === "session.created") {
+        if (!event.properties.info.parentID) {
+          rootSessions.add(event.properties.info.id)
+        }
+        return
+      }
+      if (event.type === "session.deleted") {
+        rootSessions.delete(event.properties.info.id)
+        return
+      }
       if (event.type === "session.idle") {
+        if (!rootSessions.has(event.properties.sessionID)) return
         notify($, "OpenCode", "Waiting for input", { timeout: 10, group: "oc-idle" })
       }
       if (event.type === "permission.asked") {
