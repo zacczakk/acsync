@@ -7,7 +7,7 @@ import type { Manifest, ManifestItem, ItemType, TargetStatus } from '../types';
 import type { TargetName } from '../types';
 
 export function getManifestPath(projectDir?: string): string {
-  return join(projectDir ?? cwd(), '.acsync', 'manifest.json');
+  return join(projectDir ?? cwd(), '.metronome', 'manifest.json');
 }
 
 export function createEmptyManifest(): Manifest {
@@ -54,13 +54,13 @@ export async function loadManifest(projectDir?: string): Promise<Manifest> {
 
 export async function saveManifest(manifest: Manifest, projectDir?: string): Promise<void> {
   const manifestPath = getManifestPath(projectDir);
-  const acsyncDir = join(projectDir ?? cwd(), '.acsync');
+  const metronomeDir = join(projectDir ?? cwd(), '.metronome');
 
   manifest.lastSynced = new Date().toISOString();
   const content = JSON.stringify(manifest, null, 2) + '\n';
 
   try {
-    await mkdir(acsyncDir, { recursive: true });
+    await mkdir(metronomeDir, { recursive: true });
     await atomicWrite(manifestPath, content);
   } catch (error) {
     if (error instanceof ManifestError) throw error;

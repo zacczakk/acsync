@@ -23,13 +23,13 @@ Synced item types:
   skills        Skill bundles (directory with SKILL.md + support files)
 
 Typical workflow:
-  acsync check              Show drift between canonical and targets
-  acsync status             Alias for check
-  acsync diff               Show unified text diff of drifted items
-  acsync push --force       Write all canonical configs to targets
-  acsync push --delete      Also remove stale items not in canonical
-  acsync pull -s claude     Pull configs from Claude Code back to canonical
-  acsync helpers -p <path>  Copy helper scripts to a repo's scripts/ dir
+  metronome check              Show drift between canonical and targets
+  metronome status             Alias for check
+  metronome diff               Show unified text diff of drifted items
+  metronome push --force       Write all canonical configs to targets
+  metronome push --delete      Also remove stale items not in canonical
+  metronome pull -s claude     Pull configs from Claude Code back to canonical
+  metronome helpers -p <path>  Copy helper scripts to a repo's scripts/ dir
 
 Exit codes:
   0  Success / no drift
@@ -37,7 +37,7 @@ Exit codes:
   2  Drift detected (check/diff commands)`;
 
 const program = new Command()
-  .name('acsync')
+  .name('metronome')
   .description(DESCRIPTION)
   .version('1.3.2');
 

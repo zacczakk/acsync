@@ -7,7 +7,7 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Contact: `@zacczakk` on GitHub.
 - Workspace: `~/Repos/`. Missing repo: clone `https://github.com/zacczakk/<repo>.git`.
 - 3rd-party/OSS (non-zacczakk): clone under `~/Repos/oss/`.
-- Files: repo or `~/Repos/acsync/`.
+- Files: repo or `~/Repos/zacczakk/metronome/`.
 - PRs: use `gh pr view/diff` (no URLs).
 - Keep files <~500 LOC; split/refactor as needed.
 - Commits: Conventional Commits (`feat|fix|refactor|build|ci|chore|docs|style|perf|test`).

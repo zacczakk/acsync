@@ -55,9 +55,13 @@
   },
   "plugin": [
     "opencode-agent-browser",
-    "opencode-token-tracker"
+    "opencode-token-tracker",
+    "opencode-cursor-oauth"
   ],
   "provider": {
+    "cursor": {
+      "name": "Cursor"
+    },
     "provider-bedrock": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "provider Bedrock",

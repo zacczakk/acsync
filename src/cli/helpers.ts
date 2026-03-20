@@ -69,7 +69,7 @@ function formatPlan(ops: HelperOp[], targetDir: string, pretty: boolean): string
     }, null, 2) + '\n';
   }
 
-  const lines: string[] = ['', `acsync helpers -> ${targetDir}`, ''];
+  const lines: string[] = ['', `metronome helpers -> ${targetDir}`, ''];
   for (const op of ops) {
     if (op.action === 'create') {
       lines.push(`  ${pc.green('+')} ${op.name.padEnd(30)} ${pc.dim('(new)')}`);
@@ -134,14 +134,14 @@ export const helpersCommand = new Command('helpers')
   .description(
     `Copy canonical helper scripts to a target repo's scripts/ directory.
 
-Reads all files from the acsync scripts/ directory and writes them to
+Reads all files from the metronome scripts/ directory and writes them to
 <target>/scripts/, using atomic writes. Skips files already up to date
 (SHA-256 match). Prompts before writing unless --force is set.
 
 Examples:
-  acsync helpers -p ~/Repos/my-project
-  acsync helpers --path . --force
-  acsync helpers -p ~/Repos/my-project --dry-run`)
+  metronome helpers -p ~/Repos/my-project
+  metronome helpers --path . --force
+  metronome helpers -p ~/Repos/my-project --dry-run`)
   .requiredOption('-p, --path <path>', 'Repo root path to write helpers into')
   .option('--dry-run', 'Show plan without writing')
   .option('--force', 'Skip confirmation prompt')

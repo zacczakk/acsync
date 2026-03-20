@@ -19,11 +19,11 @@ read_when:
 - Disable affected MCP server in the canonical definition:
   - Edit `configs/mcp/<name>.json` — set `"enabled": false` or add CLI to `disabled_for`.
 - Keep unaffected servers enabled.
-- Push config update: run `acsync push --force`.
+- Push config update: run `metronome push --force`.
 
 ## Auth/secrets remediation
 - Verify `.env` has required keys and non-empty values.
-- Run `acsync check` to ensure placeholder/substitution consistency.
+- Run `metronome check` to ensure placeholder/substitution consistency.
 - Never commit raw secrets.
 
 ## Safety remediation (prompt injection)

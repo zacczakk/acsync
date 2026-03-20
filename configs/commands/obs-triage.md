@@ -54,7 +54,7 @@ Autonomously process all raw captures in `01_inbox/` into enriched `02_backlog/`
       - Project-specific items → `#project`, `#project`, or the relevant project tag
 
    h. **Project-specific items — merge into active project note instead of backlog:**
-      - If the item is tagged with a project tag (`#project`, `#project`, `#verion`, `#tux`, `#acsync`, etc.) or explicitly links to / mentions an active project:
+      - If the item is tagged with a project tag (`#project`, `#project`, `#verion`, `#tux`, `#metronome`, etc.) or explicitly links to / mentions an active project:
         1. Find the matching project note: `obsidian vault=Knowledge files folder=03_active` — match by project name.
         2. Read the project note.
         3. Append the task line(s) to the project's `## Tasks` section.

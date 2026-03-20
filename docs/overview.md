@@ -18,10 +18,10 @@ each CLI's system directory via an agent-driven workflow.
 
 ## How It Works
 
-The `acsync` CLI handles all sync operations programmatically:
+The `metronome` CLI handles all sync operations programmatically:
 
 ```
-configs/         acsync CLI        CLI system dirs
+configs/         metronome CLI        CLI system dirs
   commands/*.md   -->  (adapters)   -->   ~/.claude/commands/
   agents/         -->  transform    -->   ~/.config/opencode/command/
   skills/         -->  + secrets    -->   ~/.gemini/commands/
@@ -30,23 +30,23 @@ configs/         acsync CLI        CLI system dirs
 
 ### Push (Repo to System)
 
-`acsync push` reads canonical sources, transforms them to each CLI's native
+`metronome push` reads canonical sources, transforms them to each CLI's native
 format (Markdown, TOML, JSON), injects secrets from `.env`, and writes to
 system directories with atomic writes and rollback on failure.
 
 ### Pull (System to Repo)
 
-`acsync pull` reads system files, reverse-transforms to canonical format,
+`metronome pull` reads system files, reverse-transforms to canonical format,
 redacts secrets, and writes back to the repo.
 
 ### Check (Drift Detection)
 
-`acsync check` renders canonical sources and diffs against system state.
+`metronome check` renders canonical sources and diffs against system state.
 Read-only — reports drift without modifying anything.
 
 ## Key Design Decisions
 
-**Code-driven sync**: A TypeScript CLI (`acsync`) implements all format
+**Code-driven sync**: A TypeScript CLI (`metronome`) implements all format
 transformations, secret handling, and merge logic. Per-CLI adapters handle
 the 4 different output shapes. Format spec: `docs/design/sync-spec.md`.
 
@@ -57,13 +57,18 @@ directories are derived. Pull operations extract from system back to canonical.
 use `${VAR}` placeholders. The CLI handles injection (push) and redaction
 (pull) at the boundary.
 
-**Manifest tracking**: `.acsync/manifest.json` tracks sync state for 3-way
+**Manifest tracking**: `.metronome/manifest.json` tracks sync state for 3-way
 hash comparison — detecting independent target modifications vs source changes.
+
+**Cursor in OpenCode**: Canonical `configs/settings/opencode.json` lists the
+`opencode-cursor-oauth` npm plugin and a `cursor` provider entry so OpenCode
+can authenticate with Cursor subscription billing. This is not a separate
+metronome “target CLI”; it ships inside the OpenCode settings payload only.
 
 ## Architecture
 
 ```
-acsync/
+metronome/
   src/                        TypeScript sync engine (adapters, diff, secrets, formats)
   .env                        Secrets (gitignored)
   configs/
@@ -93,5 +98,5 @@ v1 had a 3,500 LOC Python sync engine with 6,800 LOC of tests, rendered
 output directories per CLI, a registry system, and overlay support.
 
 v2 started as ~400 lines of playbook + slash commands (agent-driven). It has
-since evolved into a full TypeScript CLI (`acsync`) with per-CLI adapters,
+since evolved into a full TypeScript CLI (`metronome`) with per-CLI adapters,
 a diff engine, secret handling, and manifest-based drift detection.

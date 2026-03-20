@@ -43,7 +43,7 @@ type HooksObject = Record<string, HookGroup[]>;
  *
  * For each event key in the union of existing and canonical:
  * - User groups (no `_managed` or different `_managed`) are kept as-is
- * - Canonical groups (`_managed: "acsync"`) replace any prior acsync groups
+ * - Canonical groups (`_managed: "metronome"`) replace any prior metronome groups
  */
 export function mergeHooks(existing: HooksObject, canonical: HooksObject): HooksObject {
   const allKeys = new Set([...Object.keys(existing), ...Object.keys(canonical)]);
@@ -53,10 +53,10 @@ export function mergeHooks(existing: HooksObject, canonical: HooksObject): Hooks
     const existingGroups = existing[eventKey] ?? [];
     const canonicalGroups = canonical[eventKey] ?? [];
 
-    // Keep user groups (not managed by acsync)
-    const userGroups = existingGroups.filter((g) => g._managed !== 'acsync');
+    // Keep user groups (not managed by metronome)
+    const userGroups = existingGroups.filter((g) => g._managed !== 'metronome');
 
-    // Append canonical groups (all have _managed: "acsync")
+    // Append canonical groups (all have _managed: "metronome")
     result[eventKey] = [...userGroups, ...canonicalGroups];
   }
 
@@ -64,13 +64,13 @@ export function mergeHooks(existing: HooksObject, canonical: HooksObject): Hooks
 }
 
 /**
- * Extract only acsync-managed hook groups from a hooks object.
+ * Extract only metronome-managed hook groups from a hooks object.
  * Used for drift detection — we only compare our managed groups.
  */
 export function extractManagedHooks(hooks: HooksObject): HooksObject {
   const result: HooksObject = {};
   for (const [eventKey, groups] of Object.entries(hooks)) {
-    const managed = groups.filter((g) => g._managed === 'acsync');
+    const managed = groups.filter((g) => g._managed === 'metronome');
     if (managed.length > 0) {
       result[eventKey] = managed;
     }

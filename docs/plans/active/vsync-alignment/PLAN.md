@@ -9,7 +9,7 @@ read_when:
 
 ## Context
 
-Full comparative review of acsync (`~/Repos/acsync`) vs vsync (`~/Repos/oss/vsync`) completed. vsync is an OSS tool solving the same problem (sync AI assistant configs across CLIs) with a more mature implementation. This plan captures findings and proposed actions.
+Full comparative review of metronome (`~/Repos/zacczakk/metronome`) vs vsync (`~/Repos/oss/vsync`) completed. vsync is an OSS tool solving the same problem (sync AI assistant configs across CLIs) with a more mature implementation. This plan captures findings and proposed actions.
 
 Reference: vsync repo at `~/Repos/oss/vsync/cli/src/`
 
@@ -21,7 +21,7 @@ Reference: vsync repo at `~/Repos/oss/vsync/cli/src/`
 
 #### 1. Metadata-Aware Hashing
 
-**Problem**: acsync hashes raw file content only (`src/cli/canonical.ts:34-54`). If metadata or support files change without content changes, the diff engine misses it.
+**Problem**: metronome hashes raw file content only (`src/cli/canonical.ts:34-54`). If metadata or support files change without content changes, the diff engine misses it.
 
 **vsync approach** (`utils/hash.ts:34-52`): `hashBaseItem()` normalizes content (trimmed) + sorts metadata keys + includes support files, joined as `content\nmetadata\nsupportFiles`. Separate `hashMCPServer()` (`utils/hash.ts:83-122`) builds stable config representation with sorted keys for nested objects.
 
@@ -29,7 +29,7 @@ Reference: vsync repo at `~/Repos/oss/vsync/cli/src/`
 
 #### 2. True 3-Way Diff
 
-**Problem**: acsync accepts `manifestHash` in `compareHashes()` but voids it (`src/core/diff.ts:50`). This means independent target modifications are silently overwritten without detection.
+**Problem**: metronome accepts `manifestHash` in `compareHashes()` but voids it (`src/core/diff.ts:50`). This means independent target modifications are silently overwritten without detection.
 
 **vsync approach** (`core/diff.ts:65-122`): 6-case algorithm uses manifest hash to distinguish "source changed" from "target independently modified" and detect ghost items (previously synced, now absent).
 
@@ -37,7 +37,7 @@ Reference: vsync repo at `~/Repos/oss/vsync/cli/src/`
 
 #### 3. Prune/Delete Mode
 
-**Problem**: acsync's `compareHashes()` never returns `delete`. The `--delete` flag on push handles stale items separately, outside the diff algorithm.
+**Problem**: metronome's `compareHashes()` never returns `delete`. The `--delete` flag on push handles stale items separately, outside the diff algorithm.
 
 **vsync approach** (`core/diff.ts:76-80`): `compareHashes()` accepts `mode: 'safe' | 'prune'`. In prune mode, items absent from source produce delete operations naturally in the diff engine.
 
@@ -45,7 +45,7 @@ Reference: vsync repo at `~/Repos/oss/vsync/cli/src/`
 
 #### 4. Capability Enforcement
 
-**Problem**: All 4 acsync adapters declare full capabilities (`{ commands: true, agents: true, mcp: true, instructions: true, skills: true }`). There's no runtime enforcement — bad output is silently produced for unsupported combos.
+**Problem**: All 4 metronome adapters declare full capabilities (`{ commands: true, agents: true, mcp: true, instructions: true, skills: true }`). There's no runtime enforcement — bad output is silently produced for unsupported combos.
 
 **vsync approach** (`adapters/codex.ts:28-34`): Codex adapter returns `agents: false, commands: false` and throws `NotSupportError` at the adapter level for unsupported operations.
 
@@ -53,7 +53,7 @@ Reference: vsync repo at `~/Repos/oss/vsync/cli/src/`
 
 #### 5. Dedicated MCP Server Hash
 
-**Problem**: acsync hashes raw JSON strings for MCP config, which is key-order-dependent. Two semantically identical configs with different key ordering produce different hashes.
+**Problem**: metronome hashes raw JSON strings for MCP config, which is key-order-dependent. Two semantically identical configs with different key ordering produce different hashes.
 
 **vsync approach** (`utils/hash.ts:83-122`): `hashMCPServer()` builds a stable config object, sorts keys for each nested object (headers, auth, env), then stringifies.
 
@@ -61,7 +61,7 @@ Reference: vsync repo at `~/Repos/oss/vsync/cli/src/`
 
 #### 6. Error Type Guards
 
-**Problem**: acsync catches errors by `instanceof` class checks. No composable helpers for error classification.
+**Problem**: metronome catches errors by `instanceof` class checks. No composable helpers for error classification.
 
 **vsync approach** (`utils/errors.ts:186-243`): Static factory methods (`SyncError.warning()`, `.recoverable()`, `.fatal()`), type guards (`isSyncError()`, `isNotSupportError()`), and helpers (`shouldRollback()`, `getErrorSeverity()`). Also `Error.captureStackTrace` in all constructors.
 
@@ -85,7 +85,7 @@ Reference: vsync repo at `~/Repos/oss/vsync/cli/src/`
 
 ### Explicitly NOT Borrowing
 
-- **Read/write adapter pattern** — acsync's render pattern (pure functions) is better for its use case
+- **Read/write adapter pattern** — metronome's render pattern (pure functions) is better for its use case
 - **`.vsync.json` config file** — canonical directory convention is simpler
 - **Parallel sync orchestrator** — overkill for 4 sequential targets
 - **File cache / incremental reader** — configs are small
@@ -138,7 +138,7 @@ developer_instructions = "Focus on high priority issues..."
 
 Built-in roles: `default`, `worker`, `explorer`. User-defined roles override built-ins.
 
-### Current acsync Implementation (WRONG)
+### Current metronome Implementation (WRONG)
 
 `src/adapters/codex.ts:51-72` renders agents as flat markdown in `~/.codex/prompts/`:
 ```
@@ -228,15 +228,15 @@ The `ToolAdapter` interface (`src/adapters/base.ts`) currently expects `renderAg
 
 ## Verification Criteria
 
-- [ ] `acsync check` detects drift using metadata-aware hashes
-- [ ] `acsync push` for Codex agents writes `[agents]` TOML entries to `config.toml`
-- [ ] `acsync push` for Codex agents writes companion `.toml` files to `~/.codex/agents/`
-- [ ] `acsync pull` for Codex reads agent roles from TOML config and companion files
-- [ ] `acsync push --delete` removes stale agents from both `config.toml` and `agents/` dir
+- [ ] `metronome check` detects drift using metadata-aware hashes
+- [ ] `metronome push` for Codex agents writes `[agents]` TOML entries to `config.toml`
+- [ ] `metronome push` for Codex agents writes companion `.toml` files to `~/.codex/agents/`
+- [ ] `metronome pull` for Codex reads agent roles from TOML config and companion files
+- [ ] `metronome push --delete` removes stale agents from both `config.toml` and `agents/` dir
 - [ ] No `agent-*.md` files are written to `~/.codex/prompts/`
 - [ ] 3-way diff correctly identifies independent target modifications
 - [ ] Existing tests pass; new tests cover Codex agent TOML rendering
-- [ ] `acsync render --type agent --target codex` shows correct TOML output
+- [ ] `metronome render --type agent --target codex` shows correct TOML output
 
 ## Progress Log
 

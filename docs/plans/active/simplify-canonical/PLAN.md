@@ -12,7 +12,7 @@ read_when:
 1. Flatten `configs/common/` one level up to `configs/`
 2. Move AGENTS.md into `configs/instructions/AGENTS.md`; replace 4 addendums with single file
 3. Add canonical `configs/instructions/TOOLS.md` referenced from AGENTS.md
-4. Rename repo folder `~/Repos/acsync` -> `~/Repos/acsync`
+4. Rename repo folder `~/Repos/metronome` -> `~/Repos/metronome`
 5. Fix OpenCode `instructions` field in `opencode.json`
 
 ---
@@ -125,7 +125,7 @@ Review each addendum for unique content worth keeping:
 
 **opencode.md** (28 lines):
 - `## Paths` — same pattern; merge
-- `## Naming Quirks` — OpenCode-specific format details -> useful for agents working on acsync itself; keep in AGENTS.md or TOOLS.md
+- `## Naming Quirks` — OpenCode-specific format details -> useful for agents working on metronome itself; keep in AGENTS.md or TOOLS.md
 - `## Web Access` — "WebFetch works" -> already in AGENTS.md line 24
 - `## Config Management` — duplicate; drop
 
@@ -226,22 +226,22 @@ After push, manually remove old instruction files that are no longer rendered:
 
 ---
 
-## Part 3: Rename `~/Repos/acsync` -> `~/Repos/acsync`
+## Part 3: Rename `~/Repos/metronome` -> `~/Repos/metronome`
 
 ### Steps
 
-1. `mv ~/Repos/acsync ~/Repos/acsync`
-2. Find-replace `~/Repos/acsync` -> `~/Repos/acsync` in all canonical files:
+1. `mv ~/Repos/metronome ~/Repos/metronome`
+2. Find-replace `~/Repos/metronome` -> `~/Repos/metronome` in all canonical files:
    - `configs/instructions/AGENTS.md` (~3 refs)
    - `docs/subagent.md` (1 ref)
-   - Agent markdown files in `configs/agents/` (8 files, 1 ref each: `~/Repos/acsync/AGENTS.md`)
-3. `cd ~/Repos/acsync && bun link` (re-register binary)
-4. `acsync push --force` (propagates path changes to all targets)
+   - Agent markdown files in `configs/agents/` (8 files, 1 ref each: `~/Repos/zacczakk/metronome/AGENTS.md`)
+3. `cd ~/Repos/metronome && bun link` (re-register binary)
+4. `metronome push --force` (propagates path changes to all targets)
 5. Optionally update `.planning/` docs (low priority; historical)
 
 ### Git Remote
 
-No change needed. `https://github.com/zacczakk/acsync.git` is the canonical remote.
+No change needed. `https://github.com/zacczakk/metronome.git` is the canonical remote.
 
 ---
 
@@ -250,21 +250,21 @@ No change needed. `https://github.com/zacczakk/acsync.git` is the canonical remo
 ### Purpose
 
 Single file for tool-use instructions. Referenced from AGENTS.md `## Tools` section.
-User fills with detailed usage for: acsync, mcporter, obsidian CLI, committer, browser-tools, etc.
+User fills with detailed usage for: metronome, mcporter, obsidian CLI, committer, browser-tools, etc.
 
 ### Location
 
 `configs/instructions/TOOLS.md` — lives alongside AGENTS.md in the canonical instructions dir.
-Synced via acsync to all 4 targets alongside the main instructions file.
+Synced via metronome to all 4 targets alongside the main instructions file.
 
-After Part 1 flatten + Part 3 rename, the full path is `~/Repos/acsync/configs/instructions/TOOLS.md`.
+After Part 1 flatten + Part 3 rename, the full path is `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md`.
 
 This means the `configs/instructions/` directory is NOT deleted in Part 2 — the 4 per-CLI
 addendum files are removed but the directory stays to hold AGENTS.md and TOOLS.md.
 
 ### Rendering
 
-TOOLS.md needs its own rendering path in acsync. Options:
+TOOLS.md needs its own rendering path in metronome. Options:
 
 **A) Render as a second instructions file** — extend `readCanonicalInstructions()` to also
 read `configs/instructions/TOOLS.md` and write it alongside the main instructions file.
@@ -272,11 +272,11 @@ Each target gets `TOOLS.md` in its config dir (e.g. `~/.claude/TOOLS.md`,
 `~/.config/opencode/TOOLS.md`, `~/.codex/TOOLS.md`, `~/.gemini/TOOLS.md`).
 
 **B) Just reference by path** — AGENTS.md contains
-`Read ~/Repos/acsync/configs/instructions/TOOLS.md for detailed tool-use instructions.`
+`Read ~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md for detailed tool-use instructions.`
 Agents read it directly from the repo. No rendering needed.
 
-Recommend **A** for portability — agents working outside the acsync repo still get tool docs.
-But **B** is simpler and fine if all agents always have access to `~/Repos/acsync`.
+Recommend **A** for portability — agents working outside the metronome repo still get tool docs.
+But **B** is simpler and fine if all agents always have access to `~/Repos/metronome`.
 
 Decision: user to confirm. Plan assumes **A** for now.
 
@@ -288,7 +288,7 @@ Replace current `## Tools` section's first line:
 Read `TOOLS.md` for detailed tool-use instructions.
 ```
 
-Keep the brief tool index in AGENTS.md (acsync, committer, trash, etc.) but move detailed
+Keep the brief tool index in AGENTS.md (metronome, committer, trash, etc.) but move detailed
 usage/examples to TOOLS.md.
 
 ### Implementation
@@ -307,15 +307,15 @@ usage/examples to TOOLS.md.
 2. Merge addendums into AGENTS.md + update rendering (Part 2)
 3. Create TOOLS.md (Part 4)
 4. Rename folder (Part 3) — last, since it affects all path references
-5. `bun link` + `acsync push --force --delete`
+5. `bun link` + `metronome push --force --delete`
 6. Clean up stale target files
 
 ---
 
 ## Verification
 
-- [ ] `acsync check` reports zero drift after push
-- [ ] `acsync check --type instructions` works with single-file model
+- [ ] `metronome check` reports zero drift after push
+- [ ] `metronome check --type instructions` works with single-file model
 - [ ] `~/.claude/CLAUDE.md` contains full AGENTS.md content (no addendum)
 - [ ] `~/.config/opencode/AGENTS.md` exists and contains full content
 - [ ] `~/.gemini/AGENTS.md` exists and contains full content
@@ -327,7 +327,7 @@ usage/examples to TOOLS.md.
 - [ ] No `AGENTS.md` at repo root
 - [ ] `configs/instructions/` contains `AGENTS.md` and `TOOLS.md` (no per-CLI addendums)
 - [ ] All existing tests pass
-- [ ] `acsync` binary works from PATH after `bun link` in new location
+- [ ] `metronome` binary works from PATH after `bun link` in new location
 - [ ] `configs/instructions/TOOLS.md` exists, referenced from AGENTS.md
 - [ ] TOOLS.md rendered to all 4 target config dirs (if option A)
 

@@ -8,7 +8,7 @@ read_when:
 
 # Skills Catalog
 
-21 skills in `configs/skills/`, synced to all targets via `acsync push`.
+21 skills in `configs/skills/`, synced to all targets via `metronome push`.
 Skills load on-demand when the agent's task matches the skill description.
 
 ## Sources
@@ -79,5 +79,5 @@ Per arXiv:2602.11988 (Gloaguen et al., "Evaluating AGENTS.md"):
 2. Check upstream source health (recent commits, adoption)
 3. If upstream: copy to `configs/skills/<name>/`, trim if customizing
 4. If custom: create `configs/skills/<name>/SKILL.md` with frontmatter (`name`, `description`)
-5. `acsync push --type skills` to sync
+5. `metronome push --type skills` to sync
 6. Update this doc

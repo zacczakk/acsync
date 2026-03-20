@@ -10,7 +10,7 @@ import { CodexAdapter } from '../adapters/codex';
 import type { ToolAdapter } from '../adapters/base';
 import type { TargetName, ItemType, CanonicalItem, CanonicalSettings, MCPServer } from '../types';
 
-/** Repo root — resolved from module location so acsync works from any cwd */
+/** Repo root — resolved from module location so metronome works from any cwd */
 export const PROJECT_ROOT = resolve(import.meta.dir, '..', '..');
 
 /** Canonical config root — single source of truth for all config paths */

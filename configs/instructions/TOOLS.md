@@ -1,25 +1,25 @@
 # Tools
 
-CLI tools on `$PATH`. Sources: `~/Repos/acsync/scripts/` and `~/Repos/acsync/bin/mcp-cli/`.
+CLI tools on `$PATH`. Sources: `~/Repos/zacczakk/metronome/scripts/` and `~/Repos/zacczakk/metronome/bin/mcp-cli/`.
 
-## acsync
+## metronome
 
 Agent Config Sync CLI. Canonical configs sync to AI CLI targets (`claude`, `opencode`, `gemini`, `codex`).
 
-- **Source:** `~/Repos/acsync/src/cli/`
-- **Canonical configs:** `~/Repos/acsync/configs/` (commands, agents, mcp, instructions, skills, settings, plugins)
-- **Installed via:** `bun link` (available on PATH as `acsync`)
+- **Source:** `~/Repos/zacczakk/metronome/src/cli/`
+- **Canonical configs:** `~/Repos/zacczakk/metronome/configs/` (commands, agents, mcp, instructions, skills, settings, plugins)
+- **Installed via:** `bun link` (available on PATH as `metronome`)
 
 ### Subcommands
 
 | Command | Purpose |
 |---------|---------|
-| `acsync check` | Drift detection (read-only). Exit 0=clean, 2=drift. |
-| `acsync push` | Render canonical and write to targets. Atomic writes + backup/rollback. |
-| `acsync pull` | Reverse-sync from target back to canonical. |
-| `acsync diff` | Unified text diff of all drift. |
-| `acsync render` | Render single item to target format (debug). |
-| `acsync helpers` | Copy helper scripts to a target repo's `scripts/`. |
+| `metronome check` | Drift detection (read-only). Exit 0=clean, 2=drift. |
+| `metronome push` | Render canonical and write to targets. Atomic writes + backup/rollback. |
+| `metronome pull` | Reverse-sync from target back to canonical. |
+| `metronome diff` | Unified text diff of all drift. |
+| `metronome render` | Render single item to target format (debug). |
+| `metronome helpers` | Copy helper scripts to a target repo's `scripts/`. |
 
 ### Common flags
 - `-t, --target <name>` — Scope to target (repeatable): `claude`, `opencode`, `gemini`, `codex`
@@ -33,21 +33,21 @@ Agent Config Sync CLI. Canonical configs sync to AI CLI targets (`claude`, `open
 
 ### Quick ref
 ```bash
-acsync check --json                       # What's drifted?
-acsync diff                               # Detailed changes
-acsync push --force --delete              # Sync everything
-acsync push -t opencode --type commands   # Narrow scope
-acsync pull -s claude --dry-run           # Preview reverse sync
-acsync render --type command --name gate  # Debug single item
-acsync helpers -p ~/Repos/my-project      # Copy helpers to repo
-acsync helpers -p . --force               # Overwrite without prompt
+metronome check --json                       # What's drifted?
+metronome diff                               # Detailed changes
+metronome push --force --delete              # Sync everything
+metronome push -t opencode --type commands   # Narrow scope
+metronome pull -s claude --dry-run           # Preview reverse sync
+metronome render --type command --name gate  # Debug single item
+metronome helpers -p ~/Repos/my-project      # Copy helpers to repo
+metronome helpers -p . --force               # Overwrite without prompt
 ```
 
 ## committer
 
 Safe git commit helper. Stages only listed paths — never `git add .`.
 
-- **Source:** `~/Repos/acsync/scripts/committer`
+- **Source:** `~/Repos/zacczakk/metronome/scripts/committer`
 - **Usage:** `committer "commit message" file1 file2 ...`
 
 ```bash
@@ -59,7 +59,7 @@ committer "feat(08-01): add TOOLS.md" configs/instructions/TOOLS.md
 
 Cross-model consultation. Query Claude (Anthropic), Codex (OpenAI), or Gemini (Google) non-interactively from any agent session. Supports blocking and async modes with timeout protection.
 
-- **Source:** `~/Repos/acsync/scripts/ask-model`
+- **Source:** `~/Repos/zacczakk/metronome/scripts/ask-model`
 - **Usage:** `ask-model [flags] <claude|codex|gemini> "your question"`
 - **Output:** Model answer to stdout (blocking) or to file (async).
 
@@ -132,7 +132,7 @@ trash path/to/directory
 
 Lists `docs/` catalog and enforces front-matter compliance.
 
-- **Source:** `~/Repos/acsync/scripts/docs-list.ts`
+- **Source:** `~/Repos/zacczakk/metronome/scripts/docs-list.ts`
 - **Usage:** `docs-list` (or `bun scripts/docs-list.ts`)
 - **Rebuild:** `bun build scripts/docs-list.ts --compile --outfile bin/docs-list`
 - **Run:** After adding/modifying docs; honors `read_when` hints in front-matter.
@@ -327,13 +327,13 @@ qmd query "claude code adapter settings" -c memory
 qmd search "collapseHomePaths" -c memory
 
 # Full document retrieval
-qmd query "acsync pull" --full -c memory
+qmd query "metronome pull" --full -c memory
 
 # File paths only (good for discovery)
 qmd query "mcp transport" --files -c memory
 
 # Read specific file from index
-qmd get qmd://memory/projects/acsync-claude-code-adapter-fixes.md
+qmd get qmd://memory/projects/metronome-claude-code-adapter-fixes.md
 
 # Re-index after adding new notes
 qmd update && qmd embed
@@ -352,7 +352,7 @@ qmd update && qmd embed
 
 Search, browse, and export coding session history from OpenCode and Claude Code. Three-layer search: Memory vault (curated notes) → FTS5 (keyword precision) → qmd (semantic recall).
 
-- **Source:** `~/Repos/acsync/scripts/sessions`
+- **Source:** `~/Repos/zacczakk/metronome/scripts/sessions`
 - **Vault:** `~/Vaults/Sessions/` (iCloud-backed symlink, Obsidian-visible)
 - **Sources:** OpenCode (`~/.local/share/opencode/opencode.db`), Claude Code (`~/.claude/projects/`)
 - **Indexes:** FTS5 DB + export state at `~/.local/share/sessions/` (machine-local)
@@ -396,7 +396,7 @@ Search, browse, and export coding session history from OpenCode and Claude Code.
 ```bash
 # Recent sessions
 sessions list --limit 10
-sessions list --source opencode --project acsync
+sessions list --source opencode --project metronome
 
 # Keyword search (fast, precise)
 sessions search "iCloud migration"
@@ -449,7 +449,7 @@ bird check                             # Show credential sources
 
 ## MCP Servers
 
-Canonical definitions in `configs/mcp/*.json`. Rendered to each CLI via `acsync push`.
+Canonical definitions in `configs/mcp/*.json`. Rendered to each CLI via `metronome push`.
 All servers also registered in `~/.mcporter/mcporter.json` and compiled to `bin/` (on PATH).
 
 | Server | Native MCP | Binary (on PATH) | Notes |

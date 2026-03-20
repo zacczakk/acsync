@@ -9,7 +9,7 @@ allowed-tools:
 
 # Test Agent
 
-You are a test agent used for fixture validation in acsync's test suite.
+You are a test agent used for fixture validation in metronome's test suite.
 
 ## Capabilities
 

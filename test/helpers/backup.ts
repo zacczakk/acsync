@@ -13,14 +13,14 @@ import { tmpdir } from 'node:os';
  * its own filesystem — parallel execution is safe by construction.
  */
 export function createTestHome(label: string): string {
-  return mkdtempSync(join(tmpdir(), `acsync-home-${label}-`));
+  return mkdtempSync(join(tmpdir(), `metronome-home-${label}-`));
 }
 
 /**
  * Create an isolated project directory with canonical fixtures copied in.
  */
 export function createTestProject(label: string, fixtureRoot: string): string {
-  const dir = mkdtempSync(join(tmpdir(), `acsync-proj-${label}-`));
+  const dir = mkdtempSync(join(tmpdir(), `metronome-proj-${label}-`));
   cpSync(join(fixtureRoot, 'canonical'), join(dir, 'configs'), { recursive: true });
   return dir;
 }
@@ -29,7 +29,7 @@ export function createTestProject(label: string, fixtureRoot: string): string {
  * Create an empty project directory (no canonical configs).
  */
 export function createEmptyProject(label: string): string {
-  const dir = mkdtempSync(join(tmpdir(), `acsync-proj-${label}-`));
+  const dir = mkdtempSync(join(tmpdir(), `metronome-proj-${label}-`));
   mkdirSync(join(dir, 'configs'), { recursive: true });
   return dir;
 }

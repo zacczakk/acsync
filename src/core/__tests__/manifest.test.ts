@@ -44,9 +44,9 @@ describe('createEmptyManifest', () => {
 });
 
 describe('getManifestPath', () => {
-  test('returns .acsync/manifest.json under given dir', () => {
+  test('returns .metronome/manifest.json under given dir', () => {
     const p = getManifestPath('/some/dir');
-    expect(p).toBe('/some/dir/.acsync/manifest.json');
+    expect(p).toBe('/some/dir/.metronome/manifest.json');
   });
 });
 
@@ -58,18 +58,18 @@ describe('loadManifest', () => {
   });
 
   test('returns empty manifest when file is corrupt JSON', async () => {
-    const acsyncDir = join(tempDir, '.acsync');
-    await mkdir(acsyncDir, { recursive: true });
-    await writeFile(join(acsyncDir, 'manifest.json'), 'not valid json {{{{');
+    const metronomeDir = join(tempDir, '.metronome');
+    await mkdir(metronomeDir, { recursive: true });
+    await writeFile(join(metronomeDir, 'manifest.json'), 'not valid json {{{{');
     const m = await loadManifest(tempDir);
     expect(m.version).toBe('1.0.0');
     expect(m.items).toEqual({});
   });
 
   test('returns empty manifest when JSON lacks required fields', async () => {
-    const acsyncDir = join(tempDir, '.acsync');
-    await mkdir(acsyncDir, { recursive: true });
-    await writeFile(join(acsyncDir, 'manifest.json'), JSON.stringify({ foo: 'bar' }));
+    const metronomeDir = join(tempDir, '.metronome');
+    await mkdir(metronomeDir, { recursive: true });
+    await writeFile(join(metronomeDir, 'manifest.json'), JSON.stringify({ foo: 'bar' }));
     const m = await loadManifest(tempDir);
     expect(m.version).toBe('1.0.0');
     expect(m.items).toEqual({});
@@ -91,9 +91,9 @@ describe('loadManifest', () => {
         },
       },
     };
-    const acsyncDir = join(tempDir, '.acsync');
-    await mkdir(acsyncDir, { recursive: true });
-    await writeFile(join(acsyncDir, 'manifest.json'), JSON.stringify(saved));
+    const metronomeDir = join(tempDir, '.metronome');
+    await mkdir(metronomeDir, { recursive: true });
+    await writeFile(join(metronomeDir, 'manifest.json'), JSON.stringify(saved));
 
     const m = await loadManifest(tempDir);
     expect(m.version).toBe('1.0.0');
@@ -103,10 +103,10 @@ describe('loadManifest', () => {
 });
 
 describe('saveManifest', () => {
-  test('creates .acsync directory if missing', async () => {
+  test('creates .metronome directory if missing', async () => {
     const m = createEmptyManifest();
     await saveManifest(m, tempDir);
-    expect(existsSync(join(tempDir, '.acsync', 'manifest.json'))).toBe(true);
+    expect(existsSync(join(tempDir, '.metronome', 'manifest.json'))).toBe(true);
   });
 
   test('saves manifest as valid JSON', async () => {

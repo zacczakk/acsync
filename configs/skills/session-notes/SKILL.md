@@ -124,9 +124,45 @@ Why it didn't work.
 What was done instead.
 ```
 
+### Session Handoff
+
+End-of-session state capture for cross-session continuity. Write when ending a long/complex session, or when the user says "let's pick this up later."
+
+```md
+---
+type: checkpoint
+date: YYYY-MM-DD
+projects: [project-name]
+tags: [session, handoff]
+consolidated: false
+---
+
+# Handoff: <current work summary>
+
+## What Was Done
+Completed items, key changes made.
+
+## What Worked
+Approaches that succeeded, tools that helped.
+
+## What Failed
+Dead ends, rejected approaches, things to avoid.
+
+## Next Steps
+Concrete actions for the next session. Be specific — file paths, function names, remaining items.
+
+## Open Questions
+Unresolved decisions, things that need user input.
+
+## Key Context
+Details a fresh agent needs to continue (file locations, architectural decisions, constraints discovered).
+```
+
+**Pickup pattern:** Next session starts with: "Read `~/Vaults/Memory/sessions/YYYY-MM-DD-handoff-<slug>.md` and continue from there."
+
 ## Rules
 
-- One note per trigger. Keep each note under 40 lines.
+- One note per trigger. Keep each note under 40 lines (handoffs can be longer — up to 60 lines).
 - Use filesystem write — backticks in content break shell.
 - Frontmatter `projects`: repo name or project slug from MEMORY.md.
 - If a discovery is reusable across projects, also create/update a note in `~/Vaults/Memory/patterns/`.

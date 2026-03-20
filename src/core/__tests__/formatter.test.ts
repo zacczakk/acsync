@@ -151,9 +151,9 @@ describe('formatDiffPretty', () => {
     expect(output).toContain('Summary:');
   });
 
-  test('contains acsync check header', () => {
+  test('contains metronome check header', () => {
     const output = formatDiffPretty([]);
-    expect(output).toContain('acsync check');
+    expect(output).toContain('metronome check');
   });
 });
 
@@ -224,7 +224,7 @@ describe('formatCheckResult', () => {
   test('returns human output when pretty=true', () => {
     const results = [makeResult('claude-code', [])];
     const { output } = formatCheckResult(results, true);
-    expect(output).toContain('acsync check');
+    expect(output).toContain('metronome check');
   });
 
   test('hasDrift=false for empty results', () => {
@@ -282,7 +282,7 @@ describe('formatDryRunPretty', () => {
   test('contains dry-run header', () => {
     const results = [makeResult('claude-code', [makeOp('create', 'cmd1')])];
     const output = formatDryRunPretty(results);
-    expect(output).toContain('acsync push --dry-run');
+    expect(output).toContain('metronome push --dry-run');
   });
 
   test('shows arrow and path for actionable items', () => {
@@ -458,6 +458,6 @@ describe('formatDryRunResult', () => {
   test('returns pretty output when pretty=true', () => {
     const results = [makeResult('claude-code', [makeOp('create', 'x')])];
     const { output } = formatDryRunResult(results, true);
-    expect(output).toContain('acsync push --dry-run');
+    expect(output).toContain('metronome push --dry-run');
   });
 });

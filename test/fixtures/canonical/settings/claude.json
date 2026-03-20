@@ -74,7 +74,7 @@
   "hooks": {
     "SessionStart": [
       {
-        "_managed": "acsync",
+        "_managed": "metronome",
         "hooks": [
           {
             "type": "command",
@@ -85,7 +85,7 @@
     ],
     "Notification": [
       {
-        "_managed": "acsync",
+        "_managed": "metronome",
         "hooks": [
           {
             "type": "command",

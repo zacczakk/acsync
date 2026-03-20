@@ -39,11 +39,11 @@ transformation for a given target. If no --target is specified, renders for all 
 targets with separator headers.
 
 Examples:
-  acsync render --type command --name obs-recap               Show obs-recap for all targets
-  acsync render --type command --name obs-recap -t claude     Show obs-recap for Claude only
-  acsync render --type mcp --name tavily                     Show tavily MCP for all targets
-  acsync render --type agent --name my-planner -t codex      Show agent as Codex TOML
-  acsync render --type instruction --name base -t opencode   Show instructions for OpenCode`)
+  metronome render --type command --name obs-recap               Show obs-recap for all targets
+  metronome render --type command --name obs-recap -t claude     Show obs-recap for Claude only
+  metronome render --type mcp --name tavily                     Show tavily MCP for all targets
+  metronome render --type agent --name my-planner -t codex      Show agent as Codex TOML
+  metronome render --type instruction --name base -t opencode   Show instructions for OpenCode`)
   .requiredOption('--type <type>', `Config type: ${VALID_SINGULAR_TYPES.join(', ')}`)
   .requiredOption('--name <name>', 'Canonical item name (e.g., obs-triage-inbox, tavily)')
   .option('-t, --target <name>', `Target CLI: ${VALID_TARGETS.join(', ')}`)

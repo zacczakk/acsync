@@ -29,7 +29,7 @@ export async function createBackup(filePath: string): Promise<BackupInfo> {
   }
 
   const file_ = basename(filePath);
-  const backupDir = join(tmpdir(), `acsync-rollback-${Date.now()}`);
+  const backupDir = join(tmpdir(), `metronome-rollback-${Date.now()}`);
   const backupFileName = `${backupCounter++}-${file_}`;
   const backupPath = join(backupDir, backupFileName);
 

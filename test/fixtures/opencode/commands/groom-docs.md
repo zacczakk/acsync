@@ -2,7 +2,7 @@
 description: 'Scan docs/ for staleness, dead links, and drift. Reports issues, offers fixes.'
 ---
 
-# acsync-groom-docs
+# metronome-groom-docs
 
 Scan repository documentation for quality issues: dead links, stale references, missing front-matter, drift from code.
 

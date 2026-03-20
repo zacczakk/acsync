@@ -34,7 +34,7 @@ describe('createExclusionFilter', () => {
     expect(isExcluded('.sync-manifest.json')).toBe(true);
     expect(isExcluded('.gsd-file-manifest.json')).toBe(true);
     expect(isExcluded('.DS_Store')).toBe(true);
-    expect(isExcluded('.acsync-backup-123')).toBe(true);
+    expect(isExcluded('.metronome-backup-123')).toBe(true);
     expect(isExcluded('my-command.md')).toBe(false);
   });
 });
@@ -66,9 +66,9 @@ describe('EXCLUSION_PATTERNS coverage (sync-spec §Exclusion Rules)', () => {
     expect(isExcluded('.DS_Store')).toBe(true);
   });
 
-  test('excludes .acsync-backup-* files', () => {
-    expect(isExcluded('.acsync-backup-abc123')).toBe(true);
-    expect(isExcluded('.acsync-backup-2026-01-01')).toBe(true);
+  test('excludes .metronome-backup-* files', () => {
+    expect(isExcluded('.metronome-backup-abc123')).toBe(true);
+    expect(isExcluded('.metronome-backup-2026-01-01')).toBe(true);
   });
 
   test('does not exclude normal canonical files', () => {

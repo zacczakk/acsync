@@ -10,26 +10,26 @@ describe('mergeHooks', () => {
     };
     const canonical = {
       SessionStart: [
-        { _managed: 'acsync', hooks: [{ type: 'command', command: 'echo managed' }] },
+        { _managed: 'metronome', hooks: [{ type: 'command', command: 'echo managed' }] },
       ],
     };
 
     const result = mergeHooks(existing, canonical);
     expect(result.SessionStart).toHaveLength(2);
     expect(result.SessionStart[0]).toEqual({ hooks: [{ type: 'command', command: 'echo user' }] });
-    expect(result.SessionStart[1]._managed).toBe('acsync');
+    expect(result.SessionStart[1]._managed).toBe('metronome');
   });
 
   test('replaces managed groups on re-push (no duplication)', () => {
     const existing = {
       SessionStart: [
         { hooks: [{ type: 'command', command: 'echo user' }] },
-        { _managed: 'acsync', hooks: [{ type: 'command', command: 'echo old-managed' }] },
+        { _managed: 'metronome', hooks: [{ type: 'command', command: 'echo old-managed' }] },
       ],
     };
     const canonical = {
       SessionStart: [
-        { _managed: 'acsync', hooks: [{ type: 'command', command: 'echo new-managed' }] },
+        { _managed: 'metronome', hooks: [{ type: 'command', command: 'echo new-managed' }] },
       ],
     };
 
@@ -43,13 +43,13 @@ describe('mergeHooks', () => {
     const existing = {};
     const canonical = {
       Notification: [
-        { _managed: 'acsync', hooks: [{ type: 'command', command: 'notify' }] },
+        { _managed: 'metronome', hooks: [{ type: 'command', command: 'notify' }] },
       ],
     };
 
     const result = mergeHooks(existing, canonical);
     expect(result.Notification).toHaveLength(1);
-    expect(result.Notification[0]._managed).toBe('acsync');
+    expect(result.Notification[0]._managed).toBe('metronome');
   });
 
   test('preserves event key missing from canonical', () => {
@@ -83,8 +83,8 @@ describe('mergeHooks', () => {
       PreCompact: [{ hooks: [{ type: 'command', command: 'echo compact' }] }],
     };
     const canonical = {
-      SessionStart: [{ _managed: 'acsync', hooks: [{ type: 'command', command: 'managed-start' }] }],
-      Notification: [{ _managed: 'acsync', hooks: [{ type: 'command', command: 'managed-notify' }] }],
+      SessionStart: [{ _managed: 'metronome', hooks: [{ type: 'command', command: 'managed-start' }] }],
+      Notification: [{ _managed: 'metronome', hooks: [{ type: 'command', command: 'managed-notify' }] }],
     };
 
     const result = mergeHooks(existing, canonical);
@@ -99,7 +99,7 @@ describe('extractManagedHooks', () => {
     const hooks = {
       SessionStart: [
         { hooks: [{ type: 'command', command: 'echo user' }] },
-        { _managed: 'acsync', hooks: [{ type: 'command', command: 'echo managed' }] },
+        { _managed: 'metronome', hooks: [{ type: 'command', command: 'echo managed' }] },
       ],
       CustomEvent: [
         { hooks: [{ type: 'command', command: 'echo custom' }] },
@@ -109,7 +109,7 @@ describe('extractManagedHooks', () => {
     const result = extractManagedHooks(hooks);
     expect(Object.keys(result)).toEqual(['SessionStart']);
     expect(result.SessionStart).toHaveLength(1);
-    expect(result.SessionStart[0]._managed).toBe('acsync');
+    expect(result.SessionStart[0]._managed).toBe('metronome');
   });
 
   test('returns empty for no managed groups', () => {

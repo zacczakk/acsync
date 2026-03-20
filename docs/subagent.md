@@ -28,10 +28,10 @@ read_when:
 - Canonical source: `configs/instructions/AGENTS.md` (unified, all CLI notes included).
 - System locations: `~/.claude/CLAUDE.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/AGENTS.md`, `~/.codex/AGENTS.md`.
 - Written verbatim to each CLI's instruction path (no per-CLI addendums).
-- Synced via `acsync push` alongside commands, agents, and MCP.
+- Synced via `metronome push` alongside commands, agents, and MCP.
 
 ## Operational rules
 - Update only `configs/agents/` and `configs/commands/` for shared behavior changes.
-- Do not hand-edit system files; use `acsync push` to distribute.
+- Do not hand-edit system files; use `metronome push` to distribute.
 - If you need CLI-specific behavior, add a section to `configs/instructions/AGENTS.md` and push.
 - Full format specification lives in `docs/design/sync-spec.md` sections 2.1 through 2.5.

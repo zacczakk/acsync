@@ -372,13 +372,13 @@ By default only shows items with drift (create/update/delete). Use --verbose to
 also list up-to-date items.
 
 Examples:
-  acsync check                          Show only drifted items (default)
-  acsync status                         Alias for check
-  acsync check --verbose                Include up-to-date items
-  acsync check --json                   Machine-readable JSON output
-  acsync check -t claude                Check Claude Code only
-  acsync check --type commands          Check commands only across all targets
-  acsync check -t codex --type mcps     Check Codex MCP servers only
+  metronome check                          Show only drifted items (default)
+  metronome status                         Alias for check
+  metronome check --verbose                Include up-to-date items
+  metronome check --json                   Machine-readable JSON output
+  metronome check -t claude                Check Claude Code only
+  metronome check --type commands          Check commands only across all targets
+  metronome check -t codex --type mcps     Check Codex MCP servers only
 
 Exit codes: 0 = no drift, 2 = drift detected, 1 = error`)
   .option('--json', 'Machine-readable JSON output')

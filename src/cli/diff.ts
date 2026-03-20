@@ -162,10 +162,10 @@ When multiple items have drift and stdout is a TTY, presents an interactive
 picker to select which diffs to view ('a' = toggle all, 'i' = invert).
 
 Examples:
-  acsync diff                              Interactive picker (TTY) or all (piped)
-  acsync diff -t opencode --type settings  Diff OpenCode settings only
-  acsync diff --name AGENTS                Diff items named "AGENTS" across targets
-  acsync diff --all                        Show all diffs without picker
+  metronome diff                              Interactive picker (TTY) or all (piped)
+  metronome diff -t opencode --type settings  Diff OpenCode settings only
+  metronome diff --name AGENTS                Diff items named "AGENTS" across targets
+  metronome diff --all                        Show all diffs without picker
 
 Exit codes: 0 = no drift, 2 = drift found, 1 = error`)
   .option('-t, --target <name>', 'Scope to specific target (repeatable)', collect, [] as string[])

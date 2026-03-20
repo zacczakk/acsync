@@ -52,7 +52,7 @@
       "Bash(committer:*)",
       "Bash(swift build:*)",
       "Bash(swift test:*)",
-      "Bash(acsync:*)",
+      "Bash(metronome:*)",
       "Bash(basename:*)",
       "Bash(xxd:*)",
       "Bash(grep:*)",
@@ -86,22 +86,35 @@
   "hooks": {
     "SessionStart": [
       {
-        "_managed": "acsync",
+        "_managed": "metronome",
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$HOME/Repos/acsync/configs/hooks/vault-context-loader.js\""
+            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/vault-context-loader.js\""
           }
         ]
       }
     ],
     "Stop": [
       {
-        "_managed": "acsync",
+        "_managed": "metronome",
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$HOME/Repos/acsync/configs/hooks/notify-claude-stop.js\"",
+            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/notify-claude-stop.js\"",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "_managed": "metronome",
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/autoformat-claude.js\"",
             "async": true
           }
         ]
@@ -109,12 +122,12 @@
     ],
     "Notification": [
       {
-        "_managed": "acsync",
+        "_managed": "metronome",
         "matcher": "idle_prompt|auth_success",
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$HOME/Repos/acsync/configs/hooks/notify-claude.js\"",
+            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/notify-claude.js\"",
             "async": true
           }
         ]

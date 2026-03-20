@@ -43,7 +43,7 @@ Three access tiers, fastest first:
 ### Compiled binaries
 
 - Fastest path: skip mcporter overhead, schemas embedded at build time.
-- Globally accessible via PATH (`~/Repos/acsync/bin/`).
+- Globally accessible via PATH (`~/Repos/zacczakk/metronome/bin/`).
 - Self-contained Bun executables — no node/bun runtime on target.
 - Generated via `mcporter generate-cli --compile`.
 - `--flag` syntax (not `key=value`): `context7 resolve-library-id --query "react" --library-name react`.
@@ -59,7 +59,7 @@ Three access tiers, fastest first:
 
 - context7 + tavily: high-frequency, schema visible at agent context load.
 - Streaming support; no bash output parsing overhead.
-- Managed by `acsync push` from `configs/mcp/`.
+- Managed by `metronome push` from `configs/mcp/`.
 
 ## MCPorter Config
 
@@ -84,9 +84,9 @@ repeated stdio calls (warm connection).
 
 ```
 ~/.mcporter/mcporter.json       MCPorter server registry (all 7)
-~/Repos/acsync/bin/              Compiled binaries (on PATH)
-~/Repos/acsync/scripts/          Source scripts (on PATH)
-~/Repos/acsync/configs/mcp/      Canonical server definitions (acsync push)
+~/Repos/zacczakk/metronome/bin/              Compiled binaries (on PATH)
+~/Repos/zacczakk/metronome/scripts/          Source scripts (on PATH)
+~/Repos/zacczakk/metronome/configs/mcp/      Canonical server definitions (metronome push)
 ```
 
 ## Risks

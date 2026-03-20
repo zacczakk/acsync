@@ -250,12 +250,12 @@ Without --force, shows drift and asks for confirmation before writing.
 With --delete, also removes stale target files not present in canonical source.
 
 Examples:
-  acsync push                           Check, confirm, then push all
-  acsync push --force                   Push without confirmation
-  acsync push --dry-run                 Show plan without writing anything
-  acsync push --delete                  Push and remove stale target files
-  acsync push -t claude --type commands Push commands to Claude Code only
-  acsync push --force --delete          Full sync: push all + clean stale`)
+  metronome push                           Check, confirm, then push all
+  metronome push --force                   Push without confirmation
+  metronome push --dry-run                 Show plan without writing anything
+  metronome push --delete                  Push and remove stale target files
+  metronome push -t claude --type commands Push commands to Claude Code only
+  metronome push --force --delete          Full sync: push all + clean stale`)
   .option('--json', 'Machine-readable JSON output')
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
   .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings, plugins', collect, [] as string[])

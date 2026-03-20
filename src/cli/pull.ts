@@ -485,7 +485,7 @@ function formatPullAllResult(
     }, null, 2);
   }
 
-  const lines: string[] = ['', `acsync pull --source all${dryRun ? ' --dry-run' : ''}`, ''];
+  const lines: string[] = ['', `metronome pull --source all${dryRun ? ' --dry-run' : ''}`, ''];
 
   // Group items by source target
   const bySource = new Map<TargetName, PullItem[]>();
@@ -545,7 +545,7 @@ function formatPullResult(
     }, null, 2);
   }
 
-  const lines: string[] = ['', `acsync pull --source ${displayTarget(source)}${dryRun ? ' --dry-run' : ''}`, ''];
+  const lines: string[] = ['', `metronome pull --source ${displayTarget(source)}${dryRun ? ' --dry-run' : ''}`, ''];
 
   const creates = items.filter((i) => i.action === 'create');
   const skips = items.filter((i) => i.action === 'skip');
@@ -581,10 +581,10 @@ Skips items that already exist in canonical unless --force is used.
 Use --source all to deduplicate across all 4 targets (first-source-wins).
 
 Examples:
-  acsync pull -s claude                 Pull from Claude Code
-  acsync pull -s all                    Pull from all targets, deduplicate
-  acsync pull -s opencode --force       Pull from OpenCode, overwrite existing
-  acsync pull -s claude --dry-run       Preview what would be pulled`)
+  metronome pull -s claude                 Pull from Claude Code
+  metronome pull -s all                    Pull from all targets, deduplicate
+  metronome pull -s opencode --force       Pull from OpenCode, overwrite existing
+  metronome pull -s claude --dry-run       Preview what would be pulled`)
   .requiredOption('-s, --source <target>', 'Source target: all, claude, gemini, codex, opencode')
   .option('--json', 'Machine-readable JSON output')
   .option('--force', 'Overwrite existing canonical items')

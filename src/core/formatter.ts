@@ -59,7 +59,7 @@ export function formatDiffJson(results: DiffResult[], verbose = false): string {
 }
 
 export function formatDiffPretty(results: DiffResult[], verbose = false): string {
-  const lines: string[] = ['', 'acsync check', ''];
+  const lines: string[] = ['', 'metronome check', ''];
 
   let totalCreate = 0;
   let totalUpdate = 0;
@@ -185,7 +185,7 @@ export function formatPushResult(
     );
   }
 
-  const lines: string[] = ['', 'acsync push', ''];
+  const lines: string[] = ['', 'metronome push', ''];
 
   for (const r of results) {
     const status = r.success ? pc.green('✓') : pc.red('✗');
@@ -254,7 +254,7 @@ export function formatDryRunJson(results: DiffResult[]): string {
 }
 
 export function formatDryRunPretty(results: DiffResult[]): string {
-  const lines: string[] = ['', 'acsync push --dry-run', ''];
+  const lines: string[] = ['', 'metronome push --dry-run', ''];
 
   let totalCreate = 0;
   let totalUpdate = 0;

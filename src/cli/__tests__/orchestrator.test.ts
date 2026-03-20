@@ -121,7 +121,7 @@ describe('runCheck', () => {
 
   test('pretty output by default', async () => {
     const result = await runCheck({ projectDir: tmpDir, homeDir: fakeHome });
-    expect(result.output).toContain('acsync check');
+    expect(result.output).toContain('metronome check');
   });
 
   test('JSON output when options.json=true', async () => {

@@ -9,7 +9,7 @@ read_when:
 # Sync Specification (Reference)
 
 > **Status**: Reference document. The sync logic is implemented in the
-> `acsync` TypeScript CLI (`src/adapters/`, `src/secrets/`, `src/core/`).
+> `metronome` TypeScript CLI (`src/adapters/`, `src/secrets/`, `src/core/`).
 > This spec documents the contracts those adapters implement. It was
 > originally the agent-driven playbook (SYNC.md) before the CLI existed.
 
@@ -473,9 +473,11 @@ Rules:
 
 ### OpenCode
 
-- **Custom providers**: Two network proxy providers (`provider-bedrock`,
-  `provider-foundry`) with explicit model context/output limits. These are
-  in the `provider` key of `opencode.json`.
+- **Custom providers**: network proxy providers (`provider-bedrock`,
+  `provider-foundry`) plus a **`cursor`** stub (paired with the
+  `opencode-cursor-oauth` npm plugin) for Cursor subscription access. Limits
+  and models for corporate providers live in the `provider` key of
+  `opencode.json`.
 - **Env var syntax**: OpenCode uses `{env:VAR_NAME}` template syntax in
   provider configs (distinct from `${VAR}` used elsewhere).
 - **Naming quirks**: `command/` (singular), `skill/` (singular),
@@ -484,8 +486,8 @@ Rules:
 - **Deep-merge keys**: `permission` and `tools` in `opencode.json` use deep
   merge (user-added entries survive). All other managed keys use wholesale
   replacement.
-- **Plugin system**: `"plugin": ["opencode-agent-browser"]` — preserve
-  during sync.
+- **Plugin system**: `"plugin": ["opencode-agent-browser", "opencode-token-tracker", "opencode-cursor-oauth"]` — preserve
+  during sync (exact list in canonical `opencode.json`).
 - **`tools` frontmatter in commands/agents**: OpenCode supports a `tools` map
   in frontmatter to disable specific tools (see section 2.1). This is the
   translation target for canonical `allowed-tools`.
@@ -537,7 +539,7 @@ The canonical value `${FOUNDRY_TOKEN}` maps to env key `FOUNDRY_TOKEN`.
 ### Path Expansion
 
 Canonical settings files use `~` for home directory paths (e.g.,
-`~/.claude/cacert.pem`, `~/Repos/acsync/AGENTS.md`). These must be
+`~/.claude/cacert.pem`, `~/Repos/zacczakk/metronome/AGENTS.md`). These must be
 expanded/collapsed at the push/pull boundary:
 
 - **Push**: Expand `~` to the actual home directory (`$HOME`).

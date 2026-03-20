@@ -7,7 +7,7 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Contact: `@zacczakk` on GitHub.
 - Workspace: `~/Repos/`. Missing repo: clone `https://github.com/zacczakk/<repo>.git`.
 - 3rd-party/OSS (non-zacczakk): clone under `~/Repos/oss/`.
-- Files: repo or `~/Repos/acsync/`.
+- Files: repo or `~/Repos/zacczakk/metronome/`.
 - PRs: use `gh pr view/diff` (no URLs).
 - "Make a note" => edit `AGENTS.md` and/or active plan in `docs/plans/` (shortcut; not a blocker).
 - No `./runner`. Guardrails: use `trash` for deletes.
@@ -63,13 +63,13 @@ When work concludes (skip if trivial):
 4. Update `SOUL.md` (Learned Preferences, Relationship Notes) if dynamic shifted.
 
 ## Agent Config Management
-- Global configs are managed in `~/Repos/acsync`.
+- Global configs are managed in `~/Repos/zacczakk/metronome`.
 - Keep secrets in `.env`; never commit them.
-- Canonical rules: `~/Repos/acsync/configs/instructions/AGENTS.md`
-- Canonical commands: `~/Repos/acsync/configs/commands`
-- Canonical subagents: `~/Repos/acsync/configs/agents`
-- Canonical skills: `~/Repos/acsync/configs/skills`
-- Helper scripts: `~/Repos/acsync/scripts`
+- Canonical rules: `~/Repos/zacczakk/metronome/configs/instructions/AGENTS.md`
+- Canonical commands: `~/Repos/zacczakk/metronome/configs/commands`
+- Canonical subagents: `~/Repos/zacczakk/metronome/configs/agents`
+- Canonical skills: `~/Repos/zacczakk/metronome/configs/skills`
+- Helper scripts: `~/Repos/zacczakk/metronome/scripts`
 
 ## PR Feedback
 - Active PR: `gh pr view --json number,title,url --jq '"PR #\\(.number): \\(.title)\\n\\(.url)"'`.
@@ -113,6 +113,13 @@ When work concludes (skip if trivial):
 - Swift: use workspace helper/daemon; validate `swift build` + tests; keep concurrency attrs right.
 - TypeScript: use repo PM; prefer `bun` over `npm`/`yarn`/`pnpm`; run `docs:list`; keep files small; follow existing patterns; do not use `any` or `as`.
 - Python: use `ruff`, `uv`, and `pyproject.toml`. no `pip` venvs, poetry, or `requirements.txt` unless asked. `pytest` for tests. strong types & type hints.
+- React: no direct `useEffect`. Five replacement patterns:
+  1. Derived state — compute inline during render, no useState+useEffect sync
+  2. Data-fetching lib — useQuery/useSWR; no manual fetch-in-effect
+  3. Event handlers — user action = handler, not flag→effect relay
+  4. `useMountEffect` — mount-only external sync; the one escape hatch (`@/hooks/use-mount-effect`)
+  5. Key remounting — `<Component key={id} />` for clean state reset
+  Per-project: ESLint `no-restricted-syntax` + `no-restricted-imports` to hard-ban useEffect. Deep ref: `vercel-react-best-practices` skill.
 
 ## Permissions and Safety
 - Do not read or commit secrets. Use placeholders and `.env` for local values.
@@ -124,6 +131,6 @@ When work concludes (skip if trivial):
 - Unrecognized changes: assume other agent; keep going; focus your changes. If it causes issues, stop + ask user.
 
 ## Tools
-On PATH: `trash`, `acsync`, `committer`, `docs-list`, `sessions`, `agent-browser`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`.
-Full catalog: `~/Repos/acsync/configs/instructions/TOOLS.md`. Read when you need flags, subcommands, or usage patterns for any tool above.
+On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`.
+Full catalog: `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md`. Read when you need flags, subcommands, or usage patterns for any tool above.
 

@@ -4,7 +4,7 @@ export interface ErrorContext {
   cause: Error;
 }
 
-// Config item types synced by acsync
+// Config item types synced by metronome
 export type ItemType = 'command' | 'agent' | 'mcp' | 'instruction' | 'skill' | 'settings' | 'plugin';
 
 export type OperationType = 'create' | 'update' | 'skip' | 'delete';

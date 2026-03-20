@@ -399,7 +399,7 @@ describe('runPullAll', () => {
       homeDir: fakeHome,
     });
 
-    expect(result.output).toContain('acsync pull --source all');
+    expect(result.output).toContain('metronome pull --source all');
     const hasTarget = result.output.includes('claude') ||
       result.output.includes('opencode') ||
       result.output.includes('gemini') ||

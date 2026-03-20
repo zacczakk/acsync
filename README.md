@@ -1,14 +1,15 @@
-# acsync
+# metronome
 
 Single source of truth for AI coding assistant configurations.
 Code-driven sync across Claude Code, OpenCode, Gemini CLI, and Codex.
+OpenCode settings also register the **Cursor** provider (OAuth via the `opencode-cursor-oauth` npm plugin); see [docs/architecture.md](docs/architecture.md#opencode-plugins).
 
 ## First-Time Setup
 
 1. Clone the repo:
    ```bash
-   git clone https://github.com/zacczakk/acsync.git ~/Repos/acsync
-   cd ~/Repos/acsync
+   git clone https://github.com/zacczakk/metronome.git ~/Repos/zacczakk/metronome
+   cd ~/Repos/zacczakk/metronome
    ```
 
 2. Install dependencies and link the CLI:
@@ -24,18 +25,18 @@ Code-driven sync across Claude Code, OpenCode, Gemini CLI, and Codex.
 
 4. Push configs to all CLIs:
    ```bash
-   acsync push --force --delete
+   metronome push --force --delete
    ```
 
 ## Quick Start
 
 ```bash
-acsync check                     # show only drifted items (default)
-acsync check --verbose           # include up-to-date items
-acsync diff                      # interactive diff picker (TTY) or all (piped)
-acsync diff --all                # unified diff of all drift
-acsync push --force --delete     # push all + delete stale files
-acsync pull -s claude            # pull from Claude to canonical
+metronome check                     # show only drifted items (default)
+metronome check --verbose           # include up-to-date items
+metronome diff                      # interactive diff picker (TTY) or all (piped)
+metronome diff --all                # unified diff of all drift
+metronome push --force --delete     # push all + delete stale files
+metronome pull -s claude            # pull from Claude to canonical
 ```
 
 ## Directory Layout
@@ -82,13 +83,13 @@ backups/                     Pre-sync backups (gitignored)
 
 ## How It Works
 
-The `acsync` CLI handles all sync operations programmatically:
+The `metronome` CLI handles all sync operations programmatically:
 
 - Reads canonical configs from `configs/`
 - Transforms to each CLI's native format (Markdown, TOML, JSON)
 - Injects secrets from `.env` on push, redacts on pull
 - Subset-merges settings (preserves user-added keys)
-- Tracks sync state via `.acsync/manifest.json` (3-way hash comparison)
+- Tracks sync state via `.metronome/manifest.json` (3-way hash comparison)
 - Atomic writes with backup/rollback on failure
 
 ## Helper Scripts
@@ -96,9 +97,9 @@ The `acsync` CLI handles all sync operations programmatically:
 Copy canonical helper scripts into another repo:
 
 ```bash
-acsync helpers -p ~/Repos/my-project          # interactive confirm
-acsync helpers -p ~/Repos/my-project --force   # no prompt
-acsync helpers -p . --dry-run                  # preview only
+metronome helpers -p ~/Repos/my-project          # interactive confirm
+metronome helpers -p ~/Repos/my-project --force   # no prompt
+metronome helpers -p . --dry-run                  # preview only
 ```
 
 Writes all files from `scripts/` into `<path>/scripts/`, skipping files
@@ -153,7 +154,7 @@ Run `bin/docs-list` (or `bun scripts/docs-list.ts`) for the full docs catalog.
 | Doc | When to Read |
 |-----|-------------|
 | `docs/overview.md` | First time in the repo |
-| `docs/architecture.md` | Understanding repo structure |
+| `docs/architecture.md` | Repo layout, hooks, OpenCode plugins (incl. Cursor OAuth) |
 | `docs/subagent.md` | Writing new commands or agents |
 | `configs/instructions/TOOLS.md` | Understanding available tools |
 | `docs/tavily-reference.md` | Configuring Tavily MCP |
