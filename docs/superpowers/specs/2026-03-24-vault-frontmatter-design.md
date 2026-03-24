@@ -74,7 +74,7 @@ org: "[[org-node]]"
 
 | Folder | Type |
 |--------|------|
-| 01_inbox | `backlog` (pre-triaged items get typed on creation) |
+| 01_inbox | `backlog` (pre-triaged items get typed on creation). `parent: "[[backlog]]"` — inbox items are pre-backlog, so they point to the backlog index as their parent. |
 | 02_backlog | `backlog` |
 | 03_active | `project` |
 | 04_archive | `project` (status: archived) |
@@ -88,6 +88,15 @@ org: "[[org-node]]"
 | Index/sub-index files | `index` |
 | Home.md | `index` (no parent) |
 
+### Parent Chain Convention
+
+Index notes follow the existing hierarchy upward: leaf → sub-index → folder index → Home.md. Specifically:
+- Folder indexes (`docs.md`, `knowledge.md`, `projects.md`, `backlog.md`, `people.md`) have `parent: "[[Home]]"`.
+- Sub-indexes (`terminal-shell.md`, `agent-memory.md`, etc.) have `parent: "[[folder-index]]"` (e.g., `parent: "[[docs]]"`).
+- Nested sub-indexes (e.g., `claude-code-skills.md` under `agent-skills.md`) point to their containing sub-index.
+- Leaf notes point to their immediate parent (sub-index or folder index).
+- `Home.md` has no `parent:` field.
+
 ### Convention Changes
 
 - `See also: [[parent]]` body-text lines are **removed**. `parent:` frontmatter is the single source of truth.
@@ -99,7 +108,7 @@ org: "[[org-node]]"
 
 ```yaml
 ---
-type: pattern | tool | project | reference | collection | recap | discovery | decision | checkpoint | dead-end | sync-report
+type: pattern | tool | project | reference | collection | recap | discovery | decision | checkpoint | dead-end | sync-report | agent-identity | agent-soul | user-profile | agent-memory
 parent: "[[folder-parent-or-collection]]"
 summary: "15-25 word plain-text summary"
 tags: []
@@ -107,10 +116,12 @@ created: YYYY-MM-DD
 ---
 ```
 
+Root-only types (`agent-identity`, `agent-soul`, `user-profile`, `agent-memory`) apply to the 4 root files (IDENTITY, SOUL, USER, MEMORY) and are exempt from `parent:`.
+
 | Field | Required | Purpose |
 |-------|----------|---------|
-| `type` | Yes | Classification. `learning` renamed to `pattern`. `sync-report` added. Session subtypes used directly. |
-| `parent` | Yes | Explicit upward tree link. Replaces "first entry of `related:`" convention. Single wikilink. |
+| `type` | Yes | Classification. `learning` renamed to `pattern`. `sync-report` added. Session subtypes used directly. Root files use their own types. |
+| `parent` | Yes (except root files) | Explicit upward tree link. Replaces "first entry of `related:`" convention. Single wikilink. |
 | `summary` | Yes | One-line plain text, 15-25 words. Core agent discovery via `rg '^summary:'`. |
 | `tags` | Yes | Domain topics only. No type-echo tags (`session`, `collection`, `recap` removed when they duplicate `type:`). |
 | `created` | Yes | Creation date. |
@@ -160,11 +171,9 @@ usage: "How agents should use this collection"
 
 **Root files** (IDENTITY, SOUL, USER, MEMORY):
 
-```yaml
-type: agent-identity | agent-soul | user-profile | agent-memory
-```
+Root-only types documented in the main enum above. No `parent:` field (these are roots). No `status:` field.
 
-No `parent:` field (these are roots).
+**reference:** Existing type used for system notes, grooming reports, and retrieval reports. No type-specific extensions — `reference` notes use only core fields. Unchanged from current schema.
 
 ### Key Differences from Current Schema
 
@@ -192,7 +201,7 @@ No `parent:` field (these are roots).
 - Extract `source` URLs from body text (backlog/knowledge notes)
 - Extract `tags` from task lines
 - Remove `See also:` lines from body text
-- Set `modified` from git log last-commit date (when different from created)
+- **Do not set `modified` during migration.** Git log dates include trivial commits (bulk reformats, typo fixes) and would produce misleading values. Leave `modified` omitted on all migrated notes; it will be set going forward on meaningful manual edits only.
 
 **Phase 2 — Agent-assisted:**
 - Generate `summary` for ~198 notes
@@ -207,7 +216,7 @@ No `parent:` field (these are roots).
 ### Memory Vault
 
 **Phase 1 — Automated (script):**
-- Split `related:` → first entry becomes `parent:`, rest stays as `related:`
+- Split `related:` → first entry becomes `parent:`, rest stays as `related:`. **Validation step:** after extraction, verify each `parent:` resolves to a known folder parent or collection note. Flag mismatches for manual review rather than silently assigning wrong parents. The audit confirmed the "first entry = parent" convention is followed on 151/154 files (3 missing `related:` entirely); no ordering violations were found.
 - Drop `depends-on:` (move 2 actual values to `related:`)
 - Drop `date:` and `branch:` fields
 - Add `status: active` to patterns and tools
@@ -261,4 +270,4 @@ SORT modified ASC
 - Grooming workflow must generate summaries on new reports.
 - Agent note-creation workflows must include frontmatter for both vaults.
 - Dataview queries in Home.md can be enhanced with frontmatter-based filters.
-- 08_people/ folder must be documented in AGENTS.md folder structure.
+- 08_people/ folder must be documented in AGENTS.md folder structure. (Folder already exists with 31 files; just undocumented.)
