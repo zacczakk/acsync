@@ -7,6 +7,28 @@
  * Writes summary to Memory vault.
  */
 
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  console.error(`Usage: sync-upstream-skills
+
+Sync agent skills from upstream repos defined in configs/skills/registry.json.
+
+Behavior:
+  - Fetches each upstream repo tarball via gh API (no git clone).
+  - For "auto" sync skills: overwrites local with upstream, removes stale files.
+  - For "manual" sync skills: reports diff only, no overwrites.
+  - Writes a sync summary to the Memory vault (~/Vaults/Memory/).
+
+Registry: configs/skills/registry.json
+Temp dir: /tmp/skill-sync (cleaned up after run)
+
+Exit codes:
+  0  All skills synced successfully
+  1  One or more errors occurred
+
+Requires: gh (GitHub CLI), trash (safe delete)`);
+  process.exit(0);
+}
+
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, cpSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";

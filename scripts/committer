@@ -4,11 +4,36 @@ set -euo pipefail
 # Disable glob expansion to handle brackets in file paths
 set -f
 usage() {
-  printf 'Usage: %s [--force] "commit message" "file" ["file" ...]\n' "$(basename "$0")" >&2
+  cat >&2 <<'EOF'
+Usage: committer [--force] "commit message" file [file ...]
+
+Safe git commit helper. Stages only the listed paths — never "git add .".
+Unstages everything first (git restore --staged :/), then stages listed files.
+Refuses to commit if no staged changes result.
+
+Flags:
+  --force   Auto-remove stale git index.lock if commit fails due to lock.
+
+Safety:
+  - "." is disallowed as a file argument (prevents staging entire repo).
+  - First arg is validated: if it looks like a file path, commit is refused
+    (catches swapped message/file order).
+  - Deleted files are allowed if they exist in HEAD (stages deletion).
+  - Empty commit messages are rejected.
+
+Examples:
+  committer "fix: update config" src/app.ts README.md
+  committer "feat: add TOOLS.md" configs/instructions/TOOLS.md
+  committer --force "chore: cleanup" src/old.ts   # remove stale lock if needed
+EOF
   exit 2
 }
 
-if [ "$#" -lt 2 ]; then
+if [ "$#" -lt 1 ]; then
+  usage
+fi
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
   usage
 fi
 

@@ -875,48 +875,59 @@ def cmd_stats(args):
 # --- CLI ----------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(prog="sessions", description="Search and browse coding sessions")
+    parser = argparse.ArgumentParser(
+        prog="sessions",
+        description="Search, browse, and export coding sessions from OpenCode and Claude Code.",
+        epilog=(
+            "Sources: OpenCode (~/.local/share/opencode/opencode.db), "
+            "Claude Code (~/.claude/projects/)\n"
+            "Vault: ~/Vaults/Sessions/ (exported markdown with frontmatter)\n"
+            "Indexes: FTS5 + qmd at ~/.local/share/sessions/\n\n"
+            "Search strategy: Memory vault (curated) -> search (FTS5 keyword) -> find (semantic)"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
     # list
-    p_list = sub.add_parser("list", help="List sessions")
-    p_list.add_argument("--source", choices=["opencode", "claude"])
+    p_list = sub.add_parser("list", help="List sessions (newest first, queries source DBs live)")
+    p_list.add_argument("--source", choices=["opencode", "claude"], help="Filter to one source")
     p_list.add_argument("--since", help="Date filter (YYYY-MM-DD)")
-    p_list.add_argument("--limit", type=int, default=20)
-    p_list.add_argument("--project", help="Filter by project name")
+    p_list.add_argument("--limit", type=int, default=20, help="Max results (default: 20)")
+    p_list.add_argument("--project", help="Filter by project directory name")
 
     # export
-    p_export = sub.add_parser("export", help="Export sessions to vault")
-    p_export.add_argument("--source", choices=["opencode", "claude"])
+    p_export = sub.add_parser("export", help="Export sessions to vault (incremental, rebuilds FTS + qmd)")
+    p_export.add_argument("--source", choices=["opencode", "claude"], help="Export only one source")
     p_export.add_argument("--since", help="Date filter (YYYY-MM-DD)")
-    p_export.add_argument("--force", action="store_true", help="Re-export all sessions")
-    p_export.add_argument("--no-index", action="store_true", help="Skip qmd indexing")
+    p_export.add_argument("--force", action="store_true", help="Re-export all (ignore watermark)")
+    p_export.add_argument("--no-index", action="store_true", help="Skip qmd re-indexing after export")
 
     # search (FTS5)
-    p_search = sub.add_parser("search", help="Keyword search (FTS5)")
-    p_search.add_argument("query", help="Search query")
-    p_search.add_argument("--source", choices=["opencode", "claude"])
-    p_search.add_argument("--role", choices=["user", "assistant"])
-    p_search.add_argument("--limit", type=int, default=10)
-    p_search.add_argument("--context", type=int, default=0)
+    p_search = sub.add_parser("search", help="Keyword search with FTS5 Porter stemming (requires export)")
+    p_search.add_argument("query", help="Search query (FTS5 syntax supported)")
+    p_search.add_argument("--source", choices=["opencode", "claude"], help="Filter to one source")
+    p_search.add_argument("--role", choices=["user", "assistant"], help="Filter by message role")
+    p_search.add_argument("--limit", type=int, default=10, help="Max results (default: 10)")
+    p_search.add_argument("--context", type=int, default=0, help="Context lines around matches")
 
     # read
-    p_read = sub.add_parser("read", help="Read a specific session")
-    p_read.add_argument("session_id", help="Session ID or JSONL path")
-    p_read.add_argument("--role", choices=["user", "assistant"])
-    p_read.add_argument("--no-tools", action="store_true", help="Hide tool calls")
+    p_read = sub.add_parser("read", help="Read a full session transcript (queries source DBs live)")
+    p_read.add_argument("session_id", help="Session ID (OpenCode UUID) or Claude JSONL path")
+    p_read.add_argument("--role", choices=["user", "assistant"], help="Show only one role")
+    p_read.add_argument("--no-tools", action="store_true", help="Hide tool call blocks")
 
     # find (qmd semantic)
-    p_find = sub.add_parser("find", help="Semantic search via qmd")
-    p_find.add_argument("query", help="Search query")
-    p_find.add_argument("--limit", type=int, default=5)
+    p_find = sub.add_parser("find", help="Semantic search via qmd with query expansion + reranking (requires export)")
+    p_find.add_argument("query", help="Natural language search query")
+    p_find.add_argument("--limit", type=int, default=5, help="Max results (default: 5)")
     p_find.add_argument("--keyword", action="store_true", help="Use BM25 keyword search instead of semantic")
 
     # stats
-    sub.add_parser("stats", help="Show session statistics")
+    sub.add_parser("stats", help="Session counts, message totals, index size")
 
     # index
-    p_index = sub.add_parser("index", help="Rebuild qmd collection index")
+    p_index = sub.add_parser("index", help="Rebuild qmd sessions collection (re-register + embed)")
     p_index.add_argument("--no-embed", action="store_true", help="Skip embedding generation")
 
     args = parser.parse_args()

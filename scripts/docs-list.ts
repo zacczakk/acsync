@@ -4,6 +4,23 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  console.error(`Usage: docs-list
+
+List all markdown files in the repo's docs/ folder with front-matter metadata.
+Enforces that each doc has a summary and surfaces "Read when" hints.
+
+Output per file:
+  <path> - <summary>
+    Read when: <hints>
+
+Excludes: docs/archive/, docs/research/
+
+Rebuild compiled binary:
+  bun build scripts/docs-list.ts --compile --outfile bin/docs-list`);
+  process.exit(0);
+}
+
 const docsListFile = fileURLToPath(import.meta.url);
 const docsListDir = dirname(docsListFile);
 const DOCS_DIR = join(docsListDir, '..', 'docs');

@@ -12,12 +12,28 @@ usage() {
   cat >&2 <<'EOF'
 Usage: ask-model [flags] <claude|codex|gemini> "question"
 
+Non-interactive query to Claude, Codex, or Gemini. Blocking by default;
+async mode writes to a file and prints the background PID to stdout.
+
 Flags:
-  --async           Run in background, write to --output file
-  --output, -o FILE Output file (required with --async, optional otherwise)
+  --async           Run in background; requires --output. Prints PID to stdout.
+  --output, -o FILE Write answer to file (required with --async, optional otherwise)
   --model, -m NAME  Override model (e.g. opus, gpt-5.3-codex, gemini-3.1-pro-preview)
   --timeout SECS    Max wait seconds (default: 120, env: ASK_MODEL_TIMEOUT)
   --help, -h        Show this help
+
+Engines:
+  claude   CLI: claude -p --no-session-persistence    Auth: ANTHROPIC_API_KEY env var
+  codex    CLI: codex exec --ephemeral --skip-git      Auth: ChatGPT login
+  gemini   CLI: gemini -p                              Auth: Google OAuth (AI Pro)
+
+Examples:
+  ask-model claude "explain Go error handling idioms"
+  ask-model -m opus claude "deep architectural review"
+  ask-model -m gpt-5.3-codex codex "coroutines vs goroutines"
+  answer=$(ask-model gemini "compare WAL vs rollback journal")
+  pid=$(ask-model --async -o /tmp/out.txt gemini "long analysis"); wait "$pid"
+  ASK_MODEL_TIMEOUT=300 ask-model claude "thorough review"
 EOF
   exit 1
 }
