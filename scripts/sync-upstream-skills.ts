@@ -8,7 +8,7 @@
  */
 
 import { execSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync, cpSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, cpSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -47,17 +47,43 @@ function expandPath(p: string): string {
   return p.replace(/^~/, HOME);
 }
 
-/** Shallow clone a repo to a temp dir. Returns the clone path. */
-function cloneRepo(name: string, url: string): string {
+/** Parse "owner/repo" from a GitHub HTTPS URL. */
+function parseGitHubRepo(url: string): string {
+  const m = url.match(/github\.com[/:]([^/]+\/[^/]+?)(?:\.git)?$/);
+  if (!m) throw new Error(`Cannot parse GitHub repo from URL: ${url}`);
+  return m[1];
+}
+
+/**
+ * Fetch repo as a tarball via gh API and extract to a temp dir.
+ * Uses gh's own HTTP client — bypasses git and system DNS/SSL quirks.
+ * Returns the extracted dir path.
+ */
+function fetchRepoTree(name: string, url: string): string {
   const dest = join(TMP_BASE, name);
   if (existsSync(dest)) {
     execSync(`trash "${dest}" 2>/dev/null || true`, { stdio: "pipe" });
   }
   mkdirSync(dest, { recursive: true });
-  execSync(`git clone --depth 1 --quiet "${url}" "${dest}"`, {
+
+  const repo = parseGitHubRepo(url);
+  const tarball = join(TMP_BASE, `${name}.tar.gz`);
+
+  // Download tarball via gh API (single request, no git subprocess)
+  execSync(`gh api /repos/${repo}/tarball/HEAD > "${tarball}"`, {
     stdio: "pipe",
     timeout: 60_000,
+    shell: "/bin/sh",
   });
+
+  // Extract: GitHub tarballs have a single top-level directory with a hash suffix
+  execSync(`tar -xzf "${tarball}" -C "${dest}" --strip-components=1`, {
+    stdio: "pipe",
+    timeout: 30_000,
+  });
+
+  execSync(`trash "${tarball}" 2>/dev/null || true`, { stdio: "pipe" });
+
   return dest;
 }
 
@@ -142,13 +168,13 @@ let checkedCount = 0;
 log("Starting skill sync");
 
 for (const [upstreamName, upstream] of Object.entries(registry.upstreams)) {
-  log(`Cloning ${upstreamName}: ${upstream.repo}`);
+  log(`Fetching ${upstreamName}: ${upstream.repo}`);
 
   let clonePath: string;
   try {
-    clonePath = cloneRepo(upstreamName, upstream.repo);
+    clonePath = fetchRepoTree(upstreamName, upstream.repo);
   } catch (e) {
-    const msg = `Failed to clone ${upstreamName}: ${e instanceof Error ? e.message : String(e)}`;
+    const msg = `Failed to fetch ${upstreamName}: ${e instanceof Error ? e.message : String(e)}`;
     log(msg);
     errors.push(msg);
     continue;
