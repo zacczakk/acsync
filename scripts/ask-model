@@ -14,6 +14,8 @@ Usage: ask-model [flags] <claude|codex|gemini> "question"
 
 Non-interactive query to Claude, Codex, or Gemini. Blocking by default;
 async mode writes to a file and prints the background PID to stdout.
+Flags can appear before or after the engine name.
+Environment variables set before ask-model propagate to the engine CLI.
 
 Flags:
   --async           Run in background; requires --output. Prints PID to stdout.
@@ -31,24 +33,32 @@ Examples:
   ask-model claude "explain Go error handling idioms"
   ask-model -m opus claude "deep architectural review"
   ask-model -m gpt-5.3-codex codex "coroutines vs goroutines"
+  ask-model claude -m opus "flags after engine work too"
   answer=$(ask-model gemini "compare WAL vs rollback journal")
   pid=$(ask-model --async -o /tmp/out.txt gemini "long analysis"); wait "$pid"
   ASK_MODEL_TIMEOUT=300 ask-model claude "thorough review"
+  ANTHROPIC_BASE_URL="http://127.0.0.1:18080" ask-model -m sonnet claude "via proxy"
 EOF
   exit 1
 }
 
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    --async)       ASYNC=true; shift ;;
-    --output|-o)   OUTPUT_FILE="$2"; shift 2 ;;
-    --model|-m)    MODEL="$2"; shift 2 ;;
-    --timeout)     TIMEOUT="$2"; shift 2 ;;
-    --help|-h)     usage ;;
-    -*)            echo "Unknown flag: $1" >&2; usage ;;
-    *)             break ;;
-  esac
-done
+parse_flags() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --async)       ASYNC=true; shift ;;
+      --output|-o)   OUTPUT_FILE="$2"; shift 2 ;;
+      --model|-m)    MODEL="$2"; shift 2 ;;
+      --timeout)     TIMEOUT="$2"; shift 2 ;;
+      --help|-h)     usage ;;
+      -*)            echo "Unknown flag: $1" >&2; usage ;;
+      *)             POSITIONAL+=("$1"); shift ;;
+    esac
+  done
+}
+
+POSITIONAL=()
+parse_flags "$@"
+set -- "${POSITIONAL[@]}"
 
 engine="${1:?$(usage)}"
 shift
