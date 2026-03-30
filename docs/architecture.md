@@ -10,16 +10,17 @@ read_when:
 ## Layers
 
 - **configs/** — Canonical source for all CLI artifacts.
-  - `commands/` — Slash commands (8 .md files)
-  - `agents/` — Subagent definitions (currently empty)
-  - `skills/` — Skill bundles (21 directories)
-  - `mcp/` — MCP server definitions (7 .json files)
-  - `settings/` — Per-CLI settings (claude, opencode)
+  - `commands/` — Slash commands (7 .md files)
+  - `agents/` — Subagent definitions (2 .md files)
+  - `skills/` — Skill bundles (34 directories)
+  - `plugins/` — OpenCode plugins (3 .ts files, identity-rendered)
+  - `mcp/` — MCP server definitions (6 .json files)
+  - `settings/` — Per-CLI settings (claude, opencode, token-tracker)
   - `hooks/` — Hook scripts (see [Hooks](#hooks) below)
   - `instructions/AGENTS.md` — Unified agent operating system (ground truth)
   - `instructions/TOOLS.md` — Tool-use reference
-- **scripts/** — Helper tools on PATH (committer, ask-model, docs-list.ts, browser-tools.ts)
-- **bin/** — Compiled binaries on PATH (7 MCP CLI binaries, docs-list, browser-tools)
+- **scripts/** — Helper tools on PATH (committer, ask-model, sessions, docs-list.ts, sync-upstream-skills.ts)
+- **bin/** — Compiled binaries on PATH (6 MCP CLI binaries, docs-list)
 - **docs/** — Operational documentation, plans, design decisions
 - **backups/** — Pre-sync backups (gitignored)
 
@@ -52,11 +53,12 @@ Hook scripts live in `configs/hooks/` but are **not deployed by `metronome push`
 
 ### Claude Code hooks
 
-Registered in `~/.claude/settings.json` under the `hooks` key (a user extra preserved by metronome's deep-merge — not in canonical `configs/settings/claude.json`).
+Registered in `~/.claude/settings.json` under the `hooks` key. Canonical source: `configs/settings/claude.json`. Metronome's deep-merge preserves any user-added hooks alongside managed ones.
 
-| Script | Event | Purpose |
-|--------|-------|---------|
-| `vault-context-loader.js` | `SessionStart` | Injects IDENTITY/SOUL/USER/MEMORY into context |
+| Script | Event | Managed by | Purpose |
+|--------|-------|------------|---------|
+| `vault-context-loader.js` | `SessionStart` | metronome | Injects IDENTITY/SOUL/USER/MEMORY into context |
+| `rtk-rewrite.sh` | `PreToolUse` (Bash) | rtk init | Rewrites bash commands to `rtk` equivalents for token compression |
 
 Hook scripts receive JSON on stdin (session_id, source, cwd, etc.) and communicate via exit codes + stdout JSON. See [Claude Code hooks reference](https://docs.anthropic.com/en/docs/claude-code/hooks).
 
@@ -70,6 +72,7 @@ Plugin source files live in `configs/plugins/` and are **deployed by `metronome 
 |--------|----------|---------|
 | `notify-opencode.ts` | `session.created`, `session.deleted`, `session.status`, `permission.asked`, `question.asked`, `session.error` | macOS alerter notifications with iTerm2 pane focus. Tracks root sessions via `session.created`/`deleted`; uses `session.status` busy→idle transitions (not `session.idle`) to avoid duplicate notifications. Idle notifications are transient (5s). Retry status surfaces retries. Permission, question, and error notifications fire for all sessions. |
 | `memory-vault-advisor.ts` | `tool.execute.after` | Advisory reminder to check Memory vault before exploratory searches (grep, glob, task/explore, tavily_search, context7). Output mutation doesn't propagate for MCP tools — known OpenCode limitation. |
+| `rtk.ts` | `tool.execute.before` | Rewrites bash/shell commands to `rtk` equivalents for token compression. Delegates to `rtk rewrite` binary. Vendored from `rtk init -g --opencode` output. |
 
 Plugins are raw `.ts` files — identity-rendered (no frontmatter, no transformation). The `"plugin"` key in `opencode.json` (npm packages) is separately managed via settings wholesale-replace.
 

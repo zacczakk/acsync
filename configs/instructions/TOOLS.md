@@ -227,6 +227,14 @@ context7 resolve-library-id --query "react hooks" --library-name react
 # Call via mcporter (ad-hoc, key=value syntax)
 mcporter call context7.resolve-library-id query="react hooks" libraryName=react
 
+# Call with JSON output (always valid JSON)
+mcporter call context7.resolve-library-id --output json query="react hooks" libraryName=react
+
+# Keep string args literal (no numeric coercion)
+mcporter call palantir-mcp.some-tool --raw-strings id="00123"
+# Or disable all coercion
+mcporter call palantir-mcp.some-tool --no-coerce id="00123"
+
 # Daemon (chrome-devtools)
 mcporter daemon status
 mcporter daemon stop
@@ -241,6 +249,7 @@ mcporter daemon stop
 | `chrome-devtools` | stdio/daemon | `chrome-devtools` | Daemon keep-alive; `--autoConnect --no-usage-statistics` |
 | `palantir-mcp` | stdio | `palantir` | Foundry (`FOUNDRY_TOKEN`) |
 | `shadcn` | stdio | `shadcn` | shadcn/ui |
+| `liquid-carbon` | stdio | `liquid-carbon` | Liquid Carbon design system |
 | `sequential-thinking` | stdio | `sequential-thinking` | Reasoning |
 
 ## obsidian
@@ -446,6 +455,40 @@ bird mentions [-n count]               # Find tweets mentioning @clawdbot
 bird whoami                            # Show logged-in account
 bird check                             # Show credential sources
 ```
+
+## rtk
+
+Token compression proxy. Intercepts bash commands and compresses output before it reaches the LLM context window. 60–90% token reduction on git, build, test, and search output. <10ms overhead.
+
+- **Install:** `brew install rtk`
+- **Config:** `~/Library/Application Support/rtk/config.toml` (macOS)
+- **Telemetry:** Disabled via config.toml (`[telemetry] enabled = false`).
+- **Hook (Claude Code):** `~/.claude/hooks/rtk-rewrite.sh` — PreToolUse hook rewrites `git status` → `rtk git status` transparently. Owned by `rtk init`, registered by metronome.
+- **Hook (OpenCode):** `configs/plugins/rtk.ts` — plugin deployed by `metronome push`.
+- **Limitation:** Only intercepts bash tool calls. Native Read/Grep/Glob tools are not compressed.
+
+### Commands
+
+| Command | Purpose |
+|---------|---------|
+| `rtk gain` | Show token savings summary |
+| `rtk gain --history` | Historical savings |
+| `rtk graph` | Visual savings graph |
+| `rtk discover` | Find commands not yet compressed |
+| `rtk init --show` | Show current hook configuration |
+| `rtk rewrite "<cmd>"` | Test rewrite logic for a command |
+
+### Config tuning
+
+```toml
+# ~/Library/Application Support/rtk/config.toml (macOS)
+[hooks]
+exclude_commands = ["some-command"]  # Skip rewriting for specific commands
+```
+
+### Rewritten command families
+
+git, gh, cargo, go, npm, pnpm, bun, pytest, ruff, mypy, pip, uv, tsc, eslint, prettier, playwright, prisma, docker, kubectl, curl, cat, rg, grep, ls, tree, find, diff, head, aws, psql.
 
 ## MCP Servers
 

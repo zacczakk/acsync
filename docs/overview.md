@@ -72,22 +72,24 @@ metronome/
   src/                        TypeScript sync engine (adapters, diff, secrets, formats)
   .env                        Secrets (gitignored)
   configs/
-    commands/*.md              8 slash commands (canonical)
-    agents/                    Agent definitions (canonical, currently empty)
-    skills/                    21 skill directories (canonical)
-    mcp/*.json                 7 MCP server definitions (canonical)
-    settings/*.json            2 settings definitions (claude, opencode)
+    commands/*.md              7 slash commands (canonical)
+    agents/                    2 agent definitions (canonical)
+    skills/                    34 skill directories (canonical)
+    plugins/*.ts               3 OpenCode plugins (identity-rendered)
+    mcp/*.json                 6 MCP server definitions (canonical)
+    settings/*.json            3 settings definitions (claude, opencode, token-tracker)
     hooks/*.js                 Hook scripts (not deployed — absolute-path refs)
     instructions/AGENTS.md     Unified agent operating system (ground truth)
     instructions/TOOLS.md      Tool-use reference
   scripts/                     Source scripts (on PATH)
     committer                  Git commit helper
     ask-model                  Cross-model consultation
+    sessions                   Session history search/export/browse
     docs-list.ts               Docs catalog generator
-    browser-tools.ts           Chrome DevTools CLI
+    sync-upstream-skills.ts    Upstream skill sync
   bin/                         Compiled binaries (on PATH, gitignored)
     context7, tavily, ...      7 MCP CLI binaries (mcporter generate-cli --compile)
-    docs-list, browser-tools   Compiled from scripts/*.ts
+    docs-list                  Compiled from scripts/docs-list.ts
   docs/                        Operational documentation
   backups/                     Pre-sync backups (gitignored)
 ```

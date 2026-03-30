@@ -131,6 +131,6 @@ When work concludes (skip if trivial):
 - Unrecognized changes: assume other agent; keep going; focus your changes. If it causes issues, stop + ask user.
 
 ## Tools
-On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`.
+On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`, `rtk`.
 Full catalog: `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md`. Read when you need flags, subcommands, or usage patterns for any tool above.
 

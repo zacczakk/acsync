@@ -56,7 +56,8 @@
       "Bash(basename:*)",
       "Bash(xxd:*)",
       "Bash(grep:*)",
-      "Bash(obsidian:*)"
+      "Bash(obsidian:*)",
+      "Bash(rtk:*)"
     ],
     "deny": [
       "Delete",
@@ -84,6 +85,18 @@
     "excludedCommands": ["gh"]
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "_managed": "metronome",
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/rtk-rewrite.sh"
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "_managed": "metronome",

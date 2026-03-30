@@ -48,12 +48,13 @@ metronome pull -s claude            # pull from Claude to canonical
 .env                         Secrets (gitignored)
 
 configs/
-  commands/*.md              Slash commands
-  agents/                    Agent definitions
-  skills/                    Skill directories (30+, with upstream sync)
-  plugins/*.ts               OpenCode plugins (identity-rendered)
-  mcp/*.json                 MCP server definitions
-  settings/*.json            Settings definitions (claude, opencode)
+  commands/*.md              Slash commands (7)
+  agents/                    Agent definitions (2)
+  skills/                    Skill directories (34, with upstream sync)
+  plugins/*.ts               OpenCode plugins (3, identity-rendered)
+  mcp/*.json                 MCP server definitions (6)
+  settings/*.json            Settings definitions (claude, opencode, token-tracker)
+  hooks/*.js                 Hook scripts (absolute-path refs, not deployed)
   instructions/AGENTS.md     Unified agent operating system (ground truth)
   instructions/TOOLS.md      Tool-use reference
 
@@ -76,9 +77,8 @@ scripts/
   committer                  Git commit helper
   ask-model                  Cross-model consultation (Claude/Codex/Gemini)
   sessions                   Session history search/export/browse (OpenCode + Claude)
-  sync-upstream-skills.ts    Nightly upstream skill sync
+  sync-upstream-skills.ts    Upstream skill sync
   docs-list.ts               Docs catalog generator
-  browser-tools.ts           Chrome DevTools CLI
 
 docs/                        Operational docs
 backups/                     Pre-sync backups (gitignored)
