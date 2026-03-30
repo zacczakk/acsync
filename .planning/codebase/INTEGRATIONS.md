@@ -55,13 +55,6 @@
   - Disabled for: Codex
 
 **Component Libraries:**
-- Liquid Carbon — Domain-specific component library
-  - SDK/Client: `liquid-carbon-mcp` binary on PATH
-  - Auth: None
-  - Transport: stdio
-  - Config: `configs/mcp/liquid-carbon.json`
-  - Disabled for: Codex
-
 - shadcn/ui — UI component library
   - SDK/Client: `shadcn@latest` npm package
   - Auth: None

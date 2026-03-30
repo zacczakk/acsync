@@ -249,7 +249,6 @@ mcporter daemon stop
 | `chrome-devtools` | stdio/daemon | `chrome-devtools` | Daemon keep-alive; `--autoConnect --no-usage-statistics` |
 | `palantir-mcp` | stdio | `palantir` | Foundry (`FOUNDRY_TOKEN`) |
 | `shadcn` | stdio | `shadcn` | shadcn/ui |
-| `liquid-carbon` | stdio | `liquid-carbon` | Liquid Carbon design system |
 | `sequential-thinking` | stdio | `sequential-thinking` | Reasoning |
 
 ## obsidian
@@ -294,38 +293,59 @@ obsidian vault=Memory create path="descriptive-name.md" content="..."
 
 ## qmd
 
-Local vector search over indexed markdown collections. Runs entirely on-device (Metal GPU). Used for semantic search over the Memory vault (`~/Vaults/Memory`).
+Local hybrid search over indexed markdown collections. Runs entirely on-device (Metal GPU). Installed via npm (`npm i -g @tobilu/qmd`) — **not bun** (Bun's SQLite lacks extension loading for sqlite-vec).
 
 - **Index:** `~/.cache/qmd/index.sqlite`
-- **Collections:** `memory` → `~/Vaults/Memory/**/*.md`
+- **Collections:** `memory` → `~/Vaults/Memory/**/*.md`, `sessions` → exported session files
 - **Models:** embedding (embeddinggemma-300M), reranking (Qwen3-0.6B), query expansion (1.7B) — all local GGUF.
 
 ### Key commands
 
 | Command | Purpose |
 |---------|---------|
-| `qmd query "..."` | Semantic search w/ query expansion + reranking (best quality) |
+| `qmd query "..."` | Hybrid search w/ query expansion + reranking (best quality) |
 | `qmd search "..."` | BM25 keyword search (fast, no LLM) |
 | `qmd vsearch "..."` | Vector similarity search (no reranking) |
 | `qmd query "..." -c memory` | Scope to memory collection |
 | `qmd query "..." --full` | Return full documents instead of snippets |
 | `qmd query "..." --files` | Return file paths + scores only |
 | `qmd get qmd://memory/path/to/file.md` | Read a specific indexed document |
+| `qmd multi-get "pattern"` | Batch fetch via glob or comma-separated list |
 | `qmd ls memory` | List files in collection |
 | `qmd update` | Re-index all collections |
 | `qmd embed` | Rebuild vector embeddings |
+| `qmd context add qmd://memory/ "..."` | Attach human-written summary to a collection/path |
+| `qmd status` | Index + collection health |
+| `qmd cleanup` | Clear caches, vacuum DB |
 
 ### Search flags
 
 | Flag | Purpose |
 |------|---------|
 | `-n <num>` | Number of results (default: 5) |
+| `--all` | Return all matches (pair with `--min-score`) |
 | `--full` | Full document content |
 | `--files` | File paths + scores (default: 20 results) |
 | `--json` / `--md` / `--xml` / `--csv` | Output format |
 | `-c <name>` | Filter to collection |
 | `--min-score <num>` | Minimum similarity threshold |
 | `--line-numbers` | Add line numbers to output |
+| `-C <n>` | Max candidates to rerank (default: 40, lower = faster) |
+| `--explain` | Include retrieval score traces |
+
+### Structured query syntax (v2.0)
+
+Single-line queries auto-expand. For control, use typed lines:
+```bash
+# Auto-expand (default — recommended for most queries)
+qmd query "how does auth work" -c memory
+
+# Typed query document (explicit control over search strategy)
+qmd query $'lex: CAP theorem\nvec: consistency' -c memory
+
+# Hyde-only (hypothetical document embedding)
+qmd query $'hyde: The auth system uses JWT tokens stored in...' -c memory
+```
 
 ### Quick ref
 ```bash
@@ -343,6 +363,9 @@ qmd query "mcp transport" --files -c memory
 
 # Read specific file from index
 qmd get qmd://memory/projects/metronome-claude-code-adapter-fixes.md
+
+# Batch fetch multiple files
+qmd multi-get "qmd://memory/tools/*"
 
 # Re-index after adding new notes
 qmd update && qmd embed

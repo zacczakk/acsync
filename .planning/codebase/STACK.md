@@ -55,7 +55,6 @@
 - `@modelcontextprotocol/server-sequential-thinking` — Run via `npx`
 - `chrome-devtools-mcp` — Run via `npx -y chrome-devtools-mcp@latest`
 - `shadcn@latest` — Run via `npx shadcn@latest mcp`
-- `liquid-carbon-mcp` — Standalone binary on PATH
 
 ## Configuration
 

@@ -12,8 +12,8 @@ read_when:
 
 ## Context
 
-7 canonical MCP servers in `configs/mcp/`. 4 CLI targets with different
-transport support (Codex: HTTP-only). MCPorter 0.7.3 installed via Homebrew.
+6 canonical MCP servers in `configs/mcp/`. 4 CLI targets with different
+transport support (Codex: HTTP-only). MCPorter 0.8.1 installed via `bun add -g mcporter`.
 
 ## Decision
 
@@ -34,7 +34,6 @@ Three access tiers, fastest first:
 | tavily              | Claude, OC, Gemini    | `tavily`      | `mcporter call`       |
 | chrome-devtools     | —                     | `chrome-devtools` | daemon (keep-alive) |
 | palantir-mcp        | —                     | `palantir`    | ephemeral             |
-| liquid-carbon       | —                     | `liquid-carbon` | ephemeral           |
 | shadcn              | —                     | `shadcn`      | ephemeral             |
 | sequential-thinking | — (disabled)          | `sequential-thinking` | ephemeral     |
 
@@ -63,7 +62,7 @@ Three access tiers, fastest first:
 
 ## MCPorter Config
 
-`~/.mcporter/mcporter.json` — all 7 canonical servers, no `imports` array.
+`~/.mcporter/mcporter.json` — all 6 canonical servers, no `imports` array.
 Editor configs (Cursor, OpenCode) are intentionally excluded to avoid
 slow discovery and duplicate definitions.
 
@@ -83,7 +82,7 @@ repeated stdio calls (warm connection).
 ## File Layout
 
 ```
-~/.mcporter/mcporter.json       MCPorter server registry (all 7)
+~/.mcporter/mcporter.json       MCPorter server registry (all 6)
 ~/Repos/zacczakk/metronome/bin/              Compiled binaries (on PATH)
 ~/Repos/zacczakk/metronome/scripts/          Source scripts (on PATH)
 ~/Repos/zacczakk/metronome/configs/mcp/      Canonical server definitions (metronome push)
@@ -95,7 +94,7 @@ repeated stdio calls (warm connection).
 |---|---|
 | npx cold-start latency | Daemon for chrome-devtools; binaries for discovery |
 | No tool schemas at agent startup | Binaries embed schemas; `mcporter config list` for fast discovery |
-| MCPorter version drift | Homebrew; rebuild binaries after upgrade |
+| MCPorter version drift | `bun add -g mcporter`; rebuild binaries after upgrade |
 | Secret exposure | `${VAR}` interpolation from env; no plaintext in config |
 
 ## References

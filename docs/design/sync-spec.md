@@ -396,7 +396,7 @@ Rules:
 - Type naming: `"stdio"` becomes `"local"`, `"http"` becomes `"remote"`.
 - Merge `command` + `args` into a single `"command"` array
   (e.g., `"command": ["python", "-m", "tavily_mcp"]`).
-  If `args` is empty, still use an array: `"command": ["liquid-carbon-mcp"]`.
+  If `args` is empty, still use an array: `"command": ["shadcn"]`.
 - Rename `"env"` to `"environment"`.
 - Add `"enabled": true` (or `false` if canonical has `"enabled": false`).
 - Drop `description`, `env_vars`, `transport`, `disabled_for`.
