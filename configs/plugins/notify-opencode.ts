@@ -1,9 +1,14 @@
 // OpenCode Notification Plugin — macOS alerter for idle/permission/question/error.
 // Requires: brew install vjeantet/tap/alerter
+//
+// Uses session.status (busy→idle transitions) instead of session.idle to avoid
+// duplicate notifications from event-sourced replays. Idle notifications are
+// transient (5s auto-dismiss). Permission/question/error are persistent.
 import type { Plugin } from "@opencode-ai/plugin"
 
 let loaded = false
 const rootSessions = new Set<string>()
+const sessionState = new Map<string, string>()
 
 const ALERTER = "/opt/homebrew/bin/alerter"
 const ICON = new URL("../assets/opencode-icon.png", import.meta.url).pathname
@@ -53,12 +58,23 @@ export const NotifyPlugin: Plugin = async ({ $ }) => {
         return
       }
       if (event.type === "session.deleted") {
-        rootSessions.delete(event.properties.info.id)
+        const id = event.properties.info.id
+        rootSessions.delete(id)
+        sessionState.delete(id)
         return
       }
-      if (event.type === "session.idle") {
-        if (!rootSessions.has(event.properties.sessionID)) return
-        notify($, "OpenCode", "Waiting for input", { timeout: 10, group: "oc-idle" })
+      if (event.type === "session.status") {
+        const { sessionID, status } = event.properties
+        const prev = sessionState.get(sessionID)
+        sessionState.set(sessionID, status.type)
+        if (!rootSessions.has(sessionID)) return
+        if (status.type === "idle" && prev === "busy") {
+          notify($, "OpenCode", "Waiting for input", { timeout: 5, group: "oc-idle" })
+        }
+        if (status.type === "retry") {
+          notify($, "OpenCode", `Retrying (attempt ${status.attempt})`, { sound: "Tink", timeout: 5, group: "oc-retry" })
+        }
+        return
       }
       if (event.type === "permission.asked") {
         notify($, "Permission needed", "Action requires approval", { sound: "Ping", timeout: 0, group: "oc-permission" })
