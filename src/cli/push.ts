@@ -292,8 +292,8 @@ Examples:
           process.exit(0);
         }
 
-        // No force: check first, show plan, prompt for confirmation
-        if (!options.force) {
+        // No force: check first, show plan, prompt for confirmation (skip prompt when not a TTY)
+        if (!options.force && process.stdin.isTTY) {
           const check = await runCheck({
             targets: syncOpts.targets,
             types: syncOpts.types,

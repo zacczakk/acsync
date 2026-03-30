@@ -166,13 +166,15 @@ Examples:
   metronome diff -t opencode --type settings  Diff OpenCode settings only
   metronome diff --name AGENTS                Diff items named "AGENTS" across targets
   metronome diff --all                        Show all diffs without picker
+  metronome diff --json                       Output all diffs as structured JSON
 
 Exit codes: 0 = no drift, 2 = drift found, 1 = error`)
   .option('-t, --target <name>', 'Scope to specific target (repeatable)', collect, [] as string[])
   .option('--type <name>', 'Scope to config type (repeatable)', collect, [] as string[])
   .option('--name <item>', 'Filter by item name, case-insensitive (repeatable)', collect, [] as string[])
   .option('--all', 'Show all diffs without interactive selection')
-  .action(async (options: { target: string[]; type: string[]; name: string[]; all?: boolean }) => {
+  .option('--json', 'Output diffs as structured JSON array')
+  .action(async (options: { target: string[]; type: string[]; name: string[]; all?: boolean; json?: boolean }) => {
     try {
       validateTargets(options.target);
       validateTypes(options.type);
@@ -228,6 +230,30 @@ Exit codes: 0 = no drift, 2 = drift found, 1 = error`)
           process.stderr.write(`No drifted items matching: ${options.name.join(', ')}\n`);
           process.exit(0);
         }
+      }
+
+      // JSON mode: collect all diffs and output as structured array
+      if (options.json) {
+        interface DiffJsonEntry {
+          target: string;
+          type: string;
+          name: string;
+          hasDiff: boolean;
+          diff: string | null;
+        }
+        const results: DiffJsonEntry[] = [];
+        for (const { op, target } of filtered) {
+          const diffOutput = await renderOpDiff(op, target, cache);
+          results.push({
+            target: displayTarget(target),
+            type: op.itemType,
+            name: op.name,
+            hasDiff: diffOutput !== null,
+            diff: diffOutput,
+          });
+        }
+        console.log(JSON.stringify(results, null, 2));
+        process.exit(0);
       }
 
       // Determine which ops to show

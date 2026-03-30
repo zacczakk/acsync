@@ -618,8 +618,8 @@ Examples:
           process.exit(0);
         }
 
-        // No force: preview first, then confirm
-        if (!options.force) {
+        // No force: preview first, then confirm (skip prompt when not a TTY)
+        if (!options.force && process.stdin.isTTY) {
           const preview = await doPull(true);
           process.stdout.write(preview.output + '\n');
 

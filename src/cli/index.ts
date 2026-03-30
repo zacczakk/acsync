@@ -39,7 +39,8 @@ Exit codes:
 const program = new Command()
   .name('metronome')
   .description(DESCRIPTION)
-  .version('1.3.2');
+  .version('1.3.2')
+  .showHelpAfterError(true);
 
 program.addCommand(checkCommand);
 program.addCommand(pushCommand);
