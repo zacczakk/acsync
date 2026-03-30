@@ -548,15 +548,32 @@ def fts_search(query: str, source: str | None = None, role: str | None = None,
 # --- Commands -----------------------------------------------------------------
 
 def cmd_list(args):
+    json_rows = []
     results = []
+
     if args.source in (None, "opencode"):
         since = parse_date(args.since)
         sessions = opencode_list_sessions(since=since, limit=args.limit, project=args.project)
         for s in sessions:
             dt = ts_to_dt(s["time_created"])
             proj = project_name_from_dir(s["directory"])
-            is_sub = " [sub]" if s["parent_id"] else ""
-            results.append((dt, f"[opencode{is_sub}] {dt.strftime('%Y-%m-%d %H:%M')}  {proj:20s}  {s['title'][:60]}  ({s['id']})"))
+            is_sub = bool(s["parent_id"])
+            if args.json:
+                json_rows.append({
+                    "id": s["id"],
+                    "title": s["title"],
+                    "date": dt_to_str(dt),
+                    "source": "opencode",
+                    "project": proj,
+                    "directory": s["directory"],
+                    "is_subagent": is_sub,
+                    "parent_id": s["parent_id"],
+                    "time_created": s["time_created"],
+                    "time_updated": s["time_updated"],
+                })
+            else:
+                sub_label = " [sub]" if is_sub else ""
+                results.append((dt, f"[opencode{sub_label}] {dt.strftime('%Y-%m-%d %H:%M')}  {proj:20s}  {s['title'][:60]}  ({s['id']})"))
 
     if args.source in (None, "claude"):
         since = parse_date(args.since)
@@ -564,8 +581,29 @@ def cmd_list(args):
         for s in sessions:
             dt = ts_to_dt(s["time_created"])
             proj = project_name_from_dir(s["directory"])
-            sub = " [sub]" if s.get("is_subagent") else ""
-            results.append((dt, f"[claude{sub}]   {dt.strftime('%Y-%m-%d %H:%M')}  {proj:20s}  {s['title'][:60]}"))
+            is_sub = bool(s.get("is_subagent"))
+            if args.json:
+                json_rows.append({
+                    "id": s["id"],
+                    "title": s["title"],
+                    "date": dt_to_str(dt),
+                    "source": "claude",
+                    "project": proj,
+                    "directory": s["directory"],
+                    "is_subagent": is_sub,
+                    "parent_id": s.get("parent_id"),
+                    "time_created": s["time_created"],
+                    "time_updated": s["time_updated"],
+                    "source_file": s.get("source_file"),
+                })
+            else:
+                sub_label = " [sub]" if is_sub else ""
+                results.append((dt, f"[claude{sub_label}]   {dt.strftime('%Y-%m-%d %H:%M')}  {proj:20s}  {s['title'][:60]}"))
+
+    if args.json:
+        json_rows.sort(key=lambda r: r["time_created"], reverse=True)
+        print(json.dumps(json_rows[:args.limit], indent=2))
+        return
 
     results.sort(key=lambda x: x[0], reverse=True)
     for _, line in results[:args.limit]:
@@ -576,13 +614,15 @@ def cmd_list(args):
 
 
 def cmd_export(args):
+    dry_run = args.dry_run
     state = load_export_state()
     force = args.force
     total = 0
 
-    # Ensure vault dirs exist
-    OPENCODE_VAULT.mkdir(parents=True, exist_ok=True)
-    CLAUDE_VAULT.mkdir(parents=True, exist_ok=True)
+    if not dry_run:
+        # Ensure vault dirs exist
+        OPENCODE_VAULT.mkdir(parents=True, exist_ok=True)
+        CLAUDE_VAULT.mkdir(parents=True, exist_ok=True)
 
     if args.source in (None, "opencode"):
         since_ts = 0 if force else state.get("opencode_last_ts", 0)
@@ -603,12 +643,16 @@ def cmd_export(args):
             dt = ts_to_dt(r["time_created"])
             slug = slugify(r["title"])
             filename = f"{dt.strftime('%Y-%m-%d')}-{slug}.md"
-            (OPENCODE_VAULT / filename).write_text(md)
-            max_ts = max(max_ts, r["time_created"])
+            if dry_run:
+                print(f"would write: {OPENCODE_VAULT / filename}")
+            else:
+                (OPENCODE_VAULT / filename).write_text(md)
+                max_ts = max(max_ts, r["time_created"])
             total += 1
 
-        state["opencode_last_ts"] = max_ts
-        print(f"exported {total} opencode sessions")
+        if not dry_run:
+            state["opencode_last_ts"] = max_ts
+            print(f"exported {total} opencode sessions")
 
     claude_count = 0
     if args.source in (None, "claude"):
@@ -626,7 +670,8 @@ def cmd_export(args):
 
                 md = claude_session_to_markdown(path_str)
                 if not md:
-                    exported.add(path_str)
+                    if not dry_run:
+                        exported.add(path_str)
                     continue
 
                 # extract date from first event
@@ -650,12 +695,19 @@ def cmd_export(args):
                 is_sub = "subagents" in path_str
                 prefix = "sub-" if is_sub else ""
                 filename = f"{date_prefix}-{prefix}{slugify(sid[:30])}.md"
-                (CLAUDE_VAULT / filename).write_text(md)
-                exported.add(path_str)
+                if dry_run:
+                    print(f"would write: {CLAUDE_VAULT / filename}")
+                else:
+                    (CLAUDE_VAULT / filename).write_text(md)
+                    exported.add(path_str)
                 claude_count += 1
 
-        state["claude_exported"] = list(exported)
-        print(f"exported {claude_count} claude sessions")
+        if not dry_run:
+            state["claude_exported"] = list(exported)
+            print(f"exported {claude_count} claude sessions")
+
+    if dry_run:
+        return
 
     save_export_state(state)
 
@@ -684,9 +736,42 @@ def cmd_search(args):
         source=args.source,
         role=args.role,
         limit=args.limit,
+        context=args.context,
     )
     if not results:
-        print("no matches")
+        if args.json:
+            print("[]")
+        else:
+            print("no matches")
+        return
+
+    if args.json:
+        # enrich with title/date from opencode db where possible
+        conn = opencode_db() if OPENCODE_DB.exists() else None
+        out = []
+        for r in results:
+            title = None
+            date = None
+            if conn and r["source"] == "opencode":
+                row = conn.execute(
+                    "SELECT title, time_created FROM session WHERE id = ?",
+                    (r["session_id"],)
+                ).fetchone()
+                if row:
+                    title = row["title"]
+                    date = dt_to_str(ts_to_dt(row["time_created"]))
+            out.append({
+                "session_id": r["session_id"],
+                "title": title,
+                "date": date,
+                "source": r["source"],
+                "role": r["role"],
+                "snippet": r["snippet"],
+                "rank": r["rank"],
+            })
+        if conn:
+            conn.close()
+        print(json.dumps(out, indent=2))
         return
 
     for r in results:
@@ -839,6 +924,8 @@ def cmd_find(args):
 
 
 def cmd_stats(args):
+    stats: dict = {}
+
     # OpenCode stats
     if OPENCODE_DB.exists():
         conn = opencode_db()
@@ -850,26 +937,49 @@ def cmd_stats(args):
             "SELECT count(*) FROM part WHERE json_extract(data, '$.type') = 'text'"
         ).fetchone()[0]
         conn.close()
-        print(f"opencode: {total} sessions ({top_level} top-level, {sub} subagent), {msg_count} messages, {text_parts} text parts")
+        stats["opencode"] = {
+            "sessions_total": total,
+            "sessions_top_level": top_level,
+            "sessions_subagent": sub,
+            "messages": msg_count,
+            "text_parts": text_parts,
+        }
+        if not args.json:
+            print(f"opencode: {total} sessions ({top_level} top-level, {sub} subagent), {msg_count} messages, {text_parts} text parts")
 
     # Claude stats
     if CLAUDE_DIR.exists():
         main = list(p for p in CLAUDE_DIR.rglob("*.jsonl") if "subagents" not in str(p))
         subs = list(p for p in CLAUDE_DIR.rglob("*.jsonl") if "subagents" in str(p))
-        print(f"claude: {len(main)} sessions, {len(subs)} subagent sessions")
+        stats["claude"] = {
+            "sessions": len(main),
+            "sessions_subagent": len(subs),
+        }
+        if not args.json:
+            print(f"claude: {len(main)} sessions, {len(subs)} subagent sessions")
 
     # FTS stats
     if FTS_DB.exists():
         conn = sqlite3.connect(str(FTS_DB))
         count = conn.execute("SELECT count(*) FROM session_fts").fetchone()[0]
         conn.close()
-        print(f"fts index: {count} text blocks")
+        stats["fts_index"] = {"text_blocks": count}
+        if not args.json:
+            print(f"fts index: {count} text blocks")
 
     # Vault stats
     if VAULT_DIR.exists():
         oc_files = list(OPENCODE_VAULT.glob("*.md")) if OPENCODE_VAULT.exists() else []
         cl_files = list(CLAUDE_VAULT.glob("*.md")) if CLAUDE_VAULT.exists() else []
-        print(f"vault: {len(oc_files)} opencode + {len(cl_files)} claude exported files")
+        stats["vault"] = {
+            "opencode_exported": len(oc_files),
+            "claude_exported": len(cl_files),
+        }
+        if not args.json:
+            print(f"vault: {len(oc_files)} opencode + {len(cl_files)} claude exported files")
+
+    if args.json:
+        print(json.dumps(stats, indent=2))
 
 
 # --- CLI ----------------------------------------------------------------------
@@ -890,41 +1000,108 @@ def main():
     sub = parser.add_subparsers(dest="command", required=True)
 
     # list
-    p_list = sub.add_parser("list", help="List sessions (newest first, queries source DBs live)")
+    p_list = sub.add_parser(
+        "list",
+        help="List sessions (newest first, queries source DBs live)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Examples:\n"
+            "  sessions list\n"
+            "  sessions list --limit 10 --source opencode\n"
+            "  sessions list --json | jq '.[0]'\n"
+            "  sessions list --since 2026-03-01 --project metronome"
+        ),
+    )
     p_list.add_argument("--source", choices=["opencode", "claude"], help="Filter to one source")
     p_list.add_argument("--since", help="Date filter (YYYY-MM-DD)")
     p_list.add_argument("--limit", type=int, default=20, help="Max results (default: 20)")
     p_list.add_argument("--project", help="Filter by project directory name")
+    p_list.add_argument("--json", action="store_true", help="Output JSON array instead of formatted text")
 
     # export
-    p_export = sub.add_parser("export", help="Export sessions to vault (incremental, rebuilds FTS + qmd)")
+    p_export = sub.add_parser(
+        "export",
+        help="Export sessions to vault (incremental, rebuilds FTS + qmd)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Examples:\n"
+            "  sessions export\n"
+            "  sessions export --force --no-index\n"
+            "  sessions export --dry-run\n"
+            "  sessions export --source opencode --since 2026-03-01"
+        ),
+    )
     p_export.add_argument("--source", choices=["opencode", "claude"], help="Export only one source")
     p_export.add_argument("--since", help="Date filter (YYYY-MM-DD)")
     p_export.add_argument("--force", action="store_true", help="Re-export all (ignore watermark)")
     p_export.add_argument("--no-index", action="store_true", help="Skip qmd re-indexing after export")
+    p_export.add_argument("--dry-run", action="store_true", help="Print files that would be written without writing them")
 
     # search (FTS5)
-    p_search = sub.add_parser("search", help="Keyword search with FTS5 Porter stemming (requires export)")
+    p_search = sub.add_parser(
+        "search",
+        help="Keyword search with FTS5 Porter stemming (requires export)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Examples:\n"
+            "  sessions search 'useEffect'\n"
+            "  sessions search 'docker build' --source opencode --role user\n"
+            "  sessions search 'memory vault' --json | jq '.[].snippet'\n"
+            "  sessions search 'tailwind' --context 3 --limit 5"
+        ),
+    )
     p_search.add_argument("query", help="Search query (FTS5 syntax supported)")
     p_search.add_argument("--source", choices=["opencode", "claude"], help="Filter to one source")
     p_search.add_argument("--role", choices=["user", "assistant"], help="Filter by message role")
     p_search.add_argument("--limit", type=int, default=10, help="Max results (default: 10)")
     p_search.add_argument("--context", type=int, default=0, help="Context lines around matches")
+    p_search.add_argument("--json", action="store_true", help="Output JSON array instead of formatted text")
 
     # read
-    p_read = sub.add_parser("read", help="Read a full session transcript (queries source DBs live)")
+    p_read = sub.add_parser(
+        "read",
+        help="Read a full session transcript (queries source DBs live)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Examples:\n"
+            "  sessions read abc123\n"
+            "  sessions read abc123 --role user\n"
+            "  sessions read abc123 --no-tools\n"
+            "  sessions read ~/.claude/projects/-foo/session.jsonl"
+        ),
+    )
     p_read.add_argument("session_id", help="Session ID (OpenCode UUID) or Claude JSONL path")
     p_read.add_argument("--role", choices=["user", "assistant"], help="Show only one role")
     p_read.add_argument("--no-tools", action="store_true", help="Hide tool call blocks")
 
     # find (qmd semantic)
-    p_find = sub.add_parser("find", help="Semantic search via qmd with query expansion + reranking (requires export)")
+    p_find = sub.add_parser(
+        "find",
+        help="Semantic search via qmd with query expansion + reranking (requires export)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Examples:\n"
+            "  sessions find 'how to set up launchd'\n"
+            "  sessions find 'python type hints' --limit 10\n"
+            "  sessions find 'docker networking' --keyword"
+        ),
+    )
     p_find.add_argument("query", help="Natural language search query")
     p_find.add_argument("--limit", type=int, default=5, help="Max results (default: 5)")
     p_find.add_argument("--keyword", action="store_true", help="Use BM25 keyword search instead of semantic")
 
     # stats
-    sub.add_parser("stats", help="Session counts, message totals, index size")
+    p_stats = sub.add_parser(
+        "stats",
+        help="Session counts, message totals, index size",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Examples:\n"
+            "  sessions stats\n"
+            "  sessions stats --json | jq '.opencode'"
+        ),
+    )
+    p_stats.add_argument("--json", action="store_true", help="Output JSON object instead of formatted text")
 
     # index
     p_index = sub.add_parser("index", help="Rebuild qmd sessions collection (re-register + embed)")
