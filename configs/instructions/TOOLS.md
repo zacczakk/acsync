@@ -513,6 +513,67 @@ exclude_commands = ["some-command"]  # Skip rewriting for specific commands
 
 git, gh, cargo, go, npm, pnpm, bun, pytest, ruff, mypy, pip, uv, tsc, eslint, prettier, playwright, prisma, docker, kubectl, curl, cat, rg, grep, ls, tree, find, diff, head, aws, psql.
 
+## coderabbit
+
+AI code review CLI. Reviews diffs (committed, uncommitted, or both) and returns line-level findings. Free tier: 3 reviews/hr.
+
+- **Install:** `brew install coderabbit` (or `curl -fsSL https://cli.coderabbit.ai/install.sh | sh`)
+- **Alias:** `cr` (short for `coderabbit`)
+- **Auth:** `cr auth login` (OAuth via GitHub). Status: `cr auth status`.
+- **Version:** 0.4.0
+- **Context flag:** Always pass `-c ~/Repos/zacczakk/metronome/configs/instructions/AGENTS.md` so the reviewer knows project conventions.
+- **Scope:** Diff-based only (committed, uncommitted, or both). No full-repo scan mode.
+
+### Subcommands
+
+| Command | Purpose |
+|---------|---------|
+| `cr review` | Run code review (default subcommand) |
+| `cr auth login` | Authenticate via OAuth |
+| `cr auth status` | Show auth status |
+| `cr auth org` | Switch organization |
+| `cr update` | Update CLI to latest |
+
+### Review flags
+
+| Flag | Purpose |
+|------|---------|
+| `-t, --type <type>` | Scope: `all` (default), `committed`, `uncommitted` |
+| `-c, --config <files...>` | Pass instruction files (AGENTS.md, coderabbit.yaml, etc.) |
+| `--base <branch>` | Base branch for comparison (default: current branch default) |
+| `--base-commit <commit>` | Base commit on current branch |
+| `--agent` | Structured JSONL output for agent consumption (preferred for agents) |
+| `--prompt-only` | Minimal plain text optimized for AI agents |
+| `--plain` | Detailed plain text output (non-interactive) |
+| `--interactive` | Full TUI with browsable findings |
+| `--cwd <path>` | Working directory (must be git repo) |
+| `--no-color` | Disable colored output |
+| `--api-key <key>` | Override auth with agentic API key |
+
+### Agent usage pattern
+
+```bash
+# Standard agent review (structured JSONL, always pass -c)
+cr --agent -c ~/Repos/zacczakk/metronome/configs/instructions/AGENTS.md
+
+# Uncommitted changes only
+cr --agent -t uncommitted -c ~/Repos/zacczakk/metronome/configs/instructions/AGENTS.md
+
+# Branch diff against main
+cr --agent --base main -c ~/Repos/zacczakk/metronome/configs/instructions/AGENTS.md
+
+# Plain text variant (human-readable)
+cr --plain -c ~/Repos/zacczakk/metronome/configs/instructions/AGENTS.md
+```
+
+### Review loop pattern
+
+1. Implement changes
+2. `cr --agent -c ~/Repos/zacczakk/metronome/configs/instructions/AGENTS.md` — get findings
+3. Fix critical issues (skip nits unless asked)
+4. Re-run once to verify — if clean, done
+5. Max 2 iterations unless user says otherwise
+
 ## MCP Servers
 
 Canonical definitions in `configs/mcp/*.json`. Rendered to each CLI via `metronome push`.
