@@ -126,6 +126,13 @@
             "output": 128000
           }
         },
+        "claude-opus-4-1": {
+          "name": "Claude Opus 4.1",
+          "limit": {
+            "context": 200000,
+            "output": 128000
+          }
+        },
         "claude-haiku-4-5-20251001": {
           "name": "Claude Haiku 4.5",
           "limit": {
@@ -144,21 +151,20 @@
       },
       "models": {
         "claude-opus-4-6": {
-          "name": "Claude Opus 4.6",
-          "limit": {
-            "context": 200000,
-            "output": 128000
-          }
+          "name": "Claude Opus 4.6"
         },
         "claude-sonnet-4-6": {
-          "name": "Claude Sonnet 4.6",
-          "limit": {
-            "context": 200000,
-            "output": 128000
-          }
+          "name": "Claude Sonnet 4.6"
         },
         "claude-opus-4-5-20251101": {
           "name": "Claude Opus 4.5",
+          "limit": {
+            "context": 200000,
+            "output": 128000
+          }
+        },
+        "claude-opus-4-1": {
+          "name": "Claude Opus 4.1",
           "limit": {
             "context": 200000,
             "output": 128000
@@ -168,30 +174,6 @@
           "name": "Claude Haiku 4.5",
           "limit": {
             "context": 200000,
-            "output": 128000
-          }
-        }
-      }
-    },
-    "tux-1m": {
-      "npm": "@ai-sdk/anthropic",
-      "name": "Tux (1M)",
-      "options": {
-        "baseURL": "http://127.0.0.1:18080/v1",
-        "apiKey": "does-not-matter"
-      },
-      "models": {
-        "claude-opus-4-6": {
-          "name": "Claude Opus 4.6",
-          "limit": {
-            "context": 1000000,
-            "output": 128000
-          }
-        },
-        "claude-sonnet-4-6": {
-          "name": "Claude Sonnet 4.6",
-          "limit": {
-            "context": 1000000,
             "output": 128000
           }
         }

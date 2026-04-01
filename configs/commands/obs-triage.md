@@ -1,93 +1,165 @@
 ---
 description: >-
-  Process inbox captures — fetch URLs, clean up sloppy notes, move to backlog
-  with todos
+  Work through backlog items — read prioritized backlog.md, pick items to
+  tackle, execute with deep context gathering
 ---
 
-# Triage Inbox
+# Work Backlog
 
-Autonomously process all raw captures in `01_inbox/` into enriched `02_backlog/` notes.
+Read the prioritized `backlog.md`, present items to Phil, and execute on his choices. Loop until Phil stops.
+
+## Context
+
+Read `~/Vaults/AGENTS.md` for current vault conventions before starting.
+
+## Tool Access
+
+The Knowledge vault is at `~/Vaults/Knowledge/`.
+
+- **Primary:** use `obsidian` CLI (`obsidian vault=Knowledge files`, `read`, `create`, `delete`, `move`, `search`, `task`).
+- **Fallback:** if `obsidian` CLI is unavailable or a command fails, use the filesystem directly:
+  - List: `Read` tool on `~/Vaults/Knowledge/02_backlog/`
+  - Read: `Read` tool on `~/Vaults/Knowledge/{path}`
+  - Write: `Write` tool to `~/Vaults/Knowledge/{path}`
+  - Delete: `bash trash ~/Vaults/Knowledge/{path}`
+  - Search: `Grep` tool on `~/Vaults/Knowledge/`
+- **Memory vault:** use `rg` for summary-first scans, `obsidian vault=Memory` for reads, filesystem for writes (backtick safety).
+- **URL research:** WebFetch, Tavily search, or Tavily extract for deep research on items.
 
 ## Steps
 
-1. **Read `~/Vaults/AGENTS.md`** for current vault conventions.
+### Step 1: Read backlog
 
-2. **List inbox:** `obsidian vault=Knowledge files folder=01_inbox`
-   - If empty, say "Inbox empty — nothing to triage." and stop.
+Read `backlog.md`: `obsidian vault=Knowledge read path="02_backlog/backlog.md"`
 
-3. **Process each file autonomously.** For each:
+If `backlog.md` has no `Last triaged:` line or has never been triaged (no Quick Wins / High Impact / Stale / Holding sections), tell Phil: "Backlog hasn't been triaged yet. Run the nightly workflow first, or I can do a quick evaluation now." If Phil says to evaluate, follow the evaluation logic from the nightly `vault-backlog-triage` workflow inline, then continue.
 
-   a. `obsidian vault=Knowledge read path="01_inbox/{file}"` — understand what it is.
+### Step 2: Present shortlists
 
-   b. **If it contains multiple distinct topics, URLs, or unrelated items:**
-      - Split into separate items and process each independently through steps c–k below.
-      - Each item becomes its own backlog note with its own filename, task line, and tags.
-      - Examples: a note with 3 pasted URLs → 3 backlog notes. A note mixing a tool link, a personal reminder, and a project idea → 3 backlog notes.
+Display the prioritized sections from `backlog.md` as numbered lists. Keep it scannable:
 
-   c. **If it contains a URL:**
-      - Fetch the URL (WebFetch or Tavily).
-      - Extract: title, author if available, key content.
-      - Write a 2-4 sentence summary capturing the core insight.
-      - **Check for duplicates:** `obsidian vault=Knowledge search query="{url}"` — scan results for any `02_backlog/` note that already contains this URL.
-        - **If a match exists:** read the existing note, merge any new information (better summary, additional context), append if useful. Do NOT create a new note. Skip to step k.
-        - **If no match:** proceed to steps d–j as normal.
+```
+Backlog — last triaged {date}
+{N} items: {Q} quick wins, {H} high impact, {S} stale, {K} holding.
 
-   d. **If it's a sloppy/raw note (no URL):**
-      - Clean up formatting: fix capitalization, punctuation, incomplete sentences.
-      - Preserve the original intent — don't add meaning that isn't there.
-      - Add a one-line summary at the top if the note lacks one.
+Quick Wins:
+  1. executor-agent-runtime — Local-first agent tool runtime. Replaces MCP tool sprawl.
+  2. context7-cli — Standalone Context7 CLI. Adds offline access.
+  ...
 
-   e. **Derive a kebab-case filename** from the content/title. Never reuse the original messy filename.
+High Impact:
+  3. cloakbrowser — Stealth Chromium for agent-browser. Major scraping upgrade.
+  4. stitch-sdk — Programmatic design SDK. Fits project work.
+  ...
 
-   f. **Compose a `- [ ]` task line** — telegraph style, tag required:
-      - `#try` → noun-only. No verbs. No dashes. Capitalize first letter.
-        - `- [ ] Skillshare #try`
-        - `- [ ] Kaku terminal #try`
-        - `- [ ] Fractal journaling #try`
-      - `#personal` → brief noun-phrase; verb ok if action is non-obvious.
-        - `- [ ] Career goals note #personal`
-        - `- [ ] Expand career goals note #personal`
+Stale:
+  5. polymarket-cli — No project connection. Suggest: kill.
+  ...
 
-   g. **Tag every task line.** Auto-detect from content:
-      - URL articles, tools, things to evaluate → `#try`
-      - Personal life, admin, career, reflections → `#personal`
-      - Project-specific items → `#project`, `#project`, or the relevant project tag
+What to tackle? (number, name, or "skip stale" to bulk-process stale items)
+```
 
-   h. **Project-specific items — merge into active project note instead of backlog:**
-      - If the item is tagged with a project tag (`#project`, `#project`, `#verion`, `#tux`, `#metronome`, etc.) or explicitly links to / mentions an active project:
-        1. Find the matching project note: `obsidian vault=Knowledge files folder=03_active` — match by project name.
-        2. Read the project note.
-        3. Append the task line(s) to the project's `## Tasks` section.
-        4. If the item has a URL or summary worth preserving, add a `See also:` line or brief note under the relevant section.
-        5. Skip step i — do NOT create a standalone backlog note.
-        6. Jump to step k (delete original).
-      - If no matching `03_active/` project note exists, fall through to step i (create in backlog as normal).
+### Step 3: Phil picks
 
-   i. **Create enriched note in backlog** (non-project items only):
-      ```
-      obsidian vault=Knowledge create path="02_backlog/{kebab-name}.md" content="# {Title}\n\n{summary or cleaned content}\n\n{original URL if present}\n\n## Tasks\n\n- [ ] {action item} #{tag}"
-      ```
+Wait for Phil's choice. He can:
+- Pick by number or name → go to Step 4
+- Say "skip stale" or "clean up stale" → go to Step 6
+- Say "done" or "stop" → go to Step 7
 
-   k. **Delete the original:** `obsidian vault=Knowledge delete path="01_inbox/{file}"`
+### Step 4: Deep context gathering (subagents)
 
-4. **Print summary** when done:
-   ```
-   Triaged {N} items ({M} backlog, {P} integrated into projects):
-   - {filename} → 02_backlog/{new-name}.md
-   - {filename} → split into 02_backlog/{a}.md, 02_backlog/{b}.md, ...
-   - {filename} → merged into 02_backlog/{existing}.md
-   - {filename} → integrated into 03_active/{project}.md
-   ```
+For the chosen item, launch 2 parallel subagents:
+
+**Subagent 1 — Item deep dive:**
+- Read the full backlog note for the chosen item
+- If the item has a URL: fetch it, get latest README, changelog, recent commits/releases
+- Search Memory vault for related tools/patterns: `rg '^summary:.*{keywords}' ~/Vaults/Memory/ --glob '*.md'`
+- Read any matching Memory notes in full
+- Search active projects for overlap: `obsidian vault=Knowledge files folder=03_active`, read relevant project notes
+- Return: full item context, current state of the project/tool, how it fits into existing setup, what it would replace or enhance
+
+**Subagent 2 — Related vault context:**
+- Search `06_docs/` for related topics: `obsidian vault=Knowledge search query="{item keywords}"`
+- Search `07_knowledge/` for related topics: same approach
+- Search `05_notes/` if the item is personal
+- Return: what already exists in the vaults that relates to this item, gaps this item would fill
+
+### Step 5: Execute
+
+Based on the item's classification and the deep context, act on it. The action depends on what the item is:
+
+**Tool to try / setup improvement:**
+1. Research the tool thoroughly (installation, configuration, integration points).
+2. Install and configure it. Test it works.
+3. Integrate into the existing setup (update configs, connect to projects).
+4. Write a Memory vault `tools/` note documenting the tool.
+5. If it needs docs: write to `06_docs/` in Knowledge vault.
+6. Mark the backlog task done: `obsidian vault=Knowledge task path="02_backlog/{item}.md" line={N} done`
+7. Move to knowledge: `obsidian vault=Knowledge move path="02_backlog/{item}.md" to="07_knowledge"`
+8. Update `backlog.md` — remove from its section.
+
+**Project idea:**
+1. Create a project note: `obsidian vault=Knowledge create path="03_active/{project-name}.md" content="..."`
+2. Seed with tasks derived from the backlog item's research.
+3. If there's a Memory vault project note to create, write it.
+4. Delete the backlog note: `obsidian vault=Knowledge delete path="02_backlog/{item}.md"`
+5. Update `backlog.md` — remove from its section.
+
+**Knowledge / informational:**
+1. Mark the backlog task done.
+2. Enrich the note if needed (add links to related knowledge, cross-references).
+3. Move to knowledge: `obsidian vault=Knowledge move path="02_backlog/{item}.md" to="07_knowledge"`
+4. Link to the appropriate sub-index in `07_knowledge/`. Update `knowledge.md` or the relevant sub-index.
+5. Update `backlog.md` — remove from its section.
+
+**Merge into existing project:**
+1. Read the target project note in `03_active/`.
+2. Append relevant tasks and context from the backlog item.
+3. Delete the backlog note.
+4. Update `backlog.md` — remove from its section.
+
+**Kill (stale):**
+1. Delete the backlog note: `obsidian vault=Knowledge delete path="02_backlog/{item}.md"`
+2. Update `backlog.md` — remove from its section.
+
+After execution, update the counts in `backlog.md`'s header line.
+
+### Step 6: Bulk stale processing
+
+If Phil says "skip stale" or "clean up stale":
+1. List all stale items with their suggested dispositions.
+2. Ask Phil to confirm: "Kill all {N} stale items? Or review individually?"
+3. If confirmed: delete each stale backlog note, update `backlog.md`.
+4. If review: present each stale item one by one with its suggestion. Phil says yes/no/keep per item.
+5. Return to Step 2 with updated list.
+
+### Step 7: Loop or stop
+
+After processing an item, return to Step 2 with the updated backlog. Present remaining items.
+
+If Phil says "done" or "stop": print a summary of the session and exit.
+
+```
+Session complete:
+- {N} items processed
+- {T} tools installed/configured
+- {P} projects created
+- {K} knowledge items filed
+- {M} items merged into projects
+- {D} items killed
+- {R} items remaining in backlog
+```
 
 ## Rules
 
-- Fully autonomous — no per-item confirmation. Just process and summarize.
-- No frontmatter. Content only.
-- Every backlog note MUST have at least one `- [ ]` task line.
+- Interactive — always ask Phil before acting. Never autonomously delete or move items.
+- `backlog.md` is the source of truth. Always read it fresh at the start and update it after every action.
 - Always include `vault=Knowledge` in every `obsidian` command.
-- Use `obsidian vault=Knowledge` CLI for all vault operations (create, read, delete, files).
-- Use WebFetch or Tavily to fetch URLs — never skip URL enrichment.
-- Kebab-case filenames derived from content, not original filename.
-- No duplicates. If a URL already exists in `02_backlog/`, enhance the existing note — never create a second one.
-- **Tree-graph linking.** Backlog notes: add `See also: [[backlog]]` as parent link. Plus 0-2 dependency links max. No sibling links. Cross-vault links only through hub notes.
-- Project-specific items go directly into `03_active/` project notes — not `02_backlog/`. Only create backlog notes for items with no matching active project.
+- **Tree-graph linking.** Backlog notes have `See also: [[backlog]]` as parent link. Knowledge notes moved from backlog: update `See also:` to point to the appropriate `07_knowledge/` sub-index. New project notes: link to `[[projects]]`.
+- When moving items to `07_knowledge/`: link to the nearest sub-index in `knowledge.md`. If no sub-index fits, link to `knowledge.md` directly.
+- When creating project notes in `03_active/`: follow the project note structure from `~/Vaults/AGENTS.md` (Status, Tasks, Notes sections).
+- Memory vault writes: use filesystem for notes with code, `obsidian vault=Memory` CLI for simple notes.
+- Subagent prompts must be self-contained. Include all data the subagent needs.
+- Keep the loop going. After each item, offer to continue. Don't make Phil re-invoke the command.
+- When installing tools: verify they work before marking complete. Run the tool, check output.
+- When Phil picks an item that requires implementation beyond vault operations (e.g., installing a CLI tool, configuring an MCP server), do the full implementation — don't just file it away.
