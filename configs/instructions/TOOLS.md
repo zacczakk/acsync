@@ -506,7 +506,7 @@ Token compression proxy. Intercepts bash commands and compresses output before i
 ```toml
 # ~/Library/Application Support/rtk/config.toml (macOS)
 [hooks]
-exclude_commands = ["some-command"]  # Skip rewriting for specific commands
+exclude_commands = ["curl"]  # Skip rewriting — curl passes through raw
 ```
 
 ### Rewritten command families
