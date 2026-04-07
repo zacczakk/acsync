@@ -501,6 +501,37 @@ Token compression proxy. Intercepts bash commands and compresses output before i
 | `rtk init --show` | Show current hook configuration |
 | `rtk rewrite "<cmd>"` | Test rewrite logic for a command |
 
+### `rtk proxy` — unfiltered passthrough
+
+Runs a command **without compression** but still tracks usage. Use when rtk's filter drops output you need (failure details, stack traces, verbose logs).
+
+```bash
+rtk proxy pytest tests/                     # Full pytest output, untruncated
+rtk proxy pytest tests/ -v --tb=long        # Verbose + long tracebacks
+rtk proxy -u pytest tests/                  # Ultra-compact ASCII icons
+rtk proxy --skip-env pytest tests/          # Skip SKIP_ENV_VALIDATION injection
+```
+
+**Flags:**
+
+| Flag | Purpose |
+|------|---------|
+| `-v` / `-vv` / `-vvv` | Verbosity (rtk-level, not the child command) |
+| `-u, --ultra-compact` | ASCII icons + inline format (Level 2 compression) |
+| `--skip-env` | Set `SKIP_ENV_VALIDATION=1` for child (useful for Next.js, tsc, lint) |
+
+**When to use `rtk proxy` vs `rtk pytest`:**
+- `rtk pytest` — compressed summary; good for CI / green runs
+- `rtk proxy pytest` — full raw output; use when failures are truncated or details are missing
+
+### `rtk pytest` — compressed test runner
+
+```bash
+rtk pytest tests/                      # Failures + summary only
+rtk pytest tests/ -v                   # With test names
+rtk pytest tests/foo.py::test_bar      # Single test
+```
+
 ### Config tuning
 
 ```toml

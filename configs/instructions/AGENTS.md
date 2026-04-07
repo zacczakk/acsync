@@ -92,6 +92,7 @@ When work concludes (skip if trivial):
 - CI red: `gh run list/view`, rerun, fix, push, repeat til green.
 - Keep it observable (logs, panes, tails, MCP/browser tools).
 - Release: read release checklist if repo has one.
+- **Truncated output?** `rtk` compresses test/build output by default. Use `rtk proxy <cmd>` for unfiltered passthrough — e.g. `rtk proxy pytest tests/` for full tracebacks. See TOOLS.md → rtk.
 
 ## Git
 - Safe by default: `git status/diff/log`. Push only when user asks.
