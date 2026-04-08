@@ -38,6 +38,16 @@ describe('pull-skills E2E', () => {
     const canonicalWdg = readFileSync(join(FIXTURE_ROOT, 'canonical', 'skills', 'web-design-guidelines', 'SKILL.md'), 'utf-8');
     const pulledWdg = readFileSync(join(projectDir, 'configs', 'skills', 'web-design-guidelines', 'SKILL.md'), 'utf-8');
     expect(pulledWdg).toBe(canonicalWdg);
+
+    const canonicalDesignCritique = readFileSync(
+      join(FIXTURE_ROOT, 'canonical', 'skills', 'design-critique', 'SKILL.md'),
+      'utf-8',
+    );
+    const pulledDesignCritique = readFileSync(
+      join(projectDir, 'configs', 'skills', 'design-critique', 'SKILL.md'),
+      'utf-8',
+    );
+    expect(pulledDesignCritique).toBe(canonicalDesignCritique);
   }, E2E_TIMEOUT);
 
   test('pulls skills from opencode matching canonical fixtures', async () => {

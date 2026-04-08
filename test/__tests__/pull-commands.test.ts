@@ -39,6 +39,13 @@ describe('pull-commands E2E', () => {
     const canonicalObsRecap = readFileSync(join(FIXTURE_ROOT, 'canonical', 'commands', 'obs-recap.md'), 'utf-8');
     expect(claudeObsRecap).toBe(canonicalObsRecap);
 
+    const claudeDesignAudit = readFileSync(join(claudeDir, 'configs', 'commands', 'design-audit.md'), 'utf-8');
+    const canonicalDesignAudit = readFileSync(
+      join(FIXTURE_ROOT, 'canonical', 'commands', 'design-audit.md'),
+      'utf-8',
+    );
+    expect(claudeDesignAudit).toBe(canonicalDesignAudit);
+
     // Pull from OpenCode — also identity passthrough (frontmatter md)
     const opencodeDir = setupProjectDir();
     await runPull({ source: 'opencode', force: true, projectDir: opencodeDir, homeDir: fakeHome });

@@ -53,6 +53,14 @@ describe('push-commands E2E', () => {
     const claudeObsRecap = readFileSync(join(paths.claude, 'obs-recap.md'), 'utf-8');
     const claudeObsRecapGolden = readFileSync(join(FIXTURE_ROOT, 'claude', 'commands', 'obs-recap.md'), 'utf-8');
     expect(claudeObsRecap).toBe(claudeObsRecapGolden);
+
+    // Also check new design-audit command across targets
+    const claudeDesignAudit = readFileSync(join(paths.claude, 'design-audit.md'), 'utf-8');
+    const claudeDesignAuditGolden = readFileSync(
+      join(FIXTURE_ROOT, 'claude', 'commands', 'design-audit.md'),
+      'utf-8',
+    );
+    expect(claudeDesignAudit).toBe(claudeDesignAuditGolden);
   }, E2E_TIMEOUT);
 
   test('second push is idempotent (no drift)', async () => {

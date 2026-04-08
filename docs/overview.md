@@ -72,9 +72,9 @@ metronome/
   src/                        TypeScript sync engine (adapters, diff, secrets, formats)
   .env                        Secrets (gitignored)
   configs/
-    commands/*.md              7 slash commands (canonical)
+    commands/*.md              13 slash commands (canonical)
     agents/                    2 agent definitions (canonical)
-    skills/                    34 skill directories (canonical)
+    skills/                    35 skill directories (canonical)
     plugins/*.ts               3 OpenCode plugins (identity-rendered)
     mcp/*.json                 6 MCP server definitions (canonical)
     settings/*.json            3 settings definitions (claude, opencode, token-tracker)

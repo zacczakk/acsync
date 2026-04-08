@@ -53,6 +53,14 @@ describe('push-skills E2E', () => {
     const claudeWdg = readFileSync(join(paths.claude, 'web-design-guidelines', 'SKILL.md'), 'utf-8');
     const claudeWdgGolden = readFileSync(join(FIXTURE_ROOT, 'claude', 'skills', 'web-design-guidelines', 'SKILL.md'), 'utf-8');
     expect(claudeWdg).toBe(claudeWdgGolden);
+
+    // Also verify new design-critique skill
+    const claudeDesignCritique = readFileSync(join(paths.claude, 'design-critique', 'SKILL.md'), 'utf-8');
+    const claudeDesignCritiqueGolden = readFileSync(
+      join(FIXTURE_ROOT, 'claude', 'skills', 'design-critique', 'SKILL.md'),
+      'utf-8',
+    );
+    expect(claudeDesignCritique).toBe(claudeDesignCritiqueGolden);
   }, E2E_TIMEOUT);
 
   test('second push is idempotent (no drift)', async () => {

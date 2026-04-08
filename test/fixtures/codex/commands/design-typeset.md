@@ -1,0 +1,17 @@
+# /design-typeset
+
+Improve typography by fixing hierarchy, sizing, readability, and font usage
+
+# Design Typeset
+
+Improve the requested UI's typography without broad system or layout changes.
+
+User input: $ARGUMENTS
+
+Focus on:
+
+1. font choice
+2. hierarchy
+3. sizing and scale
+4. weight consistency
+5. readability and line length

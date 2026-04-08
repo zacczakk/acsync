@@ -8,15 +8,15 @@ read_when:
 
 # Skills Catalog
 
-21 skills in `configs/skills/`, synced to all targets via `metronome push`.
+22 skills in `configs/skills/`, synced to all targets via `metronome push`.
 Skills load on-demand when the agent's task matches the skill description.
 
 ## Sources
 
 | Source | Repo | Count | Notes |
 |---|---|---|---|
-| Custom | this repo | 10 | Obsidian (6), design (1), workflow (3) |
-| Impeccable | `~/Repos/oss/impeccable` | 1 | frontend-design skill + 7 reference files (Apache 2.0) |
+| Custom | this repo | 11 | Obsidian (6), design (2), workflow (3) |
+| Impeccable | `~/Repos/oss/impeccable` | 1 | frontend-design inspiration only; canonical skill now trimmed and owned locally |
 | Anthropic | `~/Repos/oss/anthropic-skills` | 8 | Adopted as-is (upstream-only) |
 | Superpowers | `~/Repos/oss/superpowers` | 2 | Trimmed to telegraphic style on adoption |
 
@@ -34,6 +34,7 @@ Skills load on-demand when the agent's task matches the skill description.
 | `obsidian-vault-conventions` | Vault layout, folder lifecycle, naming conventions | — |
 | `web-design-guidelines` | Reviewing UI for Web Interface Guidelines compliance | — |
 | `vercel-react-best-practices` | Writing/reviewing/refactoring React/Next.js code | — |
+| `design-critique` | Reviewing UI for anti-slop tells, hierarchy, and UX quality | — |
 | `screenshot-workflow` | "Use a screenshot" or replacing/optimizing image assets | 13 |
 | `session-notes` | Writing atomic session notes to Memory vault (decisions, discoveries, checkpoints) | — |
 
@@ -61,9 +62,20 @@ Skills load on-demand when the agent's task matches the skill description.
 
 | Skill | Trigger | Files |
 |---|---|---|
-| `frontend-design` | Building web UI, pages, components, applications — distinctive, anti-AI-slop aesthetics | SKILL.md (127 lines) + 7 reference files |
+| `frontend-design` | Building web UI, pages, components, applications — distinctive, anti-AI-slop aesthetics with local design-context support | SKILL.md |
 
-Replaces former `frontend-aesthetics`. Only `{{model}}` template var resolved (model-agnostic). Reference files copied verbatim. Command-skills (audit, polish, bolder) skipped — too Claude-specific.
+Replaces former `frontend-aesthetics`. Inspired by Impeccable, but now trimmed and owned locally. Added a metronome-native context protocol and separate review/command layer instead of importing the full upstream command pack.
+
+## Design Commands
+
+Six design commands in `configs/commands/`, synced with the rest of the canonical command set:
+
+1. `teach-design-context`
+2. `design-audit`
+3. `design-critique`
+4. `design-normalize`
+5. `design-polish`
+6. `design-typeset`
 
 ## Adoption Guidelines
 

@@ -1,0 +1,19 @@
+---
+description: Perform a final UI quality pass before shipping
+---
+
+# Design Polish
+
+Do a final pass on spacing, alignment, states, copy consistency, and micro-detail quality.
+
+User input: $ARGUMENTS
+
+Focus on:
+
+1. spacing and alignment
+2. interaction-state completeness
+3. copy consistency
+4. error, loading, and empty-state quality
+5. micro-detail cleanup
+
+Polish is the last step, not the first.
