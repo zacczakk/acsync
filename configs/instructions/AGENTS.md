@@ -44,9 +44,14 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 
 ## Browser
 - `agent-browser` auto-connects to Phil's running Chrome (SSO, cookies, extensions preserved).
+- Reuse live browser tooling sessions first. Attach > restart.
+- **Never proactively stop, reset, or relaunch `agent-browser`, `chrome-devtools`, or `mcporter` daemon.** Only do that after concrete failure (`Not connected`, attach failure, crash) or explicit user request.
 - **Never kill, restart, or relaunch Chrome.** Phil's personal tabs must survive agent sessions. If Chrome crashes during a connection attempt, stop and report immediately.
+- **First `agent-browser` attach after Chrome restart: one call only.** Do not chain `open` + `viewport` + follow-ups until attach is confirmed. Extra first-use calls can trigger extra Chrome consent prompts.
+- First attach pattern: one `agent-browser` command, wait, confirm attach worked, then continue.
 - **Tab hygiene:** close tabs you opened; never close tabs you didn't open. `agent-browser tab` to list, `agent-browser close` when done.
 - Chrome prerequisite: `chrome://inspect/#remote-debugging` enabled once. First connect per Chrome restart = user consent dialog.
+- Chrome consent is manual per restart. Avoid churn; preserve live sessions when possible.
 - Fallback: if Chrome isn't running, agent-browser launches its own headless Chromium (no SSO).
 
 ## Session Notes
@@ -140,4 +145,3 @@ When work concludes (skip if trivial):
 ## Tools
 On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`, `rtk`, `coderabbit`.
 Full catalog: `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md`. Read when you need flags, subcommands, or usage patterns for any tool above.
-

@@ -68,15 +68,17 @@ describe('ClaudeCodeAdapter.renderAgent', () => {
       name: 'my-agent',
       content: 'Agent body content.\n',
       metadata: {
-        name: 'my-agent',
         description: 'Does agent things',
-        'allowed-tools': ['Read', 'Write'],
+        permission: { bash: 'allow', edit: 'deny', webfetch: 'deny' },
+        color: '#a277ff',
       },
     };
     const result = adapter.renderAgent(agentItem);
     expect(result.content).toContain('description: Does agent things');
     expect(result.content).toContain('allowed-tools');
     expect(result.content).toContain('name: my-agent');
+    expect(result.content).not.toContain('color:');
+    expect(result.content).not.toContain('permission:');
   });
 
   it('includes body verbatim in agent output', () => {

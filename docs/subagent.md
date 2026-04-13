@@ -10,13 +10,26 @@ read_when:
 ## Canonical sources
 - Canonical subagent specs: `configs/agents/*.md`.
 - Canonical command specs: `configs/commands/*.md`.
-- Each spec uses front-matter (`name`, `description`, optional `model`, optional `allowed-tools`) plus body instructions.
+- Agent specs use OpenCode-style frontmatter as the source of truth:
+  - required: `description`
+  - common: `mode`, `model`, `permission`, `color`
+  - body: verbatim agent instructions
+- Commands remain markdown with frontmatter plus body instructions.
 
 ## Render targets — agents
-- Claude Code: verbatim copy to `~/.claude/agents/`.
-- Gemini CLI: add `kind: local` to frontmatter, copy to `~/.gemini/agents/`.
-- OpenCode: rebuild frontmatter (`mode: subagent`, translate `allowed-tools` to `tools` map), copy to `~/.config/opencode/agents/`.
-- Codex: flat Markdown as `~/.codex/prompts/agent-{name}.md`.
+- Claude Code: derive portable frontmatter (`name`, `description`, optional `model`, derived `allowed-tools`), copy to `~/.claude/agents/`.
+- Gemini CLI: same portable frontmatter plus `kind: local`, copy to `~/.gemini/agents/`.
+- OpenCode: pass through OpenCode-compatible frontmatter, force `mode: subagent`, copy to `~/.config/opencode/agents/`.
+- Codex: flat Markdown as `~/.codex/prompts/agent-{name}.md` with derived `Role` and `Allowed Tools` lines.
+
+## Portable tool derivation
+- Non-OpenCode targets do not consume OpenCode `permission` blocks directly.
+- Adapters derive a best-effort portable `allowed-tools` list from canonical metadata:
+  - always include `Read`, `Glob`, `Grep`
+  - add `Edit` and `Write` when `permission.edit != deny`
+  - add `Bash` when `permission.bash != deny`
+  - add `WebFetch` when `permission.webfetch != deny`
+- OpenCode-only keys like `permission`, `color`, and `mode` are dropped when the target does not support them.
 
 ## Render targets — commands
 - Claude Code: strip `zz-` prefix, nest under `~/.claude/commands/zz/` (invoked as `/zz:name`).

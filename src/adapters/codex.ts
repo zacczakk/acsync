@@ -54,8 +54,9 @@ export class CodexAdapter extends BaseAdapter {
     // **Role**: description
     // **Allowed Tools**: tool1, tool2 (only if present)
     // Then body
-    const description = String(item.metadata.description ?? '');
-    const tools = item.metadata['allowed-tools'];
+    const normalized = this.normalizeAgentMetadata(item);
+    const description = String(normalized.description ?? '');
+    const tools = normalized['allowed-tools'];
     const toolsLine = Array.isArray(tools) ? tools.join(', ') : String(tools ?? '');
     const body = item.content.trim();
 

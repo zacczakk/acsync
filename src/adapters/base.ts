@@ -337,4 +337,54 @@ export abstract class BaseAdapter implements ToolAdapter {
   protected expandPaths(content: string): string {
     return content.replace(/~\//g, os.homedir() + '/');
   }
+
+  /**
+   * Normalize current canonical agent metadata into a portable cross-CLI shape.
+   * Canonical source has drifted toward OpenCode-style frontmatter
+   * (mode/permission/color, no name/allowed-tools). Claude/Gemini/Codex still
+   * need a best-effort portable subset.
+   */
+  protected normalizeAgentMetadata(item: CanonicalItem): Record<string, unknown> {
+    const src = item.metadata;
+    const metadata: Record<string, unknown> = {};
+
+    metadata.name = item.name;
+    if (src.description) metadata.description = src.description;
+    if (src.model) metadata.model = src.model;
+
+    const allowedTools = this.deriveAllowedTools(src);
+    if (allowedTools) metadata['allowed-tools'] = allowedTools;
+
+    return metadata;
+  }
+
+  protected deriveAllowedTools(metadata: Record<string, unknown>): string[] | undefined {
+    const explicit = metadata['allowed-tools'];
+    if (Array.isArray(explicit)) {
+      return explicit.map(String);
+    }
+
+    const permission = metadata.permission;
+    if (!permission || typeof permission !== 'object') return undefined;
+
+    const tools = ['Read', 'Glob', 'Grep'] as string[];
+
+    const edit = (permission as Record<string, unknown>).edit;
+    const bash = (permission as Record<string, unknown>).bash;
+    const webfetch = (permission as Record<string, unknown>).webfetch;
+
+    if (edit !== 'deny') {
+      tools.push('Edit', 'Write');
+    }
+
+    if (bash !== 'deny') {
+      tools.push('Bash');
+    }
+
+    if (webfetch !== 'deny') {
+      tools.push('WebFetch');
+    }
+
+    return tools;
+  }
 }

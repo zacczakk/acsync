@@ -30,9 +30,7 @@ export class ClaudeCodeAdapter extends BaseAdapter {
   }
 
   renderAgent(item: CanonicalItem): RenderedFile {
-    // All frontmatter keys pass through verbatim
-    // Body is verbatim
-    const content = stringifyFrontmatter(item.content, item.metadata);
+    const content = stringifyFrontmatter(item.content, this.normalizeAgentMetadata(item));
     return {
       relativePath: this.paths.getAgentFilePath(item.name),
       content,

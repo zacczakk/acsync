@@ -145,6 +145,10 @@ Browser automation CLI. Auto-connects to running Chrome (SSO, cookies, extension
 - **Skill:** `load_agent_browser_skill`
 - **Env vars (pre-set):** `NATIVE=1` (Rust/CDP engine, bypasses Node.js/Playwright), `AUTO_CONNECT=1` (attaches to running Chrome, not a fresh Chromium)
 - **Fallback:** If Chrome not running, launches own headless Chromium (no SSO).
+- **Session hygiene:** reuse live browser tooling sessions first. Attach > restart.
+- **Do not proactively stop/reset `agent-browser`, `chrome-devtools`, or `mcporter` daemon.** Reset only on concrete failure (`Not connected`, attach failure, crash) or explicit user request.
+- **First attach after Chrome restart: one `agent-browser` call only.** No chained `open` + `viewport` + follow-ups until attach is confirmed.
+- Why: extra first-use calls can trigger extra manual Chrome consent prompts.
 
 ```bash
 agent-browser open <url>              # Navigate (in user's Chrome)
@@ -159,14 +163,22 @@ agent-browser close                   # Close current tab when done
 
 **Tab cleanup:** close what you opened; never close tabs you didn't open.
 **Never kill, restart, or relaunch Chrome.** User's personal tabs must survive agent sessions.
+**Chrome consent is manual per restart.** Preserve live sessions when possible.
+**First attach pattern:** one call, wait, confirm attach, then continue.
 
 | Task | Tool |
 |---|---|
-| Browse, click, fill, interact | `agent-browser` (auto-connects to Chrome) |
+ | Browse, click, fill, interact | `agent-browser` (primary control surface; auto-connects to Chrome) |
 | Authenticated pages (SSO/cookies) | `agent-browser` (inherits Chrome session) |
 | Safari/WebKit testing | `agent-browser --native` (WebDriver) |
-| Debug running Chrome | `chrome-devtools-mcp` (MCP, 29 tools) |
+| Console/network/perf/Lighthouse on running Chrome | `chrome-devtools` MCP |
 | Complex test suites w/ assertions | `webapp-testing` skill (Python Playwright) |
+
+**Use `chrome-devtools` MCP for:**
+- console errors and warnings
+- network request/response inspection
+- performance tracing and Core Web Vitals
+- Lighthouse accessibility / SEO / best-practices audits
 
 ## gh
 
@@ -181,6 +193,30 @@ gh pr view <url> --comments --files -R owner/repo
 gh pr create --title "title" --body "body"
 gh run list --limit 5
 gh run view <id>
+```
+
+## az
+
+Azure CLI for Azure resources and Azure DevOps workflows.
+
+- Use for Azure-hosted infra inspection and Azure DevOps repos, PRs, pipelines, and releases.
+- Start with `az account show` to confirm tenant/subscription context.
+- Be explicit with `--organization`, `--project`, `--subscription`, and resource group flags when context is ambiguous.
+- For GitHub-native repos, prefer `gh`. For Azure DevOps-native repos/pipelines, prefer `az`.
+
+```bash
+az account show
+az group list
+az resource list
+az webapp list
+az functionapp list
+az repos list --organization <url> --project <name>
+az repos show --repository <name> --organization <url> --project <name>
+az repos pr list --organization <url> --project <name> --repository <name>
+az repos pr show --id <pr-id> --organization <url> --project <name>
+az pipelines list --organization <url> --project <name>
+az pipelines runs list --organization <url> --project <name>
+az pipelines runs show --id <run-id> --organization <url> --project <name>
 ```
 
 ## tmux
@@ -201,6 +237,7 @@ MCP client/CLI. All canonical servers registered in `~/.mcporter/mcporter.json`.
 - **Config:** `~/.mcporter/mcporter.json` (system-level, no imports)
 - **Binaries:** `bin/` on PATH (Bun-compiled standalone CLIs per server)
 - **Daemon:** chrome-devtools has `lifecycle: keep-alive`; auto-starts on first call.
+- **Session hygiene:** do not stop the `chrome-devtools` daemon proactively. Reuse live daemon/session when possible. `mcporter daemon stop` = troubleshooting only.
 
 ### Access methods (fastest first)
 
@@ -235,7 +272,7 @@ mcporter call palantir-mcp.some-tool --raw-strings id="00123"
 # Or disable all coercion
 mcporter call palantir-mcp.some-tool --no-coerce id="00123"
 
-# Daemon (chrome-devtools)
+# Daemon (chrome-devtools, troubleshooting only)
 mcporter daemon status
 mcporter daemon stop
 ```
@@ -618,4 +655,3 @@ All servers also registered in `~/.mcporter/mcporter.json` and compiled to `bin/
 | `palantir-mcp` | — | `palantir` | `FOUNDRY_TOKEN` |
 | `shadcn` | OpenCode | `shadcn` | shadcn/ui |
 | `sequential-thinking` | — | `sequential-thinking` | Reasoning; native MCP disabled |
-

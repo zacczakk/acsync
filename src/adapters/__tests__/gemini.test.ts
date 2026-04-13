@@ -21,9 +21,9 @@ const agentItem = {
   name: 'my-agent',
   content: 'Agent body content.\n',
   metadata: {
-    name: 'my-agent',
     description: 'Does agent things',
-    'allowed-tools': ['Read', 'Write'],
+    permission: { bash: 'allow', edit: 'deny', webfetch: 'deny' },
+    color: '#a277ff',
   },
 };
 
@@ -111,6 +111,13 @@ describe('GeminiAdapter.renderAgent', () => {
   it('keeps allowed-tools in agent frontmatter', () => {
     const result = adapter.renderAgent(agentItem);
     expect(result.content).toContain('allowed-tools');
+  });
+
+  it('does not leak opencode-only fields into Gemini frontmatter', () => {
+    const result = adapter.renderAgent(agentItem);
+    expect(result.content).not.toContain('permission:');
+    expect(result.content).not.toContain('color:');
+    expect(result.content).not.toContain('mode:');
   });
 
   it('includes body verbatim', () => {

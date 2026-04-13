@@ -42,12 +42,8 @@ export class GeminiAdapter extends BaseAdapter {
   }
 
   renderAgent(item: CanonicalItem): RenderedFile {
-    // Gemini agents: markdown with frontmatter
-    // Required fields: name (slug), description, kind
-    const metadata: Record<string, unknown> = {};
-    metadata.name = item.name;
-    if (item.metadata.description) metadata.description = item.metadata.description;
-    if (item.metadata['allowed-tools']) metadata['allowed-tools'] = item.metadata['allowed-tools'];
+    // Gemini agents: markdown with portable frontmatter plus kind: local
+    const metadata = this.normalizeAgentMetadata(item);
     metadata.kind = 'local';
 
     const content = stringifyFrontmatter(item.content, metadata);

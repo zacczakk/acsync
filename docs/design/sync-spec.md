@@ -43,7 +43,7 @@ merges commands and agents into a single `prompts/` directory.
 
 ```
 configs/commands/*.md              6 slash commands
-configs/agents/                    Agent definitions (currently empty)
+configs/agents/                    Agent definitions (OpenCode-style frontmatter)
 configs/skills/                    3 skill directories
 configs/mcp/*.json                 7 MCP server definitions
 configs/settings/*.json            2 settings definitions (claude, opencode)
@@ -133,6 +133,9 @@ to a plain string (e.g., `"goal"`). If it is already a string, quote it.
 
 Body content is passed through unchanged.
 
+Note: commands remain on the older portable canonical format (`description`,
+`argument-hint`, `allowed-tools`). Agents do not.
+
 #### Gemini CLI — Convert to TOML
 
 ```toml
@@ -179,16 +182,53 @@ Rules:
 - Canonical: `configs/agents/{name}.md`
 - Claude system: `~/.claude/agents/{name}.md`
 
-Body content copied verbatim.
+Canonical agent frontmatter (source of truth):
+```yaml
+---
+description: Goal-backward task planning. Invoke after implementation.
+mode: subagent
+model: github-copilot/gpt-5.4
+permission:
+  bash: allow
+  edit: deny
+  webfetch: deny
+color: '#a277ff'
+---
+```
 
-#### OpenCode — Rebuild Frontmatter + Translate Tools
+Claude rendered agent frontmatter:
+```yaml
+---
+name: planner
+description: Goal-backward task planning. Invoke after implementation.
+model: github-copilot/gpt-5.4
+allowed-tools: [Read, Glob, Grep, Bash]
+---
+```
+
+Rules:
+- Derive `name` from filename.
+- Keep `description` and `model` if present.
+- Derive `allowed-tools` from OpenCode-style `permission`:
+  - always include `Read`, `Glob`, `Grep`
+  - include `Edit` and `Write` when `permission.edit != deny`
+  - include `Bash` when `permission.bash != deny`
+  - include `WebFetch` when `permission.webfetch != deny`
+- Drop OpenCode-only keys like `mode`, `permission`, and `color`.
+- Body content copied verbatim.
+
+#### OpenCode — Pass Through Frontmatter, Force Subagent Mode
 
 Canonical agent frontmatter:
 ```yaml
 ---
-name: planner
 description: Goal-backward task planning...
-allowed-tools: [Read, Glob, Grep, Edit, Write, Bash]
+mode: subagent
+model: github-copilot/gpt-5.4
+permission:
+  bash: allow
+  edit: deny
+color: '#a277ff'
 ---
 ```
 
@@ -197,19 +237,18 @@ OpenCode rendered agent frontmatter:
 ---
 description: Goal-backward task planning...
 mode: subagent
-tools:
-  edit: false
-  write: false
+model: github-copilot/gpt-5.4
+permission:
+  bash: allow
+  edit: deny
+color: '#a277ff'
 ---
 ```
 
 Rules:
-- Drop `name` (OpenCode derives it from filename).
-- Drop `allowed-tools` and translate to `tools` map using the same
-  translation table as commands (section 2.1).
 - Add `mode: subagent` (always).
-- Keep `model` if present in canonical.
-- Keep `description`.
+- Keep all OpenCode-compatible frontmatter except canonical command-only keys.
+- Keep `model`, `description`, `permission`, `color`, and other supported fields.
 - Body content passed through unchanged.
 
 #### Gemini CLI — Add `kind: local`
@@ -217,9 +256,12 @@ Rules:
 Canonical agent frontmatter:
 ```yaml
 ---
-name: planner
 description: Goal-backward task planning...
-allowed-tools: [Read, Glob, Grep, Edit, Write, Bash]
+mode: subagent
+model: github-copilot/gpt-5.4
+permission:
+  bash: allow
+  edit: deny
 ---
 ```
 
@@ -228,14 +270,18 @@ Gemini rendered agent frontmatter:
 ---
 name: planner
 description: Goal-backward task planning...
-allowed-tools: [Read, Glob, Grep, Edit, Write, Bash]
+model: github-copilot/gpt-5.4
+allowed-tools: [Read, Glob, Grep, Bash]
 kind: local
 ---
 ```
 
 Rules:
+- Derive `name` from filename.
+- Keep `description` and `model` if present.
+- Derive `allowed-tools` from `permission` using the Claude rules above.
 - Add `kind: local` to frontmatter.
-- Keep everything else as-is.
+- Drop OpenCode-only keys like `mode`, `permission`, and `color`.
 
 #### Codex — Flat Markdown in `prompts/agent-{name}.md`
 
@@ -254,7 +300,7 @@ Rules:
 - No frontmatter.
 - Start with `# Agent: {name}` heading.
 - Add `**Role**: {description}` line.
-- Add `**Allowed Tools**: {comma-separated tools}` line.
+- Add `**Allowed Tools**: {comma-separated derived tools}` line when available.
 - Then: the body content (frontmatter stripped).
 
 ### 2.3 Skills
@@ -691,5 +737,3 @@ preserved verbatim.
 
 **Pull**: Read system file. Extract `[mcp_servers.*]` sections. Redact
 secrets. Compare to canonical MCP definitions.
-
-

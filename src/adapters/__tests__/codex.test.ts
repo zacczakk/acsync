@@ -21,9 +21,9 @@ const agentWithTools = {
   name: 'my-agent',
   content: 'Agent body content.\n',
   metadata: {
-    name: 'my-agent',
     description: 'Does agent things',
-    'allowed-tools': ['Read', 'Write', 'Bash'],
+    permission: { bash: 'allow', edit: 'allow', webfetch: 'deny' },
+    color: '#a277ff',
   },
 };
 
@@ -95,7 +95,7 @@ describe('CodexAdapter.renderAgent', () => {
 
   it('includes **Allowed Tools** line when tools present', () => {
     const result = adapter.renderAgent(agentWithTools);
-    expect(result.content).toContain('**Allowed Tools**: Read, Write, Bash');
+    expect(result.content).toContain('**Allowed Tools**: Read, Glob, Grep, Edit, Write, Bash');
   });
 
   it('omits **Allowed Tools** line when no tools in canonical', () => {
