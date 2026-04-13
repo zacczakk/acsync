@@ -4,16 +4,17 @@
   "command": "npx",
   "args": [
     "-y",
-    "palantir-mcp",
+    "palantir-mcp@latest",
     "--foundry-api-url",
-    "${FOUNDRY_HOST}"
+    "{env:FOUNDRY_HOST}"
   ],
   "env_vars": [
     "FOUNDRY_TOKEN",
     "FOUNDRY_HOST"
   ],
   "env": {
-    "FOUNDRY_TOKEN": "${FOUNDRY_TOKEN}"
+    "FOUNDRY_TOKEN": "{env:FOUNDRY_TOKEN}",
+    "FOUNDRY_HOST": "{env:FOUNDRY_HOST}"
   },
   "enabled": false,
   "disabled_for": [
