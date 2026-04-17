@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Use the post-implementation verification agent to check wiring and prove this work is ready for PR.",
+    "should_trigger": true
+  },
+  {
+    "query": "Delegate a QA verification subtask to audit whether this implementation is actually complete.",
+    "should_trigger": true
+  },
+  {
+    "query": "Investigate architecture options before we implement anything.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write the missing implementation and tests for this feature.",
+    "should_trigger": false
+  }
+]

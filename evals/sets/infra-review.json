@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Use the infra-review agent to review the GitHub Actions workflow, deploy wiring, and release readiness.",
+    "should_trigger": true
+  },
+  {
+    "query": "Delegate this to the infra-review agent: review Azure Pipelines, AWS infra, SST config, and env propagation.",
+    "should_trigger": true
+  },
+  {
+    "query": "Review the backend API auth and validation logic before service handoff.",
+    "should_trigger": false
+  },
+  {
+    "query": "Update the README and changelog before push.",
+    "should_trigger": false
+  }
+]

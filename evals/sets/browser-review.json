@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Use the browser-review agent to review this frontend flow in a real browser and check Lighthouse issues.",
+    "should_trigger": true
+  },
+  {
+    "query": "Delegate this to the browser-review agent: click through the UI flow and score the UX quality.",
+    "should_trigger": true
+  },
+  {
+    "query": "Audit the backend API validation and error handling for this endpoint.",
+    "should_trigger": false
+  },
+  {
+    "query": "Update the README and changelog before release.",
+    "should_trigger": false
+  }
+]

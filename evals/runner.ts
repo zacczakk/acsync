@@ -12,8 +12,11 @@ const { values } = parseArgs({
   args: Bun.argv.slice(2),
   options: {
     skill: { type: "string" },
+    agent: { type: "string" },
+    type: { type: "string" },
     adapter: { type: "string", default: "opencode" },
     model: { type: "string" },
+    timeout: { type: "string", default: "20000" },
     workers: { type: "string", default: "3" },
     "eval-set": { type: "string" },
     report: { type: "string", default: "auto" },
@@ -24,25 +27,30 @@ const { values } = parseArgs({
   strict: true,
 });
 
-if (!values.skill) {
+const targetType = values.type === "agent" ? "agent" : "skill";
+const targetName = targetType === "agent" ? values.agent : values.skill;
+
+if (!targetName) {
   console.error("Usage: bun evals/runner.ts --skill <name> [--adapter opencode|claude] [--improve]");
+  console.error("   or: bun evals/runner.ts --type agent --agent <name> --adapter opencode");
   process.exit(1);
 }
 
 const SKILLS_DIR = resolve(import.meta.dir, "../configs/skills");
+const AGENTS_DIR = resolve(import.meta.dir, "../configs/agents");
 const SETS_DIR = resolve(import.meta.dir, "sets");
-const skillName = values.skill;
-const skillDir = resolve(SKILLS_DIR, skillName);
-const skillMd = resolve(skillDir, "SKILL.md");
+const targetPath = targetType === "agent"
+  ? resolve(AGENTS_DIR, `${targetName}.md`)
+  : resolve(SKILLS_DIR, targetName, "SKILL.md");
 
-if (!existsSync(skillMd)) {
-  console.error(`Skill not found: ${skillMd}`);
+if (!existsSync(targetPath)) {
+  console.error(`${targetType === "agent" ? "Agent" : "Skill"} not found: ${targetPath}`);
   process.exit(1);
 }
 
 const evalSetPath = values["eval-set"]
   ? resolve(values["eval-set"])
-  : resolve(SETS_DIR, `${skillName}.json`);
+  : resolve(SETS_DIR, `${targetName}.json`);
 
 if (!existsSync(evalSetPath)) {
   console.error(`Eval set not found: ${evalSetPath}`);
@@ -51,6 +59,7 @@ if (!existsSync(evalSetPath)) {
 
 const evalSet: EvalQuery[] = JSON.parse(readFileSync(evalSetPath, "utf-8"));
 const numWorkers = parseInt(values.workers, 10);
+const timeoutMs = parseInt(values.timeout, 10);
 
 function parseSkillDescription(path: string): string {
   const content = readFileSync(path, "utf-8");
@@ -73,10 +82,10 @@ function parseSkillDescription(path: string): string {
   return inlineMatch ? inlineMatch[1].trim() : "";
 }
 
-function createAdapter(name: string, model?: string): Adapter {
+function createAdapter(name: string, model?: string, timeoutMs?: number): Adapter {
   switch (name) {
     case "opencode":
-      return createOpenCodeAdapter(model);
+      return createOpenCodeAdapter(model, { timeoutMs });
     case "claude":
       return createClaudeAdapter(model);
     default:
@@ -102,7 +111,7 @@ async function runEval(
         process.stderr.write(`  [${label}] ${item.query.slice(0, 60)}...`);
       }
       try {
-        const triggered = await adapter.runQuery(item.query, skillName);
+        const triggered = await adapter.runQuery(item.query, targetName);
         const pass = item.should_trigger ? triggered : !triggered;
         results.push({
           query: item.query,
@@ -135,18 +144,20 @@ async function runEval(
   return results;
 }
 
-const adapter = createAdapter(values.adapter, values.model);
-const description = parseSkillDescription(skillMd);
+const adapter = createAdapter(values.adapter, values.model, timeoutMs);
+const description = parseSkillDescription(targetPath);
 
-console.error(`\nSkill:   ${skillName}`);
+console.error(`\n${targetType === "agent" ? "Agent" : "Skill"}:   ${targetName}`);
 console.error(`Adapter: ${adapter.name}`);
 console.error(`Queries: ${evalSet.length}`);
+console.error(`Timeout: ${timeoutMs}ms`);
 console.error(`Workers: ${numWorkers}\n`);
 
 const results = await runEval(adapter, evalSet, numWorkers);
 
 const summary: EvalSummary = {
-  skill: skillName,
+  targetType,
+  targetName,
   description,
   total: results.length,
   passed: results.filter((r) => r.pass).length,
@@ -172,8 +183,8 @@ console.log(jsonOut);
 // Write HTML report
 if (values.report !== "none") {
   const reportPath =
-    values.report === "auto"
-      ? `/tmp/skill-eval-${skillName}-${Date.now()}.html`
+      values.report === "auto"
+      ? `/tmp/${targetType}-eval-${targetName}-${Date.now()}.html`
       : values.report;
   writeFileSync(reportPath, generateReport(summary));
   console.error(`\nReport: ${reportPath}`);
@@ -197,8 +208,8 @@ if (values.improve) {
     console.error(`Iteration ${i}/${maxIter}: improving...`);
     const newDesc = await improveDescription({
       adapter,
-      skillName,
-      skillPath: skillMd,
+      skillName: targetName,
+      skillPath: targetPath,
       evalResults: currentSummary,
       history,
     });
@@ -214,13 +225,15 @@ if (values.improve) {
     });
 
     // Apply and re-eval
-    applyDescription(skillMd, newDesc);
+    applyDescription(targetPath, newDesc);
     console.error(`  Re-evaluating...`);
     const newResults = await runEval(adapter, evalSet, numWorkers);
     const newPassed = newResults.filter((r) => r.pass).length;
 
     currentSummary = {
       skill: skillName,
+      targetType,
+      targetName,
       description: newDesc,
       total: newResults.length,
       passed: newPassed,
@@ -237,7 +250,7 @@ if (values.improve) {
   }
 
   if (bestDesc !== description) {
-    applyDescription(skillMd, bestDesc);
+    applyDescription(targetPath, bestDesc);
     console.error(`\nBest description applied (${bestScore}/${summary.total}):`);
     console.error(`  ${bestDesc.slice(0, 120)}...`);
   } else {

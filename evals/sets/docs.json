@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Use the docs agent before push to review the git changes and bring the documentation in sync with the behavior change.",
+    "should_trigger": true
+  },
+  {
+    "query": "Check code/docs drift for this config change and update the relevant docs before release.",
+    "should_trigger": true
+  },
+  {
+    "query": "Verify the implementation is wired correctly before handoff.",
+    "should_trigger": false
+  },
+  {
+    "query": "Investigate the root cause of this failing test.",
+    "should_trigger": false
+  }
+]

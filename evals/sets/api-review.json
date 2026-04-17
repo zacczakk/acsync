@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Use the api-review agent before service handoff to review the API, auth checks, validation, and data flow.",
+    "should_trigger": true
+  },
+  {
+    "query": "Delegate this to the api-review agent: review the change for contract drift, error handling, jobs, and operational quality.",
+    "should_trigger": true
+  },
+  {
+    "query": "Audit this frontend flow in the browser and score the UX.",
+    "should_trigger": false
+  },
+  {
+    "query": "Scan the codebase for secrets and dependency vulnerabilities before release.",
+    "should_trigger": false
+  }
+]

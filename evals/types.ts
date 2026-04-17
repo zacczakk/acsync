@@ -11,7 +11,8 @@ export interface EvalResult {
 }
 
 export interface EvalSummary {
-  skill: string;
+  targetType: "skill" | "agent";
+  targetName: string;
   description: string;
   total: number;
   passed: number;
@@ -21,5 +22,5 @@ export interface EvalSummary {
 
 export interface Adapter {
   name: string;
-  runQuery(query: string, skillName: string): Promise<boolean>;
+  runQuery(query: string, targetName: string): Promise<boolean>;
 }

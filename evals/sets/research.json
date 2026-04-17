@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Before changing the adapters, research how metronome currently syncs and renders agents across OpenCode, Claude, Gemini, and Codex. Return a research report with existing patterns and prior decisions.",
+    "should_trigger": true
+  },
+  {
+    "query": "Before implementing anything, research prior decisions, current architecture, and existing patterns for agent syncing in this repo. Return a research report.",
+    "should_trigger": true
+  },
+  {
+    "query": "Update the docs for this new API endpoint and README setup instructions.",
+    "should_trigger": false
+  },
+  {
+    "query": "Fix the failing test in the auth middleware and add a regression test.",
+    "should_trigger": false
+  }
+]

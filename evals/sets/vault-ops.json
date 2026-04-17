@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Use the vault-ops agent to write a session note to Memory and consolidate the relevant vault notes for this work.",
+    "should_trigger": true
+  },
+  {
+    "query": "Delegate this to the vault-ops agent: search the Memory and Knowledge vaults, then triage and persist the findings.",
+    "should_trigger": true
+  },
+  {
+    "query": "Run a release and write high-quality release notes.",
+    "should_trigger": false
+  },
+  {
+    "query": "Audit whether this implementation is really wired end-to-end.",
+    "should_trigger": false
+  }
+]

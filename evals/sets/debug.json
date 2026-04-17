@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Use a debugging subtask to investigate this intermittent post-login browser failure and explain what is actually happening.",
+    "should_trigger": true
+  },
+  {
+    "query": "Use the debug agent to diagnose this flaky CI failure and find the root cause before we change code.",
+    "should_trigger": true
+  },
+  {
+    "query": "Implement a new retry helper with tests.",
+    "should_trigger": false
+  },
+  {
+    "query": "Update the docs for this new config option.",
+    "should_trigger": false
+  }
+]

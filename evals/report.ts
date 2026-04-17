@@ -2,6 +2,7 @@ import type { EvalSummary } from "./types";
 
 export function generateReport(summary: EvalSummary): string {
   const passRate = ((summary.passed / summary.total) * 100).toFixed(0);
+  const label = `${summary.targetType === "agent" ? "Agent" : "Skill"} Eval`;
   const rows = summary.results
     .map((r) => {
       const status = r.pass ? "pass" : "fail";
@@ -20,7 +21,7 @@ export function generateReport(summary: EvalSummary): string {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Skill Eval: ${escapeHtml(summary.skill)}</title>
+<title>${label}: ${escapeHtml(summary.targetName)}</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: system-ui, -apple-system, sans-serif; background: #0d1117; color: #c9d1d9; padding: 2rem; }
@@ -39,7 +40,7 @@ export function generateReport(summary: EvalSummary): string {
 </style>
 </head>
 <body>
-  <h1>Skill Eval: ${escapeHtml(summary.skill)}</h1>
+  <h1>${label}: ${escapeHtml(summary.targetName)}</h1>
   <div class="meta">${new Date().toISOString()}</div>
   <div class="score"><span class="num">${summary.passed}</span> / ${summary.total} passed (${passRate}%)</div>
   <div class="desc">${escapeHtml(summary.description)}</div>

@@ -1,6 +1,6 @@
-# Skill Evals
+# Skill and Agent Evals
 
-CLI-agnostic framework for testing whether skill descriptions trigger correctly.
+Framework for testing whether skills or agents auto-route correctly.
 
 ## Quick Start
 
@@ -11,15 +11,21 @@ bun evals/runner.ts --skill session-notes --verbose
 # Use claude adapter
 bun evals/runner.ts --skill session-notes --adapter claude
 
+# Run OpenCode agent auto-routing evals
+bun evals/runner.ts --type agent --agent research --adapter opencode
+
+# Lower per-query timeout for faster routing checks
+bun evals/runner.ts --type agent --agent research --adapter opencode --timeout 20000
+
 # Improve description automatically
 bun evals/runner.ts --skill session-notes --improve --iterations 3
 ```
 
 ## How It Works
 
-1. The runner reads an eval set (`evals/sets/<skill>.json`) — an array of `{query, should_trigger}` pairs.
-2. For each query, it spawns an agent session (`opencode run` or `claude -p`).
-3. It streams the JSON output and checks if the agent loaded the target skill.
+1. The runner reads an eval set (`evals/sets/<name>.json`) — an array of `{query, should_trigger}` pairs.
+2. For each query, it runs the selected backend.
+3. It checks whether the target skill or agent was auto-routed.
 4. Results are reported as pass/fail + an HTML report.
 
 The opencode adapter uses streaming early-exit — it kills the agent process as soon as triggering is detected (or the first step completes without triggering), so each query takes ~15-25 seconds instead of minutes.
@@ -28,8 +34,11 @@ The opencode adapter uses streaming early-exit — it kills the agent process as
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--skill` | (required) | Skill name (must exist in `configs/skills/`) |
+| `--skill` | optional | Skill name (exists in `configs/skills/`) |
+| `--type` | `skill` | Eval target type: `skill`, `agent` |
+| `--agent` | optional | Agent name (exists in `configs/agents/`) |
 | `--adapter` | `opencode` | Execution backend: `opencode`, `claude` |
+| `--timeout` | `20000` | Per-query timeout in milliseconds |
 | `--eval-set` | `evals/sets/<skill>.json` | Path to eval set JSON |
 | `--workers` | `3` | Concurrent query workers |
 | `--model` | (adapter default) | Model override |
@@ -57,7 +66,9 @@ Guidelines for writing eval queries (from Anthropic's skill-creator):
 
 ### opencode (default)
 
-Runs `opencode run --format json` and parses NDJSON stream events. Detects skill loading via `tool_use` events where `tool === "skill"`.
+For skill evals: runs `opencode run --format json` and parses NDJSON stream events.
+
+For agent evals: also uses `opencode run --format json`, but detects auto-routing via streamed `task` tool calls (`subagent_type`) and, when OpenCode emits delegation text before the tool event, an explicit delegation-text fallback.
 
 ### claude
 

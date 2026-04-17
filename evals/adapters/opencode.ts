@@ -1,49 +1,54 @@
 import type { Adapter } from "../types";
 
-const TIMEOUT_MS = 60_000;
+const DEFAULT_TIMEOUT_MS = 60_000;
 
-export function createOpenCodeAdapter(model?: string): Adapter {
+export function createOpenCodeAdapter(
+  model?: string,
+  options?: {
+    timeoutMs?: number;
+    directory?: string;
+    spawnFn?: typeof Bun.spawn;
+  },
+): Adapter {
+  const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const directory = options?.directory ?? process.cwd();
+  const spawnFn = options?.spawnFn ?? Bun.spawn;
+
   return {
     name: "opencode",
-    async runQuery(query: string, skillName: string): Promise<boolean> {
-      const args = ["run", "--format", "json", "--dir", "/tmp"];
+    async runQuery(query: string, targetName: string): Promise<boolean> {
+      const args = ["run", "--format", "json", "--dir", directory];
       if (model) args.push("--model", model);
       args.push(query);
 
-      const proc = Bun.spawn(["opencode", ...args], {
+      const proc = spawnFn(["opencode", ...args], {
         stdout: "pipe",
         stderr: "ignore",
       });
 
-      let triggered = false;
-      let resolved = false;
-
-      const result = await Promise.race([
-        streamParse(proc, skillName),
-        timeout(TIMEOUT_MS),
-      ]);
-
-      triggered = result ?? false;
-
-      // Kill immediately — we only care about triggering, not the full run
       try {
-        proc.kill();
-      } catch {}
-
-      return triggered;
+        const result = await Promise.race([
+          streamParse(proc, targetName),
+          timeout(timeoutMs),
+        ]);
+        return result ?? false;
+      } finally {
+        try {
+          proc.kill();
+        } catch {}
+      }
     },
   };
 }
 
 async function streamParse(
   proc: ReturnType<typeof Bun.spawn>,
-  skillName: string,
+  targetName: string,
 ): Promise<boolean> {
   const reader = proc.stdout.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
-  let triggered = false;
-  let firstStepDone = false;
+  let firstStepFinished = false;
 
   try {
     while (true) {
@@ -58,32 +63,36 @@ async function streamParse(
         buffer = buffer.slice(idx + 1);
 
         if (!line) continue;
+
         try {
           const event = JSON.parse(line);
 
-          // Skill trigger detected
-          if (
-            event.type === "tool_use" &&
-            event.part?.tool === "skill" &&
-            event.part?.state?.input?.name === skillName
-          ) {
-            triggered = true;
-            return true;
-          }
-
-          // First step finished without triggering the skill = not triggered
-          if (event.type === "step_finish" && !firstStepDone) {
-            firstStepDone = true;
-            if (event.part?.reason === "stop") {
-              return false;
+          if (event.type === "tool_use") {
+            const part = event.part;
+            if (part?.tool === "skill" && part?.state?.input?.name === targetName) {
+              return true;
             }
-            // If reason is "tool-calls", the step used tools — check if
-            // subsequent events include our skill. Keep reading one more step.
+            if (part?.tool === "task" && part?.state?.input?.subagent_type === targetName) {
+              return true;
+            }
           }
 
-          // Second step finish = definitely done checking
-          if (event.type === "step_finish" && firstStepDone) {
-            return triggered;
+          if (event.type === "text") {
+            const text = event.part?.text;
+            if (typeof text === "string" && indicatesAgentDelegation(text, targetName)) {
+              return true;
+            }
+          }
+
+          if (event.type === "step_finish") {
+            if (!firstStepFinished) {
+              firstStepFinished = true;
+              if (event.part?.reason === "stop") {
+                return false;
+              }
+              continue;
+            }
+            return false;
           }
         } catch {
           continue;
@@ -94,9 +103,22 @@ async function streamParse(
     reader.releaseLock();
   }
 
-  return triggered;
+  return false;
 }
 
 function timeout(ms: number): Promise<undefined> {
   return new Promise((resolve) => setTimeout(() => resolve(undefined), ms));
+}
+
+function indicatesAgentDelegation(text: string, targetName: string): boolean {
+  const normalized = text.toLowerCase();
+  const agent = targetName.toLowerCase();
+  return (
+    normalized.includes(`${agent} agent`) ||
+    normalized.includes(`launch a ${agent} agent`) ||
+    normalized.includes(`launching a ${agent} agent`) ||
+    normalized.includes(`delegate this to ${agent}`) ||
+    normalized.includes(`delegating to ${agent}`) ||
+    normalized.includes(`spin up ${agent}`)
+  );
 }

@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Use the release agent to prepare the version bump, changelog, release notes, and final publish flow for this release.",
+    "should_trigger": true
+  },
+  {
+    "query": "Delegate this to the release agent: verify release state, update the changelog, tag, push, and create release notes.",
+    "should_trigger": true
+  },
+  {
+    "query": "Review code/docs drift and update the documentation before push.",
+    "should_trigger": false
+  },
+  {
+    "query": "Investigate why the build is flaky in CI.",
+    "should_trigger": false
+  }
+]

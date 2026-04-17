@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Use the security-review agent to scan for security issues, auth flaws, exposed secrets, and dependency risk.",
+    "should_trigger": true
+  },
+  {
+    "query": "Delegate this to the security-review agent: review the auth and dependency config changes and disposition the threats.",
+    "should_trigger": true
+  },
+  {
+    "query": "Audit the backend API contracts and error handling before service handoff.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write the implementation with tests first.",
+    "should_trigger": false
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "query": "Use the implementation agent to build this feature with TDD in a subtask.",
+    "should_trigger": true
+  },
+  {
+    "query": "Use the execute agent to implement the bugfix with a failing test first.",
+    "should_trigger": true
+  },
+  {
+    "query": "Audit whether the implementation actually achieves the goal.",
+    "should_trigger": false
+  },
+  {
+    "query": "Investigate why the test is flaky before we change code.",
+    "should_trigger": false
+  }
+]

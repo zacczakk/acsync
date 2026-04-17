@@ -1,0 +1,3 @@
+[
+  { "query": "Use the design-review agent to review this UI in a real browser before design handoff.", "should_trigger": true }
+]
