@@ -383,10 +383,11 @@ all `"transport": "stdio"` servers when rendering for Codex.
 {
   "server-name": {
     "type": "stdio",
-    "command": "python",
-    "args": ["-m", "tavily_mcp"],
+    "command": "tavily-mcp",
+    "args": [],
     "env": {
-      "TAVILY_API_KEY": "actual-secret-value"
+      "TAVILY_API_KEY": "actual-secret-value",
+      "provider_ENV": "dev"
     }
   }
 }
@@ -416,9 +417,10 @@ Rules:
 {
   "server-name": {
     "type": "local",
-    "command": ["python", "-m", "tavily_mcp"],
+    "command": ["tavily-mcp"],
     "environment": {
-      "TAVILY_API_KEY": "actual-secret-value"
+      "TAVILY_API_KEY": "actual-secret-value",
+      "provider_ENV": "dev"
     },
     "enabled": true
   }
@@ -441,7 +443,7 @@ Rules:
 Rules:
 - Type naming: `"stdio"` becomes `"local"`, `"http"` becomes `"remote"`.
 - Merge `command` + `args` into a single `"command"` array
-  (e.g., `"command": ["python", "-m", "tavily_mcp"]`).
+  (e.g., `"command": ["tavily-mcp"]`).
   If `args` is empty, still use an array: `"command": ["shadcn"]`.
 - Rename `"env"` to `"environment"`.
 - Add `"enabled": true` (or `false` if canonical has `"enabled": false`).
@@ -453,10 +455,11 @@ Rules:
 ```json
 {
   "server-name": {
-    "command": "python",
-    "args": ["-m", "tavily_mcp"],
+    "command": "tavily-mcp",
+    "args": [],
     "env": {
-      "TAVILY_API_KEY": "actual-secret-value"
+      "TAVILY_API_KEY": "actual-secret-value",
+      "provider_ENV": "dev"
     }
   }
 }
@@ -503,7 +506,7 @@ Rules:
 ### Claude Code
 
 - **WebFetch is blocked** by network proxy. All web lookups must use the
-  Tavily MCP server (`python -m tavily_mcp`). The `CLAUDE.md` addendum in the
+  Tavily MCP server (`tavily-mcp`). The `CLAUDE.md` addendum in the
   system dir enforces this.
 - **SSL certificates**: `settings.json` injects `SSL_CERT_FILE` and
   `NODE_EXTRA_CA_CERTS` pointing to `~/.claude/cacert.pem`. Canonical uses
@@ -572,6 +575,7 @@ Rules:
 | Variable | Used By | Notes |
 |----------|---------|-------|
 | `TAVILY_API_KEY` | tavily MCP | In `env` block |
+| `provider_ENV` | tavily MCP | Set to `dev` for this key |
 | `CONTEXT7_API_KEY` | context7 MCP | In `headers` block |
 | `provider_BEDROCK_API_KEY` | OpenCode settings | In `provider.provider-bedrock.options.apiKey` |
 | `FOUNDRY_TOKEN` | palantir-mcp | Aliased as `FOUNDRY_TOKEN` in env block |
