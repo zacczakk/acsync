@@ -2,7 +2,8 @@
 description: >-
   Provenance-tagged technical research. Architecture discovery,
   technology evaluation, and pre-implementation investigation. Invoke when requirements,
-  architecture, prior decisions, or ecosystem fit are unclear. Read-only.
+  architecture, prior decisions, existing patterns, or how something currently works
+  are unclear, especially before implementation. Read-only.
 mode: subagent
 model: github-copilot/gpt-5.4
 color: '#a277ff'

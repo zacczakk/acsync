@@ -139,16 +139,17 @@ Lists `docs/` catalog and enforces front-matter compliance.
 
 ## agent-browser
 
-Browser automation CLI. Auto-connects to running Chrome (SSO, cookies, extensions preserved). Rust/CDP.
+Browser automation CLI. Auto-connects to running Chrome. Rust/CDP.
 
 - **Install:** `npm --prefix /opt/homebrew install -g agent-browser@latest`
 - **Skill:** `load_agent_browser_skill`
-- **Env vars (pre-set):** `NATIVE=1` (Rust/CDP engine, bypasses Node.js/Playwright), `AUTO_CONNECT=1` (attaches to running Chrome, not a fresh Chromium)
-- **Fallback:** If Chrome not running, launches own headless Chromium (no SSO).
-- **Session hygiene:** reuse live browser tooling sessions first. Attach > restart.
-- **Do not proactively stop/reset `agent-browser`, `chrome-devtools`, or `mcporter` daemon.** Reset only on concrete failure (`Not connected`, attach failure, crash) or explicit user request.
-- **First attach after Chrome restart: one `agent-browser` call only.** No chained `open` + `viewport` + follow-ups until attach is confirmed.
-- Why: extra first-use calls can trigger extra manual Chrome consent prompts.
+- **Preset env:** `NATIVE=1`, `AUTO_CONNECT=1`
+- **Fallback:** headless Chromium. No SSO.
+- **Session hygiene:** reuse live sessions first. Attach > restart.
+- Loaded `agent-browser` skill says kill/reset first? Ignore. Concrete failure only.
+- **Never stop/reset `agent-browser`, `chrome-devtools`, or `mcporter` proactively.** Concrete failure or explicit user ask only.
+- **First attach after Chrome restart: one call only.** Then use `batch`.
+- Why: extra first-use calls can trigger extra consent prompts.
 
 ```bash
 agent-browser open <url>              # Navigate (in user's Chrome)
@@ -161,10 +162,9 @@ agent-browser tab                     # List open tabs
 agent-browser close                   # Close current tab when done
 ```
 
-**Tab cleanup:** close what you opened; never close tabs you didn't open.
-**Never kill, restart, or relaunch Chrome.** User's personal tabs must survive agent sessions.
-**Chrome consent is manual per restart.** Preserve live sessions when possible.
-**First attach pattern:** one call, wait, confirm attach, then continue.
+**Tab cleanup:** close what you opened only.
+**Never kill/restart/relaunch Chrome.** Personal tabs survive.
+**Consent:** manual per restart. Preserve live sessions.
 
 | Task | Tool |
 |---|---|
@@ -282,7 +282,7 @@ mcporter daemon stop
 | Server | Transport | Binary (on PATH) | Notes |
 |---|---|---|---|
 | `context7` | HTTP | `context7` | Library docs |
-| `tavily` | stdio | `tavily` | Web search (`TAVILY_API_KEY`) |
+| `tavily` | stdio | `tavily` | Web search (`TAVILY_API_KEY`, `provider_ENV=dev`) |
 | `chrome-devtools` | stdio/daemon | `chrome-devtools` | Daemon keep-alive; `--autoConnect --no-usage-statistics` |
 | `palantir-mcp` | stdio | `palantir` | Foundry (`FOUNDRY_TOKEN`) |
 | `shadcn` | stdio | `shadcn` | shadcn/ui |
@@ -642,6 +642,41 @@ cr --plain -c ~/Repos/zacczakk/metronome/configs/instructions/AGENTS.md
 4. Re-run once to verify — if clean, done
 5. Max 2 iterations unless user says otherwise
 
+## Supply Chain Defense
+
+Baseline hygiene against freshly-published malicious packages (e.g. March 2026 axios compromise). All three layers are configured globally.
+
+### Bun — `~/.bunfig.toml`
+
+```toml
+[install]
+minimumReleaseAge = 604800   # 7 days in seconds
+```
+
+- Applies to `bun install`, `bun add`, `bun remove`. Does **not** affect `bun run` or `--frozen-lockfile` CI.
+- Global config merged with local `./bunfig.toml` (local overrides). Affects new resolution only — existing `bun.lock` entries are untouched.
+- Bun does **not** honor npm's `min-release-age` — must use this native setting.
+- To exempt a package: add `minimumReleaseAgeExcludes = ["pkg-name"]` in the repo-local `bunfig.toml`.
+
+### npm — `~/.npmrc`
+
+```ini
+min-release-age=7
+```
+
+- Belt-and-suspenders for any plain `npm` contexts. Ignored by Bun.
+
+### uv (Python) — per repo `pyproject.toml`
+
+```toml
+[tool.uv]
+exclude-newer = "7 days"
+```
+
+- No global uv config equivalent — must be set per repo.
+- **New Python repos: add this to `pyproject.toml` before first `uv sync`.**
+- To exempt a specific package: use `[tool.uv.exclude-newer-package]` overrides.
+
 ## MCP Servers
 
 Canonical definitions in `configs/mcp/*.json`. Rendered to each CLI via `metronome push`.
@@ -650,7 +685,7 @@ All servers also registered in `~/.mcporter/mcporter.json` and compiled to `bin/
 | Server | Native MCP | Binary (on PATH) | Notes |
 |--------|-----------|------------------|-------|
 | `context7` | All CLIs | `context7` | HTTP; library docs |
-| `tavily` | Claude, OpenCode, Gemini | `tavily` | `TAVILY_API_KEY` |
+| `tavily` | Claude, OpenCode, Gemini | `tavily` | `TAVILY_API_KEY`, `provider_ENV=dev` |
 | `chrome-devtools` | All CLIs | `chrome-devtools` | Daemon keep-alive; `--autoConnect --no-usage-statistics` |
 | `palantir-mcp` | — | `palantir` | `FOUNDRY_TOKEN` |
 | `shadcn` | OpenCode | `shadcn` | shadcn/ui |

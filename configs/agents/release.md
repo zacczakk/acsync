@@ -1,8 +1,9 @@
 ---
 description: >-
   Release automation agent. Verifies release state, maintains changelog,
-  pushes tags/branches, and writes high-quality release notes. Invoke for version bumps,
-  tags, releases, and final publish/push flows.
+  pushes tags/branches, and writes high-quality release notes. Invoke when asked to
+  prepare, run, or automate a version bump, release workflow, changelog, release notes,
+  tags, or final publish/push flow.
 mode: subagent
 model: github-copilot/gpt-5.4
 color: '#61ffca'

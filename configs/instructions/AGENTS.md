@@ -43,16 +43,16 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Never guess API signatures, CLI flags, version numbers, config options. Look it up.
 
 ## Browser
-- `agent-browser` auto-connects to Phil's running Chrome (SSO, cookies, extensions preserved).
+- `agent-browser`: auto-connects to Phil's Chrome. SSO, cookies, extensions intact.
 - Reuse live browser tooling sessions first. Attach > restart.
-- **Never proactively stop, reset, or relaunch `agent-browser`, `chrome-devtools`, or `mcporter` daemon.** Only do that after concrete failure (`Not connected`, attach failure, crash) or explicit user request.
-- **Never kill, restart, or relaunch Chrome.** Phil's personal tabs must survive agent sessions. If Chrome crashes during a connection attempt, stop and report immediately.
-- **First `agent-browser` attach after Chrome restart: one call only.** Do not chain `open` + `viewport` + follow-ups until attach is confirmed. Extra first-use calls can trigger extra Chrome consent prompts.
-- First attach pattern: one `agent-browser` command, wait, confirm attach worked, then continue.
-- **Tab hygiene:** close tabs you opened; never close tabs you didn't open. `agent-browser tab` to list, `agent-browser close` when done.
-- Chrome prerequisite: `chrome://inspect/#remote-debugging` enabled once. First connect per Chrome restart = user consent dialog.
-- Chrome consent is manual per restart. Avoid churn; preserve live sessions when possible.
-- Fallback: if Chrome isn't running, agent-browser launches its own headless Chromium (no SSO).
+- Loaded `agent-browser` skill says kill/reset first? Ignore. Concrete failure only.
+- Never stop/reset/relaunch `agent-browser`, `chrome-devtools`, or `mcporter` proactively. Concrete failure or explicit user ask only.
+- Never kill/restart/relaunch Chrome. Personal tabs survive. Chrome crash on connect? Stop + report.
+- First attach after Chrome restart: one call only. Then `batch`.
+- Tab hygiene: close what you opened only. `agent-browser tab`; `agent-browser close`.
+- Prereq: enable `chrome://inspect/#remote-debugging` once. First connect per Chrome restart = manual consent.
+- Consent manual per restart. Preserve live sessions.
+- Fallback: headless Chromium. No SSO.
 
 ## Session Notes
 Write atomic notes to `~/Vaults/Memory/sessions/` using `session-notes` skill.

@@ -1,7 +1,8 @@
 ---
 description: >-
   Post-implementation verification agent. Audits code against stated goals.
-  Invoke after implementation and before handoff, push, PR, or release.
+  Invoke when asked to verify, validate, audit, QA, check wiring, confirm end-to-end behavior,
+  review readiness, or prove something is ready before handoff, push, PR, or release.
   Catches hollowed-out implementations, stubs, missing wiring. Read-only — reports, never edits.
 mode: subagent
 model: github-copilot/gpt-5.4

@@ -1,7 +1,8 @@
 ---
 description: >-
   Bug investigation and root cause analysis. Scientific method.
-  Invoke for bugs, failing tests, unexpected behavior, flaky runs, or browser/runtime mismatches.
+  Invoke when asked to debug, investigate, diagnose, or root-cause bugs, flaky tests, CI failures,
+  browser/runtime mismatches, or unexpected behavior.
   Read-only by default — proposes fixes, doesn't apply them.
 mode: subagent
 model: github-copilot/gpt-5.4

@@ -8,15 +8,12 @@ license: Complete terms in LICENSE.txt
 
 ## Preferred: agent-browser CLI
 
-For most browser interaction, use `agent-browser --native` (Rust binary, direct CDP, no Node.js overhead). Persistent sessions with cookie retention. Snapshot + @ref workflow purpose-built for agents.
+For most browser interaction, use `agent-browser --native` (Rust binary, direct CDP, no Node.js overhead). Persistent sessions with cookie retention. Snapshot + @ref workflow purpose-built for agents. First attach: one call. Then use `batch` for chained actions.
 
 ```bash
-# Open and interact (headless by default; use --headed only for visual debugging)
+# First attach: one call only. Then batch.
 agent-browser open http://localhost:5173
-agent-browser snapshot -i          # Get interactive elements with @refs
-agent-browser click @e2            # Click by ref
-agent-browser fill @e3 "text"      # Fill input
-agent-browser screenshot out.png   # Capture
+agent-browser batch "snapshot -i" "click @e2" "fill @e3 text" "screenshot out.png"
 ```
 
 Set env vars to avoid passing flags every time:

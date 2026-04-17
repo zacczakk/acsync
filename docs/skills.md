@@ -1,5 +1,5 @@
 ---
-summary: Skills catalog — all 21 on-demand skills with sources, triggers, and trimming notes.
+summary: Skills catalog — all 22 on-demand skills with sources, triggers, and trimming notes.
 read_when:
   - Adding or modifying skills
   - Reviewing what's available

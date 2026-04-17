@@ -1,8 +1,9 @@
 ---
 description: >-
   TDD implementation workhorse. Writes failing tests first, implements minimum
-  code to pass, refactors. Invoke for implementation tasks that should not pollute
-  the main context. Produces commit-ready code with full verification.
+  code to pass, refactors. Invoke when asked to implement, build, add, fix, code,
+  or ship a feature or bugfix with tests in a subtask so the main context stays lean.
+  Produces commit-ready code with full verification.
 mode: subagent
 model: github-copilot/gpt-5.4
 color: '#61ffca'

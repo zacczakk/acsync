@@ -2,8 +2,10 @@
 description: >-
   Vault operations agent for Memory and Knowledge vault management.
   Use for: session note writing, inbox triage, memory consolidation,
-  vault search/lookup, backlog grooming. Invoke whenever work should be persisted,
-  recalled, consolidated, or triaged across the vaults. Has access to obsidian CLI,
+  vault search/lookup, backlog grooming. Invoke when asked to write or persist a session note,
+  search Memory/Knowledge, search the vaults, persist findings, consolidate notes,
+  or triage vault work.
+  Has access to obsidian CLI,
   qmd, sessions CLI, and ripgrep.
 mode: subagent
 model: github-copilot/gpt-5.4
