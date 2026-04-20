@@ -6,9 +6,14 @@ read_when:
 
 # Changelog
 
-## v1.3.8 — 2026-03-20
+## v1.3.8 — 2026-04-20
 
-- **Notify plugin subagent filter** — suppress `session.idle` notifications for subagent sessions; track root sessions via `session.created`/`session.deleted` events; permission, question, and error notifications still fire for all sessions
+- **Subagent workflow expansion** — added dedicated review/research/debug/docs/release/security/infra/verify agents plus subagent-driven planning and execution skills for tighter task handoff and review loops
+- **Design tooling layer** — added design-context commands, `design-critique`, upgraded `frontend-design`, and shipped minimal design specs/plans for repeatable UI review and polish work
+- **Skill and tooling refresh** — added release, git-worktree, system-debugging, TDD, verification, and writing-plan skills; expanded TOOLS/AGENTS guidance; added eval coverage and reporting for more agent flows
+- **CLI and sync improvements** — added eval runner/reporting, `sessions` helper, `--json` support on `diff`, better non-TTY pull behavior, stronger validation/read-guard plugins, and updated MCP/settings sync behavior
+- **MCP fixes** — default Tavily MCP to `provider_ENV=dev`, preserve disabled Claude MCP servers, and keep OpenCode MCP goldens aligned with current env output
+- **Docs and repo refresh** — updated README/architecture/overview, added logo assets, improved release automation docs, and continued repo-wide canonical cleanup
 
 ## v1.3.7 — 2026-02-03
 

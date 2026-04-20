@@ -1,6 +1,6 @@
 {
   "name": "metronome",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "description": "Agent Config Sync — single source of truth for AI coding assistant configs",
   "bin": {
     "metronome": "./src/cli/index.ts"
