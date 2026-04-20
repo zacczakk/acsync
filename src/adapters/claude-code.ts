@@ -72,22 +72,26 @@ export class ClaudeCodeAdapter extends BaseAdapter {
     return JSON.stringify(extracted, null, 2) + '\n';
   }
 
-  renderMCPServers(servers: MCPServer[], existingContent?: string): string {
-    // Filter out servers disabled for this target OR globally disabled
-    // (Claude Code has no native disabled mechanism)
-    const filtered = servers.filter(
-      (s) => !s.disabledFor?.includes('claude-code') && s.enabled !== false,
-    );
+  override getRenderedServerNames(servers: MCPServer[]): string[] {
+    return servers
+      .filter((s) => !s.disabledFor?.includes('claude-code'))
+      .map((s) => s.name);
+  }
+
+  override renderMCPServers(servers: MCPServer[], existingContent?: string): string {
+    const filtered = servers.filter((s) => !s.disabledFor?.includes('claude-code'));
 
     const mcpServers: Record<string, unknown> = {};
     for (const server of filtered) {
       if (server.transport === 'stdio') {
         const cfg: Record<string, unknown> = { command: server.command, args: server.args ?? [] };
         if (server.env && Object.keys(server.env).length > 0) cfg.env = server.env;
+        if (server.enabled === false) cfg.enabled = false;
         mcpServers[server.name] = cfg;
       } else {
         const cfg: Record<string, unknown> = { type: 'http', url: server.url };
         if (server.headers && Object.keys(server.headers).length > 0) cfg.headers = server.headers;
+        if (server.enabled === false) cfg.enabled = false;
         mcpServers[server.name] = cfg;
       }
     }

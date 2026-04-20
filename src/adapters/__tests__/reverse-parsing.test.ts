@@ -84,6 +84,28 @@ describe('Gemini parseCommand (TOML reverse)', () => {
   });
 });
 
+describe('Base JSON MCP reverse parsing', () => {
+  test('Gemini preserves enabled: false from JSON mcpServers config', () => {
+    const adapter = new GeminiAdapter();
+    const content = JSON.stringify({
+      mcpServers: {
+        tavily: {
+          type: 'http',
+          url: 'https://mcp.tavily.com/mcp',
+          headers: { Authorization: 'Bearer ${TAVILY_API_KEY}' },
+          enabled: false,
+        },
+      },
+    });
+
+    const [server] = adapter.parseMCPServers(content);
+
+    expect(server).toBeDefined();
+    expect(server?.name).toBe('tavily');
+    expect(server?.enabled).toBe(false);
+  });
+});
+
 describe('Codex parseCommand (flat markdown reverse)', () => {
   const adapter = new CodexAdapter();
 

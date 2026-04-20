@@ -116,7 +116,7 @@ describe('ClaudeCodeAdapter.renderMCPServers', () => {
     expect(result.endsWith('\n')).toBe(true);
   });
 
-  test('excludes servers with enabled: false (no native disabled support)', () => {
+  test('renders enabled: false servers with disabled flag', () => {
     const disabled: MCPServer = {
       name: 'thinking',
       transport: 'stdio',
@@ -128,10 +128,11 @@ describe('ClaudeCodeAdapter.renderMCPServers', () => {
     const parsed = JSON.parse(result);
 
     expect(parsed.mcpServers.context7).toBeDefined();
-    expect(parsed.mcpServers.thinking).toBeUndefined();
+    expect(parsed.mcpServers.thinking).toBeDefined();
+    expect(parsed.mcpServers.thinking.enabled).toBe(false);
   });
 
-  test('getRenderedServerNames excludes enabled: false servers', () => {
+  test('getRenderedServerNames includes enabled: false servers', () => {
     const disabled: MCPServer = {
       name: 'thinking',
       transport: 'stdio',
@@ -139,7 +140,49 @@ describe('ClaudeCodeAdapter.renderMCPServers', () => {
       enabled: false,
     };
     const names = adapter.getRenderedServerNames([stdioServer, disabled]);
-    expect(names).toEqual(['context7']);
+    expect(names).toEqual(['context7', 'thinking']);
+  });
+
+  test('parseMCPServers preserves enabled: false from Claude config', () => {
+    const content = JSON.stringify({
+      mcpServers: {
+        context7: {
+          command: 'npx',
+          args: ['-y', '@context7/mcp'],
+          env: { CONTEXT7_API_KEY: '${CONTEXT7_API_KEY}' },
+        },
+        thinking: {
+          command: 'npx',
+          args: ['-y', '@mcp/thinking'],
+          enabled: false,
+        },
+      },
+    });
+
+    const servers = adapter.parseMCPServers(content);
+    expect(servers).toHaveLength(2);
+    const thinking = servers.find((server) => server.name === 'thinking');
+    expect(thinking).toBeDefined();
+    expect(thinking?.enabled).toBe(false);
+  });
+
+  test('parseMCPServers leaves enabled undefined when omitted', () => {
+    const content = JSON.stringify({
+      mcpServers: {
+        tavily: {
+          type: 'http',
+          url: 'https://mcp.tavily.com/mcp',
+          headers: { Authorization: 'Bearer ${TAVILY_API_KEY}' },
+        },
+      },
+    });
+
+    const [server] = adapter.parseMCPServers(content);
+    expect(server).toBeDefined();
+    expect(server?.transport).toBe('http');
+    expect(server?.url).toBe('https://mcp.tavily.com/mcp');
+    expect(server?.headers).toEqual({ Authorization: 'Bearer ${TAVILY_API_KEY}' });
+    expect(server.enabled).toBeUndefined();
   });
 
   test('parseExistingMCPServerNames extracts mcpServers keys', () => {

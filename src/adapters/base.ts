@@ -320,6 +320,10 @@ export abstract class BaseAdapter implements ToolAdapter {
           }
         }
 
+        if (cfg.enabled === false) {
+          server.enabled = false;
+        }
+
         servers.push(server);
       }
       return servers;
