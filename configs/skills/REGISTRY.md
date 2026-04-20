@@ -58,11 +58,12 @@ Machine-readable companion: `registry.json` (consumed by `scripts/sync-upstream-
 | writing-plans | writing-plans | writing-plans | No | auto |
 | writing-skills | writing-skills | writing-skills | No | auto |
 
-## Custom (4)
+## Custom (5)
 
 | Skill | Description |
 |-------|-------------|
 | obsidian-vault-conventions | Vault layout, lifecycle, naming conventions |
+| release | Release orchestration: version bumps, changelog, docs, CI gates, PII scan, tagging |
 | session-notes | Atomic session note capture templates |
 | screenshot-workflow | Screenshot asset pipeline (macOS) |
 | provider-docs | Internal platform documentation |
