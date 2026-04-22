@@ -10,7 +10,7 @@ import { createBackup, restoreAll, cleanupAll } from '../core/rollback';
 import { atomicWrite } from '../infra/atomic-write';
 import { createExclusionFilter } from '../infra/exclusion';
 import { stringifyFrontmatter } from '../formats/markdown';
-import { ALL_TARGETS, COMMANDS_DIR, AGENTS_DIR, SKILLS_DIR, SETTINGS_DIR, MCP_DIR, INSTRUCTIONS_DIR, PLUGINS_DIR, PROJECT_ROOT, createAdapter, readCanonicalSettings } from './canonical';
+import { ALL_TARGETS, COMMANDS_DIR, AGENTS_DIR, SKILLS_DIR, SETTINGS_DIR, MCP_DIR, INSTRUCTIONS_DIR, PLUGINS_DIR, HOOKS_DIR, PROJECT_ROOT, createAdapter, readCanonicalSettings } from './canonical';
 import { confirm, validatePullSource } from './cli-helpers';
 import type { TargetName } from '../types';
 import type { BackupInfo } from '../core/rollback';
@@ -28,7 +28,7 @@ export interface PullOptions {
 }
 
 export interface PullItem {
-  type: 'command' | 'agent' | 'skill' | 'settings' | 'mcp' | 'instruction' | 'plugin';
+  type: 'command' | 'agent' | 'skill' | 'settings' | 'mcp' | 'instruction' | 'plugin' | 'hook';
   name: string;
   action: 'create' | 'skip';
   targetPath: string;
@@ -249,6 +249,28 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
     }
   }
 
+  // Hooks pull: copy hook config to canonical location
+  if (caps.hooks) {
+    const hooksPath = paths.getHooksPath();
+    if (!options.onlyKeys || options.onlyKeys.has('hook/hooks')) {
+      try {
+        const hooksFile = Bun.file(hooksPath);
+        if (await hooksFile.exists()) {
+          const hookFile = options.source === 'claude-code' ? 'claude.json' : `${options.source}.json`;
+          const targetPath = join(projectDir, HOOKS_DIR, hookFile);
+
+          if (!options.force && existsSync(targetPath)) {
+            items.push({ type: 'hook', name: 'hooks', action: 'skip', targetPath });
+          } else {
+            items.push({ type: 'hook', name: 'hooks', action: 'create', targetPath });
+          }
+        }
+      } catch {
+        // Hooks file missing or unreadable — skip
+      }
+    }
+  }
+
   // MCP pull: parse MCP config from target, create canonical JSON per server
   if (caps.mcp) {
     const mcpConfigPath = paths.getMCPConfigPath();
@@ -325,8 +347,7 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
         await mkdir(join(projectDir, COMMANDS_DIR), { recursive: true });
         await atomicWrite(item.targetPath, rendered);
       } else if (item.type === 'agent') {
-        const filePath = paths.getAgentFilePath(item.name);
-        const content = await readFile(filePath, 'utf-8');
+        const content = await adapter.readAgentFile(item.name);
         const canonical = adapter.parseAgent(item.name, content);
         const rendered = collapseHomePaths(stringifyFrontmatter(canonical.content, canonical.metadata), homeDir);
         await mkdir(join(projectDir, AGENTS_DIR), { recursive: true });
@@ -366,6 +387,10 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
         const instrContent = collapseHomePaths(await readFile(paths.getInstructionsPath(), 'utf-8'), homeDir);
         await mkdir(join(projectDir, INSTRUCTIONS_DIR), { recursive: true });
         await atomicWrite(item.targetPath, instrContent);
+      } else if (item.type === 'hook') {
+        const hooksContent = collapseHomePaths(await readFile(paths.getHooksPath(), 'utf-8'), homeDir);
+        await mkdir(join(projectDir, HOOKS_DIR), { recursive: true });
+        await atomicWrite(item.targetPath, hooksContent);
       }
     }
 

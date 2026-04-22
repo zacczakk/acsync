@@ -1,4 +1,6 @@
 import { BaseAdapter } from './base';
+import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
 import { stringifyFrontmatter } from '../formats/markdown';
 import { readJson, writeJson } from '../formats/json';
 import { readToml } from '../formats/toml';
@@ -15,7 +17,7 @@ export class GeminiAdapter extends BaseAdapter {
   }
 
   getCapabilities(): AdapterCapabilities {
-    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: false, plugins: false };
+    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: false, plugins: false, hooks: false };
   }
 
   /** Gemini commands are TOML files: my-plan.toml → my-plan */
@@ -67,11 +69,10 @@ export class GeminiAdapter extends BaseAdapter {
   }
 
   renderMCPServers(servers: MCPServer[], existingContent?: string): string {
-    // Filter out servers disabled for this target OR globally disabled
-    // (Gemini has no native disabled mechanism)
-    const filtered = servers.filter(
-      (s) => !s.disabledFor?.includes('gemini') && s.enabled !== false,
-    );
+    const filtered = servers.filter((s) => !s.disabledFor?.includes('gemini'));
+    const excluded = filtered
+      .filter((server) => server.enabled === false)
+      .map((server) => server.name);
 
     const mcpServers: Record<string, unknown> = {};
     for (const server of filtered) {
@@ -80,7 +81,7 @@ export class GeminiAdapter extends BaseAdapter {
         if (server.env && Object.keys(server.env).length > 0) cfg.env = server.env;
         mcpServers[server.name] = cfg;
       } else {
-        const cfg: Record<string, unknown> = { url: server.url };
+        const cfg: Record<string, unknown> = { httpUrl: server.url };
         if (server.headers && Object.keys(server.headers).length > 0) cfg.headers = server.headers;
         mcpServers[server.name] = cfg;
       }
@@ -91,6 +92,97 @@ export class GeminiAdapter extends BaseAdapter {
       base = readJson<Record<string, unknown>>(existingContent);
     }
 
-    return writeJson({ ...base, mcpServers });
+    const mcp = typeof base.mcp === 'object' && base.mcp !== null && !Array.isArray(base.mcp)
+      ? { ...(base.mcp as Record<string, unknown>) }
+      : {};
+
+    if (excluded.length > 0) {
+      mcp.excluded = excluded;
+    } else {
+      delete mcp.excluded;
+    }
+
+    const next: Record<string, unknown> = { ...base, mcpServers };
+    if (Object.keys(mcp).length > 0) next.mcp = mcp;
+    else delete next.mcp;
+
+    return writeJson(next);
+  }
+
+  override getRenderedServerNames(servers: MCPServer[]): string[] {
+    return servers
+      .filter((s) => !s.disabledFor?.includes('gemini'))
+      .map((s) => s.name);
+  }
+
+  override parseMCPServers(content: string): MCPServer[] {
+    try {
+      const parsed = readJson<Record<string, unknown>>(content);
+      const mcpServers = parsed.mcpServers as Record<string, Record<string, unknown>> | undefined;
+      if (!mcpServers) return [];
+
+      const excluded = new Set(this.getExcludedServerNames(parsed));
+      const persistentlyDisabled = new Set(this.getPersistentlyDisabledServerNames());
+      const servers: MCPServer[] = [];
+
+      for (const [name, cfg] of Object.entries(mcpServers)) {
+        const lowerName = name.toLowerCase();
+        const transport: 'stdio' | 'http' = cfg.command ? 'stdio' : 'http';
+        const server: MCPServer = { name, transport };
+
+        if (transport === 'stdio') {
+          server.command = cfg.command as string;
+          if (cfg.args) server.args = cfg.args as string[];
+          if (cfg.env && typeof cfg.env === 'object') {
+            server.env = cfg.env as Record<string, string>;
+            server.envVars = Object.keys(cfg.env as Record<string, string>);
+          }
+        } else {
+          server.url = (cfg.httpUrl as string | undefined) ?? (cfg.url as string | undefined);
+          if (cfg.headers && typeof cfg.headers === 'object') {
+            server.headers = cfg.headers as Record<string, string>;
+          }
+        }
+
+        if (
+          cfg.enabled === false
+          || excluded.has(lowerName)
+          || persistentlyDisabled.has(lowerName)
+        ) {
+          server.enabled = false;
+        }
+
+        servers.push(server);
+      }
+
+      return servers;
+    } catch {
+      return [];
+    }
+  }
+
+  private getExcludedServerNames(parsed: Record<string, unknown>): string[] {
+    const mcp = parsed.mcp;
+    if (typeof mcp !== 'object' || mcp === null || Array.isArray(mcp)) return [];
+    const excluded = (mcp as Record<string, unknown>).excluded;
+    if (!Array.isArray(excluded)) return [];
+
+    return excluded
+      .filter((name): name is string => typeof name === 'string')
+      .map((name) => name.toLowerCase());
+  }
+
+  private getPersistentlyDisabledServerNames(): string[] {
+    const enablementPath = path.join(this.paths.getBaseDir(), 'mcp-server-enablement.json');
+    if (!existsSync(enablementPath)) return [];
+
+    try {
+      const parsed = readJson<Record<string, { enabled?: boolean }>>(readFileSync(enablementPath, 'utf-8'));
+      return Object.entries(parsed)
+        .filter(([, state]) => state?.enabled === false)
+        .map(([name]) => name.toLowerCase());
+    } catch {
+      return [];
+    }
   }
 }

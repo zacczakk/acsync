@@ -58,15 +58,15 @@ describe('Gemini commandNameFromFile', () => {
 describe('Codex agentNameFromFile', () => {
   const adapter = new TestCodexAdapter();
 
-  test('agent-my-planner.md returns my-planner', () => {
-    expect(adapter.testAgentNameFromFile('agent-my-planner.md')).toBe('my-planner');
+  test('my-planner.toml returns my-planner', () => {
+    expect(adapter.testAgentNameFromFile('my-planner.toml')).toBe('my-planner');
   });
 
-  test('agent-my-reviewer.md returns my-reviewer', () => {
-    expect(adapter.testAgentNameFromFile('agent-my-reviewer.md')).toBe('my-reviewer');
+  test('my-reviewer.toml returns my-reviewer', () => {
+    expect(adapter.testAgentNameFromFile('my-reviewer.toml')).toBe('my-reviewer');
   });
 
-  test('my-planner.md returns null (no agent- prefix)', () => {
+  test('my-planner.md returns null (not .toml)', () => {
     expect(adapter.testAgentNameFromFile('my-planner.md')).toBeNull();
   });
 });
@@ -104,6 +104,26 @@ describe('Base JSON MCP reverse parsing', () => {
     expect(server?.name).toBe('tavily');
     expect(server?.enabled).toBe(false);
   });
+
+  test('Gemini preserves disabled state from mcp.excluded', () => {
+    const adapter = new GeminiAdapter();
+    const content = JSON.stringify({
+      mcpServers: {
+        tavily: {
+          httpUrl: 'https://mcp.tavily.com/mcp',
+        },
+      },
+      mcp: {
+        excluded: ['tavily'],
+      },
+    });
+
+    const [server] = adapter.parseMCPServers(content);
+
+    expect(server).toBeDefined();
+    expect(server?.name).toBe('tavily');
+    expect(server?.enabled).toBe(false);
+  });
 });
 
 describe('Codex parseCommand (flat markdown reverse)', () => {
@@ -119,26 +139,26 @@ describe('Codex parseCommand (flat markdown reverse)', () => {
   });
 });
 
-describe('Codex parseAgent (flat markdown reverse)', () => {
+describe('Codex parseAgent (TOML reverse)', () => {
   const adapter = new CodexAdapter();
 
-  test('parses agent with allowed tools', () => {
-    const input = `# Agent: my-planner\n\n**Role**: Plans tasks\n\n**Allowed Tools**: Read, Write\n\nInstructions here.\n`;
+  test('parses custom agent TOML', () => {
+    const input = `name = "my-planner"\ndescription = "Plans tasks"\nmodel_reasoning_effort = "medium"\nsandbox_mode = "read-only"\ndeveloper_instructions = '''\nInstructions here.\n'''\n`;
     const result = adapter.parseAgent('my-planner', input);
 
     expect(result.name).toBe('my-planner');
     expect(result.content).toBe('Instructions here.');
     expect(result.metadata.description).toBe('Plans tasks');
-    expect(result.metadata['allowed-tools']).toEqual(['Read', 'Write']);
+    expect(result.metadata.model_reasoning_effort).toBe('medium');
+    expect(result.metadata.sandbox_mode).toBe('read-only');
   });
 
-  test('parses agent without allowed tools', () => {
+  test('falls back to legacy flat markdown parsing', () => {
     const input = `# Agent: my-reviewer\n\n**Role**: Reviews code\n\nReview instructions.\n`;
     const result = adapter.parseAgent('my-reviewer', input);
 
     expect(result.name).toBe('my-reviewer');
     expect(result.content).toBe('Review instructions.');
     expect(result.metadata.description).toBe('Reviews code');
-    expect(result.metadata['allowed-tools']).toBeUndefined();
   });
 });

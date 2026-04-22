@@ -1,3 +1,14 @@
+[mcp_servers.tavily]
+command = "python"
+args = [ "-m", "tavily_mcp" ]
+env_vars = [ "TAVILY_API_KEY" ]
+
+[mcp_servers.tavily.env]
+TAVILY_API_KEY = "${TAVILY_API_KEY}"
+provider_ENV = "dev"
+
 [mcp_servers.context7]
 url = "https://mcp.context7.com/mcp"
 
+[mcp_servers.context7.env_http_headers]
+CONTEXT7_API_KEY = "CONTEXT7_API_KEY"

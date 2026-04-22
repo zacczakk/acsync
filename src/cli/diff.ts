@@ -13,6 +13,7 @@ import {
   readCanonicalSkills,
   readCanonicalSettings,
   readCanonicalPlugins,
+  readCanonicalHooks,
 } from './canonical';
 import { runCheck } from './check';
 import { mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
@@ -133,6 +134,17 @@ async function renderOpDiff(
       // No existing file
     }
     rendered = adapter.renderSettings(settings, existingContent);
+  } else if (op.itemType === 'hook') {
+    if (!caps.hooks) return null;
+    const hooks = await readCanonicalHooks(cache.projectDir, target);
+    if (!hooks) return null;
+    let existingContent: string | undefined;
+    try {
+      existingContent = await readFile(op.targetPath, 'utf-8');
+    } catch {
+      // No existing file
+    }
+    rendered = adapter.renderHooks(hooks, existingContent);
   } else {
     return null;
   }

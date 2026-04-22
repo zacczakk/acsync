@@ -57,13 +57,13 @@ export function seedTargetFixtures(
       claude: join(fakeHome, '.claude', 'agents'),
       opencode: join(fakeHome, '.config', 'opencode', 'agents'),
       gemini: join(fakeHome, '.gemini', 'agents'),
-      codex: join(fakeHome, '.codex', 'prompts'),
+      codex: join(fakeHome, '.codex', 'agents'),
     },
     skills: {
       claude: join(fakeHome, '.claude', 'skills'),
       opencode: join(fakeHome, '.config', 'opencode', 'skill'),
       gemini: join(fakeHome, '.gemini', 'skills'),
-      codex: join(fakeHome, '.codex', 'skills'),
+      codex: join(fakeHome, '.agents', 'skills'),
     },
     instructions: {
       claude: join(fakeHome, '.claude'),
@@ -79,5 +79,4 @@ export function seedTargetFixtures(
   mkdirSync(dest, { recursive: true });
   cpSync(src, dest, { recursive: true });
 }
-
 

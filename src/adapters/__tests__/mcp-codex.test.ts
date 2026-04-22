@@ -6,100 +6,124 @@ import type { MCPServer } from '../../types';
 const adapter = new CodexAdapter();
 
 const httpServer: MCPServer = {
-  name: 'tavily',
+  name: 'context7',
   transport: 'http',
-  url: 'https://mcp.tavily.com/mcp',
-  envVars: ['TAVILY_API_KEY'],
-  headers: { Authorization: 'Bearer ${TAVILY_API_KEY}' },
+  url: 'https://mcp.context7.com/mcp',
+  headers: {
+    'X-Static': 'static-value',
+    'X-Env': '${CONTEXT7_API_KEY}',
+    Authorization: 'Bearer ${CONTEXT7_BEARER_TOKEN}',
+  },
 };
 
 const stdioServer: MCPServer = {
-  name: 'context7',
+  name: 'tavily',
   transport: 'stdio',
-  command: 'npx',
-  args: ['-y', '@context7/mcp'],
-  env: { CONTEXT7_API_KEY: '${CONTEXT7_API_KEY}' },
+  command: 'python',
+  args: ['-m', 'tavily_mcp'],
+  envVars: ['TAVILY_API_KEY'],
+  env: {
+    TAVILY_API_KEY: '${TAVILY_API_KEY}',
+    provider_ENV: 'dev',
+  },
 };
 
 describe('CodexAdapter.renderMCPServers', () => {
-  test('skips stdio servers entirely — only HTTP in output', () => {
+  test('renders both stdio and HTTP servers', () => {
     const result = adapter.renderMCPServers([stdioServer, httpServer]);
     const parsed = readToml<Record<string, unknown>>(result);
-    const mcp = parsed.mcp_servers as Record<string, unknown>;
+    const mcp = parsed.mcp_servers as Record<string, Record<string, unknown>>;
 
-    expect(mcp.context7).toBeUndefined();
+    expect(mcp.context7).toBeDefined();
     expect(mcp.tavily).toBeDefined();
   });
 
   test('produces TOML with mcp_servers section', () => {
     const result = adapter.renderMCPServers([httpServer]);
-    expect(result).toContain('[mcp_servers.tavily]');
+    expect(result).toContain('[mcp_servers.context7]');
   });
 
-  test('includes url for http server', () => {
+  test('includes url for HTTP server', () => {
     const result = adapter.renderMCPServers([httpServer]);
     const parsed = readToml<Record<string, unknown>>(result);
     const mcp = parsed.mcp_servers as Record<string, Record<string, unknown>>;
-    expect(mcp.tavily.url).toBe('https://mcp.tavily.com/mcp');
+    expect(mcp.context7.url).toBe('https://mcp.context7.com/mcp');
   });
 
-  test('env_vars array contains bare variable names (no ${} wrapping)', () => {
-    const result = adapter.renderMCPServers([httpServer]);
+  test('renders stdio env_vars array with bare variable names', () => {
+    const result = adapter.renderMCPServers([stdioServer]);
     const parsed = readToml<Record<string, unknown>>(result);
     const mcp = parsed.mcp_servers as Record<string, Record<string, unknown>>;
     expect(mcp.tavily.env_vars).toEqual(['TAVILY_API_KEY']);
+  });
+
+  test('renders stdio env table', () => {
+    const result = adapter.renderMCPServers([stdioServer]);
+    const parsed = readToml<Record<string, unknown>>(result);
+    const mcp = parsed.mcp_servers as Record<string, Record<string, unknown>>;
+    expect(mcp.tavily.env).toEqual({
+      TAVILY_API_KEY: '${TAVILY_API_KEY}',
+      provider_ENV: 'dev',
+    });
   });
 
   test('extracts bearer_token_env_var from Authorization header', () => {
     const result = adapter.renderMCPServers([httpServer]);
     const parsed = readToml<Record<string, unknown>>(result);
     const mcp = parsed.mcp_servers as Record<string, Record<string, unknown>>;
-    expect(mcp.tavily.bearer_token_env_var).toBe('TAVILY_API_KEY');
+    expect(mcp.context7.bearer_token_env_var).toBe('CONTEXT7_BEARER_TOKEN');
   });
 
-  test('omits bearer_token_env_var when no Authorization header', () => {
-    const noAuth: MCPServer = {
-      name: 'simple',
-      transport: 'http',
-      url: 'https://example.com/mcp',
-      envVars: ['API_KEY'],
-    };
-    const result = adapter.renderMCPServers([noAuth]);
+  test('renders env_http_headers from ${VAR} header values', () => {
+    const result = adapter.renderMCPServers([httpServer]);
     const parsed = readToml<Record<string, unknown>>(result);
     const mcp = parsed.mcp_servers as Record<string, Record<string, unknown>>;
-    expect(mcp.simple.bearer_token_env_var).toBeUndefined();
+    expect(mcp.context7.env_http_headers).toEqual({ 'X-Env': 'CONTEXT7_API_KEY' });
   });
 
-  test('omits env_vars when not provided', () => {
-    const noEnvVars: MCPServer = {
-      name: 'minimal',
+  test('renders http_headers from static header values', () => {
+    const result = adapter.renderMCPServers([httpServer]);
+    const parsed = readToml<Record<string, unknown>>(result);
+    const mcp = parsed.mcp_servers as Record<string, Record<string, unknown>>;
+    expect(mcp.context7.http_headers).toEqual({ 'X-Static': 'static-value' });
+  });
+
+  test('omits bearer_token_env_var when Authorization is not bearer env-backed', () => {
+    const noBearer: MCPServer = {
+      name: 'simple-http',
       transport: 'http',
       url: 'https://example.com/mcp',
+      headers: { Authorization: 'Basic abc123' },
     };
+    const result = adapter.renderMCPServers([noBearer]);
+    const parsed = readToml<Record<string, unknown>>(result);
+    const mcp = parsed.mcp_servers as Record<string, Record<string, unknown>>;
+    expect(mcp['simple-http'].bearer_token_env_var).toBeUndefined();
+  });
+
+  test('omits stdio env_vars when not provided', () => {
+    const noEnvVars: MCPServer = { name: 'bare', transport: 'stdio', command: 'mytool', args: [] };
     const result = adapter.renderMCPServers([noEnvVars]);
     const parsed = readToml<Record<string, unknown>>(result);
     const mcp = parsed.mcp_servers as Record<string, Record<string, unknown>>;
-    expect(mcp.minimal.env_vars).toBeUndefined();
+    expect(mcp.bare.env_vars).toBeUndefined();
   });
 
   test('filters out servers disabled for codex', () => {
     const disabled: MCPServer = {
       name: 'not-for-codex',
-      transport: 'http',
-      url: 'https://example.com/mcp',
+      transport: 'stdio',
+      command: 'nope',
+      args: [],
       disabledFor: ['codex'],
     };
-    const result = adapter.renderMCPServers([httpServer, disabled]);
+    const result = adapter.renderMCPServers([stdioServer, httpServer, disabled]);
     const parsed = readToml<Record<string, unknown>>(result);
     const mcp = parsed.mcp_servers as Record<string, unknown>;
 
+    expect(mcp.context7).toBeDefined();
     expect(mcp.tavily).toBeDefined();
     expect(mcp['not-for-codex']).toBeUndefined();
-  });
-
-  test('returns empty string when all servers are stdio', () => {
-    const result = adapter.renderMCPServers([stdioServer]);
-    expect(result).toBe('');
   });
 
   test('returns empty string for empty server list', () => {
@@ -107,42 +131,50 @@ describe('CodexAdapter.renderMCPServers', () => {
     expect(result).toBe('');
   });
 
-  test('handles multiple HTTP servers', () => {
+  test('handles multiple servers', () => {
     const second: MCPServer = {
-      name: 'another',
-      transport: 'http',
-      url: 'https://another.com/mcp',
+      name: 'another-stdio',
+      transport: 'stdio',
+      command: 'node',
+      args: ['server.js'],
     };
-    const result = adapter.renderMCPServers([httpServer, second]);
+    const result = adapter.renderMCPServers([httpServer, stdioServer, second]);
     const parsed = readToml<Record<string, unknown>>(result);
     const mcp = parsed.mcp_servers as Record<string, unknown>;
-    expect(Object.keys(mcp)).toHaveLength(2);
+    expect(Object.keys(mcp)).toHaveLength(3);
   });
 
-  test('excludes HTTP servers with enabled: false', () => {
+  test('renders enabled = false for disabled servers', () => {
     const disabled: MCPServer = {
-      name: 'disabled-http',
-      transport: 'http',
-      url: 'https://example.com/mcp',
+      name: 'disabled-stdio',
+      transport: 'stdio',
+      command: 'node',
+      args: ['disabled.js'],
       enabled: false,
     };
-    const result = adapter.renderMCPServers([httpServer, disabled]);
+    const result = adapter.renderMCPServers([disabled]);
     const parsed = readToml<Record<string, unknown>>(result);
-    const mcp = parsed.mcp_servers as Record<string, unknown>;
+    const mcp = parsed.mcp_servers as Record<string, Record<string, unknown>>;
 
-    expect(mcp.tavily).toBeDefined();
-    expect(mcp['disabled-http']).toBeUndefined();
+    expect(mcp['disabled-stdio'].enabled).toBe(false);
   });
 
-  test('getRenderedServerNames excludes stdio, disabledFor, and enabled: false', () => {
+  test('getRenderedServerNames excludes only disabledFor matches', () => {
     const disabled: MCPServer = {
-      name: 'disabled-http',
-      transport: 'http',
-      url: 'https://example.com/mcp',
+      name: 'disabled-stdio',
+      transport: 'stdio',
+      command: 'node',
+      args: ['disabled.js'],
       enabled: false,
     };
-    const names = adapter.getRenderedServerNames([httpServer, stdioServer, disabled]);
-    expect(names).toEqual(['tavily']);
+    const excluded: MCPServer = {
+      name: 'excluded',
+      transport: 'http',
+      url: 'https://excluded.example/mcp',
+      disabledFor: ['codex'],
+    };
+    const names = adapter.getRenderedServerNames([httpServer, stdioServer, disabled, excluded]);
+    expect(names).toEqual(['context7', 'tavily', 'disabled-stdio']);
   });
 
   test('parseExistingMCPServerNames extracts mcp_servers keys from TOML', () => {
@@ -157,5 +189,59 @@ describe('CodexAdapter.renderMCPServers', () => {
 
   test('removesNonCanonicalOnPush returns true', () => {
     expect(adapter.removesNonCanonicalOnPush()).toBe(true);
+  });
+
+  test('parseMCPServers parses stdio servers and enabled: false', () => {
+    const content = `
+[mcp_servers.tavily]
+command = "python"
+args = ["-m", "tavily_mcp"]
+env_vars = ["TAVILY_API_KEY", { name = "REMOTE_ONLY", source = "remote" }]
+enabled = false
+
+[mcp_servers.tavily.env]
+TAVILY_API_KEY = "\${TAVILY_API_KEY}"
+provider_ENV = "dev"
+`;
+
+    const [server] = adapter.parseMCPServers(content);
+
+    expect(server).toEqual({
+      name: 'tavily',
+      transport: 'stdio',
+      command: 'python',
+      args: ['-m', 'tavily_mcp'],
+      envVars: ['TAVILY_API_KEY', 'REMOTE_ONLY'],
+      env: {
+        TAVILY_API_KEY: '${TAVILY_API_KEY}',
+        provider_ENV: 'dev',
+      },
+      enabled: false,
+    });
+  });
+
+  test('parseMCPServers parses HTTP bearer, static headers, env headers, and enabled: false', () => {
+    const content = `
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
+bearer_token_env_var = "CONTEXT7_BEARER_TOKEN"
+http_headers = { "X-Static" = "static-value" }
+env_http_headers = { "X-Env" = "CONTEXT7_API_KEY" }
+enabled = false
+`;
+
+    const [server] = adapter.parseMCPServers(content);
+
+    expect(server).toEqual({
+      name: 'context7',
+      transport: 'http',
+      url: 'https://mcp.context7.com/mcp',
+      headers: {
+        Authorization: 'Bearer ${CONTEXT7_BEARER_TOKEN}',
+        'X-Static': 'static-value',
+        'X-Env': '${CONTEXT7_API_KEY}',
+      },
+      enabled: false,
+    });
   });
 });

@@ -1,0 +1,4 @@
+name = "simple-agent"
+description = "Minimal agent with no tool restrictions"
+developer_instructions = "# Simple Agent\n\nA minimal agent for testing basic agent rendering."
+

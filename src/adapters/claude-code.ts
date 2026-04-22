@@ -16,7 +16,7 @@ export class ClaudeCodeAdapter extends BaseAdapter {
   }
 
   getCapabilities(): AdapterCapabilities {
-    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: true, plugins: false };
+    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: true, plugins: false, hooks: false };
   }
 
   renderCommand(item: CanonicalItem): RenderedFile {
@@ -83,15 +83,32 @@ export class ClaudeCodeAdapter extends BaseAdapter {
 
     const mcpServers: Record<string, unknown> = {};
     for (const server of filtered) {
+      const targetOptions = server.targetOptions?.['claude-code'] ?? {};
+      const targetType = typeof targetOptions.type === 'string' ? targetOptions.type : undefined;
+      const targetDisabled = targetOptions.disabled === true;
+
       if (server.transport === 'stdio') {
-        const cfg: Record<string, unknown> = { command: server.command, args: server.args ?? [] };
+        const cfg: Record<string, unknown> = {};
+        if (targetType) cfg.type = targetType;
+        cfg.command = server.command;
+        cfg.args = server.args ?? [];
         if (server.env && Object.keys(server.env).length > 0) cfg.env = server.env;
-        if (server.enabled === false) cfg.enabled = false;
+        if (server.enabled === false && !targetDisabled) cfg.enabled = false;
+        for (const [key, value] of Object.entries(targetOptions)) {
+          if (key === 'type' || key === 'disabled') continue;
+          cfg[key] = value;
+        }
+        if (targetDisabled) cfg.disabled = true;
         mcpServers[server.name] = cfg;
       } else {
         const cfg: Record<string, unknown> = { type: 'http', url: server.url };
         if (server.headers && Object.keys(server.headers).length > 0) cfg.headers = server.headers;
-        if (server.enabled === false) cfg.enabled = false;
+        if (server.enabled === false && !targetDisabled) cfg.enabled = false;
+        for (const [key, value] of Object.entries(targetOptions)) {
+          if (key === 'type' || key === 'disabled') continue;
+          cfg[key] = value;
+        }
+        if (targetDisabled) cfg.disabled = true;
         mcpServers[server.name] = cfg;
       }
     }

@@ -20,7 +20,7 @@ read_when:
 - Claude Code: derive portable frontmatter (`name`, `description`, optional `model`, derived `allowed-tools`), copy to `~/.claude/agents/`.
 - Gemini CLI: same portable frontmatter plus `kind: local`, copy to `~/.gemini/agents/`.
 - OpenCode: pass through OpenCode-compatible frontmatter, force `mode: subagent`, copy to `~/.config/opencode/agents/`.
-- Codex: flat Markdown as `~/.codex/prompts/agent-{name}.md` with derived `Role` and `Allowed Tools` lines.
+- Codex: standalone TOML as `~/.codex/agents/{name}.toml` with `name`, `description`, and `developer_instructions`. `sandbox_mode` is preserved when explicit and derived as `read-only` when canonical metadata denies edits.
 
 ## Portable tool derivation
 - Non-OpenCode targets do not consume OpenCode `permission` blocks directly.
@@ -33,7 +33,7 @@ read_when:
 
 ## Render targets — commands
 - Claude Code: strip `zz-` prefix, nest under `~/.claude/commands/zz/` (invoked as `/zz:name`).
-- Gemini CLI: convert to TOML (`description` + `prompt = """..."""`), copy to `~/.gemini/commands/`.
+- Gemini CLI: convert to TOML (`description` + `prompt = '''...'''`), copy to `~/.gemini/commands/`.
 - OpenCode: rebuild frontmatter (`description`, `argument-hint`, translate `allowed-tools` to `tools` map), copy to `~/.config/opencode/command/`.
 - Codex: flat Markdown with `# /{name}` heading, copy to `~/.codex/prompts/`.
 

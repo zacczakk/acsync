@@ -45,7 +45,7 @@ export class AdapterPathResolver {
     return this.expandHome(this.rawSettingsPath());
   }
 
-  /** Skills directory (only meaningful for opencode) */
+  /** Skills directory for targets that support direct skill sync */
   getSkillsDir(): string {
     return this.expandHome(this.rawSkillsDir());
   }
@@ -53,6 +53,11 @@ export class AdapterPathResolver {
   /** Plugins directory (only meaningful for opencode) */
   getPluginsDir(): string {
     return this.expandHome(this.rawPluginsDir());
+  }
+
+  /** Hook config path for targets that support standalone hooks config */
+  getHooksPath(): string {
+    return this.expandHome(this.rawHooksPath());
   }
 
   /** Full path for a rendered plugin file given a logical name */
@@ -102,7 +107,7 @@ export class AdapterPathResolver {
       case 'claude-code': return '~/.claude/agents/';
       case 'opencode':    return '~/.config/opencode/agents/';
       case 'gemini':      return '~/.gemini/agents/';
-      case 'codex':       return '~/.codex/prompts/';
+      case 'codex':       return '~/.codex/agents/';
     }
   }
 
@@ -136,6 +141,7 @@ export class AdapterPathResolver {
   private rawSkillsDir(): string {
     switch (this.target) {
       case 'opencode':    return '~/.config/opencode/skill/';
+      case 'codex':       return '~/.agents/skills/';
       // Other targets don't use skills
       default:            return path.join(this.rawBaseDir(), 'skills/');
     }
@@ -145,6 +151,13 @@ export class AdapterPathResolver {
     switch (this.target) {
       case 'opencode':    return '~/.config/opencode/plugins/';
       default:            return path.join(this.rawBaseDir(), 'plugins/');
+    }
+  }
+
+  private rawHooksPath(): string {
+    switch (this.target) {
+      case 'codex':       return '~/.codex/hooks.json';
+      default:            return path.join(this.rawBaseDir(), 'hooks.json');
     }
   }
 
@@ -169,7 +182,7 @@ export class AdapterPathResolver {
   private agentFileName(name: string): string {
     switch (this.target) {
       case 'codex':
-        return `agent-${name}.md`;
+        return `${name}.toml`;
       default:
         return `${name}.md`;
     }

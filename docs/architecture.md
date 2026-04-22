@@ -43,7 +43,7 @@ configs/  ──→  metronome push  ──→  ~/.claude/
 
 ## Hooks
 
-Hook scripts live in `configs/hooks/` but are **not deployed by `metronome push`**. They are referenced by absolute path from each CLI's settings and run directly from the repo checkout.
+Hook scripts live in `configs/hooks/` and are referenced by absolute path from each CLI's hook registration. The scripts themselves are not copied by `metronome push`; only per-CLI hook registrations are synced where supported.
 
 ### Why absolute paths, not deployment
 
@@ -82,12 +82,23 @@ Together these enable Cursor-backed models in OpenCode after OAuth completes.
 Source of truth: `configs/settings/opencode.json` (synced to
 `~/.config/opencode/opencode.json` on push).
 
+### Codex hooks
+
+Codex supports native lifecycle hooks via `~/.codex/hooks.json` behind the `features.codex_hooks = true` flag in `~/.codex/config.toml`. Metronome manages both the TOML feature flag and the hook registration file for Codex.
+
+| Script | Event | Managed by | Purpose |
+|--------|-------|------------|---------|
+| `vault-context-loader-codex.js` | `SessionStart` (`startup|resume`) | metronome | Injects IDENTITY/SOUL/USER/MEMORY into Codex startup context |
+
+Canonical Codex hook registrations live in `configs/hook-configs/`. Hook scripts still live in `configs/hooks/` and run directly from the repo checkout via absolute path references in `hooks.json`.
+
 ### Adding a new hook
 
 1. Create the script in `configs/hooks/`.
 2. **Claude Code:** Add registration entry to `~/.claude/settings.json` → `hooks` key. Use absolute path to `configs/hooks/`.
 3. **OpenCode:** Create a plugin `.ts` file in `configs/plugins/`. Run `metronome push --type plugins` to deploy. Reference shared logic from `configs/hooks/` if possible.
-4. Restart the CLI session for hooks to take effect (Claude Code snapshots hooks at startup).
+4. **Codex:** Add canonical registration to `configs/hook-configs/codex.json`. Ensure Codex settings enable `features.codex_hooks = true`.
+5. Restart the CLI session for hooks to take effect.
 
 ## Test Isolation
 

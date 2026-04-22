@@ -1,4 +1,7 @@
 import { describe, test, expect } from 'bun:test';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { GeminiAdapter } from '../gemini';
 import type { MCPServer } from '../../types';
 
@@ -43,12 +46,12 @@ describe('GeminiAdapter.renderMCPServers', () => {
     expect(result).not.toContain('{env:');
   });
 
-  test('renders http server with url and headers', () => {
+  test('renders http server with httpUrl and headers', () => {
     const result = adapter.renderMCPServers([httpServer]);
     const parsed = JSON.parse(result);
 
     expect(parsed.mcpServers.tavily).toEqual({
-      url: 'https://mcp.tavily.com/mcp',
+      httpUrl: 'https://mcp.tavily.com/mcp',
       headers: { Authorization: 'Bearer ${TAVILY_API_KEY}' },
     });
   });
@@ -108,10 +111,11 @@ describe('GeminiAdapter.renderMCPServers', () => {
     const parsed = JSON.parse(result);
 
     expect(parsed.mcpServers.context7).toBeDefined();
-    expect(parsed.mcpServers.thinking).toBeUndefined();
+    expect(parsed.mcpServers.thinking).toBeDefined();
+    expect(parsed.mcp.excluded).toEqual(['thinking']);
   });
 
-  test('getRenderedServerNames excludes enabled: false servers', () => {
+  test('getRenderedServerNames includes enabled: false servers', () => {
     const disabled: MCPServer = {
       name: 'thinking',
       transport: 'stdio',
@@ -119,6 +123,67 @@ describe('GeminiAdapter.renderMCPServers', () => {
       enabled: false,
     };
     const names = adapter.getRenderedServerNames([stdioServer, disabled]);
-    expect(names).toEqual(['context7']);
+    expect(names).toEqual(['context7', 'thinking']);
+  });
+
+  test('parseMCPServers reads httpUrl back into canonical url', () => {
+    const content = JSON.stringify({
+      mcpServers: {
+        tavily: {
+          httpUrl: 'https://mcp.tavily.com/mcp',
+          headers: { Authorization: 'Bearer ${TAVILY_API_KEY}' },
+        },
+      },
+    });
+
+    const [server] = adapter.parseMCPServers(content);
+
+    expect(server).toMatchObject({
+      name: 'tavily',
+      transport: 'http',
+      url: 'https://mcp.tavily.com/mcp',
+      headers: { Authorization: 'Bearer ${TAVILY_API_KEY}' },
+    });
+  });
+
+  test('parseMCPServers marks mcp.excluded servers as disabled', () => {
+    const content = JSON.stringify({
+      mcpServers: {
+        thinking: {
+          command: 'npx',
+          args: ['-y', '@mcp/thinking'],
+        },
+      },
+      mcp: {
+        excluded: ['thinking'],
+      },
+    });
+
+    const [server] = adapter.parseMCPServers(content);
+
+    expect(server?.enabled).toBe(false);
+  });
+
+  test('parseMCPServers marks servers disabled in mcp-server-enablement.json as disabled', () => {
+    const fakeHome = path.join(os.tmpdir(), `gemini-enablement-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
+    mkdirSync(path.join(fakeHome, '.gemini'), { recursive: true });
+    writeFileSync(
+      path.join(fakeHome, '.gemini/mcp-server-enablement.json'),
+      JSON.stringify({ thinking: { enabled: false } }, null, 2),
+    );
+
+    const adapterWithHome = new GeminiAdapter(fakeHome);
+    const content = JSON.stringify({
+      mcpServers: {
+        thinking: {
+          command: 'npx',
+          args: ['-y', '@mcp/thinking'],
+        },
+      },
+    });
+
+    const [server] = adapterWithHome.parseMCPServers(content);
+
+    expect(server?.enabled).toBe(false);
   });
 });

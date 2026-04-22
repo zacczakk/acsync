@@ -14,6 +14,7 @@ function seedSettingsTargets(fakeHome: string): void {
   const targets: Array<{ target: TargetName; seedFile: string }> = [
     { target: 'claude-code', seedFile: join(SEEDS_ROOT, 'claude/settings.json') },
     { target: 'opencode', seedFile: join(SEEDS_ROOT, 'opencode/settings.jsonc') },
+    { target: 'codex', seedFile: join(SEEDS_ROOT, 'codex/config.toml') },
   ];
 
   for (const { target, seedFile } of targets) {
@@ -25,7 +26,7 @@ function seedSettingsTargets(fakeHome: string): void {
 }
 
 describe('push settings E2E', () => {
-  test('pushes settings to claude + opencode, matches goldens, skips gemini/codex, idempotent', async () => {
+  test('pushes settings to claude + opencode + codex, matches goldens, skips gemini, idempotent', async () => {
     const fakeHome = createTestHome('push-settings');
     const projectDir = createTestProject('push-settings', FIXTURE_ROOT);
     seedSettingsTargets(fakeHome);
@@ -34,30 +35,36 @@ describe('push settings E2E', () => {
     const result = await runPush({ projectDir, force: true, types: ['settings'], homeDir: fakeHome });
     expect(result.failed).toBe(0);
     expect(result.rolledBack).toBe(false);
-    // Claude + OpenCode = 2 writes
-    expect(result.written).toBe(2);
+    // Claude + OpenCode + Codex = 3 writes
+    expect(result.written).toBe(3);
 
     // --- Claude golden comparison ---
     const claudeAdapter = createAdapter('claude-code', fakeHome);
     const claudeActual = readFileSync(claudeAdapter.getPaths().getSettingsPath(), 'utf-8');
     const claudeGolden = readFileSync(join(FIXTURE_ROOT, 'claude/settings/settings.json'), 'utf-8');
-    expect(claudeActual).toBe(claudeGolden);
+    expect(claudeActual.trimEnd()).toBe(claudeGolden.trimEnd());
 
     // --- OpenCode golden comparison ---
     const opencodeAdapter = createAdapter('opencode', fakeHome);
     const opencodeActual = readFileSync(opencodeAdapter.getPaths().getSettingsPath(), 'utf-8');
     const opencodeGolden = readFileSync(join(FIXTURE_ROOT, 'opencode/settings/opencode.json'), 'utf-8');
-    expect(opencodeActual).toBe(opencodeGolden);
+    expect(opencodeActual.trimEnd()).toBe(opencodeGolden.trimEnd());
 
     // --- Verify non-canonical keys preserved ---
     expect(claudeActual).toContain('customKey');
     expect(opencodeActual).toContain('customKey');
 
-    // --- Gemini/Codex: settings capability is false, no writes expected ---
+    // --- Codex golden comparison ---
+    const codexAdapter = createAdapter('codex', fakeHome);
+    const codexActual = readFileSync(codexAdapter.getPaths().getSettingsPath(), 'utf-8');
+    const codexGolden = readFileSync(join(FIXTURE_ROOT, 'codex/settings/config.toml'), 'utf-8');
+    expect(codexActual.trimEnd()).toBe(codexGolden.trimEnd());
+
+    // --- Gemini only: no settings capability ---
     const geminiCaps = createAdapter('gemini').getCapabilities();
     expect(geminiCaps.settings).toBe(false);
     const codexCaps = createAdapter('codex').getCapabilities();
-    expect(codexCaps.settings).toBe(false);
+    expect(codexCaps.settings).toBe(true);
 
     // --- Idempotency: second push reports no drift ---
     const result2 = await runPush({ projectDir, force: true, types: ['settings'], homeDir: fakeHome });

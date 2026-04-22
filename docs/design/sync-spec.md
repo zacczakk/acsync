@@ -34,10 +34,11 @@ read_when:
 | Claude | `~/.claude/commands/*.md` | `~/.claude/agents/*.md` | `~/.claude/skills/` |
 | OpenCode | `~/.config/opencode/command/*.md` | `~/.config/opencode/agents/*.md` | `~/.config/opencode/skill/` |
 | Gemini | `~/.gemini/commands/*.toml` | `~/.gemini/agents/*.md` | `~/.gemini/skills/` |
-| Codex | `~/.codex/prompts/*.md` | `~/.codex/prompts/agent-*.md` | `~/.codex/skills/` |
+| Codex | `~/.codex/prompts/*.md` | `~/.codex/agents/*.toml` | `~/.agents/skills/` |
 
 Note the naming quirks: OpenCode uses singular `command/` and `skill/`. Codex
-merges commands and agents into a single `prompts/` directory.
+keeps slash commands in `prompts/`, but custom subagents now live in
+`agents/`, and user-authored skills live in `$HOME/.agents/skills/`.
 
 ### Canonical Sources (This Repo)
 
@@ -140,20 +141,19 @@ Note: commands remain on the older portable canonical format (`description`,
 
 ```toml
 description = "Full CI gate..."
-prompt = """
+prompt = '''
 # /gate -- Full CI Gate
 
 [body content here]
-"""
+'''
 ```
 
 Rules:
 - Extract `description` from frontmatter to a top-level TOML key.
 - Strip frontmatter entirely from the body.
-- Wrap body in `prompt = """..."""` (triple-quoted TOML string).
-- Escape backslashes (`\` becomes `\\`).
+- Wrap body in `prompt = '''...'''` (triple-quoted TOML literal string).
 - If `argument-hint` exists and body does not contain `{{args}}`, append
-  `\nUser arguments: {args}` at end of prompt.
+  `\nUser arguments: {{args}}` at end of prompt.
 
 #### Codex — Flat Markdown
 
@@ -283,31 +283,34 @@ Rules:
 - Add `kind: local` to frontmatter.
 - Drop OpenCode-only keys like `mode`, `permission`, and `color`.
 
-#### Codex — Flat Markdown in `prompts/agent-{name}.md`
+#### Codex — Standalone TOML in `agents/{name}.toml`
 
-```markdown
-# Agent: planner
-
-**Role**: Goal-backward task planning...
-
-**Allowed Tools**: Read, Glob, Grep, Edit, Write, Bash
-
-[body content here]
+```toml
+name = "planner"
+description = "Goal-backward task planning..."
+developer_instructions = "# Planner Agent\n\n[body content here]"
+sandbox_mode = "read-only"
 ```
 
 Rules:
-- Filename: `prompts/agent-{name}.md`
-- No frontmatter.
-- Start with `# Agent: {name}` heading.
-- Add `**Role**: {description}` line.
-- Add `**Allowed Tools**: {comma-separated derived tools}` line when available.
-- Then: the body content (frontmatter stripped).
+- Filename: `agents/{name}.toml`
+- Required keys: `name`, `description`, `developer_instructions`
+- `developer_instructions` receives the body content with frontmatter stripped.
+- Preserve Codex-native keys when present in canonical metadata:
+  `nickname_candidates`, `model` (when already Codex-compatible),
+  `model_reasoning_effort`, `sandbox_mode`, `mcp_servers`, `skills`.
+- If canonical metadata explicitly denies edits and no `sandbox_mode` is set,
+  derive `sandbox_mode = "read-only"` to preserve read-only intent.
+- Reverse parsing accepts both the current TOML format and legacy
+  `prompts/agent-*.md` markdown for backward compatibility during migration.
 
 ### 2.3 Skills
 
 Skills are directory trees (e.g., `vercel-react-best-practices/SKILL.md`).
 Copy them verbatim to all four CLIs' skill directories. No format
-transformation needed.
+transformation needed. For Codex, user-authored skills are written to
+`$HOME/.agents/skills/`; legacy `~/.codex/skills/` remains readable during
+migration but is not the write target.
 
 **Skill-MCP dependency rule**: If a skill's `SKILL.md` references MCP server
 tools (e.g., `mcp__tavily_*`), verify that the referenced MCP server is
@@ -367,15 +370,20 @@ The canonical MCP definition schema (`configs/mcp/*.json`):
   "env_vars": ["VAR"],          // validation only — not rendered
   "env": {"KEY": "${VAR}"},     // runtime env vars — stdio only
   "enabled": true|false,        // optional, default true
-  "disabled_for": ["cli"]       // optional, per-CLI exclusion
+  "disabled_for": ["cli"],      // optional, per-CLI exclusion
+  "target_options": {           // optional, target-specific render extras
+    "claude-code": {"disabled": true},
+    "opencode": {"timeout": 20000}
+  }
 }
 ```
 
 **Filtering**: Before rendering for a CLI, exclude any server where the CLI
 name appears in `disabled_for`. Exception: skill-MCP force-enable (see 2.3).
 
-**Codex special rule**: Codex only supports HTTP transport. Silently skip
-all `"transport": "stdio"` servers when rendering for Codex.
+**Target options**: `target_options` is the escape hatch for target-specific
+fields that the shared canonical schema does not model directly. Use it
+sparingly for adapter quirks where exact config shape matters.
 
 #### Claude Code Format
 
@@ -407,8 +415,11 @@ all `"transport": "stdio"` servers when rendering for Codex.
 
 Rules:
 - Add `"type": "stdio"` or `"type": "http"`.
-- Drop `description`, `env_vars`, `transport`, `disabled_for`, `enabled`.
+- Drop `description`, `env_vars`, `transport`, `disabled_for`, `target_options`.
 - Keep `command`, `args`, `env` (stdio) or `url`, `headers` (http).
+- Default disabled rendering uses `enabled: false`; target-specific
+  `target_options` may override this for exact compatibility with an
+  external owner such as Tux.
 - Inject real secret values (replace `${VAR}` with values from `.env`).
 
 #### OpenCode Format
@@ -482,21 +493,31 @@ Rules:
 - Drop `description`, `env_vars`, `transport`, `disabled_for`, `enabled`.
 - Inject real secret values.
 
-#### Codex Format (TOML, HTTP only)
+#### Codex Format (TOML)
 
 ```toml
+[mcp_servers.tavily]
+command = "python"
+args = [ "-m", "tavily_mcp" ]
+env_vars = [ "TAVILY_API_KEY" ]
+
+[mcp_servers.tavily.env]
+TAVILY_API_KEY = "${TAVILY_API_KEY}"
+
 [mcp_servers.context7]
 url = "https://mcp.context7.com/mcp"
-http_headers = { "CONTEXT7_API_KEY" = "actual-secret-value" }
+
+[mcp_servers.context7.env_http_headers]
+CONTEXT7_API_KEY = "CONTEXT7_API_KEY"
 ```
 
 Rules:
-- **HTTP only** — skip all stdio servers.
 - Section header: `[mcp_servers.{name}]`.
-- Use `url` key.
-- Rename `headers` to `http_headers` (TOML inline table).
-- Drop `description`, `env_vars`, `transport`, `disabled_for`, `enabled`.
-- Inject real secret values.
+- Support both stdio (`command`, `args`, `env`, `env_vars`) and HTTP (`url`, `http_headers`, `env_http_headers`, `bearer_token_env_var`).
+- Rename canonical env-backed HTTP header values like `"X-Token": "${TOKEN}"` to `env_http_headers.X-Token = "TOKEN"`.
+- Rename canonical `Authorization: "Bearer ${TOKEN}"` to `bearer_token_env_var = "TOKEN"`.
+- Keep `enabled = false` when a server is disabled but still managed.
+- Drop `description`, `transport`, `disabled_for`.
 - Append these sections to the end of `~/.codex/config.toml`.
 
 ---
@@ -555,15 +576,26 @@ Rules:
 ### Codex
 
 - **TOML config**: Only CLI using TOML for its main config.
-- **HTTP-only MCP**: Cannot use stdio MCP servers. Only `context7` (HTTP)
-  survives filtering.
-- **Merged prompts dir**: Commands and agents share `~/.codex/prompts/`.
-  Agents use `agent-{name}.md` prefix convention.
+- **MCP transports**: Supports both stdio and HTTP MCP servers in
+  `config.toml`.
+- **Split command/agent layout**: Commands stay in `~/.codex/prompts/`.
+  Custom subagents now live in `~/.codex/agents/*.toml`.
+- **User skills dir**: User-authored skills live in `~/.agents/skills/`.
+  Legacy `~/.codex/skills/` may still exist locally but is not canonical.
+- **Settings capability**: Codex settings are managed via `~/.codex/config.toml`.
+  Metronome currently syncs canonical TOML settings from `configs/settings/codex.json`
+  and Codex hook registration from `configs/hook-configs/codex.json` to
+  `~/.codex/hooks.json`.
+- **Hooks**: Native lifecycle hooks live in `~/.codex/hooks.json` and require
+  `features.codex_hooks = true`. Metronome manages both the feature flag and
+  the hook registration file for Codex.
 - **Permission rules**: Uses `prefix_rule()` syntax in `rules/default.rules`.
   Not managed by this sync (Codex-only manual config).
-- **No native subagents**: "Spawn a subagent" in prompts is executed inline
-  by the model. No Task tool equivalent.
-- **Model**: Uses GPT models (not Claude). `model = "gpt-5.2-codex"`.
+- **Native subagents**: Built-in `default`, `worker`, and `explorer`
+  subagents are available, and custom agents can override per-agent sandbox,
+  model, MCP, and skill config in TOML files.
+- **Model**: Uses GPT models (not Claude). Recent migrations move old
+  `gpt-5.x-codex` aliases toward `gpt-5.4`.
 - **No GSD**: GSD is not installed for Codex. No `gsd-*` files to worry about.
 
 ---
@@ -578,13 +610,6 @@ Rules:
 | `provider_ENV` | tavily MCP | Set to `dev` for this key |
 | `CONTEXT7_API_KEY` | context7 MCP | In `headers` block |
 | `provider_BEDROCK_API_KEY` | OpenCode settings | In `provider.provider-bedrock.options.apiKey` |
-| `FOUNDRY_TOKEN` | palantir-mcp | Aliased as `FOUNDRY_TOKEN` in env block |
-
-### Secret Alias
-
-The palantir-mcp canonical definition uses `FOUNDRY_TOKEN` as the env key
-but the actual secret is stored as `FOUNDRY_TOKEN` in `.env`.
-The canonical value `${FOUNDRY_TOKEN}` maps to env key `FOUNDRY_TOKEN`.
 
 ### Path Expansion
 
@@ -606,15 +631,20 @@ Validate that all required vars are present and non-empty before writing.
 Replace all real secret values with `${VAR_NAME}` placeholders.
 Collapse absolute home directory paths to `~`.
 Scan for exact string matches of secret values in file content.
-Also handle the `FOUNDRY_TOKEN` alias: if a file contains the real value
-of `FOUNDRY_TOKEN` under the key `FOUNDRY_TOKEN`, replace the
-value with `${FOUNDRY_TOKEN}`.
 
 ### OpenCode Provider Secrets
 
 OpenCode provider configs use `{env:VAR_NAME}` syntax, not `${VAR}`.
 These are NOT secret placeholders — they are runtime env var references
 that OpenCode resolves at startup. Do NOT replace them during push/pull.
+
+### Tux-Managed Palantir MCP
+
+`palantir-mcp` is modeled canonically as the thin `tux palantir-mcp start`
+launcher. Metronome does not manage Foundry host/token env wiring for this
+server; Tux resolves that at runtime from its own config and keychain-backed
+auth state. Keep the editor config launcher-only so `tux integrate ...` and
+`metronome push` converge on the same shape.
 Leave `{env:ANTHROPIC_BASE_URL}` and `{env:ANTHROPIC_AUTH_TOKEN}` as-is.
 
 ### Validation
@@ -725,11 +755,19 @@ file.
 
 ### Gemini `~/.gemini/settings.json`
 
-**Managed keys**: `mcpServers`
+**Managed keys**: `mcpServers`, `mcp.excluded`
 
 Everything else is user-owned: `security`, `context`, `tools`, `theme`.
 
 Same push/pull pattern as Claude `~/.claude.json`.
+
+**HTTP MCP transport**: Gemini CLI uses `httpUrl` for streamable HTTP MCP
+servers. Plain `url` is reserved for SSE MCP servers.
+
+**Disable state**: metronome renders disabled canonical Gemini MCP servers in
+`mcp.excluded`. Gemini CLI's own `gemini mcp disable` command also persists
+disablement in `~/.gemini/mcp-server-enablement.json`, so pull logic needs to
+honor both sources.
 
 ### Codex `~/.codex/config.toml`
 

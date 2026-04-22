@@ -9,6 +9,7 @@ import type {
   TargetName,
   CanonicalItem,
   CanonicalSettings,
+  CanonicalHookConfig,
   MCPServer,
   RenderedFile,
   AdapterCapabilities,
@@ -53,6 +54,9 @@ export interface ToolAdapter {
   /** Parse a target-format agent file back to canonical CanonicalItem */
   parseAgent(name: string, content: string): CanonicalItem;
 
+  /** Read a target-format agent file by logical name */
+  readAgentFile(name: string): Promise<string>;
+
   /** Render a skill → SKILL.md content (support files handled separately) */
   renderSkill(item: CanonicalItem): RenderedFile;
 
@@ -77,6 +81,12 @@ export interface ToolAdapter {
    * preserves all other keys in the target file.
    */
   renderSettings(settings: CanonicalSettings, existingContent?: string): string;
+
+  /** Render hook config for targets that support standalone hooks */
+  renderHooks(hooks: CanonicalHookConfig, existingContent?: string): string;
+
+  /** Extract canonical hook config from target file content */
+  extractHooks(targetContent: string): string;
 
   /**
    * Extract canonical settings keys from target file content for hash comparison.
@@ -244,6 +254,11 @@ export abstract class BaseAdapter implements ToolAdapter {
     return { name, content: body, metadata: data };
   }
 
+  /** Default: read from the target's rendered agent path */
+  async readAgentFile(name: string): Promise<string> {
+    return readFile(this.paths.getAgentFilePath(name), 'utf-8');
+  }
+
   /** Default: parse mcpServers keys from JSON config */
   parseExistingMCPServerNames(content: string): string[] {
     try {
@@ -263,6 +278,14 @@ export abstract class BaseAdapter implements ToolAdapter {
   /** Render instructions (identity passthrough — content is already unified) */
   renderInstructions(content: string): string {
     return content;
+  }
+
+  renderHooks(hooks: CanonicalHookConfig): string {
+    return hooks.content;
+  }
+
+  extractHooks(targetContent: string): string {
+    return targetContent;
   }
 
   /**

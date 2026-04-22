@@ -44,7 +44,7 @@ describe('pull settings E2E', () => {
     seedSettingsTargets(fakeHome);
     const pushResult = await runPush({ projectDir: pushDir, force: true, types: ['settings'], homeDir: fakeHome });
     expect(pushResult.failed).toBe(0);
-    expect(pushResult.written).toBe(2); // claude + opencode
+      expect(pushResult.written).toBe(3); // claude + opencode + codex
 
     // Pull settings back — needs canonical settings in pullDir so pull knows which keys to manage
     for (const target of ['claude-code', 'opencode'] as TargetName[]) {
@@ -94,10 +94,10 @@ describe('pull settings E2E', () => {
     expect(pulledContent).toContain('~/.claude/cacert.pem');
   }, E2E_TIMEOUT);
 
-  test('gemini and codex have no settings capability', () => {
+  test('gemini lacks settings capability, codex has it', () => {
     const geminiCaps = createAdapter('gemini').getCapabilities();
     expect(geminiCaps.settings).toBe(false);
     const codexCaps = createAdapter('codex').getCapabilities();
-    expect(codexCaps.settings).toBe(false);
+    expect(codexCaps.settings).toBe(true);
   });
 });

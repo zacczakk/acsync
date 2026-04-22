@@ -8,7 +8,7 @@ import { OpenCodeAdapter } from '../adapters/opencode';
 import { GeminiAdapter } from '../adapters/gemini';
 import { CodexAdapter } from '../adapters/codex';
 import type { ToolAdapter } from '../adapters/base';
-import type { TargetName, ItemType, CanonicalItem, CanonicalSettings, MCPServer } from '../types';
+import type { TargetName, ItemType, CanonicalItem, CanonicalSettings, CanonicalHookConfig, MCPServer } from '../types';
 
 /** Repo root — resolved from module location so metronome works from any cwd */
 export const PROJECT_ROOT = resolve(import.meta.dir, '..', '..');
@@ -24,6 +24,7 @@ export const INSTRUCTIONS_DIR = join(CANONICAL_ROOT, 'instructions');
 export const SKILLS_DIR = join(CANONICAL_ROOT, 'skills');
 export const SETTINGS_DIR = join(CANONICAL_ROOT, 'settings');
 export const PLUGINS_DIR = join(CANONICAL_ROOT, 'plugins');
+export const HOOKS_DIR = join(CANONICAL_ROOT, 'hook-configs');
 
 export interface SyncOptions {
   targets?: TargetName[];       // --target flag (all if empty)
@@ -145,11 +146,28 @@ export async function readCanonicalMCPServers(projectDir: string): Promise<MCPSe
     if (!entry.endsWith('.json')) continue;
     const raw = await readFile(join(dir, entry), 'utf-8');
     try {
-      const server = JSON.parse(raw) as MCPServer;
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      const server = { ...parsed } as Record<string, unknown>;
+
       if (!server.name) {
         server.name = entry.slice(0, -5);
       }
-      servers.push(server);
+
+      if ('env_vars' in server && !('envVars' in server)) {
+        server.envVars = server.env_vars;
+      }
+      if ('disabled_for' in server && !('disabledFor' in server)) {
+        server.disabledFor = server.disabled_for;
+      }
+      if ('target_options' in server && !('targetOptions' in server)) {
+        server.targetOptions = server.target_options;
+      }
+
+      delete server.env_vars;
+      delete server.disabled_for;
+      delete server.target_options;
+
+      servers.push(server as MCPServer);
     } catch {
       // Skip invalid JSON files
     }
@@ -192,6 +210,26 @@ export async function readCanonicalSettings(
     const raw = await readFile(filePath, 'utf-8');
     const keys = JSON.parse(raw) as Record<string, unknown>;
     return { target, keys };
+  } catch {
+    return null;
+  }
+}
+
+function hooksFileName(target: TargetName): string {
+  switch (target) {
+    case 'claude-code': return 'claude.json';
+    default:            return `${target}.json`;
+  }
+}
+
+export async function readCanonicalHooks(
+  projectDir: string,
+  target: TargetName,
+): Promise<CanonicalHookConfig | null> {
+  const filePath = join(projectDir, HOOKS_DIR, hooksFileName(target));
+  try {
+    const content = await readFile(filePath, 'utf-8');
+    return { target, content };
   } catch {
     return null;
   }

@@ -2,10 +2,20 @@ import { describe, it, expect } from 'bun:test';
 import os from 'node:os';
 import path from 'node:path';
 import { CodexAdapter } from '../codex';
+import type { CanonicalSettings } from '../../types';
 
 const HOME = os.homedir();
 
 const adapter = new CodexAdapter();
+
+const codexSettings: CanonicalSettings = {
+  target: 'codex',
+  keys: {
+    features: {
+      codex_hooks: true,
+    },
+  },
+};
 
 const baseCommandItem = {
   name: 'my-plan',
@@ -22,7 +32,7 @@ const agentWithTools = {
   content: 'Agent body content.\n',
   metadata: {
     description: 'Does agent things',
-    permission: { bash: 'allow', edit: 'allow', webfetch: 'deny' },
+    permission: { bash: 'allow', edit: 'deny', webfetch: 'deny' },
     color: '#a277ff',
   },
 };
@@ -78,50 +88,40 @@ describe('CodexAdapter.renderCommand', () => {
 });
 
 describe('CodexAdapter.renderAgent', () => {
-  it('produces correct agent file path (.md in prompts/)', () => {
+  it('produces correct agent file path (.toml in agents/)', () => {
     const result = adapter.renderAgent(agentWithTools);
-    expect(result.relativePath).toBe(path.join(HOME, '.codex/prompts/agent-my-agent.md'));
+    expect(result.relativePath).toBe(path.join(HOME, '.codex/agents/my-agent.toml'));
   });
 
-  it('uses # Agent: {name} heading', () => {
+  it('writes the agent name into TOML', () => {
     const result = adapter.renderAgent(agentWithTools);
-    expect(result.content).toContain('# Agent: my-agent');
+    expect(result.content).toContain('name = "my-agent"');
   });
 
-  it('includes **Role** line with description', () => {
+  it('includes description in TOML', () => {
     const result = adapter.renderAgent(agentWithTools);
-    expect(result.content).toContain('**Role**: Does agent things');
+    expect(result.content).toContain('description = "Does agent things"');
   });
 
-  it('includes **Allowed Tools** line when tools present', () => {
+  it('derives read-only sandbox when edit is denied', () => {
     const result = adapter.renderAgent(agentWithTools);
-    expect(result.content).toContain('**Allowed Tools**: Read, Glob, Grep, Edit, Write, Bash');
+    expect(result.content).toContain('sandbox_mode = "read-only"');
   });
 
-  it('omits **Allowed Tools** line when no tools in canonical', () => {
+  it('omits sandbox_mode when no restrictive sandbox can be derived', () => {
     const result = adapter.renderAgent(agentWithoutTools);
-    expect(result.content).not.toContain('**Allowed Tools**');
+    expect(result.content).not.toContain('sandbox_mode =');
   });
 
-  it('includes body verbatim', () => {
+  it('includes developer_instructions body', () => {
     const result = adapter.renderAgent(agentWithTools);
+    expect(result.content).toContain('developer_instructions = "');
     expect(result.content).toContain('Agent body content.');
   });
 
-  it('has no frontmatter', () => {
+  it('renders TOML, not markdown frontmatter', () => {
     const result = adapter.renderAgent(agentWithTools);
-    expect(result.content).not.toContain('---');
-  });
-
-  it('orders: heading → Role → AllowedTools → body', () => {
-    const result = adapter.renderAgent(agentWithTools);
-    const headingIdx = result.content.indexOf('# Agent:');
-    const roleIdx = result.content.indexOf('**Role**');
-    const toolsIdx = result.content.indexOf('**Allowed Tools**');
-    const bodyIdx = result.content.indexOf('Agent body content.');
-    expect(headingIdx).toBeLessThan(roleIdx);
-    expect(roleIdx).toBeLessThan(toolsIdx);
-    expect(toolsIdx).toBeLessThan(bodyIdx);
+    expect(result.content).not.toContain('# Agent:');
   });
 });
 
@@ -137,6 +137,7 @@ describe('CodexAdapter capabilities', () => {
     expect(caps.agents).toBe(true);
     expect(caps.mcp).toBe(true);
     expect(caps.instructions).toBe(true);
+    expect(caps.settings).toBe(true);
   });
 
   it('has correct target and displayName', () => {
@@ -144,7 +145,41 @@ describe('CodexAdapter capabilities', () => {
     expect(adapter.displayName).toBe('Codex');
   });
 
-  it('resolves skills dir to ~/.codex/skills/', () => {
-    expect(adapter.getPaths().getSkillsDir()).toBe(path.join(HOME, '.codex/skills/'));
+  it('resolves skills dir to ~/.agents/skills/', () => {
+    expect(adapter.getPaths().getSkillsDir()).toBe(path.join(HOME, '.agents/skills/'));
+  });
+});
+
+describe('CodexAdapter settings', () => {
+  it('merges canonical settings into existing TOML', () => {
+    const existing = [
+      'model = "gpt-5.4"',
+      '',
+      '[features]',
+      'multi_agent = true',
+      '',
+    ].join('\n');
+
+    const result = adapter.renderSettings(codexSettings, existing);
+
+    expect(result).toContain('model = "gpt-5.4"');
+    expect(result).toContain('[features]');
+    expect(result).toContain('multi_agent = true');
+    expect(result).toContain('codex_hooks = true');
+  });
+
+  it('extracts only canonical TOML keys for drift comparison', () => {
+    const target = [
+      'model = "gpt-5.4"',
+      '',
+      '[features]',
+      'codex_hooks = true',
+      'multi_agent = true',
+      '',
+    ].join('\n');
+
+    const result = adapter.extractSettingsKeys(['features'], target);
+
+    expect(result).toBe('{\n  "features": {\n    "codex_hooks": true,\n    "multi_agent": true\n  }\n}\n');
   });
 });

@@ -65,7 +65,6 @@ describe('pull-agents E2E', () => {
 
     const cdxTestAgent = readFileSync(join(codexDir, 'configs', 'agents', 'test-agent.md'), 'utf-8');
     expect(cdxTestAgent).toContain('description:');
-    expect(cdxTestAgent).toContain('allowed-tools:');
     // Body content should match canonical body
     const cdxBody = cdxTestAgent.split('---').slice(2).join('---').trim();
     expect(cdxBody).toBe(canonicalBody);

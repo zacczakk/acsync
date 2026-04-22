@@ -15,12 +15,13 @@ import {
   readCanonicalSkills,
   readCanonicalSettings,
   readCanonicalPlugins,
+  readCanonicalHooks,
 } from './canonical';
 import { createExclusionFilter } from '../infra/exclusion';
 import { parseFrontmatter } from '../formats/markdown';
 import type { TargetName, CanonicalItem } from '../types';
 
-const VALID_SINGULAR_TYPES = ['command', 'agent', 'mcp', 'instruction', 'skill', 'settings', 'plugin'] as const;
+const VALID_SINGULAR_TYPES = ['command', 'agent', 'mcp', 'instruction', 'skill', 'settings', 'plugin', 'hook'] as const;
 type SingularType = (typeof VALID_SINGULAR_TYPES)[number];
 
 const VALID_TARGETS = ['claude', 'gemini', 'codex', 'opencode'] as const;
@@ -115,6 +116,12 @@ Examples:
             );
           }
           content = adapter.renderPlugin(item).content;
+        } else if (itemType === 'hook') {
+          const hooks = await readCanonicalHooks(projectDir, target);
+          if (!hooks) {
+            throw new Error(`No canonical hooks for target "${target}"`);
+          }
+          content = adapter.renderHooks(hooks);
         } else {
           // settings
           const settings = await readCanonicalSettings(projectDir, target);

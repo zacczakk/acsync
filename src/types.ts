@@ -5,7 +5,7 @@ export interface ErrorContext {
 }
 
 // Config item types synced by metronome
-export type ItemType = 'command' | 'agent' | 'mcp' | 'instruction' | 'skill' | 'settings' | 'plugin';
+export type ItemType = 'command' | 'agent' | 'mcp' | 'instruction' | 'skill' | 'settings' | 'plugin' | 'hook';
 
 export type OperationType = 'create' | 'update' | 'skip' | 'delete';
 
@@ -93,12 +93,18 @@ export interface MCPServer {
   envVars?: string[];
   enabled?: boolean;       // false = render but mark disabled in target config
   disabledFor?: TargetName[];
+  targetOptions?: Partial<Record<TargetName, Record<string, unknown>>>;
 }
 
 // Canonical settings: parsed JSON keys from configs/settings/{target}.json
 export interface CanonicalSettings {
   target: TargetName;
   keys: Record<string, unknown>;  // top-level keys from canonical settings file
+}
+
+export interface CanonicalHookConfig {
+  target: TargetName;
+  content: string;
 }
 
 // Rendered output from an adapter
@@ -116,4 +122,5 @@ export interface AdapterCapabilities {
   skills: boolean;
   settings: boolean;
   plugins: boolean;
+  hooks: boolean;
 }

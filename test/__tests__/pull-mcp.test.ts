@@ -61,17 +61,26 @@ describe('pull MCP E2E', () => {
       const pullResult = await runPull({ source: target, force: true, projectDir: pullDir, homeDir: fakeHome });
       expect(pullResult.rolledBack).toBe(false);
 
-      // Codex only supports HTTP — only context7 should be pulled (tavily is stdio)
+      // Codex supports both stdio and HTTP — both canonical servers should be pulled
       if (target === 'codex') {
         const context7Path = join(pullDir, 'configs/mcp/context7.json');
+        const tavilyPath = join(pullDir, 'configs/mcp/tavily.json');
         expect(existsSync(context7Path)).toBe(true);
+        expect(existsSync(tavilyPath)).toBe(true);
+
         const pulled = JSON.parse(readFileSync(context7Path, 'utf-8'));
         const canonical = JSON.parse(readFileSync(join(CANONICAL_ROOT, 'mcp/context7.json'), 'utf-8'));
-        // Pulled should have transport + url
+
         expect(pulled.transport).toBe(canonical.transport);
         expect(pulled.url).toBe(canonical.url);
-        // tavily (stdio) must NOT be pulled from codex
-        expect(existsSync(join(pullDir, 'configs/mcp/tavily.json'))).toBe(false);
+        expect(pulled.headers).toEqual({ CONTEXT7_API_KEY: '${CONTEXT7_API_KEY}' });
+
+        const pulledTavily = JSON.parse(readFileSync(tavilyPath, 'utf-8'));
+        const canonicalTavily = JSON.parse(readFileSync(join(CANONICAL_ROOT, 'mcp/tavily.json'), 'utf-8'));
+        expect(pulledTavily.transport).toBe(canonicalTavily.transport);
+        expect(pulledTavily.command).toBe(canonicalTavily.command);
+        expect(pulledTavily.args).toEqual(canonicalTavily.args);
+        expect(pulledTavily.env).toEqual(canonicalTavily.env);
         continue;
       }
 

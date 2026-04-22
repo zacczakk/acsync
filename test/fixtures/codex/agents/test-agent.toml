@@ -1,0 +1,4 @@
+name = "test-agent"
+description = "A test agent for fixture validation"
+developer_instructions = "# Test Agent\n\nYou are a test agent used for fixture validation in metronome's test suite.\n\n## Capabilities\n\n- Read and write files\n- Execute bash commands\n- Validate fixture data\n\n## Instructions\n\nFollow the user's instructions carefully."
+

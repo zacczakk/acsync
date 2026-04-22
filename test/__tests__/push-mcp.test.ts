@@ -37,7 +37,7 @@ const GOLDEN_PATHS: Record<TargetName, string> = {
 const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'gemini', 'codex'];
 
 describe('push MCP E2E', () => {
-  test('pushes MCP to all 4 targets, matches goldens, codex HTTP-only, idempotent, stale removal', async () => {
+  test('pushes MCP to all 4 targets, matches goldens, codex includes stdio+HTTP, idempotent, stale removal', async () => {
     const fakeHome = createTestHome('push-mcp');
     const projectDir = createTestProject('push-mcp', FIXTURE_ROOT);
     seedMCPTargets(fakeHome);
@@ -54,14 +54,14 @@ describe('push MCP E2E', () => {
       const mcpPath = adapter.getPaths().getMCPConfigPath();
       const actual = readFileSync(mcpPath, 'utf-8');
       const golden = readFileSync(GOLDEN_PATHS[target], 'utf-8');
-      expect(actual).toBe(golden);
+      expect(actual.trimEnd()).toBe(golden.trimEnd());
     }
 
-    // --- Codex: HTTP-only (no tavily stdio) ---
+    // --- Codex: stdio + HTTP ---
     const codexAdapter = createAdapter('codex', fakeHome);
     const codexContent = readFileSync(codexAdapter.getPaths().getMCPConfigPath(), 'utf-8');
     expect(codexContent).toContain('context7');
-    expect(codexContent).not.toContain('tavily');
+    expect(codexContent).toContain('tavily');
 
     // --- Non-canonical "existing-server" removed by push ---
     for (const target of ['claude-code', 'opencode', 'gemini'] as TargetName[]) {

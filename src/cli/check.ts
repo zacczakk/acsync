@@ -10,6 +10,7 @@ import {
   COMMANDS_DIR,
   AGENTS_DIR,
   PLUGINS_DIR,
+  HOOKS_DIR,
   PROJECT_ROOT,
   createAdapter,
   hashRendered,
@@ -22,6 +23,7 @@ import {
   readCanonicalSkills,
   readCanonicalSettings,
   readCanonicalPlugins,
+  readCanonicalHooks,
 } from './canonical';
 import { mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
 import type { SyncOptions } from './canonical';
@@ -306,6 +308,29 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
       }
     }
 
+    // Hooks
+    if (!options.types || options.types.includes('hook')) {
+      if (caps.hooks) {
+        const hooks = await readCanonicalHooks(projectDir, target);
+        if (hooks) {
+          const rendered = adapter.renderHooks(hooks);
+          const hooksPath = adapter.getPaths().getHooksPath();
+          const sourceHash = hashRendered(rendered);
+          const targetHash = await hashTargetFile(hooksPath);
+          sourceItems.push({
+            type: 'hook',
+            name: 'hooks',
+            hash: sourceHash,
+            sourcePath: join(projectDir, HOOKS_DIR, `${target === 'claude-code' ? 'claude' : target}.json`),
+            targetPath: hooksPath,
+          });
+          if (targetHash !== null) {
+            targetHashes.set('hook/hooks', targetHash);
+          }
+        }
+      }
+    }
+
     // Settings — hash what renderSettings would produce vs raw on-disk content
     if (!options.types || options.types.includes('settings')) {
       if (caps.settings) {
@@ -384,7 +409,7 @@ Exit codes: 0 = no drift, 2 = drift detected, 1 = error`)
   .option('--json', 'Machine-readable JSON output')
   .option('-v, --verbose', 'Show all items including up-to-date')
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
-  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings, plugins', collect, [] as string[])
+  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings, plugins, hooks', collect, [] as string[])
   .action(async (options: { json?: boolean; verbose?: boolean; target: string[]; type: string[] }) => {
     try {
       validateTargets(options.target);

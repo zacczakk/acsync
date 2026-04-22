@@ -17,7 +17,7 @@ export class OpenCodeAdapter extends BaseAdapter {
   }
 
   getCapabilities(): AdapterCapabilities {
-    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: true, plugins: true };
+    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: true, plugins: true, hooks: false };
   }
 
   /** Keys that only exist in the canonical format — strip before rendering */
@@ -163,6 +163,7 @@ export class OpenCodeAdapter extends BaseAdapter {
       const cfg: Record<string, unknown> = {
         type: server.transport === 'stdio' ? 'local' : 'remote',
       };
+      const targetOptions = server.targetOptions?.['opencode'] ?? {};
 
       if (server.transport === 'stdio') {
         cfg.command = [server.command, ...(server.args ?? [])];
@@ -176,6 +177,7 @@ export class OpenCodeAdapter extends BaseAdapter {
 
       // OpenCode natively supports enabled: false
       cfg.enabled = server.enabled !== false;
+      Object.assign(cfg, targetOptions);
 
       text = modifyJsonc(text, ['mcp', server.name], cfg) as string;
     }

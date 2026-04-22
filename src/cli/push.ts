@@ -21,6 +21,7 @@ import {
   readCanonicalSkills,
   readCanonicalSettings,
   readCanonicalPlugins,
+  readCanonicalHooks,
 } from './canonical';
 import { runCheck } from './check';
 import { confirm, mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
@@ -167,6 +168,19 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
               }
             }
             content = adapter.renderSettings(settings, existingContent);
+          } else if (op.itemType === 'hook') {
+            if (!caps.hooks) continue;
+            const hooks = await readCanonicalHooks(projectDir, target);
+            if (!hooks) continue;
+            let existingContent: string | undefined;
+            if (backup.existed) {
+              try {
+                existingContent = await readFile(backup.backupPath, 'utf-8');
+              } catch {
+                // Use no existing content
+              }
+            }
+            content = adapter.renderHooks(hooks, existingContent);
           } else {
             continue;
           }
@@ -258,7 +272,7 @@ Examples:
   metronome push --force --delete          Full sync: push all + clean stale`)
   .option('--json', 'Machine-readable JSON output')
   .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
-  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings, plugins', collect, [] as string[])
+  .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings, plugins, hooks', collect, [] as string[])
   .option('--dry-run', 'Show execution plan without writing')
   .option('--force', 'Skip confirmation prompt')
   .option('--delete', 'Delete stale target files not in canonical source (default: skip)')

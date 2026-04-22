@@ -13,7 +13,7 @@ function targetPaths(fakeHome: string) {
     claude: join(fakeHome, '.claude', 'agents'),
     opencode: join(fakeHome, '.config', 'opencode', 'agents'),
     gemini: join(fakeHome, '.gemini', 'agents'),
-    codex: join(fakeHome, '.codex', 'prompts'),
+    codex: join(fakeHome, '.codex', 'agents'),
   };
 }
 
@@ -44,9 +44,9 @@ describe('push-agents E2E', () => {
     const geminiGolden = readFileSync(join(FIXTURE_ROOT, 'gemini', 'agents', 'test-agent.md'), 'utf-8');
     expect(geminiPushed).toBe(geminiGolden);
 
-    // Codex: agent-test-agent.md (codex prefixes agents with agent-)
-    const codexPushed = readFileSync(join(paths.codex, 'agent-test-agent.md'), 'utf-8');
-    const codexGolden = readFileSync(join(FIXTURE_ROOT, 'codex', 'agents', 'agent-test-agent.md'), 'utf-8');
+    // Codex: test-agent.toml
+    const codexPushed = readFileSync(join(paths.codex, 'test-agent.toml'), 'utf-8');
+    const codexGolden = readFileSync(join(FIXTURE_ROOT, 'codex', 'agents', 'test-agent.toml'), 'utf-8');
     expect(codexPushed).toBe(codexGolden);
 
     // Also verify simple-agent
