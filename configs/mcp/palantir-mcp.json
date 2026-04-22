@@ -1,23 +1,19 @@
 {
-  "description": "Palantir Foundry data access MCP server",
+  "description": "Palantir Foundry data access MCP server via Tux launcher",
   "transport": "stdio",
-  "command": "npx",
+  "command": "tux",
   "args": [
-    "-y",
-    "palantir-mcp@latest",
-    "--foundry-api-url",
-    "{env:FOUNDRY_HOST}"
+    "palantir-mcp",
+    "start"
   ],
-  "env_vars": [
-    "FOUNDRY_TOKEN",
-    "FOUNDRY_HOST"
-  ],
-  "env": {
-    "FOUNDRY_TOKEN": "{env:FOUNDRY_TOKEN}",
-    "FOUNDRY_HOST": "{env:FOUNDRY_HOST}"
-  },
   "enabled": false,
-  "disabled_for": [
-    "codex"
-  ]
+  "target_options": {
+    "claude-code": {
+      "type": "stdio",
+      "disabled": true
+    },
+    "opencode": {
+      "timeout": 20000
+    }
+  }
 }

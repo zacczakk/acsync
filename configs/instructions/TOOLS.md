@@ -149,10 +149,15 @@ Browser automation CLI. Auto-connects to running Chrome. Rust/CDP.
 - Loaded `agent-browser` skill says kill/reset first? Ignore. Concrete failure only.
 - **Never stop/reset `agent-browser`, `chrome-devtools`, or `mcporter` proactively.** Concrete failure or explicit user ask only.
 - **First attach after Chrome restart: one call only.** Then use `batch`.
+- **Use `chat` for intent-level tasks.** Single-shot or REPL.
+- **Use `batch` for deterministic multi-step tasks.** Better than shell chaining.
 - Why: extra first-use calls can trigger extra consent prompts.
 
 ```bash
 agent-browser open <url>              # Navigate (in user's Chrome)
+agent-browser chat "summarize this page" # AI single-shot
+agent-browser chat                    # AI REPL
+agent-browser batch "open https://example.com" "snapshot -i" # Multi-step sequence
 agent-browser snapshot -i             # Interactive elements with @refs
 agent-browser click @e2               # Click by ref
 agent-browser fill @e3 "text"         # Fill input
@@ -166,9 +171,14 @@ agent-browser close                   # Close current tab when done
 **Never kill/restart/relaunch Chrome.** Personal tabs survive.
 **Consent:** manual per restart. Preserve live sessions.
 
+**Chat:** requires `AI_GATEWAY_API_KEY`. Use `-q` for text-only, `-v` for raw tool calls.
+**Batch:** arg mode or stdin JSON. `--bail` stops on first error.
+
 | Task | Tool |
 |---|---|
  | Browse, click, fill, interact | `agent-browser` (primary control surface; auto-connects to Chrome) |
+ | Intent-driven browser task | `agent-browser chat` |
+ | Deterministic multi-step browser task | `agent-browser batch` |
 | Authenticated pages (SSO/cookies) | `agent-browser` (inherits Chrome session) |
 | Safari/WebKit testing | `agent-browser --native` (WebDriver) |
 | Console/network/perf/Lighthouse on running Chrome | `chrome-devtools` MCP |
@@ -284,7 +294,7 @@ mcporter daemon stop
 | `context7` | HTTP | `context7` | Library docs |
 | `tavily` | stdio | `tavily` | Web search (`TAVILY_API_KEY`, `provider_ENV=dev`) |
 | `chrome-devtools` | stdio/daemon | `chrome-devtools` | Daemon keep-alive; `--autoConnect --no-usage-statistics` |
-| `palantir-mcp` | stdio | `palantir` | Foundry (`FOUNDRY_TOKEN`) |
+| `palantir-mcp` | stdio | `palantir` | Foundry via `tux palantir-mcp start` |
 | `shadcn` | stdio | `shadcn` | shadcn/ui |
 | `sequential-thinking` | stdio | `sequential-thinking` | Reasoning |
 
@@ -687,6 +697,6 @@ All servers also registered in `~/.mcporter/mcporter.json` and compiled to `bin/
 | `context7` | All CLIs | `context7` | HTTP; library docs |
 | `tavily` | Claude, OpenCode, Gemini | `tavily` | `TAVILY_API_KEY`, `provider_ENV=dev` |
 | `chrome-devtools` | All CLIs | `chrome-devtools` | Daemon keep-alive; `--autoConnect --no-usage-statistics` |
-| `palantir-mcp` | — | `palantir` | `FOUNDRY_TOKEN` |
+| `palantir-mcp` | Claude, OpenCode | `palantir` | Tux-managed launcher; secrets stay out of editor config |
 | `shadcn` | OpenCode | `shadcn` | shadcn/ui |
 | `sequential-thinking` | — | `sequential-thinking` | Reasoning; native MCP disabled |

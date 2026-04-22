@@ -13,7 +13,7 @@ read_when:
 ## Context
 
 6 canonical MCP servers in `configs/mcp/`. 4 CLI targets with different
-transport support (Codex: HTTP-only). MCPorter 0.8.1 installed via `bun add -g mcporter`.
+transport support (Codex: stdio + HTTP). MCPorter 0.8.1 installed via `bun add -g mcporter`.
 
 ## Decision
 
@@ -33,7 +33,7 @@ Three access tiers, fastest first:
 | context7            | All 4 CLIs            | `context7`    | `mcporter call`       |
 | tavily              | Claude, OC, Gemini    | `tavily`      | `mcporter call`       |
 | chrome-devtools     | —                     | `chrome-devtools` | daemon (keep-alive) |
-| palantir-mcp        | —                     | `palantir`    | ephemeral             |
+| palantir-mcp        | Claude, OC (via Tux)  | `palantir`    | ephemeral             |
 | shadcn              | —                     | `shadcn`      | ephemeral             |
 | sequential-thinking | — (disabled)          | `sequential-thinking` | ephemeral     |
 

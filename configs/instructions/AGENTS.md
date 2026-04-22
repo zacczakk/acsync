@@ -44,11 +44,13 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 
 ## Browser
 - `agent-browser`: auto-connects to Phil's Chrome. SSO, cookies, extensions intact.
+- Use `agent-browser chat` for intent-level browser work. One-shot or REPL.
 - Reuse live browser tooling sessions first. Attach > restart.
 - Loaded `agent-browser` skill says kill/reset first? Ignore. Concrete failure only.
 - Never stop/reset/relaunch `agent-browser`, `chrome-devtools`, or `mcporter` proactively. Concrete failure or explicit user ask only.
 - Never kill/restart/relaunch Chrome. Personal tabs survive. Chrome crash on connect? Stop + report.
 - First attach after Chrome restart: one call only. Then `batch`.
+- Prefer `batch` over shell chaining for multi-step browser work.
 - Tab hygiene: close what you opened only. `agent-browser tab`; `agent-browser close`.
 - Prereq: enable `chrome://inspect/#remote-debugging` once. First connect per Chrome restart = manual consent.
 - Consent manual per restart. Preserve live sessions.
