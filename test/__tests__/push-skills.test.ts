@@ -13,7 +13,7 @@ function targetPaths(fakeHome: string) {
     claude: join(fakeHome, '.claude', 'skills'),
     opencode: join(fakeHome, '.config', 'opencode', 'skill'),
     gemini: join(fakeHome, '.gemini', 'skills'),
-    codex: join(fakeHome, '.codex', 'skills'),
+    codex: join(fakeHome, '.agents', 'skills'),
   };
 }
 
@@ -61,6 +61,46 @@ describe('push-skills E2E', () => {
       'utf-8',
     );
     expect(claudeDesignCritique).toBe(claudeDesignCritiqueGolden);
+
+    const claudeMemoryRetrieval = readFileSync(
+      join(paths.claude, 'memory-retrieval', 'SKILL.md'),
+      'utf-8',
+    );
+    const claudeMemoryRetrievalGolden = readFileSync(
+      join(FIXTURE_ROOT, 'claude', 'skills', 'memory-retrieval', 'SKILL.md'),
+      'utf-8',
+    );
+    expect(claudeMemoryRetrieval).toBe(claudeMemoryRetrievalGolden);
+
+    const opencodeMemoryRetrieval = readFileSync(
+      join(paths.opencode, 'memory-retrieval', 'SKILL.md'),
+      'utf-8',
+    );
+    const opencodeMemoryRetrievalGolden = readFileSync(
+      join(FIXTURE_ROOT, 'opencode', 'skills', 'memory-retrieval', 'SKILL.md'),
+      'utf-8',
+    );
+    expect(opencodeMemoryRetrieval).toBe(opencodeMemoryRetrievalGolden);
+
+    const geminiMemoryRetrieval = readFileSync(
+      join(paths.gemini, 'memory-retrieval', 'SKILL.md'),
+      'utf-8',
+    );
+    const geminiMemoryRetrievalGolden = readFileSync(
+      join(FIXTURE_ROOT, 'gemini', 'skills', 'memory-retrieval', 'SKILL.md'),
+      'utf-8',
+    );
+    expect(geminiMemoryRetrieval).toBe(geminiMemoryRetrievalGolden);
+
+    const codexMemoryRetrieval = readFileSync(
+      join(paths.codex, 'memory-retrieval', 'SKILL.md'),
+      'utf-8',
+    );
+    const codexMemoryRetrievalGolden = readFileSync(
+      join(FIXTURE_ROOT, 'codex', 'skills', 'memory-retrieval', 'SKILL.md'),
+      'utf-8',
+    );
+    expect(codexMemoryRetrieval).toBe(codexMemoryRetrievalGolden);
   }, E2E_TIMEOUT);
 
   test('second push is idempotent (no drift)', async () => {

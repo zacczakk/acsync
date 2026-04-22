@@ -1,5 +1,5 @@
 ---
-summary: Skills catalog — all 22 on-demand skills with sources, triggers, and trimming notes.
+summary: Skills catalog — all 37 on-demand skills with sources, triggers, and trimming notes.
 read_when:
   - Adding or modifying skills
   - Reviewing what's available
@@ -8,14 +8,14 @@ read_when:
 
 # Skills Catalog
 
-22 skills in `configs/skills/`, synced to all targets via `metronome push`.
+37 skills in `configs/skills/`, synced to all targets via `metronome push`.
 Skills load on-demand when the agent's task matches the skill description.
 
 ## Sources
 
 | Source | Repo | Count | Notes |
 |---|---|---|---|
-| Custom | this repo | 11 | Obsidian (6), design (2), workflow (3) |
+| Custom | this repo | 12 | Obsidian (6), design (2), workflow (4) |
 | Impeccable | `~/Repos/oss/impeccable` | 1 | frontend-design inspiration only; canonical skill now trimmed and owned locally |
 | Anthropic | `~/Repos/oss/anthropic-skills` | 8 | Adopted as-is (upstream-only) |
 | Superpowers | `~/Repos/oss/superpowers` | 2 | Trimmed to telegraphic style on adoption |
@@ -26,6 +26,7 @@ Skills load on-demand when the agent's task matches the skill description.
 
 | Skill | Trigger | Lines |
 |---|---|---|
+| `memory-retrieval` | Memory/Knowledge/qmd/session lookup before broad repo search or multi-file reads | — |
 | `obsidian-markdown` | Working with .md files in Obsidian, wikilinks, callouts | — |
 | `obsidian-json-canvas` | Working with .canvas files, mind maps, flowcharts | — |
 | `obsidian-cli` | Vault reads/writes, note management, plugin dev | — |
