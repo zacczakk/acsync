@@ -132,17 +132,21 @@
       "name": "Tux",
       "options": {
         "baseURL": "http://127.0.0.1:18080/v1",
-        "apiKey": "does-not-matter"
+        "apiKey": "does-not-matter",
+        "toolStreaming": false
       },
       "models": {
         "claude-opus-4-6": {
-          "name": "Claude Opus 4.6"
+          "name": "Claude Opus 4.6",
+          "options": { "toolStreaming": false }
         },
         "claude-sonnet-4-6": {
-          "name": "Claude Sonnet 4.6"
+          "name": "Claude Sonnet 4.6",
+          "options": { "toolStreaming": false }
         },
         "claude-haiku-4-5-20251001": {
-          "name": "Claude Haiku 4.5"
+          "name": "Claude Haiku 4.5",
+          "options": { "toolStreaming": false }
         }
       }
     }
