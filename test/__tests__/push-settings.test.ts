@@ -29,6 +29,7 @@ describe('push settings E2E', () => {
   test('pushes settings to claude + opencode + codex, matches goldens, skips gemini, idempotent', async () => {
     const fakeHome = createTestHome('push-settings');
     const projectDir = createTestProject('push-settings', FIXTURE_ROOT);
+    cpSync(join(process.cwd(), 'configs', 'settings', 'claude.json'), join(projectDir, 'configs', 'settings', 'claude.json'));
     seedSettingsTargets(fakeHome);
 
     // --- Push settings ---
@@ -42,7 +43,27 @@ describe('push settings E2E', () => {
     const claudeAdapter = createAdapter('claude-code', fakeHome);
     const claudeActual = readFileSync(claudeAdapter.getPaths().getSettingsPath(), 'utf-8');
     const claudeGolden = readFileSync(join(FIXTURE_ROOT, 'claude/settings/settings.json'), 'utf-8');
+    const claudeParsed = JSON.parse(claudeActual) as {
+      hooks?: Record<string, Array<{ hooks: Array<{ command: string }> }>>;
+    };
+    const claudeHooks = claudeParsed.hooks ?? {};
+    const sessionStartGroups = claudeHooks.SessionStart ?? [];
+    const userPromptSubmitGroups = claudeHooks.UserPromptSubmit ?? [];
+    const sessionStartCommands = sessionStartGroups.flatMap((group) => group.hooks.map((hook) => hook.command));
+    const userPromptSubmitCommands = userPromptSubmitGroups.flatMap((group) => group.hooks.map((hook) => hook.command));
+    const vaultLoaderCommand = 'node "$HOME/Repos/zacczakk/metronome/configs/hooks/vault-context-loader.js"';
+    const cavemanSessionStartCommand = 'node "$HOME/Repos/zacczakk/metronome/configs/hooks/caveman-sessionstart-claude.js"';
+    const cavemanUserPromptCommand = 'node "$HOME/Repos/zacczakk/metronome/configs/hooks/caveman-userprompt-claude.js"';
+
     expect(claudeActual.trimEnd()).toBe(claudeGolden.trimEnd());
+    expect(claudeHooks.SessionStart).toBeArray();
+    expect(sessionStartCommands).toContain(vaultLoaderCommand);
+    expect(sessionStartCommands).toContain(cavemanSessionStartCommand);
+    expect(claudeHooks.UserPromptSubmit).toBeArray();
+    expect(userPromptSubmitGroups).toHaveLength(1);
+    expect(userPromptSubmitCommands).toEqual([cavemanUserPromptCommand]);
+    expect(sessionStartCommands.filter((command) => command === cavemanSessionStartCommand)).toHaveLength(1);
+    expect(userPromptSubmitCommands.filter((command) => command === cavemanUserPromptCommand)).toHaveLength(1);
 
     // --- OpenCode golden comparison ---
     const opencodeAdapter = createAdapter('opencode', fakeHome);

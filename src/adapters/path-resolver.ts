@@ -1,6 +1,7 @@
 import os from 'node:os';
 import path from 'node:path';
 import type { TargetName } from '../types';
+import { getCavemanStatePath as getRuntimeCavemanStatePath, type CavemanTarget } from '../runtime/caveman-paths';
 
 /**
  * Centralized path construction for all 4 target CLIs.
@@ -58,6 +59,11 @@ export class AdapterPathResolver {
   /** Hook config path for targets that support standalone hooks config */
   getHooksPath(): string {
     return this.expandHome(this.rawHooksPath());
+  }
+
+  /** Caveman mode state path for supported targets */
+  getCavemanStatePath(): string {
+    return getRuntimeCavemanStatePath(this.cavemanTarget(), this.homeDir);
   }
 
   /** Full path for a rendered plugin file given a logical name */
@@ -158,6 +164,17 @@ export class AdapterPathResolver {
     switch (this.target) {
       case 'codex':       return '~/.codex/hooks.json';
       default:            return path.join(this.rawBaseDir(), 'hooks.json');
+    }
+  }
+
+  private cavemanTarget(): CavemanTarget {
+    switch (this.target) {
+      case 'claude-code':
+      case 'opencode':
+      case 'codex':
+        return this.target;
+      default:
+        throw new Error(`caveman state unsupported for ${this.target}`);
     }
   }
 

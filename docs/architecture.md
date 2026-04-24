@@ -10,12 +10,12 @@ read_when:
 ## Layers
 
 - **configs/** — Canonical source for all CLI artifacts.
-  - `commands/` — Slash commands (7 .md files)
+  - `commands/` — Slash commands (8 .md files)
   - `agents/` — Subagent definitions (2 .md files)
-  - `skills/` — Skill bundles (34 directories)
-  - `plugins/` — OpenCode plugins (3 .ts files, identity-rendered)
-  - `mcp/` — MCP server definitions (6 .json files)
-  - `settings/` — Per-CLI settings (claude, opencode, token-tracker)
+  - `skills/` — Skill bundles (38 directories)
+  - `plugins/` — OpenCode plugins (4 .ts files, identity-rendered)
+  - `mcp/` — MCP server definitions (7 .json files)
+  - `settings/` — Per-CLI settings (4 .json files)
   - `hooks/` — Hook scripts (see [Hooks](#hooks) below)
   - `instructions/AGENTS.md` — Unified agent operating system (ground truth)
   - `instructions/TOOLS.md` — Tool-use reference
@@ -73,8 +73,11 @@ Plugin source files live in `configs/plugins/` and are **deployed by `metronome 
 | `notify-opencode.ts` | `session.created`, `session.deleted`, `session.status`, `permission.asked`, `question.asked`, `session.error` | macOS alerter notifications with iTerm2 pane focus. Tracks root sessions via `session.created`/`deleted`; uses `session.status` busy→idle transitions (not `session.idle`) to avoid duplicate notifications. Idle notifications are transient (5s). Retry status surfaces retries. Permission, question, and error notifications fire for all sessions. |
 | `memory-vault-advisor.ts` | `tool.execute.after` | Advisory reminder to check Memory vault before exploratory searches (grep, glob, task/explore, tavily_search, context7). Output mutation doesn't propagate for MCP tools — known OpenCode limitation. |
 | `rtk.ts` | `tool.execute.before` | Rewrites bash/shell commands to `rtk` equivalents for token compression. Delegates to `rtk rewrite` binary. Vendored from `rtk init -g --opencode` output. |
+| `caveman-opencode.ts` | `session.created`, `command.execute.before` | Handles the real `/caveman` slash command in OpenCode, persists `~/.config/opencode/.caveman-active`, and on every new root session re-injects the active caveman reminder via the documented session SDK so persisted mode survives across sessions. |
 
 Plugins are raw `.ts` files — identity-rendered (no frontmatter, no transformation). The `"plugin"` key in `opencode.json` (npm packages) is separately managed via settings wholesale-replace.
+
+`caveman` uses a mixed command/runtime model across CLIs. Canonical behavior lives in `configs/skills/caveman/SKILL.md` and `configs/settings/caveman.json`. Claude Code and Codex use managed/native lifecycle hooks from `configs/hooks/`; OpenCode uses a real slash command from `configs/commands/caveman.md` plus the local auto-loaded plugin `configs/plugins/caveman-opencode.ts`. `caveman-opencode` is intentionally not listed in `opencode.json` `plugin[]` because that array is for npm plugins, while local plugins auto-load from `~/.config/opencode/plugins/`.
 
 **Cursor OAuth (npm)**: Canonical `opencode.json` includes `opencode-cursor-oauth`
 in the `plugin` array and a minimal `provider.cursor` entry (`name: "Cursor"`).

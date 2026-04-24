@@ -43,11 +43,11 @@ keeps slash commands in `prompts/`, but custom subagents now live in
 ### Canonical Sources (This Repo)
 
 ```
-configs/commands/*.md              6 slash commands
+configs/commands/*.md              14 slash commands
 configs/agents/                    Agent definitions (OpenCode-style frontmatter)
-configs/skills/                    3 skill directories
+configs/skills/                    38 skill directories
 configs/mcp/*.json                 7 MCP server definitions
-configs/settings/*.json            2 settings definitions (claude, opencode)
+configs/settings/*.json            4 settings definitions (caveman, claude, codex, opencode)
 configs/instructions/AGENTS.md     Unified agent operating system
 configs/instructions/TOOLS.md      Tool-use reference
 ```
@@ -75,9 +75,9 @@ Never touch these during sync:
 
 The body content is copied verbatim (no frontmatter transformation needed).
 
-#### OpenCode — Rebuild Frontmatter + Translate Tools
+#### OpenCode — Strip Canonical-Only Frontmatter Keys
 
-Strip canonical frontmatter and rebuild with OpenCode-compatible fields.
+OpenCode command rendering preserves frontmatter except for canonical-only keys.
 
 Canonical frontmatter:
 ```yaml
@@ -92,50 +92,16 @@ OpenCode rendered frontmatter:
 ```yaml
 ---
 description: Full CI gate...
-argument-hint: "goal"
-tools:
-  edit: false
-  write: false
 ---
 ```
 
-**`allowed-tools` translation**: OpenCode does not support the `allowed-tools`
-field. Translate it to the `tools` map, which disables tools by setting them
-to `false`. Only emit keys for tools that are **disabled** (absent = allowed).
+Rules:
+- Preserve standard frontmatter keys that OpenCode can carry through unchanged.
+- Strip canonical-only keys `allowed-tools`, `argument-hint`, and `name` during render.
+- Do not synthesize an OpenCode `tools:` map from canonical command frontmatter.
+- Body content is passed through unchanged.
 
-Translation table (canonical tool name to OpenCode `tools` key):
-
-| Canonical | OpenCode `tools` key |
-|-----------|---------------------|
-| `Read` | `read` |
-| `Glob` | `glob` |
-| `Grep` | `grep` |
-| `Edit` | `edit` |
-| `Write` | `write` |
-| `Bash` | `bash` |
-
-**Rule**: Compare the `allowed-tools` list against the full set
-`[Read, Glob, Grep, Edit, Write, Bash]`. Any tool NOT in `allowed-tools`
-gets `toolname: false` in the `tools` map. If all tools are allowed, omit
-the `tools` key entirely.
-
-Examples:
-- `allowed-tools: [Read, Glob, Grep, Bash]` becomes `tools: {edit: false, write: false}`
-- `allowed-tools: [Read, Glob, Grep, Edit, Write, Bash]` becomes no `tools` key
-- `allowed-tools: [Read, Write, Bash]` becomes `tools: {glob: false, grep: false, edit: false}`
-
-**Note on `mcp__*`**: The `mcp__*` wildcard in `allowed-tools` means "allow
-all MCP tools." OpenCode does not have an equivalent restriction mechanism
-for MCP tools. Omit it from the `tools` map — MCP tools are always available
-when the MCP server is enabled.
-
-**`argument-hint`**: If it is a list in canonical (e.g., `[goal]`), convert
-to a plain string (e.g., `"goal"`). If it is already a string, quote it.
-
-Body content is passed through unchanged.
-
-Note: commands remain on the older portable canonical format (`description`,
-`argument-hint`, `allowed-tools`). Agents do not.
+Note: OpenCode agent rendering is different; agents may emit target-specific metadata such as `mode: subagent`, but commands do not.
 
 #### Gemini CLI — Convert to TOML
 
@@ -532,8 +498,9 @@ Rules:
 - **SSL certificates**: `settings.json` injects `SSL_CERT_FILE` and
   `NODE_EXTRA_CA_CERTS` pointing to `~/.claude/cacert.pem`. Canonical uses
   `~` paths; push expands `~` to the actual home directory.
-- **Hooks**: `SessionStart` hook and `statusLine` are GSD-managed. Do NOT
-  touch during sync.
+- **Hooks**: `settings.json` hook entries are managed during sync, including
+  caveman lifecycle hooks. Preserve user-owned project-level MCP state in
+  `~/.claude.json`.
 - **Project-level MCP**: `~/.claude.json` has per-project
   `enabledMcpjsonServers`/`disabledMcpjsonServers` entries. Do NOT modify
   these during sync.
@@ -556,11 +523,13 @@ Rules:
 - **Deep-merge keys**: `permission` and `tools` in `opencode.json` use deep
   merge (user-added entries survive). All other managed keys use wholesale
   replacement.
-- **Plugin system**: `"plugin": ["opencode-agent-browser", "opencode-token-tracker", "opencode-cursor-oauth"]` — preserve
-  during sync (exact list in canonical `opencode.json`).
-- **`tools` frontmatter in commands/agents**: OpenCode supports a `tools` map
-  in frontmatter to disable specific tools (see section 2.1). This is the
-  translation target for canonical `allowed-tools`.
+- **Plugin system**: npm plugins in `opencode.json.plugin[]` are managed from
+  canonical `configs/settings/opencode.json`. Preserve user-added entries via
+  deep merge.
+- **Local plugins**: files in `~/.config/opencode/plugins/` auto-load without `opencode.json` registration. Canonical local plugins are deployed from `configs/plugins/` via `metronome push --type plugins`; do not add them to the npm `plugin[]` list unless they are actual packages.
+- **Command tool limits**: canonical `allowed-tools` is stripped during
+  OpenCode render. Metronome does not synthesize an OpenCode frontmatter
+  `tools` map from canonical command metadata.
 
 ### Gemini CLI
 
@@ -598,6 +567,17 @@ Rules:
   `gpt-5.x-codex` aliases toward `gpt-5.4`.
 - **No GSD**: GSD is not installed for Codex. No `gsd-*` files to worry about.
 
+### Caveman Mode
+
+- Canonical skill: `configs/skills/caveman/SKILL.md`
+- Canonical config: `configs/settings/caveman.json`
+- Canonical command: `configs/commands/caveman.md`
+- Shared runtime helper: `configs/hooks/caveman-shared.js`
+- Claude wiring: `configs/hooks/caveman-sessionstart-claude.js`, `configs/hooks/caveman-userprompt-claude.js`, plus managed hook registration in `configs/settings/claude.json`
+- Codex wiring: `configs/hooks/caveman-sessionstart-codex.js`, `configs/hooks/caveman-userprompt-codex.js`, plus `configs/hook-configs/codex.json`
+- OpenCode wiring: `configs/plugins/caveman-opencode.ts` deployed as a local auto-loaded plugin, handling `command.execute.before` for `/caveman` and `session.created` for startup recovery; plus the real slash command in `configs/commands/caveman.md`
+- OpenCode note: `caveman-opencode` is a local plugin artifact, not an npm plugin entry in `opencode.json` `plugin[]`
+
 ---
 
 ## 4. Secret Management
@@ -609,7 +589,7 @@ Rules:
 | `TAVILY_API_KEY` | tavily MCP | In `env` block |
 | `provider_ENV` | tavily MCP | Set to `dev` for this key |
 | `CONTEXT7_API_KEY` | context7 MCP | In `headers` block |
-| `provider_BEDROCK_API_KEY` | OpenCode settings | In `provider.provider-bedrock.options.apiKey` |
+| `provider_OPENAI_API_KEY_PROD` | OpenCode settings | Runtime `{env:...}` reference in provider options |
 
 ### Path Expansion
 
@@ -734,12 +714,10 @@ This preserves custom tool permissions while syncing canonical ones.
 **Unmanaged keys** (preserve during sync): `$schema`, and any
 user-added keys not listed above.
 
-**Secret handling**: The `provider.provider-bedrock.options.apiKey`
-value uses `${provider_BEDROCK_API_KEY}` in canonical. Push injects
-the real value from `.env`. Pull redacts it back to the placeholder.
-The `provider-foundry` provider uses `{env:...}` syntax — these are
-OpenCode runtime env var references, NOT secret placeholders. Leave
-them as-is during push and pull.
+**Secret handling**: OpenCode provider configs use runtime `{env:VAR_NAME}`
+references in canonical settings (for example `provider_OPENAI_API_KEY_PROD`,
+`ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`). These are not metronome secret
+placeholders. Leave them as-is during push and pull.
 
 **Path expansion**: Canonical uses `~` in `instructions` paths. Push
 expands `~` to the actual home directory. Pull collapses it back.

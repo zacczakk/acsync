@@ -1,0 +1,5 @@
+{
+  "defaultMode": "off",
+  "targets": ["opencode", "claude-code", "codex"],
+  "naturalLanguageActivation": false
+}

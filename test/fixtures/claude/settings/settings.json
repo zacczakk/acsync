@@ -1,7 +1,13 @@
 {
   "env": {
+    "GH_CA_BUNDLE": "~/.claude/cacert.pem",
     "SSL_CERT_FILE": "~/.claude/cacert.pem",
-    "NODE_EXTRA_CA_CERTS": "~/.claude/cacert.pem"
+    "NODE_EXTRA_CA_CERTS": "~/.claude/cacert.pem",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "ENABLE_LSP_TOOL": "1",
+    "ENABLE_TOOL_SEARCH": "1"
   },
   "customKey": "preserved",
   "alwaysThinkingEnabled": true,
@@ -20,7 +26,64 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/path/to/vault-context-loader.js\""
+            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/vault-context-loader.js\""
+          }
+        ]
+      },
+      {
+        "_managed": "metronome",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/caveman-sessionstart-claude.js\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "_managed": "metronome",
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/rtk-rewrite.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "_managed": "metronome",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/caveman-userprompt-claude.js\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "_managed": "metronome",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/notify-claude-stop.js\"",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "_managed": "metronome",
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/autoformat-claude.js\"",
+            "async": true
           }
         ]
       }
@@ -28,10 +91,12 @@
     "Notification": [
       {
         "_managed": "metronome",
+        "matcher": "idle_prompt|auth_success",
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/path/to/notify-claude.js\""
+            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/notify-claude.js\"",
+            "async": true
           }
         ]
       }
@@ -56,14 +121,7 @@
       "Bash(date:*)",
       "Bash(echo:*)",
       "Bash(find:*)",
-      "Bash(git status:*)",
-      "Bash(git diff:*)",
-      "Bash(git log:*)",
-      "Bash(git show:*)",
-      "Bash(git branch:*)",
-      "Bash(git remote:*)",
-      "Bash(git tag:*)",
-      "Bash(git stash list:*)",
+      "Bash(git:*)",
       "Bash(head:*)",
       "Bash(ls:*)",
       "Bash(pwd:*)",
@@ -87,21 +145,41 @@
       "Bash(trash:*)",
       "Bash(committer:*)",
       "Bash(swift build:*)",
-      "Bash(swift test:*)"
+      "Bash(swift test:*)",
+      "Bash(metronome:*)",
+      "Bash(basename:*)",
+      "Bash(xxd:*)",
+      "Bash(grep:*)",
+      "Bash(obsidian:*)",
+      "Bash(rtk:*)"
     ],
     "deny": [
       "Delete",
       "Bash(rm:*)",
       "Bash(git reset:*)",
       "Bash(git clean:*)",
-      "Bash(sudo:*)"
+      "Bash(git restore:*)",
+      "Bash(gh repo delete:*)",
+      "Bash(sudo:*)",
+      "Bash(cat *.env:*)",
+      "Bash(cat *.env.*:*)",
+      "Bash(cat */.env:*)",
+      "Bash(cat */.env.*:*)",
+      "Bash(cat ~/.zshrc_secrets:*)"
     ]
   },
+  "additionalDirectories": [
+    "/tmp",
+    "~/Vaults"
+  ],
   "cleanupPeriodDays": 365,
   "teammateMode": "auto",
   "prefersReducedMotion": true,
   "sandbox": {
     "enabled": true,
-    "autoAllowBashIfSandboxed": true
+    "autoAllowBashIfSandboxed": true,
+    "excludedCommands": [
+      "gh"
+    ]
   }
 }
