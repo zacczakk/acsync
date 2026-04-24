@@ -1,5 +1,7 @@
 # Caveman Mode Implementation Plan
 
+> **STATUS: SHIPPED (commit `7e42c61`).** This document is kept as historical context. The OpenCode wiring landed differently than originally drafted below: local OpenCode plugins auto-load from `~/.config/opencode/plugins/` and are NOT listed in the `plugin[]` array of `configs/settings/opencode.json` (that array is for npm packages only). The hidden-context injection uses the documented `client.session.prompt({ noReply: true, ... })` SDK call from a `command.execute.before` handler plus a `session.created` event handler for startup recovery, not `session.patch({ context })`. See `docs/superpowers/specs/2026-04-24-caveman-mode-design.md` and `docs/architecture.md` for the shipped model.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add a centrally managed sticky `caveman` mode for Codex, Claude Code, and OpenCode with explicit `/caveman` activation, `lite|full|ultra` intensities, explicit `/caveman off|stop` disable commands, and per-target persisted session state.
@@ -33,7 +35,7 @@
 - Modify: `configs/settings/claude.json`
   - add managed `UserPromptSubmit` and `SessionStart` caveman hooks without disturbing existing managed hook groups
 - Modify: `configs/settings/opencode.json`
-  - add `caveman-opencode` to the deployed plugin list while preserving existing plugin entries
+  - SHIPPED CHANGE: no edit required. Local OpenCode plugins auto-load from `~/.config/opencode/plugins/`; the `plugin[]` array is reserved for npm packages.
 - Modify: `docs/architecture.md`
   - document caveman shared helper plus target wiring model
 - Modify: `docs/design/sync-spec.md`
@@ -61,7 +63,7 @@
 - Modify: `test/fixtures/claude/settings/settings.json`
   - updated Claude settings golden with caveman managed hooks
 - Modify: `test/fixtures/opencode/settings/opencode.json`
-  - updated OpenCode settings golden with `caveman-opencode` plugin in the list
+  - SHIPPED CHANGE: no edit required. Plugin is not added to the `plugin[]` array; goldens cover the deployed plugin file directly.
 - Create: `test/fixtures/opencode/plugins/caveman-opencode.ts`
   - OpenCode plugin golden
 - Modify: `test/fixtures/seeds/claude/settings.json`
@@ -1089,7 +1091,7 @@ Add this block to the settings/hooks/plugins sync section:
 - Shared runtime helper: `configs/hooks/caveman-shared.js`
 - Codex wiring: `configs/hook-configs/codex.json`
 - Claude wiring: `configs/settings/claude.json`
-- OpenCode wiring: `configs/plugins/caveman-opencode.ts` plus the `plugin` array in `configs/settings/opencode.json`
+- OpenCode wiring: `configs/plugins/caveman-opencode.ts` (auto-loaded from `~/.config/opencode/plugins/`; not registered in `plugin[]`)
 ```
 
 - [ ] **Step 3: Run the focused caveman test set**
@@ -1168,6 +1170,6 @@ target configs updated with caveman mode assets and no unexpected drift
 
 ## Notes Before Execution
 
-- OpenCode hidden-context mutation is the riskiest part. Validate the plugin event/API against current OpenCode docs before implementing the exact `session.patch` shape. If the API differs, keep the user-visible semantics and state file behavior, but adapt the injection method.
+- OpenCode hidden-context mutation is the riskiest part. SHIPPED RESOLUTION: `session.patch({ context })` is not part of the documented OpenCode plugin API. The shipped plugin uses `command.execute.before` for `/caveman` parsing and `session.created` for startup recovery, injecting reinforcement via `client.session.prompt({ noReply: true, parts: [...] })`.
 - The shared helper currently assumes the canonical repo lives at `~/Repos/zacczakk/metronome`. Preserve that precedent unless metronome already exposes a better repo-root discovery utility for runtime scripts.
 - Do not enable natural-language activation in v1. Only deactivation aliases are enabled by default.
