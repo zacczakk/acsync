@@ -47,7 +47,7 @@ configs/commands/*.md              14 slash commands
 configs/agents/                    Agent definitions (OpenCode-style frontmatter)
 configs/skills/                    38 skill directories
 configs/mcp/*.json                 7 MCP server definitions
-configs/settings/*.json            4 settings definitions (caveman, claude, codex, opencode)
+configs/settings/*.json            3 settings definitions (claude, codex, opencode)
 configs/instructions/AGENTS.md     Unified agent operating system
 configs/instructions/TOOLS.md      Tool-use reference
 ```
@@ -498,8 +498,7 @@ Rules:
 - **SSL certificates**: `settings.json` injects `SSL_CERT_FILE` and
   `NODE_EXTRA_CA_CERTS` pointing to `~/.claude/cacert.pem`. Canonical uses
   `~` paths; push expands `~` to the actual home directory.
-- **Hooks**: `settings.json` hook entries are managed during sync, including
-  caveman lifecycle hooks. Preserve user-owned project-level MCP state in
+- **Hooks**: `settings.json` hook entries are managed during sync. Preserve user-owned project-level MCP state in
   `~/.claude.json`.
 - **Project-level MCP**: `~/.claude.json` has per-project
   `enabledMcpjsonServers`/`disabledMcpjsonServers` entries. Do NOT modify
@@ -570,13 +569,9 @@ Rules:
 ### Caveman Mode
 
 - Canonical skill: `configs/skills/caveman/SKILL.md`
-- Canonical config: `configs/settings/caveman.json`
 - Canonical command: `configs/commands/caveman.md`
-- Shared runtime helper: `configs/hooks/caveman-shared.js`
-- Claude wiring: `configs/hooks/caveman-sessionstart-claude.js`, `configs/hooks/caveman-userprompt-claude.js`, plus managed hook registration in `configs/settings/claude.json`
-- Codex wiring: `configs/hooks/caveman-sessionstart-codex.js`, `configs/hooks/caveman-userprompt-codex.js`, plus `configs/hook-configs/codex.json`
-- OpenCode wiring: `configs/plugins/caveman-opencode.ts` deployed as a local auto-loaded plugin, handling `command.execute.before` for `/caveman` and `session.created` for startup recovery; plus the real slash command in `configs/commands/caveman.md`
-- OpenCode note: `caveman-opencode` is a local plugin artifact, not an npm plugin entry in `opencode.json` `plugin[]`
+- OpenCode wiring: `configs/plugins/caveman-opencode.ts` (local auto-loaded plugin) handles `command.execute.before` for `/caveman`, holds per-session mode in an in-memory map, and re-injects the active reminder via `experimental.chat.system.transform` each turn. Mode clears on `/caveman off`/`/caveman stop` or `session.deleted`. No filesystem persistence; nothing survives a session restart.
+- OpenCode note: `caveman-opencode` is a local plugin artifact, not an npm plugin entry in `opencode.json` `plugin[]`. Other targets render the slash command for parity but no longer have hook-level wiring.
 
 ---
 

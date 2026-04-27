@@ -1,25 +1,23 @@
 ---
 name: caveman
 description: >-
-  Optional compressed-response mode. Use when the user explicitly activates
-  `/caveman`, `/caveman lite`, `/caveman full`, or `/caveman ultra`. Bare
-  `/caveman` uses the configured default level, or `full` when `defaultMode` is
-  `off`. The mode is sticky for the session until `/caveman off` or
-  `/caveman stop`.
+  Optional compressed-response mode. Activate via `/caveman`, `/caveman lite`,
+  `/caveman full`, or `/caveman ultra`. Bare `/caveman` defaults to `full`.
+  Sticky for the current OpenCode session only — disable with `/caveman off`
+  or end the session.
 ---
 
 # Caveman Mode
 
-Compressed voice mode. User-controlled only. Sticky per session.
+Compressed voice mode. User-controlled. Sticky for the current session, in-memory only — no cross-session persistence.
 
 ## Commands
 
-- `/caveman` -> activate configured default level, or `full` when `defaultMode` is `off`
+- `/caveman` -> activate `full` for this session
 - `/caveman lite`
 - `/caveman full`
 - `/caveman ultra`
-- `/caveman off`
-- `/caveman stop`
+- `/caveman off` (alias `/caveman stop`) -> disable for this session
 
 ## Boundaries
 

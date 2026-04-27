@@ -7,21 +7,6 @@
           {
             "type": "command",
             "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/vault-context-loader-codex.js\""
-          },
-          {
-            "type": "command",
-            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/caveman-sessionstart-codex.js\""
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/caveman-userprompt-codex.js\""
           }
         ]
       }

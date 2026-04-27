@@ -29,15 +29,6 @@
             "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/vault-context-loader.js\""
           }
         ]
-      },
-      {
-        "_managed": "metronome",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/caveman-sessionstart-claude.js\""
-          }
-        ]
       }
     ],
     "PreToolUse": [
@@ -48,17 +39,6 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/rtk-rewrite.sh"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "_managed": "metronome",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/caveman-userprompt-claude.js\""
           }
         ]
       }

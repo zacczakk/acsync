@@ -1,22 +1,22 @@
-description = "Activate, adjust, or disable sticky caveman response mode with lite|full|ultra|off|stop."
+description = "Toggle compressed-response mode for the current OpenCode session. Levels: lite, full, ultra. Disable with off."
 prompt = '''
 # Caveman Mode
 
-Control sticky caveman response compression through the command system.
+Compressed voice mode. Sticky for the current OpenCode session, in-memory only — does not persist across sessions or restarts.
 
 User input: $ARGUMENTS
 
 ## Behavior
 
-- bare `/caveman` activates the configured default level, or `full` when the default is `off`
-- `/caveman lite`, `/caveman full`, and `/caveman ultra` set an explicit level
-- `/caveman off` and `/caveman stop` disable the mode
-- the mode stays active until you explicitly disable it
+- bare `/caveman` activates `full` for this session
+- `/caveman lite`, `/caveman full`, `/caveman ultra` set an explicit level
+- `/caveman off` (alias `/caveman stop`) disables compression for this session
+- ending the session also clears the mode
 
 ## Notes
 
-- Prefer this command over natural-language requests when you want reliable cross-target behavior.
-- OpenCode uses the command hook plus persisted local state to reinforce the active level without a visible assistant reply.
+- Reverts to normal clarity for safety, destructive actions, multi-step ambiguity, or explicit clarification requests.
+- See the `caveman` skill for level-by-level rules.
 
 User arguments: {{args}}
 '''

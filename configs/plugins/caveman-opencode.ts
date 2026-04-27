@@ -1,9 +1,6 @@
 import type { Plugin } from "@opencode-ai/plugin"
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
-import os from "node:os"
-import path from "node:path"
 
-type CavemanMode = "off" | "lite" | "full" | "ultra"
+type CavemanMode = "lite" | "full" | "ultra"
 
 type CommandInput = {
   command?: string
@@ -11,176 +8,82 @@ type CommandInput = {
   sessionID?: string
 }
 
-type SessionCreatedEvent = {
-  type: "session.created"
-  properties: {
-    info: {
-      id: string
-      parentID?: string | null
-    }
-  }
+type SystemTransformInput = {
+  sessionID?: string
+}
+
+type SystemTransformOutput = {
+  system?: string[]
 }
 
 type EventInput = {
-  event?: SessionCreatedEvent | { type: string; properties?: unknown }
-}
-
-type PromptPart = {
-  type: "text"
-  text: string
-}
-
-type PromptOutput = {
-  parts?: PromptPart[]
-}
-
-type ClientSession = {
-  prompt?: (payload: { path: { id: string }; body: { noReply: true; parts: PromptPart[] } }) => Promise<void>
-}
-
-type PluginContext = {
-  client?: {
-    session?: ClientSession
+  event?: {
+    type: string
+    properties?: { info?: { id?: string } } & Record<string, unknown>
   }
 }
 
-type ParsedRequest =
-  | { kind: "activate-default" }
-  | { kind: "activate-explicit"; mode: Exclude<CavemanMode, "off"> }
-  | { kind: "deactivate"; mode: "off" }
+const VALID_MODES = new Set<CavemanMode>(["lite", "full", "ultra"])
 
-const VALID_MODES = new Set<CavemanMode>(["off", "lite", "full", "ultra"])
-const STATE_FILENAME = ".caveman-active"
+const sessionModes = new Map<string, CavemanMode>()
 
-function getConfigPath() {
-  if (process.env.METRONOME_CAVEMAN_CONFIG_PATH) {
-    return process.env.METRONOME_CAVEMAN_CONFIG_PATH
-  }
-  const repoRoot = process.env.METRONOME_REPO_ROOT ?? path.join(os.userInfo().homedir, "Repos", "zacczakk", "metronome")
-  return path.join(repoRoot, "configs", "settings", "caveman.json")
+function parseMode(rawArguments: string | undefined): CavemanMode | "off" | null {
+  const arg = (rawArguments ?? "").trim().toLowerCase()
+  if (arg === "" || arg === "full") return "full"
+  if (arg === "lite" || arg === "ultra") return arg
+  if (arg === "off" || arg === "stop") return "off"
+  return null
 }
 
-function getStatePath() {
-  return path.join(os.homedir(), ".config", "opencode", STATE_FILENAME)
+function renderReminder(mode: CavemanMode): string {
+  return `<caveman-mode level="${mode}">
+Compressed reply style is ACTIVE for this session at level "${mode}".
+
+Levels:
+- lite: short sentences, grammar intact, cut filler
+- full: telegraph style, noun phrases ok, drop articles when safe
+- ultra: maximal compression, fragments ok, shortest unambiguous wording
+
+Apply to the current reply. Fall back to normal clarity for safety warnings, destructive or irreversible actions, multi-step procedures where compression risks ambiguity, or explicit user requests for clarification.
+
+The user toggles this with /caveman lite|full|ultra and disables it with /caveman off.
+</caveman-mode>`
 }
 
-function readDefaultMode(): CavemanMode {
-  try {
-    const parsed = JSON.parse(readFileSync(getConfigPath(), "utf8")) as { defaultMode?: string }
-    return VALID_MODES.has(parsed.defaultMode as CavemanMode) ? (parsed.defaultMode as CavemanMode) : "off"
-  } catch {
-    return "off"
-  }
-}
-
-function parseRequestedMode(text: string): ParsedRequest | null {
-  const input = text.trim().toLowerCase()
-
-  if (input === "/caveman") {
-    return { kind: "activate-default" }
-  }
-
-  const slashMatch = /^\/caveman\s+(lite|full|ultra|off|stop)$/.exec(input)
-  if (!slashMatch) {
-    return null
-  }
-
-  const mode = slashMatch[1]
-  if (mode === "off" || mode === "stop") {
-    return { kind: "deactivate", mode: "off" }
-  }
-
-  return { kind: "activate-explicit", mode }
-}
-
-function resolveActivationMode(defaultMode: CavemanMode): Exclude<CavemanMode, "off"> {
-  return defaultMode === "off" ? "full" : defaultMode
-}
-
-function readState(statePath: string): CavemanMode {
-  try {
-    const value = readFileSync(statePath, "utf8").trim()
-    return VALID_MODES.has(value as CavemanMode) ? (value as CavemanMode) : "off"
-  } catch {
-    return "off"
-  }
-}
-
-function writeState(statePath: string, mode: CavemanMode) {
-  mkdirSync(path.dirname(statePath), { recursive: true })
-  writeFileSync(statePath, mode)
-}
-
-function renderReminder(mode: CavemanMode) {
-  if (mode === "off") return ""
-  return `CAVEMAN REMINDER: level=${mode}. Compressed reply style active. Use normal clarity for safety, destructive actions, multi-step ambiguity, or explicit clarification requests.`
-}
-
-function normalizeMode(input: CommandInput): CavemanMode | null {
-  const rawArguments = typeof input.arguments === "string" ? input.arguments.trim() : ""
-  const requestText = rawArguments.length > 0 ? `/caveman ${rawArguments}` : "/caveman"
-  const parsed = parseRequestedMode(requestText)
-
-  if (!parsed) return null
-  if (parsed.kind === "deactivate") return "off"
-  if (parsed.kind === "activate-explicit") return parsed.mode
-
-  return resolveActivationMode(readDefaultMode())
-}
-
-async function injectReminder(clientSession: ClientSession | undefined, sessionID: string | undefined, mode: CavemanMode, output: PromptOutput) {
-  const reminder = renderReminder(mode)
-  if (!reminder) return
-
-  output.parts ??= []
-  output.parts.push({ type: "text", text: reminder })
-
-  if (!clientSession?.prompt || !sessionID) return
-
-  await clientSession.prompt({
-    path: { id: sessionID },
-    body: {
-      noReply: true,
-      parts: [{ type: "text", text: reminder }],
-    },
-  })
-}
-
-function resolveStartupMode(statePath: string): CavemanMode {
-  const persisted = readState(statePath)
-  if (persisted !== "off") return persisted
-  return readDefaultMode()
-}
-
-export const CavemanOpenCodePlugin: Plugin = async ({ client }: PluginContext = {}) => {
-  const statePath = getStatePath()
-  writeState(statePath, readState(statePath))
-
+export const CavemanOpenCodePlugin: Plugin = async () => {
   return {
-    event: async (input: EventInput = {}) => {
-      const event = input.event
-      if (!event || event.type !== "session.created") return
-
-      const info = (event as SessionCreatedEvent).properties?.info
-      if (!info?.id) return
-      if (info.parentID) return
-
-      const mode = resolveStartupMode(statePath)
-      if (mode === "off") return
-
-      await injectReminder(client?.session, info.id, mode, {})
-    },
-    "command.execute.before": async (input: CommandInput, output: PromptOutput = {}) => {
+    "command.execute.before": async (input: CommandInput) => {
       if (input.command !== "caveman") return
+      if (!input.sessionID) return
 
-      const mode = normalizeMode(input)
+      const mode = parseMode(input.arguments)
       if (!mode) return
 
-      writeState(statePath, mode)
+      if (mode === "off") {
+        sessionModes.delete(input.sessionID)
+        return
+      }
 
-      if (mode === "off") return
+      if (!VALID_MODES.has(mode)) return
 
-      await injectReminder(client?.session, input.sessionID, mode, output)
+      sessionModes.set(input.sessionID, mode)
+    },
+    "experimental.chat.system.transform": async (
+      input: SystemTransformInput,
+      output: SystemTransformOutput,
+    ) => {
+      if (!input.sessionID) return
+      const mode = sessionModes.get(input.sessionID)
+      if (!mode) return
+
+      output.system ??= []
+      output.system.push(renderReminder(mode))
+    },
+    event: async (input: EventInput) => {
+      const event = input.event
+      if (!event || event.type !== "session.deleted") return
+      const id = event.properties?.info?.id
+      if (id) sessionModes.delete(id)
     },
   }
 }
