@@ -6,6 +6,15 @@ read_when:
 
 # Changelog
 
+## v1.3.10 — 2026-04-27
+
+- **Caveman mode rewrite** — slash-command-only activation, sticky for the current OpenCode session, in-memory only. Removed `.caveman-active` state files, SessionStart/UserPromptSubmit hooks for Claude/Codex, and shared lifecycle scripts. Slash command still renders to all 4 targets but only OpenCode's plugin acts on it
+- **Codex settings + hooks sync** — added centrally managed Codex settings and hook configuration to the sync pipeline
+- **Tux tool streaming fix** — disabled tool streaming for Tux models to prevent broken tool calls
+- **Claude tool search** — enabled `ENABLE_TOOL_SEARCH` in managed Claude Code settings
+- **Memory retrieval skill** — new skill for searching Memory vault and session history before broad repo search
+- **Docs refresh** — updated browser and MCP guidance, marked caveman plan shipped, corrected OpenCode wiring notes
+
 ## v1.3.8 — 2026-04-20
 
 - **Subagent workflow expansion** — added dedicated review/research/debug/docs/release/security/infra/verify agents plus subagent-driven planning and execution skills for tighter task handoff and review loops
