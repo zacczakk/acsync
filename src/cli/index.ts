@@ -6,6 +6,7 @@ import { pullCommand } from './pull';
 import { renderCommand } from './render';
 import { diffCommand } from './diff';
 import { helpersCommand } from './helpers';
+import { syncDesktopCommand } from './sync-desktop';
 
 const DESCRIPTION = `Agent Config Sync — single source of truth for AI coding assistant configs.
 
@@ -48,6 +49,7 @@ program.addCommand(pullCommand);
 program.addCommand(renderCommand);
 program.addCommand(diffCommand);
 program.addCommand(helpersCommand);
+program.addCommand(syncDesktopCommand);
 
 // Allow proper exit codes from subcommands (don't let Commander swallow process.exit)
 program.exitOverride();
