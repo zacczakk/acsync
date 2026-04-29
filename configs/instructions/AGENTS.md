@@ -130,12 +130,6 @@ When work concludes (skip if trivial):
   5. Key remounting — `<Component key={id} />` for clean state reset
   Per-project: ESLint `no-restricted-syntax` + `no-restricted-imports` to hard-ban useEffect. Deep ref: `vercel-react-best-practices` skill.
 
-## Code Review
-- `coderabbit review --agent -c ~/Repos/zacczakk/metronome/configs/instructions/AGENTS.md` — standard invocation. Always pass `-c`.
-- Scope: `-t uncommitted` (pre-commit), `-t committed`, `--base main` (branch diff).
-- Fix criticals; skip nits unless asked. Max 2 iterations.
-- Run proactively: after features, before PRs, before handoff.
-
 ## Permissions and Safety
 - Do not read or commit secrets. Use placeholders and `.env` for local values.
 
@@ -146,5 +140,5 @@ When work concludes (skip if trivial):
 - Unrecognized changes: assume other agent; keep going; focus your changes. If it causes issues, stop + ask user.
 
 ## Tools
-On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`, `rtk`, `coderabbit`.
+On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`, `rtk`.
 Full catalog: `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md`. Read when you need flags, subcommands, or usage patterns for any tool above.
