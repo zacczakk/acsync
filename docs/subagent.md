@@ -12,7 +12,7 @@ read_when:
 - Canonical command specs: `configs/commands/*.md`.
 - Agent specs use OpenCode-style frontmatter as the source of truth:
   - required: `description`
-  - common: `mode`, `model`, `permission`, `color`
+  - common: `mode`, `model`, `reasoningEffort`, `textVerbosity`, `permission`, `color`
   - body: verbatim agent instructions
 - Commands remain markdown with frontmatter plus body instructions.
 
@@ -30,6 +30,7 @@ read_when:
   - add `Bash` when `permission.bash != deny`
   - add `WebFetch` when `permission.webfetch != deny`
 - OpenCode-only keys like `permission`, `color`, and `mode` are dropped when the target does not support them.
+- OpenCode GPT model options use camelCase in canonical frontmatter. Codex renders `reasoningEffort` as `model_reasoning_effort` and `textVerbosity` as `model_verbosity`.
 
 ## Render targets — commands
 - Claude Code: strip `zz-` prefix, nest under `~/.claude/commands/zz/` (invoked as `/zz:name`).

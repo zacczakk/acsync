@@ -73,11 +73,8 @@ Plugin source files live in `configs/plugins/` and are **deployed by `metronome 
 | `notify-opencode.ts` | `session.created`, `session.deleted`, `session.status`, `permission.asked`, `question.asked`, `session.error` | macOS alerter notifications with iTerm2 pane focus. Tracks root sessions via `session.created`/`deleted`; uses `session.status` busy→idle transitions (not `session.idle`) to avoid duplicate notifications. Idle notifications are transient (5s). Retry status surfaces retries. Permission, question, and error notifications fire for all sessions. |
 | `memory-vault-advisor.ts` | `tool.execute.after` | Advisory reminder to check Memory vault before exploratory searches (grep, glob, task/explore, tavily_search, context7). Output mutation doesn't propagate for MCP tools — known OpenCode limitation. |
 | `rtk.ts` | `tool.execute.before` | Rewrites bash/shell commands to `rtk` equivalents for token compression. Delegates to `rtk rewrite` binary. Vendored from `rtk init -g --opencode` output. |
-| `caveman-opencode.ts` | `command.execute.before`, `experimental.chat.system.transform`, `event` | Handles the `/caveman` slash command in OpenCode and injects the active compression reminder into the system prompt every turn while the mode is active. State is held in an in-memory `Map<sessionID, mode>`; cleared on `session.deleted` or `/caveman off`. No filesystem persistence and no cross-session restore. |
 
 Plugins are raw `.ts` files — identity-rendered (no frontmatter, no transformation). The `"plugin"` key in `opencode.json` (npm packages) is separately managed via settings wholesale-replace.
-
-`caveman` is OpenCode-only. The slash command lives in `configs/commands/caveman.md`; the auto-loaded local plugin `configs/plugins/caveman-opencode.ts` toggles per-session mode and re-injects a system-prompt reminder each turn until the user runs `/caveman off` or the session ends. The level-by-level rules live in the `caveman` skill (`configs/skills/caveman/SKILL.md`).
 
 **Cursor OAuth (npm)**: Canonical `opencode.json` includes `opencode-cursor-oauth`
 in the `plugin` array and a minimal `provider.cursor` entry (`name: "Cursor"`).

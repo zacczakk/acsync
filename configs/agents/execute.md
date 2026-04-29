@@ -5,7 +5,9 @@ description: >-
   or ship a feature or bugfix with tests in a subtask so the main context stays lean.
   Produces commit-ready code with full verification.
 mode: subagent
-model: github-copilot/gpt-5.4
+model: github-copilot/gpt-5.5
+reasoningEffort: medium
+textVerbosity: low
 color: '#61ffca'
 permission:
   bash: allow

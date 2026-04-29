@@ -5,7 +5,9 @@ description: >-
   architecture, prior decisions, existing patterns, or how something currently works
   are unclear, especially before implementation. Read-only.
 mode: subagent
-model: github-copilot/gpt-5.4
+model: github-copilot/gpt-5.5
+reasoningEffort: high
+textVerbosity: low
 color: '#a277ff'
 permission:
   bash: allow

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createTestHome } from '../helpers/backup';
 import { runPush } from '../../src/cli/push';
@@ -8,7 +8,7 @@ const E2E_TIMEOUT = 60_000;
 const FIXTURE_ROOT = join(import.meta.dir, '../fixtures');
 
 describe('push plugins E2E', () => {
-  test('pushes caveman OpenCode plugin matching golden', async () => {
+  test('does not push caveman OpenCode plugin', async () => {
     const fakeHome = createTestHome('push-plugins');
 
     const result = await runPush({
@@ -21,11 +21,25 @@ describe('push plugins E2E', () => {
 
     expect(result.failed).toBe(0);
     expect(result.rolledBack).toBe(false);
+    expect(existsSync(join(fakeHome, '.config', 'opencode', 'plugins', 'caveman-opencode.ts'))).toBe(false);
+  }, E2E_TIMEOUT);
 
-    const actual = readFileSync(join(fakeHome, '.config', 'opencode', 'plugins', 'caveman-opencode.ts'), 'utf-8');
-    const golden = readFileSync(join(FIXTURE_ROOT, 'opencode', 'plugins', 'caveman-opencode.ts'), 'utf-8');
+  test('removes stale caveman OpenCode plugin with deleteStale', async () => {
+    const fakeHome = createTestHome('push-plugins-stale');
+    const stalePath = join(fakeHome, '.config', 'opencode', 'plugins', 'caveman-opencode.ts');
+    mkdirSync(join(fakeHome, '.config', 'opencode', 'plugins'), { recursive: true });
+    writeFileSync(stalePath, 'export const Caveman = {}\n');
 
-    expect(actual).toBe(golden);
+    await runPush({
+      projectDir: process.cwd(),
+      force: true,
+      deleteStale: true,
+      targets: ['opencode'],
+      types: ['plugin'],
+      homeDir: fakeHome,
+    });
+
+    expect(existsSync(stalePath)).toBe(false);
   }, E2E_TIMEOUT);
 
   test('second plugin push is idempotent', async () => {

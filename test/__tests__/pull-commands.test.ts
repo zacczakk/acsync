@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { mkdtempSync } from 'node:fs';
@@ -46,11 +46,7 @@ describe('pull-commands E2E', () => {
     );
     expect(claudeDesignAudit).toBe(canonicalDesignAudit);
 
-    const claudeCaveman = readFileSync(join(claudeDir, 'configs', 'commands', 'caveman.md'), 'utf-8');
-    const canonicalCaveman = readFileSync(join(FIXTURE_ROOT, 'canonical', 'commands', 'caveman.md'), 'utf-8');
-    expect(claudeCaveman).toBe(canonicalCaveman);
-    expect(canonicalCaveman).not.toContain('argument-hint:');
-    const canonicalCavemanBody = canonicalCaveman.split('---').slice(2).join('---').trim();
+    expect(existsSync(join(claudeDir, 'configs', 'commands', 'caveman.md'))).toBe(false);
 
     // Pull from OpenCode — also identity passthrough (frontmatter md)
     const opencodeDir = setupProjectDir();
@@ -59,11 +55,7 @@ describe('pull-commands E2E', () => {
     const ocGroom = readFileSync(join(opencodeDir, 'configs', 'commands', 'groom-docs.md'), 'utf-8');
     expect(ocGroom).toBe(canonicalGroom);
 
-    const ocCaveman = readFileSync(join(opencodeDir, 'configs', 'commands', 'caveman.md'), 'utf-8');
-    expect(ocCaveman).toContain('description:');
-    expect(ocCaveman).not.toContain('argument-hint:');
-    const ocCavemanBody = ocCaveman.split('---').slice(2).join('---').trim();
-    expect(ocCavemanBody).toBe(canonicalCavemanBody);
+    expect(existsSync(join(opencodeDir, 'configs', 'commands', 'caveman.md'))).toBe(false);
 
     // Pull from Gemini (TOML -> canonical): description present, body matches
     const geminiDir = setupProjectDir();
@@ -76,10 +68,7 @@ describe('pull-commands E2E', () => {
     const gemBody = gemGroom.split('---').slice(2).join('---').trim();
     expect(gemBody).toBe(canonicalBody);
 
-    const gemCaveman = readFileSync(join(geminiDir, 'configs', 'commands', 'caveman.md'), 'utf-8');
-    expect(gemCaveman).toContain('description:');
-    const gemCavemanBody = gemCaveman.split('---').slice(2).join('---').trim();
-    expect(gemCavemanBody).toBe(canonicalCavemanBody);
+    expect(existsSync(join(geminiDir, 'configs', 'commands', 'caveman.md'))).toBe(false);
 
     // Pull from Codex (flat md -> canonical): description present, body matches
     const codexDir = setupProjectDir();
@@ -90,10 +79,7 @@ describe('pull-commands E2E', () => {
     const cdxBody = cdxGroom.split('---').slice(2).join('---').trim();
     expect(cdxBody).toBe(canonicalBody);
 
-    const cdxCaveman = readFileSync(join(codexDir, 'configs', 'commands', 'caveman.md'), 'utf-8');
-    expect(cdxCaveman).toContain('description:');
-    const cdxCavemanBody = cdxCaveman.split('---').slice(2).join('---').trim();
-    expect(cdxCavemanBody).toBe(canonicalCavemanBody);
+    expect(existsSync(join(codexDir, 'configs', 'commands', 'caveman.md'))).toBe(false);
   }, E2E_TIMEOUT);
 
   test('non-force pull skips existing canonical commands', async () => {

@@ -128,6 +128,14 @@ export class CodexAdapter extends BaseAdapter {
 
     if (typeof metadata.model_reasoning_effort === 'string') {
       rendered.model_reasoning_effort = metadata.model_reasoning_effort;
+    } else if (typeof metadata.reasoningEffort === 'string') {
+      rendered.model_reasoning_effort = metadata.reasoningEffort;
+    }
+
+    if (typeof metadata.model_verbosity === 'string') {
+      rendered.model_verbosity = metadata.model_verbosity;
+    } else if (typeof metadata.textVerbosity === 'string') {
+      rendered.model_verbosity = metadata.textVerbosity;
     }
 
     const sandboxMode = this.deriveSandboxMode(metadata);
@@ -191,6 +199,9 @@ export class CodexAdapter extends BaseAdapter {
       }
       if (typeof parsed.model_reasoning_effort === 'string') {
         metadata.model_reasoning_effort = parsed.model_reasoning_effort;
+      }
+      if (typeof parsed.model_verbosity === 'string') {
+        metadata.textVerbosity = parsed.model_verbosity;
       }
       if (typeof parsed.sandbox_mode === 'string') {
         metadata.sandbox_mode = parsed.sandbox_mode;

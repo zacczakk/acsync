@@ -6,7 +6,9 @@ description: >-
   API docs, or bring docs in sync after behavior, config, or workflow changes,
   especially before push, PR, or release.
 mode: subagent
-model: github-copilot/gpt-5.4
+model: github-copilot/gpt-5.5
+reasoningEffort: medium
+textVerbosity: low
 color: '#61ffca'
 permission:
   bash: allow

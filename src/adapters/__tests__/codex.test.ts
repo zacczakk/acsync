@@ -37,6 +37,17 @@ const agentWithTools = {
   },
 };
 
+const agentWithOpenCodeModelOptions = {
+  name: 'openai-agent',
+  content: 'Agent body content.\n',
+  metadata: {
+    description: 'Does OpenAI agent things',
+    model: 'github-copilot/gpt-5.5',
+    reasoningEffort: 'medium',
+    textVerbosity: 'low',
+  },
+};
+
 const agentWithoutTools = {
   name: 'simple-agent',
   content: 'Simple agent body.\n',
@@ -122,6 +133,12 @@ describe('CodexAdapter.renderAgent', () => {
   it('renders TOML, not markdown frontmatter', () => {
     const result = adapter.renderAgent(agentWithTools);
     expect(result.content).not.toContain('# Agent:');
+  });
+
+  it('maps OpenCode-style GPT options to Codex TOML keys', () => {
+    const result = adapter.renderAgent(agentWithOpenCodeModelOptions);
+    expect(result.content).toContain('model_reasoning_effort = "medium"');
+    expect(result.content).toContain('model_verbosity = "low"');
   });
 });
 

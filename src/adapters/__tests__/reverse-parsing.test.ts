@@ -143,13 +143,14 @@ describe('Codex parseAgent (TOML reverse)', () => {
   const adapter = new CodexAdapter();
 
   test('parses custom agent TOML', () => {
-    const input = `name = "my-planner"\ndescription = "Plans tasks"\nmodel_reasoning_effort = "medium"\nsandbox_mode = "read-only"\ndeveloper_instructions = '''\nInstructions here.\n'''\n`;
+    const input = `name = "my-planner"\ndescription = "Plans tasks"\nmodel_reasoning_effort = "medium"\nmodel_verbosity = "low"\nsandbox_mode = "read-only"\ndeveloper_instructions = '''\nInstructions here.\n'''\n`;
     const result = adapter.parseAgent('my-planner', input);
 
     expect(result.name).toBe('my-planner');
     expect(result.content).toBe('Instructions here.');
     expect(result.metadata.description).toBe('Plans tasks');
     expect(result.metadata.model_reasoning_effort).toBe('medium');
+    expect(result.metadata.textVerbosity).toBe('low');
     expect(result.metadata.sandbox_mode).toBe('read-only');
   });
 

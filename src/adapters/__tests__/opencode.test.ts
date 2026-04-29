@@ -144,6 +144,20 @@ describe('OpenCodeAdapter.renderAgent', () => {
     const result = adapter.renderAgent(item);
     expect(result.content).toContain("color: '#22C55E'");
   });
+
+  it('passes through GPT model options in agent frontmatter', () => {
+    const item = {
+      ...agentItem,
+      metadata: {
+        ...agentItem.metadata,
+        reasoningEffort: 'medium',
+        textVerbosity: 'low',
+      },
+    };
+    const result = adapter.renderAgent(item);
+    expect(result.content).toContain('reasoningEffort: medium');
+    expect(result.content).toContain('textVerbosity: low');
+  });
 });
 
 describe('OpenCodeAdapter capabilities', () => {

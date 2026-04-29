@@ -9,6 +9,7 @@ read_when:
 ## Unreleased
 
 - **docs-list compiled binary fix** — resolve `docs/` from the caller's current repo instead of Bun's virtual `/$bunfs` path; added compiled-binary regression coverage
+- **Caveman removal** — removed the caveman skill, slash command, OpenCode plugin, fixtures, and docs wiring
 
 ## v1.3.10 — 2026-04-27
 

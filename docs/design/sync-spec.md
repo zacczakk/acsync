@@ -264,7 +264,9 @@ Rules:
 - `developer_instructions` receives the body content with frontmatter stripped.
 - Preserve Codex-native keys when present in canonical metadata:
   `nickname_candidates`, `model` (when already Codex-compatible),
-  `model_reasoning_effort`, `sandbox_mode`, `mcp_servers`, `skills`.
+  `model_reasoning_effort`, `model_verbosity`, `sandbox_mode`, `mcp_servers`, `skills`.
+- Translate OpenCode-style GPT options for Codex: `reasoningEffort` ->
+  `model_reasoning_effort`; `textVerbosity` -> `model_verbosity`.
 - If canonical metadata explicitly denies edits and no `sandbox_mode` is set,
   derive `sandbox_mode = "read-only"` to preserve read-only intent.
 - Reverse parsing accepts both the current TOML format and legacy
@@ -565,13 +567,6 @@ Rules:
 - **Model**: Uses GPT models (not Claude). Recent migrations move old
   `gpt-5.x-codex` aliases toward `gpt-5.4`.
 - **No GSD**: GSD is not installed for Codex. No `gsd-*` files to worry about.
-
-### Caveman Mode
-
-- Canonical skill: `configs/skills/caveman/SKILL.md`
-- Canonical command: `configs/commands/caveman.md`
-- OpenCode wiring: `configs/plugins/caveman-opencode.ts` (local auto-loaded plugin) handles `command.execute.before` for `/caveman`, holds per-session mode in an in-memory map, and re-injects the active reminder via `experimental.chat.system.transform` each turn. Mode clears on `/caveman off`/`/caveman stop` or `session.deleted`. No filesystem persistence; nothing survives a session restart.
-- OpenCode note: `caveman-opencode` is a local plugin artifact, not an npm plugin entry in `opencode.json` `plugin[]`. Other targets render the slash command for parity but no longer have hook-level wiring.
 
 ---
 

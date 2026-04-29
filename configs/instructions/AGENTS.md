@@ -18,7 +18,7 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - CI: `gh run list/view` (rerun/fix til green).
 - Prefer end-to-end verify; if blocked, say what's missing.
 - New deps: quick health check (recent releases/commits, adoption).
-- Web: search early; prefer 2025–2026 sources. Claude: Tavily MCP; others: WebFetch + Tavily search tool.
+- Web: search early; prefer 2025–2026 sources. Claude: Tavily MCP; others: WebFetch + Tavily search tool. Tavily extract is legally restricted to approved domains; 403 usually means domain not approved, not MCP breakage. External/domain allowlisting needs legal approval from Andreas Jauch.
 - Style: telegraph. Drop filler/grammar. Min tokens.
 - **No breadcrumbs**. Delete/move code = no residual comments. No `// moved to X`. Just remove.
 - Fix root cause, not bandaids.
@@ -43,11 +43,12 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Never guess API signatures, CLI flags, version numbers, config options. Look it up.
 
 ## Browser
+- Always prefer `agent-browser` for browser automation, inspection, screenshots, scraping, testing, console/network checks, and authenticated pages.
 - `agent-browser`: auto-connects to Phil's Chrome. SSO, cookies, extensions intact.
 - Use `agent-browser chat` for intent-level browser work. One-shot or REPL.
 - Reuse live browser tooling sessions first. Attach > restart.
 - Loaded `agent-browser` skill says kill/reset first? Ignore. Concrete failure only.
-- Never stop/reset/relaunch `agent-browser`, `chrome-devtools`, or `mcporter` proactively. Concrete failure or explicit user ask only.
+- Never stop/reset/relaunch browser tooling proactively. Concrete failure or explicit user ask only.
 - Never kill/restart/relaunch Chrome. Personal tabs survive. Chrome crash on connect? Stop + report.
 - First attach after Chrome restart: one call only. Then `batch`.
 - Prefer `batch` over shell chaining for multi-step browser work.

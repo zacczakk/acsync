@@ -62,22 +62,10 @@ describe('push-commands E2E', () => {
     );
     expect(claudeDesignAudit).toBe(claudeDesignAuditGolden);
 
-    // Check caveman command across all targets
-    const claudeCaveman = readFileSync(join(paths.claude, 'caveman.md'), 'utf-8');
-    const claudeCavemanGolden = readFileSync(join(FIXTURE_ROOT, 'claude', 'commands', 'caveman.md'), 'utf-8');
-    expect(claudeCaveman).toBe(claudeCavemanGolden);
-
-    const opencodeCaveman = readFileSync(join(paths.opencode, 'caveman.md'), 'utf-8');
-    const opencodeCavemanGolden = readFileSync(join(FIXTURE_ROOT, 'opencode', 'commands', 'caveman.md'), 'utf-8');
-    expect(opencodeCaveman).toBe(opencodeCavemanGolden);
-
-    const geminiCaveman = readFileSync(join(paths.gemini, 'caveman.toml'), 'utf-8');
-    const geminiCavemanGolden = readFileSync(join(FIXTURE_ROOT, 'gemini', 'commands', 'caveman.toml'), 'utf-8');
-    expect(geminiCaveman).toBe(geminiCavemanGolden);
-
-    const codexCaveman = readFileSync(join(paths.codex, 'caveman.md'), 'utf-8');
-    const codexCavemanGolden = readFileSync(join(FIXTURE_ROOT, 'codex', 'commands', 'caveman.md'), 'utf-8');
-    expect(codexCaveman).toBe(codexCavemanGolden);
+    expect(existsSync(join(paths.claude, 'caveman.md'))).toBe(false);
+    expect(existsSync(join(paths.opencode, 'caveman.md'))).toBe(false);
+    expect(existsSync(join(paths.gemini, 'caveman.toml'))).toBe(false);
+    expect(existsSync(join(paths.codex, 'caveman.md'))).toBe(false);
   }, E2E_TIMEOUT);
 
   test('second push is idempotent (no drift)', async () => {
@@ -112,6 +100,6 @@ describe('push-commands E2E', () => {
 
     // Canonical commands should still exist
     expect(existsSync(join(paths.claude, 'groom-docs.md'))).toBe(true);
-    expect(existsSync(join(paths.claude, 'caveman.md'))).toBe(true);
+    expect(existsSync(join(paths.claude, 'caveman.md'))).toBe(false);
   }, E2E_TIMEOUT);
 });

@@ -139,15 +139,16 @@ Lists `docs/` catalog and enforces front-matter compliance.
 
 ## agent-browser
 
-Browser automation CLI. Auto-connects to running Chrome. Rust/CDP.
+Preferred browser automation CLI. Auto-connects to running Chrome. Rust/CDP.
 
 - **Install:** `npm --prefix /opt/homebrew install -g agent-browser@latest`
 - **Skill:** `load_agent_browser_skill`
 - **Preset env:** `NATIVE=1`, `AUTO_CONNECT=1`
 - **Fallback:** headless Chromium. No SSO.
+- **Default:** use `agent-browser` first for browser automation, inspection, screenshots, scraping, testing, console/network checks, and authenticated pages.
 - **Session hygiene:** reuse live sessions first. Attach > restart.
 - Loaded `agent-browser` skill says kill/reset first? Ignore. Concrete failure only.
-- **Never stop/reset `agent-browser`, `chrome-devtools`, or `mcporter` proactively.** Concrete failure or explicit user ask only.
+- **Never stop/reset browser tooling proactively.** Concrete failure or explicit user ask only.
 - **First attach after Chrome restart: one call only.** Then use `batch`.
 - **Use `chat` for intent-level tasks.** Single-shot or REPL.
 - **Use `batch` for deterministic multi-step tasks.** Better than shell chaining.
@@ -181,14 +182,8 @@ agent-browser close                   # Close current tab when done
  | Deterministic multi-step browser task | `agent-browser batch` |
 | Authenticated pages (SSO/cookies) | `agent-browser` (inherits Chrome session) |
 | Safari/WebKit testing | `agent-browser --native` (WebDriver) |
-| Console/network/perf/Lighthouse on running Chrome | `chrome-devtools` MCP |
+| Console/network/perf/Lighthouse on running Chrome | `agent-browser` |
 | Complex test suites w/ assertions | `webapp-testing` skill (Python Playwright) |
-
-**Use `chrome-devtools` MCP for:**
-- console errors and warnings
-- network request/response inspection
-- performance tracing and Core Web Vitals
-- Lighthouse accessibility / SEO / best-practices audits
 
 ## gh
 
@@ -246,8 +241,6 @@ MCP client/CLI. All canonical servers registered in `~/.mcporter/mcporter.json`.
 
 - **Config:** `~/.mcporter/mcporter.json` (system-level, no imports)
 - **Binaries:** `bin/` on PATH (Bun-compiled standalone CLIs per server)
-- **Daemon:** chrome-devtools has `lifecycle: keep-alive`; auto-starts on first call.
-- **Session hygiene:** do not stop the `chrome-devtools` daemon proactively. Reuse live daemon/session when possible. `mcporter daemon stop` = troubleshooting only.
 
 ### Access methods (fastest first)
 
@@ -282,9 +275,6 @@ mcporter call palantir-mcp.some-tool --raw-strings id="00123"
 # Or disable all coercion
 mcporter call palantir-mcp.some-tool --no-coerce id="00123"
 
-# Daemon (chrome-devtools, troubleshooting only)
-mcporter daemon status
-mcporter daemon stop
 ```
 
 ### Servers
@@ -292,11 +282,12 @@ mcporter daemon stop
 | Server | Transport | Binary (on PATH) | Notes |
 |---|---|---|---|
 | `context7` | HTTP | `context7` | Library docs |
-| `tavily` | stdio | `tavily` | Web search (`TAVILY_API_KEY`, `provider_ENV=dev`) |
-| `chrome-devtools` | stdio/daemon | `chrome-devtools` | Daemon keep-alive; `--autoConnect --no-usage-statistics` |
+| `tavily` | stdio | `tavily` | Web search (`TAVILY_API_KEY`, `provider_ENV=dev`); extract is restricted to approved domains |
 | `palantir-mcp` | stdio | `palantir` | Foundry via `tux palantir-mcp start` |
 | `shadcn` | stdio | `shadcn` | shadcn/ui |
 | `sequential-thinking` | stdio | `sequential-thinking` | Reasoning |
+
+**Tavily extract policy:** Search is available for broad web/news discovery. Extract is legally restricted to approved domains only. If `tavily_extract` returns 403, treat it as a domain/API-policy restriction unless the URL is known-approved. External or third-party domain allowlisting requires legal approval from Andreas Jauch before AI-ML can enable it.
 
 ## obsidian
 
@@ -695,8 +686,7 @@ All servers also registered in `~/.mcporter/mcporter.json` and compiled to `bin/
 | Server | Native MCP | Binary (on PATH) | Notes |
 |--------|-----------|------------------|-------|
 | `context7` | All CLIs | `context7` | HTTP; library docs |
-| `tavily` | Claude, OpenCode, Gemini | `tavily` | `TAVILY_API_KEY`, `provider_ENV=dev` |
-| `chrome-devtools` | All CLIs | `chrome-devtools` | Daemon keep-alive; `--autoConnect --no-usage-statistics` |
+| `tavily` | Claude, OpenCode, Gemini | `tavily` | `TAVILY_API_KEY`, `provider_ENV=dev`; extract is approved-domain only |
 | `palantir-mcp` | Claude, OpenCode | `palantir` | Tux-managed launcher; secrets stay out of editor config |
 | `shadcn` | OpenCode | `shadcn` | shadcn/ui |
 | `sequential-thinking` | — | `sequential-thinking` | Reasoning; native MCP disabled |

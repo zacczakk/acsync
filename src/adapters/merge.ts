@@ -38,6 +38,17 @@ interface HookGroup {
 /** The full hooks object: event key → array of hook groups */
 type HooksObject = Record<string, HookGroup[]>;
 
+const STALE_METRONOME_HOOK_PATTERNS = [
+  'configs/hooks/caveman-sessionstart-claude.js',
+  'configs/hooks/caveman-userprompt-claude.js',
+];
+
+function isStaleMetronomeHookGroup(group: HookGroup): boolean {
+  return group.hooks.some((hook) =>
+    STALE_METRONOME_HOOK_PATTERNS.some((pattern) => hook.command.includes(pattern)),
+  );
+}
+
 /**
  * Merge hooks per-event-key: preserve user groups, replace managed groups.
  *
@@ -54,7 +65,9 @@ export function mergeHooks(existing: HooksObject, canonical: HooksObject): Hooks
     const canonicalGroups = canonical[eventKey] ?? [];
 
     // Keep user groups (not managed by metronome)
-    const userGroups = existingGroups.filter((g) => g._managed !== 'metronome');
+    const userGroups = existingGroups.filter((g) =>
+      g._managed !== 'metronome' && !isStaleMetronomeHookGroup(g),
+    );
 
     // Append canonical groups (all have _managed: "metronome")
     result[eventKey] = [...userGroups, ...canonicalGroups];

@@ -39,6 +39,28 @@ describe('mergeHooks', () => {
     expect(result.SessionStart[1].hooks[0].command).toBe('echo new-managed');
   });
 
+  test('drops legacy metronome caveman hooks without managed marker', () => {
+    const existing = {
+      SessionStart: [
+        { hooks: [{ type: 'command', command: 'node "$HOME/Repos/zacczakk/metronome/configs/hooks/caveman-sessionstart-claude.js"' }] },
+        { hooks: [{ type: 'command', command: 'echo user' }] },
+      ],
+      UserPromptSubmit: [
+        { hooks: [{ type: 'command', command: 'node "$HOME/Repos/zacczakk/metronome/configs/hooks/caveman-userprompt-claude.js"' }] },
+      ],
+    };
+    const canonical = {
+      SessionStart: [
+        { _managed: 'metronome', hooks: [{ type: 'command', command: 'echo managed' }] },
+      ],
+    };
+
+    const result = mergeHooks(existing, canonical);
+
+    expect(result.SessionStart.map((group) => group.hooks[0].command)).toEqual(['echo user', 'echo managed']);
+    expect(result.UserPromptSubmit).toEqual([]);
+  });
+
   test('creates event key missing from existing', () => {
     const existing = {};
     const canonical = {
