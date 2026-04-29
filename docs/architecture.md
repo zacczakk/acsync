@@ -39,7 +39,7 @@ configs/  ──→  metronome push  ──→  ~/.claude/
 - `src/adapters/` implement per-CLI format transforms (spec: `docs/design/sync-spec.md`)
 - `configs/instructions/AGENTS.md` is consumed by all CLIs at runtime (injected as instructions)
 - `scripts/` are standalone; no imports between them
-- `bin/` contains Bun-compiled binaries; both `scripts/` and `bin/` are on PATH
+- `bin/` contains Bun-compiled binaries; both `scripts/` and `bin/` are on PATH. Repo helpers such as `docs-list` resolve caller-owned files from `process.cwd()`, not from Bun's compiled `/$bunfs` module path.
 
 ## Hooks
 

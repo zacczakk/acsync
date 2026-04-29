@@ -6,6 +6,10 @@ read_when:
 
 # Changelog
 
+## Unreleased
+
+- **docs-list compiled binary fix** — resolve `docs/` from the caller's current repo instead of Bun's virtual `/$bunfs` path; added compiled-binary regression coverage
+
 ## v1.3.10 — 2026-04-27
 
 - **Caveman mode rewrite** — slash-command-only activation, sticky for the current OpenCode session, in-memory only. Removed `.caveman-active` state files, SessionStart/UserPromptSubmit hooks for Claude/Codex, and shared lifecycle scripts. Slash command still renders to all 4 targets but only OpenCode's plugin acts on it

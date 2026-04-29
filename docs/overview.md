@@ -89,7 +89,7 @@ metronome/
     sync-upstream-skills.ts    Upstream skill sync
   bin/                         Compiled binaries (on PATH, gitignored)
     context7, tavily, ...      6 MCP CLI binaries (mcporter generate-cli --compile)
-    docs-list                  Compiled from scripts/docs-list.ts
+    docs-list                  Compiled from scripts/docs-list.ts; resolves docs/ from cwd/parents
   docs/                        Operational documentation
   backups/                     Pre-sync backups (gitignored)
 ```

@@ -1,8 +1,7 @@
 #!/usr/bin/env tsx
 
-import { readdirSync, readFileSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
 
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.error(`Usage: docs-list
@@ -21,11 +20,24 @@ Rebuild compiled binary:
   process.exit(0);
 }
 
-const docsListFile = fileURLToPath(import.meta.url);
-const docsListDir = dirname(docsListFile);
-const DOCS_DIR = join(docsListDir, '..', 'docs');
-
 const EXCLUDED_DIRS = new Set(['archive', 'research']);
+
+function findDocsDir(startDir: string): string | null {
+  let current = resolve(startDir);
+
+  while (true) {
+    const docsDir = join(current, 'docs');
+    if (existsSync(docsDir) && statSync(docsDir).isDirectory()) {
+      return docsDir;
+    }
+
+    const parent = dirname(current);
+    if (parent === current) {
+      return null;
+    }
+    current = parent;
+  }
+}
 
 function compactStrings(values: unknown[]): string[] {
   const result: string[] = [];
@@ -140,6 +152,12 @@ function extractMetadata(fullPath: string): {
 }
 
 console.log('Listing all markdown files in docs folder:');
+
+const DOCS_DIR = findDocsDir(process.cwd());
+if (!DOCS_DIR) {
+  console.error(`No docs/ folder found from ${process.cwd()} or its parents.`);
+  process.exit(1);
+}
 
 const markdownFiles = walkMarkdownFiles(DOCS_DIR);
 

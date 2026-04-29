@@ -153,7 +153,7 @@ and detects whether the skill was loaded. Results go to stdout as JSON + an HTML
 
 ## Docs
 
-Run `bin/docs-list` (or `bun scripts/docs-list.ts`) for the full docs catalog.
+Run `bin/docs-list` (or `bun scripts/docs-list.ts`) from a repo to list that repo's `docs/` catalog. The compiled binary resolves `docs/` from the current directory or its parents, so it works from nested paths too.
 
 | Doc | When to Read |
 |-----|-------------|
