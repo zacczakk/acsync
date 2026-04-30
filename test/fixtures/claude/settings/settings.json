@@ -6,7 +6,11 @@
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
     "ENABLE_LSP_TOOL": "1",
-    "ENABLE_TOOL_SEARCH": "1"
+    "ENABLE_TOOL_SEARCH": "true",
+    "DISABLE_TELEMETRY": "1",
+    "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+    "ANTHROPIC_BASE_URL": "http://127.0.0.1:18080",
+    "ANTHROPIC_AUTH_TOKEN": "managed-by-tux"
   },
   "customKey": "preserved",
   "alwaysThinkingEnabled": true,
