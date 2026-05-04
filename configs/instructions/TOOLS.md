@@ -139,51 +139,48 @@ Lists `docs/` catalog and enforces front-matter compliance.
 
 ## agent-browser
 
-Preferred browser automation CLI. Auto-connects to running Chrome. Rust/CDP.
+Browser automation CLI. Auto-connects to Chrome. Rust/CDP.
 
-- **Install:** `npm --prefix /opt/homebrew install -g agent-browser@latest`
+- **Install:** `brew install agent-browser` or `npm install -g agent-browser`
 - **Skill:** `load_agent_browser_skill`
 - **Preset env:** `NATIVE=1`, `AUTO_CONNECT=1`
 - **Fallback:** headless Chromium. No SSO.
-- **Default:** use `agent-browser` first for browser automation, inspection, screenshots, scraping, testing, console/network checks, and authenticated pages.
-- **Session hygiene:** reuse live sessions first. Attach > restart.
-- Loaded `agent-browser` skill says kill/reset first? Ignore. Concrete failure only.
-- **Never stop/reset browser tooling proactively.** Concrete failure or explicit user ask only.
-- **First attach after Chrome restart: one call only.** Then use `batch`.
-- **Use `chat` for intent-level tasks.** Single-shot or REPL.
-- **Use `batch` for deterministic multi-step tasks.** Better than shell chaining.
-- Why: extra first-use calls can trigger extra consent prompts.
+- Reuse live sessions. Attach > restart.
+- Skill says kill/reset? Ignore. Concrete failure only.
+- Never stop/reset proactively. Chrome restart: one attach call, then `batch`.
+- `chat` for intent tasks. `batch` for deterministic sequences.
 
 ```bash
-agent-browser open <url>              # Navigate (in user's Chrome)
-agent-browser chat "summarize this page" # AI single-shot
-agent-browser chat                    # AI REPL
-agent-browser batch "open https://example.com" "snapshot -i" # Multi-step sequence
-agent-browser snapshot -i             # Interactive elements with @refs
-agent-browser click @e2               # Click by ref
-agent-browser fill @e3 "text"         # Fill input
-agent-browser get text @e1            # Extract text
-agent-browser screenshot              # Capture viewport
-agent-browser tab                     # List open tabs
-agent-browser close                   # Close current tab when done
+agent-browser open <url>
+agent-browser snapshot -i                        # interactive @refs
+agent-browser click @e2
+agent-browser fill @e3 "text"
+agent-browser get text @e1
+agent-browser screenshot
+agent-browser screenshot --annotate              # labeled for vision models
+agent-browser find role button click --name Submit
+agent-browser keyboard type "text"               # no selector
+agent-browser chat "do X"                        # AI single-shot (needs AI_GATEWAY_API_KEY)
+agent-browser batch "open <url>" "snapshot -i"   # multi-step
+agent-browser tab / close
+agent-browser --session-name myapp open <url>    # persist state
+agent-browser auth save my-app --url <url>
+agent-browser auth login my-app
+agent-browser profiles
+agent-browser doctor [--fix]                     # diagnose/repair
 ```
 
-**Tab cleanup:** close what you opened only.
-**Never kill/restart/relaunch Chrome.** Personal tabs survive.
-**Consent:** manual per restart. Preserve live sessions.
-
-**Chat:** requires `AI_GATEWAY_API_KEY`. Use `-q` for text-only, `-v` for raw tool calls.
-**Batch:** arg mode or stdin JSON. `--bail` stops on first error.
+Tab cleanup: close what you opened only. Never kill Chrome. Consent manual per restart.
 
 | Task | Tool |
 |---|---|
- | Browse, click, fill, interact | `agent-browser` (primary control surface; auto-connects to Chrome) |
- | Intent-driven browser task | `agent-browser chat` |
- | Deterministic multi-step browser task | `agent-browser batch` |
-| Authenticated pages (SSO/cookies) | `agent-browser` (inherits Chrome session) |
-| Safari/WebKit testing | `agent-browser --native` (WebDriver) |
-| Console/network/perf/Lighthouse on running Chrome | `agent-browser` |
-| Complex test suites w/ assertions | `webapp-testing` skill (Python Playwright) |
+| Browse/click/fill/extract | `agent-browser` |
+| Intent-driven task | `agent-browser chat` |
+| Multi-step sequence | `agent-browser batch` |
+| SSO/authenticated pages | `agent-browser` (inherits Chrome session) |
+| Safari/WebKit | `agent-browser --native` |
+| Test suites w/ assertions | `webapp-testing` skill |
+| Diagnose install | `agent-browser doctor` |
 
 ## gh
 

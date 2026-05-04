@@ -78,7 +78,7 @@
       "Bash(cat ~/.zshrc_secrets:*)"
     ]
   },
-  "additionalDirectories": ["/tmp", "~/Vaults"],
+  "additionalDirectories": ["/tmp", "~/Vaults", "~/.agent-browser"],
   "alwaysThinkingEnabled": true,
   "cleanupPeriodDays": 365,
   "teammateMode": "auto",

@@ -3,6 +3,6 @@
   "transport": "stdio",
   "command": "npx",
   "args": ["-y", "chrome-devtools-mcp@latest", "--autoConnect", "--no-usage-statistics"],
-  "enabled": true,
+  "enabled": false,
   "disabled_for": ["codex"]
 }
