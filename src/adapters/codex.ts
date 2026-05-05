@@ -122,8 +122,9 @@ export class CodexAdapter extends BaseAdapter {
     }
 
     const model = metadata.model;
-    if (typeof model === 'string' && !model.includes('/')) {
-      rendered.model = model;
+    if (typeof model === 'string') {
+      // Strip provider prefix (e.g. "github-copilot/gpt-5.5" → "gpt-5.5")
+      rendered.model = model.includes('/') ? model.split('/').pop() : model;
     }
 
     if (typeof metadata.model_reasoning_effort === 'string') {

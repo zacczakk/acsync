@@ -45,7 +45,9 @@ export class GeminiAdapter extends BaseAdapter {
 
   renderAgent(item: CanonicalItem): RenderedFile {
     // Gemini agents: markdown with portable frontmatter plus kind: local
+    // Model is stripped — Gemini uses its own model routing, not provider-prefixed IDs
     const metadata = this.normalizeAgentMetadata(item);
+    delete metadata.model;
     metadata.kind = 'local';
 
     const content = stringifyFrontmatter(item.content, metadata);
