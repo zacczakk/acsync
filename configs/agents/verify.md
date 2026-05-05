@@ -6,7 +6,7 @@ description: >-
   Catches hollowed-out implementations, stubs, missing wiring. Read-only — reports, never edits.
 mode: subagent
 model: github-copilot/gpt-5.5
-reasoningEffort: high
+reasoningEffort: medium
 textVerbosity: low
 color: '#ffc861'
 permission:

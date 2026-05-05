@@ -9,7 +9,7 @@ description: >-
   qmd, sessions CLI, and ripgrep.
 mode: subagent
 model: github-copilot/gpt-5.5
-reasoningEffort: medium
+reasoningEffort: low
 textVerbosity: low
 color: '#a277ff'
 permission:

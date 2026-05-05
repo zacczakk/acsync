@@ -6,7 +6,7 @@ description: >-
   tags, or final publish/push flow.
 mode: subagent
 model: github-copilot/gpt-5.5
-reasoningEffort: high
+reasoningEffort: low
 textVerbosity: low
 color: '#61ffca'
 permission:

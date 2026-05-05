@@ -6,7 +6,7 @@ description: >-
   are unclear, especially before implementation. Read-only.
 mode: subagent
 model: github-copilot/gpt-5.5
-reasoningEffort: high
+reasoningEffort: medium
 textVerbosity: low
 color: '#a277ff'
 permission:

@@ -8,7 +8,7 @@ description: >-
   Azure Pipelines, AWS infra, SST config, env propagation, or release readiness.
 mode: subagent
 model: github-copilot/gpt-5.5
-reasoningEffort: high
+reasoningEffort: medium
 textVerbosity: low
 color: '#61ffca'
 permission:

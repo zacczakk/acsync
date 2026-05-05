@@ -7,7 +7,7 @@ description: >-
   error handling, or service readiness after backend changes or before handoff.
 mode: subagent
 model: github-copilot/gpt-5.5
-reasoningEffort: high
+reasoningEffort: medium
 textVerbosity: low
 color: '#a277ff'
 permission:
