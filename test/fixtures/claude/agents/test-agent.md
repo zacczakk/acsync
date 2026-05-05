@@ -1,7 +1,8 @@
 ---
 name: test-agent
 description: A test agent for fixture validation
-allowed-tools:
+model: sonnet
+tools:
   - Read
   - Write
   - Bash

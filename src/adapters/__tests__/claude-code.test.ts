@@ -63,22 +63,56 @@ describe('ClaudeCodeAdapter.renderAgent', () => {
     expect(result.relativePath).toBe(path.join(HOME, '.claude/agents/my-agent.md'));
   });
 
-  it('preserves all frontmatter keys in agent output', () => {
+  it('translates permission to tools and reasoningEffort to model', () => {
     const agentItem = {
       name: 'my-agent',
       content: 'Agent body content.\n',
       metadata: {
         description: 'Does agent things',
         permission: { bash: 'allow', edit: 'deny', webfetch: 'deny' },
+        reasoningEffort: 'medium',
         color: '#a277ff',
       },
     };
     const result = adapter.renderAgent(agentItem);
     expect(result.content).toContain('description: Does agent things');
-    expect(result.content).toContain('allowed-tools');
+    expect(result.content).toContain('tools:');
+    expect(result.content).not.toContain('allowed-tools');
+    expect(result.content).toContain('model: sonnet');
     expect(result.content).toContain('name: my-agent');
     expect(result.content).not.toContain('color:');
     expect(result.content).not.toContain('permission:');
+    expect(result.content).not.toContain('reasoningEffort:');
+  });
+
+  it('maps high reasoningEffort to claude-opus-4-6', () => {
+    const agentItem = {
+      name: 'my-agent',
+      content: 'Agent body content.\n',
+      metadata: { description: 'A description', reasoningEffort: 'high' },
+    };
+    const result = adapter.renderAgent(agentItem);
+    expect(result.content).toContain('model: claude-opus-4-6');
+  });
+
+  it('maps low reasoningEffort to haiku', () => {
+    const agentItem = {
+      name: 'my-agent',
+      content: 'Agent body content.\n',
+      metadata: { description: 'A description', reasoningEffort: 'low' },
+    };
+    const result = adapter.renderAgent(agentItem);
+    expect(result.content).toContain('model: haiku');
+  });
+
+  it('falls back to sonnet when no reasoningEffort or model set', () => {
+    const agentItem = {
+      name: 'my-agent',
+      content: 'Agent body content.\n',
+      metadata: { description: 'A description' },
+    };
+    const result = adapter.renderAgent(agentItem);
+    expect(result.content).toContain('model: sonnet');
   });
 
   it('includes body verbatim in agent output', () => {

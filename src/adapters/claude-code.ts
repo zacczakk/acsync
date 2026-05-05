@@ -1,5 +1,5 @@
 import { BaseAdapter } from './base';
-import { stringifyFrontmatter } from '../formats/markdown';
+import { stringifyFrontmatter, parseFrontmatter } from '../formats/markdown';
 import { readJson, writeJson } from '../formats/json';
 import { isPlainObject, mergeHooks, extractManagedHooks } from './merge';
 import type {
@@ -30,11 +30,46 @@ export class ClaudeCodeAdapter extends BaseAdapter {
   }
 
   renderAgent(item: CanonicalItem): RenderedFile {
-    const content = stringifyFrontmatter(item.content, this.normalizeAgentMetadata(item));
+    const content = stringifyFrontmatter(item.content, this.normalizeClaudeAgentMetadata(item));
     return {
       relativePath: this.paths.getAgentFilePath(item.name),
       content,
     };
+  }
+
+  private static readonly REASONING_EFFORT_MODEL_MAP: Record<string, string> = {
+    high: 'claude-opus-4-6',
+    medium: 'sonnet',
+    low: 'haiku',
+  };
+
+  private normalizeClaudeAgentMetadata(item: CanonicalItem): Record<string, unknown> {
+    const src = item.metadata;
+    const metadata: Record<string, unknown> = {};
+
+    metadata.name = item.name;
+    if (src.description) metadata.description = src.description;
+
+    const effort = typeof src.reasoningEffort === 'string' ? src.reasoningEffort : undefined;
+    const mappedModel = effort ? ClaudeCodeAdapter.REASONING_EFFORT_MODEL_MAP[effort] : undefined;
+    metadata.model = mappedModel ?? src.model ?? 'sonnet';
+
+    const allowedTools = this.deriveAllowedTools(src);
+    if (allowedTools) metadata.tools = allowedTools;
+
+    return metadata;
+  }
+
+  /** Reverse-map Claude Code agent format back to canonical form */
+  override parseAgent(name: string, content: string): CanonicalItem {
+    const { data, content: body } = parseFrontmatter(content);
+
+    // Drop model (derived at render time) and rename tools → allowed-tools
+    const { model: _model, tools, ...rest } = data as Record<string, unknown>;
+    const canonical: Record<string, unknown> = { ...rest };
+    if (tools) canonical['allowed-tools'] = tools;
+
+    return { name, content: body, metadata: canonical };
   }
 
   private static readonly HOOKS_KEY = 'hooks';
