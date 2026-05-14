@@ -170,7 +170,7 @@ agent-browser profiles
 agent-browser doctor [--fix]                     # diagnose/repair
 ```
 
-Tab cleanup: close what you opened only. Never kill Chrome. Consent manual per restart.
+Never close browser tabs. `agent-browser close` = session/connection only, not tabs. No access: run `agent-browser close`, tell user to grant Chrome access, wait for confirmation, then resume with ONE `agent-browser` call — no chaining. Never kill Chrome. Consent manual per restart. Viewport: `1800x1169` (Phil's logical resolution). Never use 1920x1080 — overflows screen.
 
 | Task | Tool |
 |---|---|
@@ -181,6 +181,35 @@ Tab cleanup: close what you opened only. Never kill Chrome. Consent manual per r
 | Safari/WebKit | `agent-browser --native` |
 | Test suites w/ assertions | `webapp-testing` skill |
 | Diagnose install | `agent-browser doctor` |
+
+## curl.md
+
+URL → markdown extractor for agents. Good fallback when WebFetch/Defuddle return clutter or fail.
+
+- **Install CLI:** `npm i -g curl.md` or `bun i -g curl.md`
+- **OpenCode plugin:** `opencode plugin -g @curl.md/opencode`
+- **Auth:** optional. `/curl_md_login` in OpenCode or `curl.md auth login`; `CURLMD_API_KEY` for non-interactive use.
+- **No install path:** `curl https://curl.md/<url>` works, rate-limited.
+- **Use for:** public docs, articles, static pages.
+- **Avoid for:** GitHub repos/README fetches; hosted eval returned upstream `404`. Use `gh`, raw URLs, or WebFetch instead.
+- **Default:** fallback, not primary. Defuddle/WebFetch first unless they are noisy/broken.
+
+```bash
+curl https://curl.md/https://example.com/docs
+curl.md https://example.com/docs
+md https://example.com/docs
+opencode plugin -g @curl.md/opencode
+```
+
+OpenCode plugin overrides built-in `webfetch` by default. Footgun. If installed globally, prefer explicit tool only:
+
+```json
+{
+  "plugin": [
+    ["@curl.md/opencode", { "webfetch": false }]
+  ]
+}
+```
 
 ## gh
 

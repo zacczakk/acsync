@@ -18,7 +18,7 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - CI: `gh run list/view` (rerun/fix til green).
 - Prefer end-to-end verify; if blocked, say what's missing.
 - New deps: quick health check (recent releases/commits, adoption).
-- Web: search early; prefer 2025–2026 sources. Claude: Tavily MCP; others: WebFetch + Tavily search tool. Tavily extract is legally restricted to approved domains; 403 usually means domain not approved, not MCP breakage. External/domain allowlisting needs legal approval from Andreas Jauch.
+- Web: search early; prefer 2025–2026 sources. Claude: Tavily MCP; others: WebFetch + Tavily search tool. Tavily extract is legally restricted to approved domains; 403 usually means domain not approved, not MCP breakage. External/domain allowlisting needs legal approval from Andreas Jauch. `curl.md` = fallback for public docs/articles when WebFetch/Defuddle are noisy; not for GitHub repos.
 - Style: telegraph. Drop filler/grammar. Min tokens.
 - **No breadcrumbs**. Delete/move code = no residual comments. No `// moved to X`. Just remove.
 - Fix root cause, not bandaids.
@@ -52,9 +52,11 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Never kill/restart/relaunch Chrome. Personal tabs survive. Chrome crash on connect? Stop + report.
 - First attach after Chrome restart: one call only. Then `batch`.
 - Prefer `batch` over shell chaining for multi-step browser work.
-- Tab hygiene: close what you opened only. `agent-browser tab`; `agent-browser close`.
+- Never close browser tabs. `agent-browser close` closes the session/connection, not tabs.
+- No Chrome access (connection refused, permission denied): run `agent-browser close`, tell user to grant Chrome access, then wait. Resume with ONE `agent-browser` call after user confirms — no chained calls.
 - Prereq: enable `chrome://inspect/#remote-debugging` once. First connect per Chrome restart = manual consent.
 - Consent manual per restart. Preserve live sessions.
+- Viewport: use `1800x1169` (Phil's logical resolution). Never use 1920x1080 — overflows screen.
 - Fallback: headless Chromium. No SSO.
 
 ## Session Notes

@@ -37,6 +37,22 @@
         "obsidian-bases": { "sync": "auto" }
       }
     },
+    "organization": {
+      "repo": "https://github.com/organization/project.git",
+      "basePath": "skills",
+      "skills": {
+        "oe": { "sync": "auto" },
+        "oe-act": { "sync": "auto" },
+        "oe-code-review": { "sync": "auto" },
+        "oe-commit": { "sync": "auto" },
+        "oe-create": { "sync": "auto" },
+        "oe-create-plan": { "sync": "auto" },
+        "oe-deliver": { "sync": "auto" },
+        "oe-execute-plan": { "sync": "auto" },
+        "oe-refine": { "sync": "auto" },
+        "oe-review": { "sync": "auto" }
+      }
+    },
     "obra": {
       "repo": "https://github.com/obra/superpowers.git",
       "basePath": "skills",
