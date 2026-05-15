@@ -6,7 +6,7 @@
     "~/Vaults/Memory/USER.md",
     "~/Vaults/Memory/MEMORY.md"
   ],
-  "model": "tux/claude-opus-4-6",
+  "model": "tux/claude-sonnet-4-6",
   "permission": {
     "*": "allow",
     "bash": {
