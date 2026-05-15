@@ -53,6 +53,13 @@
         "oe-review": { "sync": "auto" }
       }
     },
+    "jakubkrehel": {
+      "repo": "https://github.com/jakubkrehel/make-interfaces-feel-better.git",
+      "basePath": "skills",
+      "skills": {
+        "make-interfaces-feel-better": { "sync": "manual" }
+      }
+    },
     "obra": {
       "repo": "https://github.com/obra/superpowers.git",
       "basePath": "skills",

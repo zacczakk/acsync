@@ -58,6 +58,12 @@ Machine-readable companion: `registry.json` (consumed by `scripts/sync-upstream-
 | writing-plans | writing-plans | writing-plans | No | auto |
 | writing-skills | writing-skills | writing-skills | No | auto |
 
+## Remote: jakubkrehel/make-interfaces-feel-better (1)
+
+| Skill | Upstream Name | Local Name | Customized | Sync |
+|-------|--------------|------------|------------|------|
+| make-interfaces-feel-better | make-interfaces-feel-better | make-interfaces-feel-better | No | manual |
+
 ## Custom (6)
 
 | Skill | Description |
