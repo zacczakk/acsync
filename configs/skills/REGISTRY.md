@@ -73,4 +73,3 @@ Machine-readable companion: `registry.json` (consumed by `scripts/sync-upstream-
 | release | Release orchestration: version bumps, changelog, docs, CI gates, PII scan, tagging |
 | session-notes | Atomic session note capture templates |
 | screenshot-workflow | Screenshot asset pipeline (macOS) |
-| provider-docs | Internal platform documentation |

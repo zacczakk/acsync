@@ -191,7 +191,6 @@ Update `configs/skills/REGISTRY.md` by changing the Custom section from this:
 | release | Release orchestration: version bumps, changelog, docs, CI gates, PII scan, tagging |
 | session-notes | Atomic session note capture templates |
 | screenshot-workflow | Screenshot asset pipeline (macOS) |
-| provider-docs | Internal platform documentation |
 ```
 
 to this:
@@ -206,7 +205,6 @@ to this:
 | release | Release orchestration: version bumps, changelog, docs, CI gates, PII scan, tagging |
 | session-notes | Atomic session note capture templates |
 | screenshot-workflow | Screenshot asset pipeline (macOS) |
-| provider-docs | Internal platform documentation |
 ```
 
 - [ ] **Step 2: Update the skills catalog counts and inventory**
