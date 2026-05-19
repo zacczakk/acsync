@@ -88,7 +88,9 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
+      "mcp__context-mode",
       "mcp__context7",
+      "mcp__palantir-mcp",
       "mcp__tavily",
       "WebFetch",
       "WebSearch",
@@ -151,9 +153,16 @@
       "Bash(cat ~/.zshrc_secrets:*)"
     ]
   },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true,
+    "swift-lsp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "context-mode@context-mode": true
+  },
   "additionalDirectories": [
     "/tmp",
-    "~/Vaults"
+    "~/Vaults",
+    "~/.agent-browser"
   ],
   "cleanupPeriodDays": 365,
   "teammateMode": "auto",

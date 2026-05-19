@@ -1,0 +1,7 @@
+{
+  "description": "Peekaboo macOS desktop automation MCP — screen capture, AX inspection, input control, windows, menus, dialogs",
+  "transport": "stdio",
+  "command": "peekaboo",
+  "args": ["mcp"],
+  "enabled": false
+}

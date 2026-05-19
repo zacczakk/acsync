@@ -137,6 +137,38 @@ Lists `docs/` catalog and enforces front-matter compliance.
 - **Rebuild:** `bun build scripts/docs-list.ts --compile --outfile bin/docs-list`
 - **Run:** After adding/modifying docs; honors `read_when` hints in front-matter.
 
+## markitdown
+
+Local document/media -> markdown for agents. Good for PDF, DOCX, PPTX, XLSX, HTML, images, audio.
+
+- **Install:** `uv tool install --python 3.12 'markitdown[all]'`
+- **Use for:** local document inspection, ingestion prep, quick text extraction for agent context.
+- **Avoid for:** high-fidelity publishing conversion; output optimized for LLM/text analysis.
+- **Safety:** runs with current process privileges. Prefer local files you trust.
+
+```bash
+markitdown file.pdf > file.md
+markitdown file.docx -o file.md
+markitdown --list-plugins
+```
+
+## peekaboo
+
+macOS desktop automation + MCP. Use for native apps, dialogs, menus, windows, screenshots, AX tree, input control.
+
+- **Install:** `brew install steipete/tap/peekaboo`
+- **MCP:** `peekaboo mcp`
+- **Use for:** Obsidian, Finder, system dialogs, native app automation beyond browser.
+- **Avoid for:** browser-only flows. Prefer `agent-browser` there.
+- **Permissions:** Screen Recording + Accessibility required.
+
+```bash
+peekaboo --version
+peekaboo permissions status
+peekaboo list apps
+peekaboo mcp
+```
+
 ## agent-browser
 
 Browser automation CLI. Auto-connects to Chrome. Rust/CDP.

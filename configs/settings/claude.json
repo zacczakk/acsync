@@ -15,7 +15,9 @@
   },
   "permissions": {
     "allow": [
+      "mcp__context-mode",
       "mcp__context7",
+      "mcp__palantir-mcp",
       "mcp__tavily",
       "WebFetch",
       "WebSearch",
@@ -77,6 +79,12 @@
       "Bash(cat */.env.*:*)",
       "Bash(cat ~/.zshrc_secrets:*)"
     ]
+  },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true,
+    "swift-lsp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "context-mode@context-mode": true
   },
   "additionalDirectories": ["/tmp", "~/Vaults", "~/.agent-browser"],
   "alwaysThinkingEnabled": true,

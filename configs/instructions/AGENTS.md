@@ -19,6 +19,8 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Prefer end-to-end verify; if blocked, say what's missing.
 - New deps: quick health check (recent releases/commits, adoption).
 - Web: search early; prefer 2025–2026 sources. Claude: Tavily MCP; others: WebFetch + Tavily search tool. Tavily extract is legally restricted to approved domains; 403 usually means domain not approved, not MCP breakage. External/domain allowlisting needs legal approval from Andreas Jauch. `curl.md` = fallback for public docs/articles when WebFetch/Defuddle are noisy; not for GitHub repos.
+- Local docs/media: prefer `markitdown` for PDF/DOCX/PPTX/XLSX/image/audio inspection before bespoke parsing. LLM-oriented markdown, not fidelity conversion.
+- Native macOS desktop automation: prefer `peekaboo` before bespoke AppleScript/Hammerspoon work.
 - Style: telegraph. Drop filler/grammar. Min tokens.
 - **No breadcrumbs**. Delete/move code = no residual comments. No `// moved to X`. Just remove.
 - Fix root cause, not bandaids.
@@ -44,6 +46,7 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 
 ## Browser
 - Always prefer `agent-browser` for browser automation, inspection, screenshots, scraping, testing, console/network checks, and authenticated pages.
+- For native apps, dialogs, menus, windows, or desktop screenshots outside Chrome, use `peekaboo`.
 - `agent-browser`: auto-connects to Phil's Chrome. SSO, cookies, extensions intact.
 - Use `agent-browser chat` for intent-level browser work. One-shot or REPL.
 - Reuse live browser tooling sessions first. Attach > restart.
@@ -95,6 +98,7 @@ When work concludes (skip if trivial):
 - Staleness: dead links / stale refs = bugs; groom docs often.
 - Context7 MCP has library documentation.
 - **Memory vault lookup:** scan `summary:` frontmatter first (`rg '^summary:.*topic' ~/Vaults/Memory/ --glob '*.md' -i`). Only read full notes when summary matches or is unclear. If Memory vault has no relevant notes, fall back to `sessions search "query"` or `sessions find "query"` for past session history. Full guide in `~/Vaults/AGENTS.md`.
+- `peekaboo` footgun: if blind/flaky, check `peekaboo permissions status` first. Needs Screen Recording + Accessibility.
 
 ## Build / Test
 - No mocks; unit or e2e.
@@ -142,5 +146,5 @@ When work concludes (skip if trivial):
 - Unrecognized changes: assume other agent; keep going; focus your changes. If it causes issues, stop + ask user.
 
 ## Tools
-On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`, `rtk`.
+ On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `peekaboo`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`, `rtk`, `markitdown`.
 Full catalog: `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md`. Read when you need flags, subcommands, or usage patterns for any tool above.

@@ -1,0 +1,9 @@
+{
+  "description": "Context Mode — tool-output sandboxing, session continuity, and ctx_execute pattern for coding agents",
+  "transport": "stdio",
+  "command": "context-mode",
+  "args": [],
+  "env": {
+    "CONTEXT_MODE_IDLE_TIMEOUT_MS": "900000"
+  }
+}

@@ -1,14 +1,38 @@
+[mcp_servers.palantir-mcp]
+command = "tux"
+args = [ "palantir-mcp", "start" ]
+enabled = false
+
 [mcp_servers.tavily]
-command = "python"
-args = [ "-m", "tavily_mcp" ]
+command = "tavily-mcp"
 env_vars = [ "TAVILY_API_KEY" ]
 
 [mcp_servers.tavily.env]
 TAVILY_API_KEY = "${TAVILY_API_KEY}"
 provider_ENV = "dev"
 
+[mcp_servers.sequential-thinking]
+command = "npx"
+args = [ "-y", "@modelcontextprotocol/server-sequential-thinking" ]
+enabled = false
+
+[mcp_servers.peekaboo]
+command = "peekaboo"
+args = [ "mcp" ]
+enabled = false
+
+[mcp_servers.context-mode]
+command = "context-mode"
+
+[mcp_servers.context-mode.env]
+CONTEXT_MODE_IDLE_TIMEOUT_MS = "900000"
+
 [mcp_servers.context7]
 url = "https://mcp.context7.com/mcp"
 
 [mcp_servers.context7.env_http_headers]
 CONTEXT7_API_KEY = "CONTEXT7_API_KEY"
+
+[mcp_servers.figma]
+url = "https://mcp.figma.com/mcp"
+enabled = false

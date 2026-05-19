@@ -1,21 +1,74 @@
 {
   "mcpServers": {
-    "tavily": {
-      "command": "python",
+    "shadcn": {
+      "command": "npx",
       "args": [
-        "-m",
-        "tavily_mcp"
-      ],
+        "-y",
+        "shadcn@latest",
+        "mcp"
+      ]
+    },
+    "palantir-mcp": {
+      "command": "tux",
+      "args": [
+        "palantir-mcp",
+        "start"
+      ]
+    },
+    "tavily": {
+      "command": "tavily-mcp",
+      "args": [],
       "env": {
         "TAVILY_API_KEY": "${TAVILY_API_KEY}",
         "provider_ENV": "dev"
       }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "peekaboo": {
+      "command": "peekaboo",
+      "args": [
+        "mcp"
+      ]
+    },
+    "context-mode": {
+      "command": "context-mode",
+      "args": [],
+      "env": {
+        "CONTEXT_MODE_IDLE_TIMEOUT_MS": "900000"
+      }
+    },
+    "chrome-devtools-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--autoConnect",
+        "--no-usage-statistics"
+      ]
     },
     "context7": {
       "httpUrl": "https://mcp.context7.com/mcp",
       "headers": {
         "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
       }
+    },
+    "figma": {
+      "httpUrl": "https://mcp.figma.com/mcp"
     }
+  },
+  "mcp": {
+    "excluded": [
+      "palantir-mcp",
+      "sequential-thinking",
+      "peekaboo",
+      "chrome-devtools-mcp",
+      "figma"
+    ]
   }
 }

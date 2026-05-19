@@ -59,6 +59,7 @@ Registered in `~/.claude/settings.json` under the `hooks` key. Canonical source:
 |--------|-------|------------|---------|
 | `vault-context-loader.js` | `SessionStart` | metronome | Injects IDENTITY/SOUL/USER/MEMORY into context |
 | `rtk-rewrite.sh` | `PreToolUse` (Bash) | rtk init | Rewrites bash commands to `rtk` equivalents for token compression |
+| context-mode plugin | `PreToolUse`, `PostToolUse`, `PreCompact`, `SessionStart` | context-mode marketplace | Tool-output sandboxing, session continuity, `ctx_*` MCP tools. Installed via `claude plugin install context-mode@context-mode --scope user`. Canonical: `enabledPlugins` in `configs/settings/claude.json`. |
 
 Hook scripts receive JSON on stdin (session_id, source, cwd, etc.) and communicate via exit codes + stdout JSON. See [Claude Code hooks reference](https://docs.anthropic.com/en/docs/claude-code/hooks).
 
@@ -81,6 +82,8 @@ in the `plugin` array and a minimal `provider.cursor` entry (`name: "Cursor"`).
 Together these enable Cursor-backed models in OpenCode after OAuth completes.
 Source of truth: `configs/settings/opencode.json` (synced to
 `~/.config/opencode/opencode.json` on push).
+
+**Context Mode (npm)**: Canonical `opencode.json` includes `context-mode` in the `plugin` array. The MCP server is managed separately via `configs/mcp/context-mode.json` (pushed to all CLIs by `metronome push --type mcps`). Together these register 11 MCP sandbox tools and wire `tool.execute.before/after` hooks for automatic tool-output sandboxing, session continuity via SQLite+FTS5, and the `ctx_execute` "think in code" pattern. Installed globally via `bun add -g context-mode`. ELv2 license (personal/internal use: fine).
 
 ### Codex hooks
 

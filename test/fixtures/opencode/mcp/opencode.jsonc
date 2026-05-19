@@ -1,12 +1,30 @@
 // OpenCode MCP config
 {
   "mcp": {
+    "shadcn": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "shadcn@latest",
+        "mcp"
+      ],
+      "enabled": true
+    },
+    "palantir-mcp": {
+      "type": "local",
+      "command": [
+        "tux",
+        "palantir-mcp",
+        "start"
+      ],
+      "enabled": false,
+      "timeout": 20000
+    },
     "tavily": {
       "type": "local",
       "command": [
-        "python",
-        "-m",
-        "tavily_mcp"
+        "tavily-mcp"
       ],
       "environment": {
         "TAVILY_API_KEY": "{env:TAVILY_API_KEY}",
@@ -14,10 +32,53 @@
       },
       "enabled": true
     },
+    "sequential-thinking": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "enabled": false
+    },
+    "peekaboo": {
+      "type": "local",
+      "command": [
+        "peekaboo",
+        "mcp"
+      ],
+      "enabled": false
+    },
+    "context-mode": {
+      "type": "local",
+      "command": [
+        "context-mode"
+      ],
+      "environment": {
+        "CONTEXT_MODE_IDLE_TIMEOUT_MS": "900000"
+      },
+      "enabled": true
+    },
+    "chrome-devtools-mcp": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--autoConnect",
+        "--no-usage-statistics"
+      ],
+      "enabled": false
+    },
     "context7": {
       "type": "remote",
       "url": "https://mcp.context7.com/mcp",
       "enabled": true
+    },
+    "figma": {
+      "type": "remote",
+      "url": "https://mcp.figma.com/mcp",
+      "enabled": false
     }
   }
 }

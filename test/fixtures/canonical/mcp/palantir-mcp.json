@@ -1,0 +1,19 @@
+{
+  "description": "Palantir Foundry data access MCP server via Tux launcher",
+  "transport": "stdio",
+  "command": "tux",
+  "args": [
+    "palantir-mcp",
+    "start"
+  ],
+  "enabled": false,
+  "target_options": {
+    "claude-code": {
+      "type": "stdio",
+      "disabled": true
+    },
+    "opencode": {
+      "timeout": 20000
+    }
+  }
+}

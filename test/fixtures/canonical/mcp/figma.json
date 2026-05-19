@@ -1,0 +1,7 @@
+{
+  "description": "Figma MCP — design context, component inspection, canvas writes via Plugin API",
+  "transport": "http",
+  "url": "https://mcp.figma.com/mcp",
+  "oauth": {},
+  "enabled": false
+}

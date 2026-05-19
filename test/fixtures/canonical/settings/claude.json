@@ -6,7 +6,9 @@
   },
   "permissions": {
     "allow": [
+      "mcp__context-mode",
       "mcp__context7",
+      "mcp__palantir-mcp",
       "mcp__tavily",
       "WebFetch",
       "WebSearch",

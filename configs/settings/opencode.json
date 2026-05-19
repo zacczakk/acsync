@@ -65,7 +65,8 @@
   },
   "plugin": [
     "opencode-agent-browser",
-    "opencode-cursor-oauth"
+    "opencode-cursor-oauth",
+    "context-mode"
   ],
   "provider": {
     "cursor": {
