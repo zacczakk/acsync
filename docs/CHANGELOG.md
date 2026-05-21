@@ -10,6 +10,7 @@ read_when:
 
 - **Claude palantir MCP allowlist** — added `mcp__palantir-mcp` to managed Claude Code always-allowed tools
 - **Claude context-mode MCP allowlist** — added `mcp__context-mode` to managed Claude Code always-allowed tools
+- **Claude maestro MCP allowlist** — added `mcp__maestro-mcp` to managed Claude Code always-allowed tools
 - **docs-list compiled binary fix** — resolve `docs/` from the caller's current repo instead of Bun's virtual `/$bunfs` path; added compiled-binary regression coverage
 - **Caveman removal** — removed the caveman skill, slash command, OpenCode plugin, fixtures, and docs wiring
 

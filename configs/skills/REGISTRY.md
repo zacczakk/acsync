@@ -26,7 +26,7 @@ Machine-readable companion: `registry.json` (consumed by `scripts/sync-upstream-
 
 | Skill | Upstream Name | Local Name | Customized | Sync |
 |-------|--------------|------------|------------|------|
-| react-best-practices | react-best-practices | vercel-react-best-practices | No | auto |
+| react-best-practices | react-best-practices | vercel-react-best-practices | Yes (AGENTS.md blocked) | manual |
 | web-design-guidelines | web-design-guidelines | web-design-guidelines | No | auto |
 
 ## Remote: kepano/obsidian-skills (5)
@@ -64,12 +64,20 @@ Machine-readable companion: `registry.json` (consumed by `scripts/sync-upstream-
 |-------|--------------|------------|------------|------|
 | make-interfaces-feel-better | make-interfaces-feel-better | make-interfaces-feel-better | No | manual |
 
-## Custom (6)
+## Project-Local Skills (not synced globally)
+
+`oe-*` skills from `organization/project` are project-specific. Add them locally per project as needed — not tracked here.
+
+## Custom (9)
 
 | Skill | Description |
 |-------|-------------|
+| foundry-local-development | Local dev tooling for Foundry projects: MCP servers, .mcp.json → opencode.json translation, Maestro/Hawk binary wiring |
+| foundry-osdk-deploy | Release/deploy Foundry OSDK React apps via git tags and ci-service CI |
+| foundry-react-app-dev | React/Vite app dev on Foundry: CORS, OAuth, IHub MCP, AI SDK patterns |
 | memory-retrieval | Retrieval routing across Knowledge, Memory, qmd, and sessions with sessions last |
 | obsidian-vault-conventions | Vault layout, lifecycle, naming conventions |
 | release | Release orchestration: version bumps, changelog, docs, CI gates, PII scan, tagging |
 | session-notes | Atomic session note capture templates |
 | screenshot-workflow | Screenshot asset pipeline (macOS) |
+| provider-docs | provider platform documentation for organization's data & analytics ecosystem |

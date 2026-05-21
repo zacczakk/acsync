@@ -1,15 +1,6 @@
 ---
 name: make-interfaces-feel-better
-description: >-
-  Apply UI micro-interaction polish. Use when building or reviewing UI components,
-  implementing animations, hover states, shadows, borders, typography, or any
-  visual detail work. Triggers on "make it feel better", "feels off", border
-  radius, optical alignment, font smoothing, stagger animations, shadows,
-  tabular numbers, icon animations, scale on press, hit areas.
-metadata:
-  author: jakubkrehel
-  source: https://github.com/jakubkrehel/make-interfaces-feel-better
-  version: 1.0.0
+description: Design engineering principles for making interfaces feel polished. Use when building UI components, reviewing frontend code, implementing animations, hover states, shadows, borders, typography, micro-interactions, enter/exit animations, or any visual detail work. Triggers on UI polish, design details, "make it feel better", "feels off", stagger animations, border radius, optical alignment, font smoothing, tabular numbers, image outlines, box shadows.
 ---
 
 # Details that make interfaces feel better
@@ -19,11 +10,11 @@ Great interfaces rarely come from a single thing. It's usually a collection of s
 ## Quick Reference
 
 | Category | When to Use |
-|----------|-------------|
-| Typography | Text wrapping, font smoothing, tabular numbers |
-| Surfaces | Border radius, optical alignment, shadows, image outlines, hit areas |
-| Animations | Interruptible animations, enter/exit transitions, icon animations, scale on press |
-| Performance | Transition specificity, `will-change` usage |
+| --- | --- |
+| [Typography](typography.md) | Text wrapping, font smoothing, tabular numbers |
+| [Surfaces](surfaces.md) | Border radius, optical alignment, shadows, image outlines, hit areas |
+| [Animations](animations.md) | Interruptible animations, enter/exit transitions, icon animations, scale on press |
+| [Performance](performance.md) | Transition specificity, `will-change` usage |
 
 ## Core Principles
 
@@ -94,7 +85,7 @@ Interactive elements need at least 40×40px hit area. Extend with a pseudo-eleme
 ## Common Mistakes
 
 | Mistake | Fix |
-|---------|-----|
+| --- | --- |
 | Same border radius on parent and child | Calculate `outerRadius = innerRadius + padding` |
 | Icons look off-center | Adjust optically with padding or fix SVG directly |
 | Hard borders between sections | Use layered `box-shadow` with transparency |
@@ -108,21 +99,29 @@ Interactive elements need at least 40×40px hit area. Extend with a pseudo-eleme
 
 ## Review Output Format
 
-Present changes as a markdown table with **Before** and **After** columns. Include every change — not just a subset. Group by principle using a heading above each table. Keep each row focused on a single diff. If a principle was reviewed but nothing needed to change, omit that table.
+Always present changes as a markdown table with **Before** and **After** columns. Include every change you made — not just a subset. Never list findings as separate "Before:" / "After:" lines outside of a table. Group changes by principle using a heading above each table, and keep each row focused on a single diff so the reader can scan the whole list quickly.
 
-Example:
+### Example
 
 #### Concentric border radius
-
 | Before | After |
-|--------|-------|
+| --- | --- |
 | `rounded-xl` on card + `rounded-xl` on inner button (`p-2`) | `rounded-2xl` on card (`12 + 8`), `rounded-lg` on inner button |
+| `border-radius: 16px` on both nested surfaces | Outer `24px`, inner `16px` with `8px` padding |
 
 #### Tabular numbers
-
 | Before | After |
-|--------|-------|
+| --- | --- |
 | `<span>{count}</span>` on animated counter | `<span className="tabular-nums">{count}</span>` |
+| Default numerals on timer | Added `font-variant-numeric: tabular-nums` to root |
+
+#### Scale on press
+| Before | After |
+| --- | --- |
+| `<button className="...">` | Added `active:scale-[0.96] transition-transform` |
+| `scale(0.9)` on press | Raised to `scale(0.96)` — anything below `0.95` feels exaggerated |
+
+Rows should cite the specific file and the specific property that changed when it isn't obvious from the snippet. If a principle was reviewed but nothing needed to change, omit that table entirely — empty tables add noise.
 
 ## Review Checklist
 
@@ -140,3 +139,10 @@ Example:
 - [ ] No `transition: all` — only specific properties
 - [ ] `will-change` only on transform/opacity/filter, never `all`
 - [ ] Interactive elements have at least 40×40px hit area
+
+## Reference Files
+
+- [typography.md](typography.md) — Text wrapping, font smoothing, tabular numbers
+- [surfaces.md](surfaces.md) — Border radius, optical alignment, shadows, image outlines
+- [animations.md](animations.md) — Interruptible animations, enter/exit transitions, icon animations, scale on press
+- [performance.md](performance.md) — Transition specificity, `will-change` usage
