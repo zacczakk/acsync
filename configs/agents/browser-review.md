@@ -5,7 +5,7 @@ description: >-
   to review browser flows, UI, UX, accessibility, Lighthouse, or frontend quality
   after UI changes or before design handoff.
 mode: subagent
-model: github-copilot/gpt-5.5
+model: tux/claude-sonnet-4-6
 reasoningEffort: medium
 textVerbosity: low
 color: '#a277ff'

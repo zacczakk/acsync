@@ -6,7 +6,7 @@ description: >-
   API docs, or bring docs in sync after behavior, config, or workflow changes,
   especially before push, PR, or release.
 mode: subagent
-model: github-copilot/gpt-5.5
+model: tux/claude-haiku-4-5-20251001
 reasoningEffort: low
 textVerbosity: low
 color: '#61ffca'

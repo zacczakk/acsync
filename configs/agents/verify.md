@@ -5,7 +5,7 @@ description: >-
   review readiness, or prove something is ready before handoff, push, PR, or release.
   Catches hollowed-out implementations, stubs, missing wiring. Read-only — reports, never edits.
 mode: subagent
-model: github-copilot/gpt-5.5
+model: tux/claude-sonnet-4-6
 reasoningEffort: medium
 textVerbosity: low
 color: '#ffc861'

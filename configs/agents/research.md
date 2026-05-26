@@ -5,7 +5,7 @@ description: >-
   architecture, prior decisions, existing patterns, or how something currently works
   are unclear, especially before implementation. Read-only.
 mode: subagent
-model: github-copilot/gpt-5.5
+model: tux/claude-sonnet-4-6
 reasoningEffort: medium
 textVerbosity: low
 color: '#a277ff'

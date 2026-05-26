@@ -6,7 +6,7 @@ description: >-
   APIs, endpoints, backend logic, auth flows, data pipelines, job queues,
   error handling, or service readiness after backend changes or before handoff.
 mode: subagent
-model: github-copilot/gpt-5.5
+model: tux/claude-sonnet-4-6
 reasoningEffort: medium
 textVerbosity: low
 color: '#a277ff'

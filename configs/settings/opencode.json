@@ -65,13 +65,10 @@
   },
   "plugin": [
     "opencode-agent-browser",
-    "opencode-cursor-oauth",
+    "file://~/Repos/zacczakk/opencode-cursor",
     "context-mode"
   ],
   "provider": {
-    "cursor": {
-      "name": "Cursor"
-    },
     "provider-bedrock": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "provider Bedrock",

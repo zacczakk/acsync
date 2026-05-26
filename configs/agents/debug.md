@@ -5,7 +5,7 @@ description: >-
   browser/runtime mismatches, or unexpected behavior.
   Read-only by default — proposes fixes, doesn't apply them.
 mode: subagent
-model: github-copilot/gpt-5.5
+model: tux/claude-opus-4-6
 reasoningEffort: high
 textVerbosity: low
 color: '#ff6767'

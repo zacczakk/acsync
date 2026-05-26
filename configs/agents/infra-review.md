@@ -7,7 +7,7 @@ description: >-
   workflows, CI, CD, deployments, infrastructure, cloud config, GitHub Actions,
   Azure Pipelines, AWS infra, SST config, env propagation, or release readiness.
 mode: subagent
-model: github-copilot/gpt-5.5
+model: tux/claude-sonnet-4-6
 reasoningEffort: medium
 textVerbosity: low
 color: '#61ffca'

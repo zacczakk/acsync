@@ -5,7 +5,7 @@ description: >-
   prepare, run, or automate a version bump, release workflow, changelog, release notes,
   tags, or final publish/push flow.
 mode: subagent
-model: github-copilot/gpt-5.5
+model: tux/claude-haiku-4-5-20251001
 reasoningEffort: low
 textVerbosity: low
 color: '#61ffca'

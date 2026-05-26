@@ -8,7 +8,7 @@ description: >-
   Has access to obsidian CLI,
   qmd, sessions CLI, and ripgrep.
 mode: subagent
-model: github-copilot/gpt-5.5
+model: tux/claude-haiku-4-5-20251001
 reasoningEffort: low
 textVerbosity: low
 color: '#a277ff'
