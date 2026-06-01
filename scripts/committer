@@ -20,6 +20,8 @@ Safety:
     (catches swapped message/file order).
   - Deleted files are allowed if they exist in HEAD (stages deletion).
   - Empty commit messages are rejected.
+  - Appends a Session-Id trailer when an agent session ID is available
+    (currently: OPENCODE_RUN_ID → "Session-Id: opencode:<id>").
 
 Examples:
   committer "fix: update config" src/app.ts README.md
@@ -49,6 +51,14 @@ fi
 
 commit_message=$1
 shift
+
+# Append agent session trailer when available.
+# Currently only OpenCode exposes a session ID; other runtimes silently skip.
+if [ -n "${OPENCODE_RUN_ID:-}" ]; then
+  commit_message="${commit_message}
+
+Session-Id: opencode:${OPENCODE_RUN_ID}"
+fi
 
 if [[ "$commit_message" != *[![:space:]]* ]]; then
   printf 'Error: commit message must not be empty\n' >&2
