@@ -93,7 +93,7 @@ export class OpenCodeAdapter extends BaseAdapter {
           const cmdArr = cfg.command as string[] | undefined;
           if (cmdArr && cmdArr.length > 0) {
             server.command = cmdArr[0];
-            if (cmdArr.length > 1) server.args = cmdArr.slice(1);
+            server.args = cmdArr.slice(1);
           }
           // OpenCode: environment uses {env:VAR} syntax
           if (cfg.environment && typeof cfg.environment === 'object') {

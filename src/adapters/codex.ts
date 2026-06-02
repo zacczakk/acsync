@@ -409,9 +409,7 @@ export class CodexAdapter extends BaseAdapter {
 
       if (server.transport === 'stdio') {
         cfg.command = server.command;
-        if (server.args && server.args.length > 0) {
-          cfg.args = server.args;
-        }
+        cfg.args = server.args ?? [];
         if (server.envVars && server.envVars.length > 0) {
           cfg.env_vars = server.envVars;
         }

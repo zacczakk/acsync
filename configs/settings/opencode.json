@@ -38,7 +38,8 @@
       "~/.config/oe/**": "allow",
       "/private/tmp/**": "allow",
       "/tmp/**": "allow",
-      "~/Downloads/**": "allow"
+      "~/Downloads/**": "allow",
+      "/var/folders/**": "allow"
     },
     "read": {
       "*": "allow",
@@ -50,6 +51,7 @@
       "~/.config/opencode/agents/*": "allow",
       "~/.config/opencode/commands/*": "allow",
       "~/.config/opencode/skill/**": "allow",
+      "~/.agents/**": "allow",
       "~/Downloads/**": "allow"
     },
     "edit": {
@@ -65,7 +67,6 @@
   },
   "plugin": [
     "opencode-agent-browser",
-    "file://~/Repos/zacczakk/opencode-cursor",
     "context-mode"
   ],
   "provider": {
@@ -133,21 +134,38 @@
       "name": "Tux",
       "options": {
         "baseURL": "http://127.0.0.1:18080/v1",
-        "apiKey": "does-not-matter",
-        "toolStreaming": false
+        "apiKey": "does-not-matter"
       },
       "models": {
         "claude-opus-4-6": {
           "name": "Claude Opus 4.6",
-          "options": { "toolStreaming": false }
+          "options": { "toolStreaming": false },
+          "modalities": { "input": ["image", "text"], "output": ["text"] },
+          "variants": {
+            "low": { "thinking": { "type": "adaptive" }, "effort": "low" },
+            "medium": { "thinking": { "type": "adaptive" }, "effort": "medium" },
+            "high": { "thinking": { "type": "adaptive" }, "effort": "high" }
+          }
         },
         "claude-sonnet-4-6": {
           "name": "Claude Sonnet 4.6",
-          "options": { "toolStreaming": false }
+          "options": { "toolStreaming": false },
+          "modalities": { "input": ["image", "text"], "output": ["text"] },
+          "variants": {
+            "low": { "thinking": { "type": "adaptive" }, "effort": "low" },
+            "medium": { "thinking": { "type": "adaptive" }, "effort": "medium" },
+            "high": { "thinking": { "type": "adaptive" }, "effort": "high" }
+          }
         },
         "claude-haiku-4-5-20251001": {
           "name": "Claude Haiku 4.5",
-          "options": { "toolStreaming": false }
+          "options": { "toolStreaming": false },
+          "modalities": { "input": ["image", "text"], "output": ["text"] },
+          "variants": {
+            "low": { "thinking": { "type": "adaptive" }, "effort": "low" },
+            "medium": { "thinking": { "type": "adaptive" }, "effort": "medium" },
+            "high": { "thinking": { "type": "adaptive" }, "effort": "high" }
+          }
         }
       }
     }

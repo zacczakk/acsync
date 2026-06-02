@@ -5,6 +5,7 @@ enabled = false
 
 [mcp_servers.tavily]
 command = "tavily-mcp"
+args = []
 env_vars = [ "TAVILY_API_KEY" ]
 
 [mcp_servers.tavily.env]
@@ -23,6 +24,7 @@ enabled = false
 
 [mcp_servers.context-mode]
 command = "context-mode"
+args = []
 
 [mcp_servers.context-mode.env]
 CONTEXT_MODE_IDLE_TIMEOUT_MS = "900000"

@@ -163,7 +163,9 @@
   "additionalDirectories": [
     "/tmp",
     "~/Vaults",
-    "~/.agent-browser"
+    "~/.agent-browser",
+    "~/.agents",
+    "/var/folders"
   ],
   "cleanupPeriodDays": 365,
   "teammateMode": "auto",
