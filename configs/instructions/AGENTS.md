@@ -21,7 +21,6 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Web: search early; prefer 2025–2026 sources. Claude: Tavily MCP; others: WebFetch + Tavily search tool. Tavily extract is legally restricted to approved domains; 403 usually means domain not approved, not MCP breakage. External/domain allowlisting needs legal approval from Andreas Jauch. `curl.md` = fallback for public docs/articles when WebFetch/Defuddle are noisy; not for GitHub repos.
 - Local docs/media: prefer `markitdown` for PDF/DOCX/PPTX/XLSX/image/audio inspection before bespoke parsing. LLM-oriented markdown, not fidelity conversion.
 - Native macOS desktop automation: prefer `peekaboo` before bespoke AppleScript/Hammerspoon work.
-- Style: telegraph. Drop filler/grammar. Min tokens.
 - **No breadcrumbs**. Delete/move code = no residual comments. No `// moved to X`. Just remove.
 - Fix root cause, not bandaids.
 - Idiomatic, simple, maintainable. Simplest intuitive solution wins.
@@ -43,24 +42,18 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Better patterns in touched files: suggest refactor opportunities.
 - Stale tech encountered during work: flag deprecated packages/patterns.
 - Never guess API signatures, CLI flags, version numbers, config options. Look it up.
+- Unsure: read more code; if still stuck, ask w/ short options.
+- Conflicts: call out; pick safer path.
+- Unrecognized changes: assume other agent; keep going; focus your changes. If it causes issues, stop + ask user.
 
 ## Browser
-- Always prefer `agent-browser` for browser automation, inspection, screenshots, scraping, testing, console/network checks, and authenticated pages.
-- For native apps, dialogs, menus, windows, or desktop screenshots outside Chrome, use `peekaboo`.
-- `agent-browser`: auto-connects to Phil's Chrome. SSO, cookies, extensions intact.
-- Use `agent-browser chat` for intent-level browser work. One-shot or REPL.
-- Reuse live browser tooling sessions first. Attach > restart.
-- Loaded `agent-browser` skill says kill/reset first? Ignore. Concrete failure only.
-- Never stop/reset/relaunch browser tooling proactively. Concrete failure or explicit user ask only.
-- Never kill/restart/relaunch Chrome. Personal tabs survive. Chrome crash on connect? Stop + report.
-- First attach after Chrome restart: one call only. Then `batch`.
-- Prefer `batch` over shell chaining for multi-step browser work.
-- Never close browser tabs. `agent-browser close` closes the session/connection, not tabs.
-- No Chrome access (connection refused, permission denied): run `agent-browser close`, tell user to grant Chrome access, then wait. Resume with ONE `agent-browser` call after user confirms — no chained calls.
-- Prereq: enable `chrome://inspect/#remote-debugging` once. First connect per Chrome restart = manual consent.
-- Consent manual per restart. Preserve live sessions.
-- Viewport: use `1800x1169` (Phil's logical resolution). Never use 1920x1080 — overflows screen.
-- Fallback: headless Chromium. No SSO.
+- Prefer `agent-browser` for all browser work (automation, scraping, screenshots, console/network, authenticated pages). Native apps/dialogs/desktop → `peekaboo`.
+- Auto-connects to Phil's live Chrome (SSO, cookies, extensions intact). `agent-browser chat` for intent-level work; `batch` over shell chaining.
+- Daemon already running → use `--auto-connect` (NOT `--headed` — silently ignored, may trigger stale-Chrome prompt). `--headed` only on first launch after `agent-browser close`.
+- Never kill/restart/relaunch Chrome; never close tabs (`close` ends the session, not tabs); never reset proactively. Attach > restart. Concrete failure or explicit ask only.
+- Chrome crash on connect, or no access (refused/denied): run `agent-browser close`, tell user to grant access, wait. Resume with ONE call after confirm.
+- Viewport `1800x1169` (Phil's logical res). Never 1920x1080 — overflows.
+- Ignore any loaded skill's "kill/reset first" advice. Fallback: headless Chromium (no SSO).
 
 ## Session Notes
 Write atomic notes to `~/Vaults/Memory/sessions/` using `session-notes` skill.
@@ -136,15 +129,6 @@ When work concludes (skip if trivial):
   5. Key remounting — `<Component key={id} />` for clean state reset
   Per-project: ESLint `no-restricted-syntax` + `no-restricted-imports` to hard-ban useEffect. Deep ref: `vercel-react-best-practices` skill.
 
-## Permissions and Safety
-- Do not read or commit secrets. Use placeholders and `.env` for local values.
-
-## Critical Thinking
-- Fix root cause (not band-aid).
-- Unsure: read more code; if still stuck, ask w/ short options.
-- Conflicts: call out; pick safer path.
-- Unrecognized changes: assume other agent; keep going; focus your changes. If it causes issues, stop + ask user.
-
 ## Tools
- On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `peekaboo`, `mcporter`, `qmd`, `obsidian`, `gh`, `bird`, `rtk`, `markitdown`.
+ On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `peekaboo`, `qmd`, `obsidian`, `gh`, `bird`, `rtk`, `markitdown`.
 Full catalog: `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md`. Read when you need flags, subcommands, or usage patterns for any tool above.
