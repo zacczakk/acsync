@@ -10,7 +10,7 @@ read_when:
 ## What This Repo Is
 
 Single source of truth for AI coding assistant configurations across four CLIs:
-**Claude Code**, **OpenCode**, **Gemini CLI**, and **Codex**.
+**Claude Code**, **OpenCode**, **Antigravity CLI** (`agy`), and **Codex**.
 
 All commands, agents, skills, MCP server definitions, and the unified
 `AGENTS.md` instruction file are authored once in `configs/` and synced to
@@ -24,7 +24,7 @@ The `metronome` CLI handles all sync operations programmatically:
 configs/         metronome CLI        CLI system dirs
   commands/*.md   -->  (adapters)   -->   ~/.claude/commands/
   agents/         -->  transform    -->   ~/.config/opencode/command/
-  skills/         -->  + secrets    -->   ~/.gemini/commands/
+  skills/         -->  + secrets    -->   ~/.gemini/antigravity-cli/
   mcp/*.json      -->  + merge      -->   ~/.codex/prompts/
 ```
 
@@ -60,10 +60,13 @@ use `${VAR}` placeholders. The CLI handles injection (push) and redaction
 **Manifest tracking**: `.metronome/manifest.json` tracks sync state for 3-way
 hash comparison — detecting independent target modifications vs source changes.
 
-**Cursor in OpenCode**: Canonical `configs/settings/opencode.json` lists the
-`opencode-cursor-oauth` npm plugin and a `cursor` provider entry so OpenCode
-can authenticate with Cursor subscription billing. This is not a separate
-metronome “target CLI”; it ships inside the OpenCode settings payload only.
+**Cursor in OpenCode**: Cursor-backed models are served by a maintained fork,
+[`zacczakk/opencode-cursor`](https://github.com/zacczakk/opencode-cursor)
+(`~/Repos/zacczakk/opencode-cursor`), symlinked into
+`~/.config/opencode/plugins/` and auto-discovered. It self-injects its provider,
+so it is deliberately **not** in `opencode.json`'s `plugin[]` and **not** synced
+by metronome (the fork is the source of truth). See
+[architecture.md](architecture.md#opencode-plugins) for the full rationale.
 
 ## Architecture
 

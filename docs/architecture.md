@@ -13,7 +13,7 @@ read_when:
   - `commands/` — Slash commands (8 .md files)
   - `agents/` — Subagent definitions (2 .md files)
   - `skills/` — Skill bundles (38 directories)
-  - `plugins/` — OpenCode plugins (4 .ts files, identity-rendered)
+  - `plugins/` — metronome-managed OpenCode plugins (3 .ts files, identity-rendered; the Cursor OAuth plugin is a separate external fork, see below)
   - `mcp/` — MCP server definitions (7 .json files)
   - `settings/` — Per-CLI settings (4 .json files)
   - `hooks/` — Hook scripts (see [Hooks](#hooks) below)
@@ -28,9 +28,9 @@ read_when:
 
 ```
 configs/  ──→  metronome push  ──→  ~/.claude/
-                                                         ~/.config/opencode/
-                                                         ~/.gemini/
-                                                         ~/.codex/
+                                    ~/.config/opencode/
+                                    ~/.gemini/antigravity-cli/
+                                    ~/.codex/
 ```
 
 ## Dependency Direction
@@ -77,11 +77,22 @@ Plugin source files live in `configs/plugins/` and are **deployed by `metronome 
 
 Plugins are raw `.ts` files — identity-rendered (no frontmatter, no transformation). The `"plugin"` key in `opencode.json` (npm packages) is separately managed via settings wholesale-replace.
 
-**Cursor OAuth (npm)**: Canonical `opencode.json` includes `opencode-cursor-oauth`
-in the `plugin` array and a minimal `provider.cursor` entry (`name: "Cursor"`).
-Together these enable Cursor-backed models in OpenCode after OAuth completes.
-Source of truth: `configs/settings/opencode.json` (synced to
-`~/.config/opencode/opencode.json` on push).
+**Cursor OAuth (local fork, NOT npm, NOT metronome-copied)**: Cursor-backed
+models in OpenCode are served by a maintained fork at
+[`github.com/zacczakk/opencode-cursor`](https://github.com/zacczakk/opencode-cursor)
+(cloned to `~/Repos/zacczakk/opencode-cursor`, upstream
+`ephraimduncan/opencode-cursor`). It's a **built multi-file bundle** (a direct
+gRPC→OpenAI proxy that talks straight to `api2.cursor.sh`), so it does **not**
+fit metronome's single-`.ts`-file plugin model and is **not** in
+`configs/plugins/`. Deploy: `bun run build` in the fork, then symlink
+`dist/plugin.js` → `~/.config/opencode/plugins/cursor-oauth.js`. OpenCode
+auto-discovers it from that directory. It self-injects a static
+`@ai-sdk/openai-compatible` provider (display name "Cursor") via the `config`
+hook — so it is deliberately **absent from `opencode.json`'s `plugin[]` array**
+(a bare-name entry there would npm-resolve and double-load, which caused an
+EADDRINUSE port conflict). Auth borrows Cursor's OAuth tokens from the macOS
+Keychain (`cursor-agent login`). Not synced by metronome — the fork is the
+source of truth; update = pull/build the fork, symlink persists.
 
 **Context Mode (npm)**: Canonical `opencode.json` includes `context-mode` in the `plugin` array. The MCP server is managed separately via `configs/mcp/context-mode.json` (pushed to all CLIs by `metronome push --type mcps`). Together these register 11 MCP sandbox tools and wire `tool.execute.before/after` hooks for automatic tool-output sandboxing, session continuity via SQLite+FTS5, and the `ctx_execute` "think in code" pattern. Installed globally via `bun add -g context-mode`. ELv2 license (personal/internal use: fine).
 
