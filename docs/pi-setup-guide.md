@@ -22,20 +22,28 @@ flagged `[UNVERIFIED]`.
 > sub-1k-token system prompt, **no native MCP** (skills + CLIs over MCP), no built-in
 > subagents/plan-mode/permission-popups — all added via extensions when you need them.
 
-Companion scaffolding lives in [`configs/pi/`](../configs/pi/). This doc is the "why
-and how"; those files are the "what". Read [`configs/pi/README.md`](../configs/pi/README.md)
-for the file-by-file map.
+Companion scaffolding under `configs/pi/` is a planned follow-up (not yet on disk —
+see §0 prerequisite). This doc is the "why and how" and stands on its own as reference;
+the scaffolding will be the ready-to-`cp` "what".
 
 ---
 
 ## 0. TL;DR — the 10-minute setup
+
+> ⚠️ **PREREQUISITE — scaffolding not yet created.** The `configs/pi/` files this
+> TL;DR copies (`settings.json`, `AGENTS.md`, `APPEND_SYSTEM.md`, `mcp.json`,
+> `themes/north.json`) **do not exist yet** — they are a planned deliverable, not
+> on disk. Steps 2 and 4 will fail until the scaffolding is built (tracked as a
+> follow-up). Until then, treat §0 as the target shape and author each
+> `~/.pi/agent/` file by hand using the verified schemas in §3–§8. The rest of the
+> guide (§1–§12) is reference material that stands on its own.
 
 ```bash
 # 1. Install (Node >= 22.19.0)
 npm install -g --ignore-scripts @earendil-works/pi-coding-agent
 pi --version
 
-# 2. Seed config from metronome scaffolding
+# 2. Seed config from metronome scaffolding  [requires configs/pi/ — see prerequisite]
 mkdir -p ~/.pi/agent
 cp ~/Repos/zacczakk/metronome/configs/pi/settings.json      ~/.pi/agent/settings.json
 cp ~/Repos/zacczakk/metronome/configs/pi/AGENTS.md          ~/.pi/agent/AGENTS.md
@@ -48,12 +56,14 @@ pi   # then /login  → choose Anthropic / Copilot / etc.
 #   or: export ANTHROPIC_API_KEY=sk-ant-...
 
 # 4. Portable skills (agentskills.io spec — same as OpenCode/Claude Code)
+#    Loop preserves each skill's <name>/ directory (do NOT use `cp configs/skills/*/`,
+#    which flattens the skill-name layer and errors on no-match in zsh). See §7.
 mkdir -p ~/.pi/agent/skills
-cp -R ~/Repos/zacczakk/metronome/configs/skills/*/  ~/.pi/agent/skills/   # see §7 caveat
+for d in ~/Repos/zacczakk/metronome/configs/skills/*/; do cp -R "$d" ~/.pi/agent/skills/; done
 
 # 5. Core extensions (leanest power-user set)
 pi install npm:pi-mcp-adapter          # MCP bridge, lazy proxy
-pi install npm:pi-web-access           # web search (Tavily backend) + fetch
+pi install npm:pi-web-access           # multi-backend web search (Parallel default; Tavily/Brave/Exa/OpenAI) + fetch
 pi install npm:pi-subagents            # subagent delegation
 pi install npm:@narumitw/pi-chrome-devtools
 pi install npm:@narumitw/pi-statusline
@@ -82,10 +92,12 @@ Everything below is the detail behind these steps.
 | Model switch mid-session | Native (`/model`) | Limited |
 | Clients | Terminal + RPC | Terminal + desktop + VS Code + mobile + web |
 
-**Benchmark reality:** Pi + Claude Opus 4.5 ranked **#2 on TerminalBench (Oct 2025)** with
-no compaction, MCP, subagents, or plan mode — the minimalism is not a performance
-liability. But leaderboard-topping scores come from heavily tuned harnesses; expect
-*competitive*, not *#1*, out of the box. Harness tuning alone moves SWE-bench up to
+**Benchmark reality:** Pi + Claude Opus 4.5 was reported at **#2 on TerminalBench
+(Oct 2025)** `[UNVERIFIED — historical snapshot; the leaderboard has since grown and
+no current Pi-specific score is published]` with no compaction, MCP, subagents, or
+plan mode — the point being that the minimalism is not an inherent performance
+liability. Expect *competitive*, not *#1*, out of the box: leaderboard-topping scores
+come from heavily tuned harnesses, and harness tuning alone moves SWE-bench up to
 16 points on the same model — which is exactly why this guide invests in tuning.
 
 **The migration truth:** this is a paradigm shift, not a feature downgrade. Your
@@ -132,7 +144,7 @@ Project settings **deep-merge over** global.
 | `settings.json` | Main config (model, UI, compaction, retry, resources) |
 | `auth.json` | Credentials, `0600`, **priority over env vars** |
 | `AGENTS.md` | Project/global context, concatenated into system prompt |
-| `APPEND_SYSTEM.md` | Appended to system prompt with **higher authority than AGENTS.md** |
+| `APPEND_SYSTEM.md` | Appended to the system prompt after `AGENTS.md` (positionally later) |
 | `SYSTEM.md` | **Fully replaces** the default system prompt (use with care) |
 | `models.json` | Custom model/provider definitions |
 | `mcp.json` | MCP servers (consumed by `pi-mcp-adapter`) |
@@ -170,8 +182,10 @@ Project settings **deep-merge over** global.
 ### auth.json + providers (verified `auth.json` keys)
 
 Credential resolution: **runtime override → `auth.json` → env var → fallback resolver.**
-`/login` writes `auth.json`. Provider→env→auth-key table (subset — full list in
-`configs/pi/README.md`):
+`/login` writes `auth.json`. Provider→env→auth-key table (**partial** — Pi supports
+~20 providers; full table at [`pi.dev/docs/latest/providers`](https://pi.dev/docs/latest/providers),
+also includes `deepseek`, `mistral`, `groq`, `cerebras`, `xai`, `nvidia`, `zai`,
+`huggingface`, `cloudflare-workers-ai`, `opencode`, etc.):
 
 | Provider | Env var | `auth.json` key |
 |---|---|---|
@@ -213,17 +227,19 @@ You can also override just the `baseUrl` of a built-in provider — useful for p
 
 ### The instruction stack (this is how you carry your agent identity)
 
-Pi gives you a **two-tier authority model** that maps cleanly onto the metronome
-instruction files:
+Pi gives you two instruction layers that map cleanly onto the metronome files:
 
 - `~/.pi/agent/AGENTS.md` — operating rules, tool choices, workflow (the bulk of
   `configs/instructions/AGENTS.md`). Concatenated with parent-dir and cwd `AGENTS.md`.
-- `~/.pi/agent/APPEND_SYSTEM.md` — **higher-authority** behavioral rules. This is
-  where SOUL/IDENTITY voice + hard constraints go (telegraphic voice, no-slop, en-dash
-  preference, "confirm before destructive"). Appended last = wins conflicts.
+- `~/.pi/agent/APPEND_SYSTEM.md` — behavioral rules appended to the system prompt
+  *after* `AGENTS.md`. This is where SOUL/IDENTITY voice + hard constraints go
+  (telegraphic voice, no-slop, en-dash preference, "confirm before destructive").
 
-This is *better* than OpenCode's flat `instructions[]` array — you get explicit
-precedence instead of order-dependent concatenation.
+> Note: Pi docs describe `APPEND_SYSTEM.md` as "append to the default prompt without
+> replacing it" — they make **no formal precedence guarantee** over `AGENTS.md`. In
+> practice, later-in-prompt content tends to carry slightly more weight with current
+> models, so it's a reasonable place for hard rules — but don't rely on it as a
+> guaranteed override. `[UNVERIFIED — inference, not a documented contract]`
 
 ---
 
@@ -233,7 +249,7 @@ precedence instead of order-dependent concatenation.
 pi                         # interactive TUI
 pi -p "prompt"             # print mode (non-interactive, stdout)
 echo "prompt" | pi -p      # pipe
-pi --rpc                   # headless JSON-over-stdio (for embedding/metronome tooling)
+pi --mode rpc             # headless JSON-over-stdio (for embedding/metronome tooling)
 
 # session
 pi -c                      # continue most recent
@@ -272,11 +288,14 @@ Pi packages bundle extensions + skills + prompts + themes. Discover at
 
 ### Tier 1 — foundational (install first)
 
+> Star counts below are approximate point-in-time snapshots (2026-07), not live
+> figures — treat as rough popularity signal, not exact.
+
 | Package | Why | Install |
 |---|---|---|
-| `pi-mcp-adapter` (nicobailon, 975★) | MCP bridge. One ~200-token proxy tool, lazy connect. `imports:["claude-code"]` migrates your existing MCP config wholesale. | `pi install npm:pi-mcp-adapter` |
-| `pi-web-access` (nicobailon, 769★) | Web search with **Tavily** backend + fallback chain (Brave/Exa/OpenAI/Perplexity), URL extract, YouTube, PDF, GitHub clone. Replaces the Tavily MCP with zero MCP overhead. | `pi install npm:pi-web-access` |
-| `pi-subagents` (nicobailon, 2,468★) | Async subagent delegation: scout/researcher/planner/worker/reviewer/oracle, best-of-N, fleet view. Your 11 OpenCode subagents map here. | `pi install npm:pi-subagents` |
+| `pi-mcp-adapter` (nicobailon, ~975★) | MCP bridge. One ~200-token proxy tool, lazy connect. `imports:` auto-migrates existing host configs (`claude-code`, `cursor`, `claude-desktop`, `vscode`, `windsurf`, `codex`). | `pi install npm:pi-mcp-adapter` |
+| `pi-web-access` (nicobailon, ~769★) | Multi-backend web search (Parallel default; Tavily/Brave/Exa/OpenAI selectable, `TAVILY_API_KEY` for the Tavily backend), URL extract, YouTube, PDF, GitHub clone. Replaces the Tavily MCP with zero MCP overhead. | `pi install npm:pi-web-access` |
+| `pi-subagents` (nicobailon, ~2,468★) | Async subagent delegation: scout/researcher/planner/worker/reviewer/oracle, best-of-N, fleet view. Your 11 OpenCode subagents map here. | `pi install npm:pi-subagents` |
 | `@narumitw/pi-chrome-devtools` | Native CDP (tabs, navigate, eval JS, screenshots). Replaces the chrome-devtools MCP. | `pi install npm:@narumitw/pi-chrome-devtools` |
 | `@narumitw/pi-lsp` | Language-agnostic LSP diagnostics + code actions. **Fills the one real gap vs OpenCode.** | `pi install npm:@narumitw/pi-lsp` |
 | `pi-subdir-context` | Auto-loads `AGENTS.md` from subdirectories (monorepos). | `pi install npm:pi-subdir-context` |
@@ -357,9 +376,10 @@ Thinking borders (6): thinkingOff thinkingMinimal thinkingLow thinkingMedium
 Bash (1):    bashMode
 ```
 
-A ready-to-use **`north`** theme (Nord palette, matches your OpenCode theme) ships in
-[`configs/pi/themes/north.json`](../configs/pi/themes/north.json). Drop it at
-`~/.pi/agent/themes/north.json` and set `"theme": "north"`.
+A ready-to-use **`north`** theme (Nord palette, matches your OpenCode theme) is part of
+the planned `configs/pi/themes/north.json` scaffolding (see §0 prerequisite). Once built,
+drop it at `~/.pi/agent/themes/north.json` and set `"theme": "north"`. The full 51-token
+palette to build it from is enumerated above.
 
 > Pro tip from the docs: *"pi can create themes. Ask it to build one for your setup."*
 > Pi will author a valid 51-token theme on request — good for a quick palette variant.
@@ -370,7 +390,7 @@ A ready-to-use **`north`** theme (Nord palette, matches your OpenCode theme) shi
 |---|---|
 | `quietStartup: true` | Hide the startup header/splash |
 | `editorPaddingX` / `outputPad` | Editor & message horizontal padding |
-| `markdown.codeBlockIndent` | Code-block indentation |
+| `markdown.codeBlockIndent` | Code-block indentation `[UNVERIFIED — not in official settings docs; confirm before use]` |
 | `hideThinkingBlock` | Suppress thinking blocks |
 | `autocompleteMaxVisible` | Autocomplete dropdown height |
 
@@ -381,7 +401,8 @@ The official `rainbow-editor.ts` example (in the repo `examples/extensions/`) an
 a rainbow shimmer on a word in the input editor using ANSI 24-bit RGB — the closest
 analog. For a startup banner, build a tiny extension that calls
 `ctx.ui.setWidget("header", …)` on `session_start` with ANSI escapes (same technique).
-A starter is scaffolded at [`configs/pi/extensions/north-splash.ts`](../configs/pi/extensions/north-splash.ts).
+A starter extension (`north-splash.ts`) is part of the planned `configs/pi/` scaffolding
+(see §0 prerequisite — not yet on disk).
 
 ### Generative / rich terminal UI (build your own widgets)
 
@@ -411,7 +432,8 @@ terminal) pattern, `pi-web-access`/`pi-generative-ui` + Glimpse is the vault-not
 No Pi-specific font requirement. `@narumitw/pi-statusline`'s `tokyo-night` preset uses
 powerline block glyphs (`░▒▓`) which render in any modern terminal; its segment labels
 are emoji, not Nerd-Font codepoints, so **no Nerd Font is required**. On WezTerm/Ghostty,
-set the Kitty keyboard protocol for `Shift+Enter` (snippets in `configs/pi/README.md`).
+set the Kitty keyboard protocol for `Shift+Enter` (see `pi.dev/docs/latest/terminal-setup`
+or the repo `docs/terminal-setup.md`).
 
 ---
 
@@ -450,7 +472,8 @@ Two migration paths, use both:
 `.pi/mcp.json`, and can `imports:["claude-code","cursor","vscode",…]` your existing
 host configs. Run `pi-mcp-adapter init` to auto-detect and import. Per-server:
 `directTools: true|["tool"]` promotes hot tools to direct (150-300 tok/tool);
-`lifecycle: lazy|eager|keep-alive`. Scaffold: [`configs/pi/mcp.json`](../configs/pi/mcp.json).
+`lifecycle: lazy|eager|keep-alive`. (An `mcp.json` scaffold is part of the planned
+`configs/pi/` deliverable — see §0 prerequisite.)
 
 `context-mode` is also available as a native Pi package (`pi install npm:context-mode`)
 — prefer that over the MCP form if you want the `ctx_*` sandbox tools in Pi.
@@ -466,12 +489,17 @@ register arbitrary tools and run code at install time (trust-at-install model).
 
 Mitigations, in order of preference for the organization/Foundry context:
 - `defaultProjectTrust: "ask"` (scaffold default) — never auto-trust unknown repos.
-- Opt-in `@anthropic-ai/sandbox-runtime` extension for tool isolation.
+- Opt-in sandbox extension for tool isolation. The safehouse report references
+  `@anthropic-ai/sandbox-runtime`; the confirmed-installable community route is
+  `carderne/pi-sandbox` (`pi install npm:pi-sandbox`). `[verify install path before relying on it]`
 - Container isolation (Docker) or `rivet agent-os` (WASM/V8 isolates; supports Pi) for
   untrusted work — your vault already tracks rivet as the sandbox runtime.
-- Pin extension versions; review third-party source; keep the corporate cert/proxy
-  setup (`~/.ssh/cacert.pem`) in mind — Pi's outbound to providers/npm/GitHub goes
-  through it.
+- Pin extension versions; review third-party source.
+- **organization cert bundle:** export `NODE_EXTRA_CA_CERTS=~/.ssh/cacert.pem` (and, if a
+  provider still fails TLS, `SSL_CERT_FILE=~/.ssh/cacert.pem`) in your shell profile
+  *before* `pi install` or any provider call — Pi's outbound to providers/npm/GitHub
+  must route through the corporate bundle. Per the vault TLS runbook, `~/.ssh/cacert.pem`
+  is the source of truth; a TLS failure means cert/proxy misconfig, not a Pi bug.
 
 ---
 
@@ -501,39 +529,62 @@ metronome is a CLI-agnostic sync engine with per-CLI adapters
 **managed target** mirrors the antigravity onboarding precedent
 ([`docs/…antigravity-cli-metronome-adapter`](../../Vaults/Knowledge/06_docs/antigravity-cli-metronome-adapter.md)):
 
-1. **Canonical source:** `configs/pi/` (this scaffolding) holds Pi's global config.
-2. **New adapter:** `src/adapters/pi.ts` (class `PiAdapter extends BaseAdapter`),
-   registered in `TargetName`, `ALL_TARGETS`, and CLI `--target pi`. Model the path
-   layout on `path-resolver.ts`:
+1. **Canonical source:** `configs/pi/` (planned scaffolding) holds Pi's global config.
+2. **Wire the target into the type system** — writing the adapter class alone will NOT
+   compile. Four files must change together (TypeScript exhaustiveness will enforce this):
+   - `src/types.ts` → add `'pi'` to the `TargetName` union.
+   - `src/adapters/pi.ts` → new `PiAdapter extends BaseAdapter`.
+   - `src/adapters/path-resolver.ts` → add a `case 'pi':` to **every** `switch(this.target)`
+     block (`rawBaseDir`, `rawCommandsDir`, `rawAgentsDir`, `rawMCPConfigPath`,
+     `rawSettingsPath`, `rawInstructionsPath`, `rawSkillsDir`, `rawPluginsDir`,
+     `rawHooksPath`).
+   - `src/cli/canonical.ts` → add `'pi'` to `ALL_TARGETS` and a `case 'pi': return new PiAdapter(homeDir)`
+     to `createAdapter`.
+3. **Path layout** (model on the antigravity/codex adapters):
    | Artifact | Pi path |
    |---|---|
-   | Settings/MCP | `~/.pi/agent/settings.json`, `~/.pi/agent/mcp.json` |
-   | Instructions | `~/.pi/agent/AGENTS.md` + `~/.pi/agent/APPEND_SYSTEM.md` |
+   | Settings | `~/.pi/agent/settings.json` |
+   | MCP | `~/.pi/agent/mcp.json` |
+   | Instructions | `~/.pi/agent/AGENTS.md` (+ `APPEND_SYSTEM.md`) |
    | Skills | `~/.pi/agent/skills/<name>/SKILL.md` |
    | Commands | `~/.pi/agent/prompts/*.md` (prompt templates) |
    | Themes | `~/.pi/agent/themes/*.json` |
    | Extensions | `~/.pi/agent/extensions/*.ts` |
-   Capabilities: `skills: true`, `mcps: true` (via adapter config), `plugins: false`
-   (Pi extensions are TS, identity-rendered like OpenCode plugins if you choose to
-   manage them), `commands: true` (as prompt templates).
-3. **Data flow:** `configs/` → `metronome push --target pi` → `~/.pi/agent/`.
-4. **Tests:** fixtures under `test/fixtures/pi/`, isolated home via `homeDir` (same
-   pattern as every other adapter — no real `~/.pi` touched).
+4. **Capabilities** — `AdapterCapabilities` has **8 required boolean fields**; declare all:
+   ```ts
+   { commands: true,  // prompt templates
+     agents: false,   // Pi has no metronome-style agents; uses skills + pi-subagents
+     mcp: true,       // via pi-mcp-adapter mcp.json (note: field is `mcp`, not `mcps`)
+     instructions: true,  // AGENTS.md (+ APPEND_SYSTEM.md)
+     skills: true,    // agentskills.io SKILL.md
+     settings: true,  // settings.json
+     plugins: false,  // Pi extensions are TS; manage separately if at all
+     hooks: false }   // no metronome-managed hook surface
+   ```
+5. **Data flow & run:** `configs/pi/` → `metronome push --target pi` → `~/.pi/agent/`.
+   Verify with `metronome diff --target pi` first (read-only), then `metronome check`.
+6. **Tests:** fixtures under `test/fixtures/pi/` + `test/fixtures/seeds/pi/`, isolated
+   home via `homeDir` (same pattern as every other adapter — no real `~/.pi` touched).
+   Regenerate goldens with `bun test/generate-golden.ts` after adding the target to the
+   generator's adapter list.
 
-Until the adapter lands, the TL;DR `cp` commands in §0 are the manual bootstrap.
-Writing the adapter is the follow-up task (not done here — this guide + scaffolding is
-the prerequisite).
+Until the adapter lands, hand-author each `~/.pi/agent/` file per §3–§8 (the §0 `cp`
+flow needs the `configs/pi/` scaffolding, which is a separate follow-up).
 
 ---
 
 ## 12. Migration checklist (OpenCode → Pi)
 
 - [ ] Install Pi, confirm `pi --version`, disable telemetry.
-- [ ] `cp` scaffolding from `configs/pi/` → `~/.pi/agent/`.
+- [ ] Set `NODE_EXTRA_CA_CERTS=~/.ssh/cacert.pem` before any install/provider call (organization).
+- [ ] Author `~/.pi/agent/` config by hand per §3–§8 (or `cp` from `configs/pi/` once
+      that scaffolding exists — currently a follow-up deliverable, see §0).
 - [ ] `/login` your primary provider (or export env keys); add `models.json` for the
-      corp gateway if needed.
-- [ ] Port `AGENTS.md` (already condensed in scaffold) + `APPEND_SYSTEM.md` (SOUL/voice).
-- [ ] Copy skills; audit each for harness-specific syntax (see `pi-tools.md`).
+      corp gateway if needed. Note: `auth.json` is written only by `/login`/env — it is
+      **not** metronome-synced and `metronome push` will not touch it.
+- [ ] Port `AGENTS.md` + `APPEND_SYSTEM.md` (SOUL/voice).
+- [ ] Copy skills (loop-copy preserving `<name>/` dirs, §7); audit each for
+      harness-specific syntax (see `pi-tools.md`).
 - [ ] Install Tier-1 extensions; `pi-mcp-adapter init` to import existing MCP config.
 - [ ] Replace Tavily/chrome-devtools MCP with `pi-web-access`/`@narumitw/pi-chrome-devtools`.
 - [ ] Install `@narumitw/pi-lsp` (the one real gap) + statusline.
@@ -543,7 +594,8 @@ the prerequisite).
 - [ ] Convert the 13 commands to prompt templates in `prompts/`.
 - [ ] Decide subagent strategy (`pi-subagents` vs tmux).
 - [ ] Security pass: `defaultProjectTrust: ask`, sandbox strategy for untrusted repos.
-- [ ] Write `src/adapters/pi.ts` to bring Pi under `metronome push`.
+- [ ] Write the metronome Pi adapter (§11: `pi.ts` + `types.ts` + `path-resolver.ts` +
+      `canonical.ts`) to bring Pi under `metronome push --target pi`.
 
 **Known gaps you accept:** native LSP (mitigated by `@narumitw/pi-lsp`), desktop/
 VS Code/mobile clients, native GitHub-PR integration, built-in plan mode (mitigated by
@@ -568,5 +620,9 @@ Verified against primary sources 2026-07-09:
 - Vault priors: `07_knowledge/{pi-prompt-template-model,pi-computer-use,pi-autoresearch,
   generative-ui-terminal,oh-my-opencode-analysis,rivet-agent-os}.md`.
 
-`[UNVERIFIED]` in-context: current 2026 TerminalBench score for Pi; exact
-`--mode json` wire format; `custom-header.ts` example API surface.
+`[UNVERIFIED]` items flagged in-context: historical TerminalBench #2 ranking (§1);
+`APPEND_SYSTEM.md` precedence-over-`AGENTS.md` (§3 — inference, not a documented
+contract); `markdown.codeBlockIndent` settings key (§6); `pi-sandbox`/
+`@anthropic-ai/sandbox-runtime` exact install path (§9); extension star counts are
+approximate snapshots (§5). Stress-tested against primary sources 2026-07-09; two
+review passes (fact-check + filesystem/consistency audit).
