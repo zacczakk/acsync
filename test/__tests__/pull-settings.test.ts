@@ -94,9 +94,9 @@ describe('pull settings E2E', () => {
     expect(pulledContent).toContain('~/.claude/cacert.pem');
   }, E2E_TIMEOUT);
 
-  test('gemini lacks settings capability, codex has it', () => {
-    const geminiCaps = createAdapter('gemini').getCapabilities();
-    expect(geminiCaps.settings).toBe(false);
+  test('antigravity lacks settings capability, codex has it', () => {
+    const antigravityCaps = createAdapter('antigravity').getCapabilities();
+    expect(antigravityCaps.settings).toBe(false);
     const codexCaps = createAdapter('codex').getCapabilities();
     expect(codexCaps.settings).toBe(true);
   });

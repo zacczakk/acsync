@@ -204,6 +204,16 @@ agent-browser doctor [--fix]                     # diagnose/repair
 
 Never close browser tabs. `agent-browser close` = session/connection only, not tabs. No access: run `agent-browser close`, tell user to grant Chrome access, wait for confirmation, then resume with ONE `agent-browser` call — no chaining. Never kill Chrome. Consent manual per restart. Viewport: `1800x1169` (Phil's logical resolution). Never use 1920x1080 — overflows screen.
 
+**Daemon + Chrome attach pattern.** If daemon is already running when you call `open --headed`, the `--headed` flag is silently ignored and the daemon tries to attach to Chrome. If Chrome hasn't granted remote-debugging access yet, this triggers a permission prompt in Chrome. A second stale prompt may appear and be unresponsive — this is a known Chrome bug when the daemon reconnects mid-session. Fix: use `--auto-connect` instead of `--headed` when a daemon session already exists. `--auto-connect` skips the headed/daemon dance and attaches directly. Pattern:
+```bash
+# correct: daemon already running
+agent-browser open <url> --auto-connect
+
+# first launch only (no daemon)
+agent-browser close; agent-browser open <url> --headed
+```
+If you hit 403 or the stale-prompt deadlock: `agent-browser close`, then reopen with `--headed` for a clean first-launch consent flow.
+
 | Task | Tool |
 |---|---|
 | Browse/click/fill/extract | `agent-browser` |
@@ -292,60 +302,6 @@ tmux attach -t codex-shell        # Attach to session
 tmux list-sessions                # List active sessions
 tmux kill-session -t codex-shell  # Kill session
 ```
-
-## mcporter
-
-MCP client/CLI. All canonical servers registered in `~/.mcporter/mcporter.json`.
-
-- **Config:** `~/.mcporter/mcporter.json` (system-level, no imports)
-- **Binaries:** `bin/` on PATH (Bun-compiled standalone CLIs per server)
-
-### Access methods (fastest first)
-
-| Method | When | Speed |
-|---|---|---|
-| `<name> <tool> --flag val` | Standalone binary on PATH, baked-in schemas | Fastest (~0.3s discovery) |
-| `mcporter call <server>.<tool>` | Ad-hoc calls from any agent | ~800ms overhead vs binary |
-| `mcporter config list` | List registered servers (no connection) | 77ms |
-| `mcporter list <server>` | Tool signatures for one server | 2-3s (connects) |
-
-**Never run bare `mcporter list`** — connects to all servers including editor imports. Slow.
-
-### Quick ref
-```bash
-# Discovery (fast, no connections)
-mcporter config list
-
-# Tool signatures (single server)
-mcporter list <server>
-
-# Call via standalone binary (fastest, --flag syntax, on PATH)
-context7 resolve-library-id --query "react hooks" --library-name react
-
-# Call via mcporter (ad-hoc, key=value syntax)
-mcporter call context7.resolve-library-id query="react hooks" libraryName=react
-
-# Call with JSON output (always valid JSON)
-mcporter call context7.resolve-library-id --output json query="react hooks" libraryName=react
-
-# Keep string args literal (no numeric coercion)
-mcporter call palantir-mcp.some-tool --raw-strings id="00123"
-# Or disable all coercion
-mcporter call palantir-mcp.some-tool --no-coerce id="00123"
-
-```
-
-### Servers
-
-| Server | Transport | Binary (on PATH) | Notes |
-|---|---|---|---|
-| `context7` | HTTP | `context7` | Library docs |
-| `tavily` | stdio | `tavily` | Web search (`TAVILY_API_KEY`, `provider_ENV=dev`); extract is restricted to approved domains |
-| `palantir-mcp` | stdio | `palantir` | Foundry via `tux palantir-mcp start` |
-| `shadcn` | stdio | `shadcn` | shadcn/ui |
-| `sequential-thinking` | stdio | `sequential-thinking` | Reasoning |
-
-**Tavily extract policy:** Search is available for broad web/news discovery. Extract is legally restricted to approved domains only. If `tavily_extract` returns 403, treat it as a domain/API-policy restriction unless the URL is known-approved. External or third-party domain allowlisting requires legal approval from Andreas Jauch before AI-ML can enable it.
 
 ## obsidian
 
@@ -678,7 +634,6 @@ exclude-newer = "7 days"
 ## MCP Servers
 
 Canonical definitions in `configs/mcp/*.json`. Rendered to each CLI via `metronome push`.
-All servers also registered in `~/.mcporter/mcporter.json` and compiled to `bin/` (on PATH).
 
 | Server | Native MCP | Binary (on PATH) | Notes |
 |--------|-----------|------------------|-------|

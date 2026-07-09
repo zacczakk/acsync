@@ -6,7 +6,7 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { ClaudeCodeAdapter } from '../src/adapters/claude-code';
 import { OpenCodeAdapter } from '../src/adapters/opencode';
-import { GeminiAdapter } from '../src/adapters/gemini';
+import { AntigravityAdapter } from '../src/adapters/antigravity';
 import { CodexAdapter } from '../src/adapters/codex';
 import { parseFrontmatter } from '../src/formats/markdown';
 import type { CanonicalItem, CanonicalSettings, MCPServer, TargetName } from '../src/types';
@@ -19,7 +19,7 @@ const SEEDS = join(FIXTURE_ROOT, 'seeds');
 const adapters: { name: TargetName; adapter: ToolAdapter }[] = [
   { name: 'claude-code', adapter: new ClaudeCodeAdapter() },
   { name: 'opencode', adapter: new OpenCodeAdapter() },
-  { name: 'gemini', adapter: new GeminiAdapter() },
+  { name: 'antigravity', adapter: new AntigravityAdapter() },
   { name: 'codex', adapter: new CodexAdapter() },
 ];
 
@@ -27,7 +27,7 @@ const adapters: { name: TargetName; adapter: ToolAdapter }[] = [
 const targetDir: Record<TargetName, string> = {
   'claude-code': 'claude',
   'opencode': 'opencode',
-  'gemini': 'gemini',
+  'antigravity': 'antigravity',
   'codex': 'codex',
 };
 
@@ -75,7 +75,9 @@ for (const file of agentFiles) {
   for (const { name: target, adapter } of adapters) {
     const rendered = adapter.renderAgent(item);
     const outFilename = basename(rendered.relativePath);
-    const outDir = join(FIXTURE_ROOT, targetDir[target], 'agents');
+    // antigravity stores agents in skills/ dir; others use agents/
+    const agentSubdir = target === 'antigravity' ? 'skills' : 'agents';
+    const outDir = join(FIXTURE_ROOT, targetDir[target], agentSubdir);
     writeGolden(outDir, outFilename, rendered.content);
     fileCount++;
   }
@@ -106,7 +108,7 @@ const instructionsContent = adapters[0].adapter.renderInstructions(instructionsR
 const instructionFilenames: Record<TargetName, string> = {
   'claude-code': 'CLAUDE.md',
   'opencode': 'AGENTS.md',
-  'gemini': 'AGENTS.md',
+  'antigravity': 'AGENTS.md',
   'codex': 'AGENTS.md',
 };
 
@@ -121,8 +123,21 @@ for (const { name: target } of adapters) {
 const mcpFiles = readdirSync(join(CANONICAL, 'mcp')).filter(f => f.endsWith('.json'));
 const servers: MCPServer[] = mcpFiles.map(file => {
   const raw = readFileSync(join(CANONICAL, 'mcp', file), 'utf-8');
-  const server = JSON.parse(raw) as MCPServer;
+  const server = JSON.parse(raw) as MCPServer & { disabled_for?: unknown; target_options?: unknown; env_vars?: unknown };
   if (!server.name) server.name = basename(file, '.json');
+  // Mirror canonical.ts snake_case → camelCase mapping so goldens match the push path.
+  if ('env_vars' in server && !('envVars' in server)) {
+    server.envVars = server.env_vars as MCPServer['envVars'];
+  }
+  if ('disabled_for' in server && !('disabledFor' in server)) {
+    server.disabledFor = server.disabled_for as MCPServer['disabledFor'];
+  }
+  if ('target_options' in server && !('targetOptions' in server)) {
+    server.targetOptions = server.target_options as MCPServer['targetOptions'];
+  }
+  delete server.env_vars;
+  delete server.disabled_for;
+  delete server.target_options;
   return server;
 });
 
@@ -130,14 +145,14 @@ const servers: MCPServer[] = mcpFiles.map(file => {
 const mcpSeedFile: Record<TargetName, string> = {
   'claude-code': 'mcp.json',
   'opencode': 'mcp.jsonc',
-  'gemini': 'mcp.json',
+  'antigravity': 'mcp.json',
   'codex': 'mcp.toml',
 };
 
 const mcpOutFile: Record<TargetName, string> = {
   'claude-code': 'settings.json',
   'opencode': 'opencode.jsonc',
-  'gemini': 'settings.json',
+  'antigravity': 'settings.json',
   'codex': 'mcp_servers.toml',
 };
 

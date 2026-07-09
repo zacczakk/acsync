@@ -155,8 +155,8 @@ describe('updateManifestItem', () => {
 
   test('sets target hash correctly', () => {
     const m = createEmptyManifest();
-    updateManifestItem(m, 'skill', 'my-skill', 'srcHash', 'gemini', 'tgtHash');
-    expect(m.items['skill/my-skill'].targets['gemini']?.hash).toBe('tgtHash');
+    updateManifestItem(m, 'skill', 'my-skill', 'srcHash', 'antigravity', 'tgtHash');
+    expect(m.items['skill/my-skill'].targets['antigravity']?.hash).toBe('tgtHash');
   });
 
   test('tracks multiple targets independently', () => {

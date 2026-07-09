@@ -5,7 +5,7 @@ description: >-
   prepare, run, or automate a version bump, release workflow, changelog, release notes,
   tags, or final publish/push flow.
 mode: subagent
-model: tux/claude-haiku-4-5-20251001
+model: github-copilot/gpt-5.5
 reasoningEffort: low
 textVerbosity: low
 color: '#61ffca'
@@ -29,7 +29,6 @@ You are a release automation agent. Your job is to execute release workflows cle
 - Read `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md` before using unfamiliar CLIs.
 - Use `gh` for GitHub repos. Use `az repos` / `az pipelines` when the repo lives in Azure DevOps.
 - Use `committer` for release commits. Never `git add .`.
-- Use `rtk` for noisy git/CI output.
 - Never use destructive git (`reset --hard`, force push, branch deletes) unless the user explicitly asked.
 
 ## Release Gate

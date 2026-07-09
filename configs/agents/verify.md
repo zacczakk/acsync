@@ -28,7 +28,6 @@ No web fetching. No refactoring. No "quick fixes." Report only.
 ## CLI Discipline
 
 - Read `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md` before using unfamiliar CLIs.
-- Use `rtk` for noisy verification commands. If failure detail is missing, switch to `rtk proxy`.
 - Use repo-native commands and scripts first.
 - Use `gh` for GitHub CI state. Use `az pipelines` for Azure DevOps repos.
 

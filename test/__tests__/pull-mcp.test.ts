@@ -13,7 +13,7 @@ const SEEDS_ROOT = join(FIXTURE_ROOT, 'seeds');
 const CANONICAL_ROOT = join(FIXTURE_ROOT, 'canonical');
 const E2E_TIMEOUT = 60_000;
 
-const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'gemini', 'codex'];
+const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'antigravity', 'codex'];
 
 /** Build a temp project dir pointing at canonical fixtures */
 function setupProjectDir(suffix: string): string {
@@ -34,7 +34,7 @@ function seedMCPTargets(fakeHome: string): void {
   const targets: Array<{ target: TargetName; seedFile: string }> = [
     { target: 'claude-code', seedFile: join(SEEDS_ROOT, 'claude/mcp.json') },
     { target: 'opencode', seedFile: join(SEEDS_ROOT, 'opencode/mcp.jsonc') },
-    { target: 'gemini', seedFile: join(SEEDS_ROOT, 'gemini/mcp.json') },
+    { target: 'antigravity', seedFile: join(SEEDS_ROOT, 'antigravity/mcp.json') },
     { target: 'codex', seedFile: join(SEEDS_ROOT, 'codex/mcp.toml') },
   ];
 

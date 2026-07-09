@@ -27,7 +27,6 @@ You review delivery and infrastructure systems for correctness, safety, and oper
 - Use `gh` for GitHub Actions, checks, workflow runs, and release state.
 - Use `az` for Azure DevOps pipelines/repos and Azure-hosted infra.
 - Use repo-native IaC/build tooling when verification is needed.
-- Use `rtk` for noisy CI/log output.
 
 ## Review Scope
 

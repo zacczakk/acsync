@@ -17,7 +17,7 @@ function setupProjectDir(): string {
 
 /** Seed all 4 targets' skill fixtures into fakeHome */
 function plantTargetSkills(fakeHome: string): void {
-  for (const target of ['claude', 'opencode', 'gemini', 'codex']) {
+  for (const target of ['claude', 'opencode', 'antigravity', 'codex']) {
     seedTargetFixtures(fakeHome, FIXTURE_ROOT, target, 'skills');
   }
 }

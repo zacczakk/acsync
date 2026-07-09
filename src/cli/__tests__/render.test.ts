@@ -90,7 +90,7 @@ describe('render subcommand logic', () => {
       args: ['palantir-mcp', 'start'],
       enabled: false,
       targetOptions: {
-        'claude-code': { type: 'stdio', disabled: true },
+        'claude-code': { type: 'stdio' },
         opencode: { timeout: 20000 },
       },
     });
@@ -106,8 +106,7 @@ describe('render subcommand logic', () => {
     expect(claudeRendered).toContain('"palantir-mcp"');
     expect(claudeRendered).toContain('"start"');
     expect(claudeRendered).toContain('"type": "stdio"');
-    expect(claudeRendered).toContain('"disabled": true');
-    expect(claudeRendered).not.toContain('"enabled": false');
+    expect(claudeRendered).toContain('"enabled": false');
     expect(claudeRendered.indexOf('"type": "stdio"')).toBeLessThan(claudeRendered.indexOf('"command": "tux"'));
     expect(claudeRendered).not.toContain('palantir-mcp@latest');
     expect(claudeRendered).not.toContain('FOUNDRY_TOKEN');
@@ -125,10 +124,10 @@ describe('render subcommand logic', () => {
     expect(codexRendered).toContain('command = "tux"');
     expect(codexRendered).toContain('enabled = false');
 
-    const geminiRendered = createAdapter('gemini').renderMCPServers([palantir!]);
-    expect(geminiRendered).toContain('"palantir-mcp"');
-    expect(geminiRendered).toContain('"command": "tux"');
-    expect(geminiRendered).toContain('"excluded"');
-    expect(geminiRendered).toContain('"palantir-mcp"');
+    const antigravityRendered = createAdapter('antigravity').renderMCPServers([palantir!]);
+    expect(antigravityRendered).toContain('"palantir-mcp"');
+    expect(antigravityRendered).toContain('"command": "tux"');
+    expect(antigravityRendered).toContain('"excluded"');
+    expect(antigravityRendered).toContain('"palantir-mcp"');
   });
 });

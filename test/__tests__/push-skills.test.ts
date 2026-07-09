@@ -12,7 +12,7 @@ function targetPaths(fakeHome: string) {
   return {
     claude: join(fakeHome, '.claude', 'skills'),
     opencode: join(fakeHome, '.config', 'opencode', 'skill'),
-    gemini: join(fakeHome, '.gemini', 'skills'),
+    antigravity: join(fakeHome, '.gemini', 'antigravity-cli', 'skills'),
     codex: join(fakeHome, '.agents', 'skills'),
   };
 }
@@ -39,10 +39,10 @@ describe('push-skills E2E', () => {
     const opencodeObsidianGolden = readFileSync(join(FIXTURE_ROOT, 'opencode', 'skills', 'obsidian', 'SKILL.md'), 'utf-8');
     expect(opencodeObsidian).toBe(opencodeObsidianGolden);
 
-    // Gemini: obsidian/SKILL.md
-    const geminiObsidian = readFileSync(join(paths.gemini, 'obsidian', 'SKILL.md'), 'utf-8');
-    const geminiObsidianGolden = readFileSync(join(FIXTURE_ROOT, 'gemini', 'skills', 'obsidian', 'SKILL.md'), 'utf-8');
-    expect(geminiObsidian).toBe(geminiObsidianGolden);
+    // Antigravity: obsidian/SKILL.md
+    const antigravityObsidian = readFileSync(join(paths.antigravity, 'obsidian', 'SKILL.md'), 'utf-8');
+    const antigravityObsidianGolden = readFileSync(join(FIXTURE_ROOT, 'antigravity', 'skills', 'obsidian', 'SKILL.md'), 'utf-8');
+    expect(antigravityObsidian).toBe(antigravityObsidianGolden);
 
     // Codex: obsidian/SKILL.md
     const codexObsidian = readFileSync(join(paths.codex, 'obsidian', 'SKILL.md'), 'utf-8');
@@ -82,15 +82,15 @@ describe('push-skills E2E', () => {
     );
     expect(opencodeMemoryRetrieval).toBe(opencodeMemoryRetrievalGolden);
 
-    const geminiMemoryRetrieval = readFileSync(
-      join(paths.gemini, 'memory-retrieval', 'SKILL.md'),
+    const antigravityMemoryRetrieval = readFileSync(
+      join(paths.antigravity, 'memory-retrieval', 'SKILL.md'),
       'utf-8',
     );
-    const geminiMemoryRetrievalGolden = readFileSync(
-      join(FIXTURE_ROOT, 'gemini', 'skills', 'memory-retrieval', 'SKILL.md'),
+    const antigravityMemoryRetrievalGolden = readFileSync(
+      join(FIXTURE_ROOT, 'antigravity', 'skills', 'memory-retrieval', 'SKILL.md'),
       'utf-8',
     );
-    expect(geminiMemoryRetrieval).toBe(geminiMemoryRetrievalGolden);
+    expect(antigravityMemoryRetrieval).toBe(antigravityMemoryRetrievalGolden);
 
     const codexMemoryRetrieval = readFileSync(
       join(paths.codex, 'memory-retrieval', 'SKILL.md'),

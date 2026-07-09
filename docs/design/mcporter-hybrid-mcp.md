@@ -8,7 +8,7 @@ read_when:
 # MCP Access Architecture
 
 > Decision record for three-tier MCP server access across all 4 CLIs
-> (Claude Code, OpenCode, Gemini, Codex).
+> (Claude Code, OpenCode, Antigravity, Codex).
 
 ## Context
 
@@ -31,7 +31,7 @@ Three access tiers, fastest first:
 | Server              | Native MCP            | Binary (PATH) | MCPorter              |
 |---------------------|-----------------------|---------------|-----------------------|
 | context7            | All 4 CLIs            | `context7`    | `mcporter call`       |
-| tavily              | Claude, OC, Gemini    | `tavily`      | `mcporter call`       |
+| tavily              | Claude, OC, Antigravity | `tavily`    | `mcporter call`       |
 | chrome-devtools     | —                     | `chrome-devtools` | daemon (keep-alive) |
 | palantir-mcp        | Claude, OC (via Tux)  | `palantir`    | ephemeral             |
 | shadcn              | —                     | `shadcn`      | ephemeral             |

@@ -17,7 +17,7 @@ function setupProjectDir(): string {
 
 /** Seed all 4 targets' command fixtures into fakeHome */
 function plantTargetCommands(fakeHome: string): void {
-  for (const target of ['claude', 'opencode', 'gemini', 'codex']) {
+  for (const target of ['claude', 'opencode', 'antigravity', 'codex']) {
     seedTargetFixtures(fakeHome, FIXTURE_ROOT, target, 'commands');
   }
 }
@@ -57,18 +57,18 @@ describe('pull-commands E2E', () => {
 
     expect(existsSync(join(opencodeDir, 'configs', 'commands', 'caveman.md'))).toBe(false);
 
-    // Pull from Gemini (TOML -> canonical): description present, body matches
-    const geminiDir = setupProjectDir();
-    await runPull({ source: 'gemini', force: true, projectDir: geminiDir, homeDir: fakeHome });
+    // Pull from Antigravity (TOML -> canonical): description present, body matches
+    const antigravityDir = setupProjectDir();
+    await runPull({ source: 'antigravity', force: true, projectDir: antigravityDir, homeDir: fakeHome });
 
-    const gemGroom = readFileSync(join(geminiDir, 'configs', 'commands', 'groom-docs.md'), 'utf-8');
+    const gemGroom = readFileSync(join(antigravityDir, 'configs', 'commands', 'groom-docs.md'), 'utf-8');
     expect(gemGroom).toContain('description:');
     // Body content should match canonical body (after frontmatter)
     const canonicalBody = canonicalGroom.split('---').slice(2).join('---').trim();
     const gemBody = gemGroom.split('---').slice(2).join('---').trim();
     expect(gemBody).toBe(canonicalBody);
 
-    expect(existsSync(join(geminiDir, 'configs', 'commands', 'caveman.md'))).toBe(false);
+    expect(existsSync(join(antigravityDir, 'configs', 'commands', 'caveman.md'))).toBe(false);
 
     // Pull from Codex (flat md -> canonical): description present, body matches
     const codexDir = setupProjectDir();

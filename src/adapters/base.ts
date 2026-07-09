@@ -98,6 +98,13 @@ export interface ToolAdapter {
   /** Parse target MCP config content back to canonical MCPServer[] */
   parseMCPServers(content: string): MCPServer[];
 
+  /**
+   * Extract only the MCP-relevant portion of the target config for drift comparison.
+   * Default: identity (whole file). Adapters whose MCP config file also contains
+   * runtime state (e.g. ~/.claude.json) override this to return only mcpServers.
+   */
+  extractMCPContent(content: string): string;
+
   /** Expose path resolver for orchestrator use */
   getPaths(): AdapterPathResolver;
 }
@@ -315,6 +322,11 @@ export abstract class BaseAdapter implements ToolAdapter {
       }
     }
     return JSON.stringify(extracted, null, 2) + '\n';
+  }
+
+  /** Default: identity — the whole file is the MCP config (no runtime state) */
+  extractMCPContent(content: string): string {
+    return content;
   }
 
   /** Default: parse mcpServers from JSON config → canonical MCPServer[] */

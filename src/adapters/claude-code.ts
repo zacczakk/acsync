@@ -107,6 +107,20 @@ export class ClaudeCodeAdapter extends BaseAdapter {
     return JSON.stringify(extracted, null, 2) + '\n';
   }
 
+  /**
+   * ~/.claude.json mixes mcpServers with Claude Code runtime state (projects,
+   * toolUsage, skillUsage, etc.). For drift detection we only care about
+   * mcpServers — extract it so runtime mutations don't produce false drift.
+   */
+  override extractMCPContent(content: string): string {
+    try {
+      const parsed = readJson<Record<string, unknown>>(content);
+      return JSON.stringify({ mcpServers: parsed.mcpServers ?? {} }, null, 2) + '\n';
+    } catch {
+      return content;
+    }
+  }
+
   override getRenderedServerNames(servers: MCPServer[]): string[] {
     return servers
       .filter((s) => !s.disabledFor?.includes('claude-code'))

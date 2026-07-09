@@ -8,7 +8,6 @@
     "ENABLE_LSP_TOOL": "1",
     "ENABLE_TOOL_SEARCH": "true",
     "DISABLE_TELEMETRY": "1",
-    "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
     "ANTHROPIC_BASE_URL": "http://127.0.0.1:18080",
     "ANTHROPIC_AUTH_TOKEN": "managed-by-tux"
   },
@@ -30,30 +29,6 @@
           {
             "type": "command",
             "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/vault-context-loader.js\""
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "_managed": "metronome",
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/rtk-rewrite.sh"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "_managed": "metronome",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/notify-claude-stop.js\"",
-            "async": true
           }
         ]
       }
@@ -137,10 +112,9 @@
       "Bash(xxd:*)",
       "Bash(grep:*)",
       "Bash(obsidian:*)",
-      "Bash(rtk:*)"
+      "Bash(oe:*)"
     ],
     "deny": [
-      "Delete",
       "Bash(rm:*)",
       "Bash(git reset:*)",
       "Bash(git clean:*)",
@@ -165,7 +139,9 @@
     "~/Vaults",
     "~/.agent-browser",
     "~/.agents",
-    "/var/folders"
+    "/var/folders",
+    "~/Downloads",
+    "~/.config/oe"
   ],
   "cleanupPeriodDays": 365,
   "teammateMode": "auto",

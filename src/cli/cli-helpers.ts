@@ -1,7 +1,7 @@
 import { createInterface } from 'node:readline';
 import type { TargetName, ItemType } from '../types';
 
-const VALID_TARGETS = ['claude', 'gemini', 'codex', 'opencode'] as const;
+const VALID_TARGETS = ['claude', 'antigravity', 'codex', 'opencode'] as const;
 const VALID_TYPES = ['commands', 'agents', 'mcps', 'instructions', 'skills', 'settings', 'plugins', 'hooks'] as const;
 
 type UserTarget = (typeof VALID_TARGETS)[number];

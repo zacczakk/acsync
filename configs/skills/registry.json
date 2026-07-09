@@ -44,6 +44,13 @@
         "make-interfaces-feel-better": { "sync": "manual" }
       }
     },
+    "cursor": {
+      "repo": "https://github.com/cursor/plugins.git",
+      "basePath": "cursor-team-kit/skills",
+      "skills": {
+        "thermo-nuclear-code-quality-review": { "sync": "manual" }
+      }
+    },
     "obra": {
       "repo": "https://github.com/obra/superpowers.git",
       "basePath": "skills",

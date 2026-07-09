@@ -2,10 +2,10 @@ import { describe, test, expect } from 'bun:test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { GeminiAdapter } from '../gemini';
+import { AntigravityAdapter } from '../antigravity';
 import type { MCPServer } from '../../types';
 
-const adapter = new GeminiAdapter();
+const adapter = new AntigravityAdapter();
 
 const stdioServer: MCPServer = {
   name: 'context7',
@@ -22,7 +22,7 @@ const httpServer: MCPServer = {
   headers: { Authorization: 'Bearer ${TAVILY_API_KEY}' },
 };
 
-describe('GeminiAdapter.renderMCPServers', () => {
+describe('AntigravityAdapter.renderMCPServers', () => {
   test('renders same shape as Claude Code — mcpServers key in JSON', () => {
     const result = adapter.renderMCPServers([stdioServer]);
     const parsed = JSON.parse(result);
@@ -56,18 +56,18 @@ describe('GeminiAdapter.renderMCPServers', () => {
     });
   });
 
-  test('filters out servers disabled for gemini', () => {
+  test('filters out servers disabled for antigravity', () => {
     const disabled: MCPServer = {
-      name: 'not-for-gemini',
+      name: 'not-for-antigravity',
       transport: 'stdio',
       command: 'some-tool',
-      disabledFor: ['gemini'],
+      disabledFor: ['antigravity'],
     };
     const result = adapter.renderMCPServers([stdioServer, disabled]);
     const parsed = JSON.parse(result);
 
     expect(parsed.mcpServers.context7).toBeDefined();
-    expect(parsed.mcpServers['not-for-gemini']).toBeUndefined();
+    expect(parsed.mcpServers['not-for-antigravity']).toBeUndefined();
   });
 
   test('merges with existing settings.json preserving other keys', () => {
@@ -165,14 +165,14 @@ describe('GeminiAdapter.renderMCPServers', () => {
   });
 
   test('parseMCPServers marks servers disabled in mcp-server-enablement.json as disabled', () => {
-    const fakeHome = path.join(os.tmpdir(), `gemini-enablement-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
-    mkdirSync(path.join(fakeHome, '.gemini'), { recursive: true });
+    const fakeHome = path.join(os.tmpdir(), `antigravity-enablement-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
+    mkdirSync(path.join(fakeHome, '.gemini', 'antigravity-cli'), { recursive: true });
     writeFileSync(
-      path.join(fakeHome, '.gemini/mcp-server-enablement.json'),
+      path.join(fakeHome, '.gemini', 'antigravity-cli', 'mcp-server-enablement.json'),
       JSON.stringify({ thinking: { enabled: false } }, null, 2),
     );
 
-    const adapterWithHome = new GeminiAdapter(fakeHome);
+    const adapterWithHome = new AntigravityAdapter(fakeHome);
     const content = JSON.stringify({
       mcpServers: {
         thinking: {

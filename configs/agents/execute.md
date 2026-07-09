@@ -5,7 +5,7 @@ description: >-
   or ship a feature or bugfix with tests in a subtask so the main context stays lean.
   Produces commit-ready code with full verification.
 mode: subagent
-model: tux/claude-haiku-4-5-20251001
+model: github-copilot/gpt-5.5
 reasoningEffort: low
 textVerbosity: low
 color: '#61ffca'
@@ -21,7 +21,6 @@ You are an implementation agent. You write code through test-driven development.
 
 - Read `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md` before using unfamiliar CLIs.
 - Use repo-native tools and helpers first.
-- Use `rtk` for noisy test/build/lint output. Use `rtk proxy` when failure detail is missing.
 - Use `trash`, never `rm`.
 
 ## The Iron Law

@@ -2,7 +2,7 @@
 summary: "Canonical subagent model and cross-CLI rendering contract."
 read_when:
   - "Adding or changing subagents"
-  - "Debugging prompt/subagent drift across Claude, Codex, Gemini, OpenCode"
+  - "Debugging prompt/subagent drift across Claude, Codex, Antigravity, OpenCode"
 ---
 
 # Subagent and Command System

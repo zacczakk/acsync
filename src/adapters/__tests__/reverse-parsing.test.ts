@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { ClaudeCodeAdapter } from '../claude-code';
-import { GeminiAdapter } from '../gemini';
+import { AntigravityAdapter } from '../antigravity';
 import { CodexAdapter } from '../codex';
 
 // Test subclasses to expose protected methods
@@ -11,7 +11,7 @@ class TestClaudeAdapter extends ClaudeCodeAdapter {
   }
 }
 
-class TestGeminiAdapter extends GeminiAdapter {
+class TestAntigravityAdapter extends AntigravityAdapter {
   public testCommandNameFromFile(f: string) {
     return this.commandNameFromFile(f);
   }
@@ -39,8 +39,8 @@ describe('Claude commandNameFromFile', () => {
   });
 });
 
-describe('Gemini commandNameFromFile', () => {
-  const adapter = new TestGeminiAdapter();
+describe('Antigravity commandNameFromFile', () => {
+  const adapter = new TestAntigravityAdapter();
 
   test('my-plan.toml returns my-plan', () => {
     expect(adapter.testCommandNameFromFile('my-plan.toml')).toBe('my-plan');
@@ -71,8 +71,8 @@ describe('Codex agentNameFromFile', () => {
   });
 });
 
-describe('Gemini parseCommand (TOML reverse)', () => {
-  const adapter = new GeminiAdapter();
+describe('Antigravity parseCommand (TOML reverse)', () => {
+  const adapter = new AntigravityAdapter();
 
   test('parses TOML with description and prompt, strips trailing User arguments suffix', () => {
     const toml = `description = "Test"\nprompt = '''\nDo the thing.\n\nUser arguments: {{args}}\n'''\n`;
@@ -85,8 +85,8 @@ describe('Gemini parseCommand (TOML reverse)', () => {
 });
 
 describe('Base JSON MCP reverse parsing', () => {
-  test('Gemini preserves enabled: false from JSON mcpServers config', () => {
-    const adapter = new GeminiAdapter();
+  test('Antigravity preserves enabled: false from JSON mcpServers config', () => {
+    const adapter = new AntigravityAdapter();
     const content = JSON.stringify({
       mcpServers: {
         tavily: {
@@ -105,8 +105,8 @@ describe('Base JSON MCP reverse parsing', () => {
     expect(server?.enabled).toBe(false);
   });
 
-  test('Gemini preserves disabled state from mcp.excluded', () => {
-    const adapter = new GeminiAdapter();
+  test('Antigravity preserves disabled state from mcp.excluded', () => {
+    const adapter = new AntigravityAdapter();
     const content = JSON.stringify({
       mcpServers: {
         tavily: {

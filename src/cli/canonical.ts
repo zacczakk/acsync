@@ -5,7 +5,7 @@ import { readSupportFiles } from '../infra/support-files';
 import { parseFrontmatter } from '../formats/markdown';
 import { ClaudeCodeAdapter } from '../adapters/claude-code';
 import { OpenCodeAdapter } from '../adapters/opencode';
-import { GeminiAdapter } from '../adapters/gemini';
+import { AntigravityAdapter } from '../adapters/antigravity';
 import { CodexAdapter } from '../adapters/codex';
 import type { ToolAdapter } from '../adapters/base';
 import type { TargetName, ItemType, CanonicalItem, CanonicalSettings, CanonicalHookConfig, MCPServer } from '../types';
@@ -39,13 +39,13 @@ export interface SyncOptions {
   homeDir?: string;             // override home directory (for test isolation)
 }
 
-export const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'gemini', 'codex'];
+export const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'antigravity', 'codex'];
 
 export function createAdapter(target: TargetName, homeDir?: string): ToolAdapter {
   switch (target) {
     case 'claude-code': return new ClaudeCodeAdapter(homeDir);
     case 'opencode':    return new OpenCodeAdapter(homeDir);
-    case 'gemini':      return new GeminiAdapter(homeDir);
+    case 'antigravity': return new AntigravityAdapter(homeDir);
     case 'codex':       return new CodexAdapter(homeDir);
   }
 }

@@ -58,6 +58,12 @@ Machine-readable companion: `registry.json` (consumed by `scripts/sync-upstream-
 | writing-plans | writing-plans | writing-plans | No | auto |
 | writing-skills | writing-skills | writing-skills | No | auto |
 
+## Remote: cursor/plugins (1)
+
+| Skill | Upstream Name | Local Name | Customized | Sync |
+|-------|--------------|------------|------------|------|
+| thermo-nuclear-code-quality-review | thermo-nuclear-code-quality-review | thermo-nuclear-code-quality-review | No | manual |
+
 ## Remote: jakubkrehel/make-interfaces-feel-better (1)
 
 | Skill | Upstream Name | Local Name | Customized | Sync |
@@ -68,11 +74,12 @@ Machine-readable companion: `registry.json` (consumed by `scripts/sync-upstream-
 
 `oe-*` skills from `organization/project` are project-specific. Add them locally per project as needed — not tracked here.
 
-## Custom (9)
+## Custom (10)
 
 | Skill | Description |
 |-------|-------------|
 | foundry-local-development | Local dev tooling for Foundry projects: MCP servers, .mcp.json → opencode.json translation, Maestro/Hawk binary wiring |
+| foundry-mediasets | Foundry Media Set REST API v2: upload, download, list, transform, transactions, Ontology references |
 | foundry-osdk-deploy | Release/deploy Foundry OSDK React apps via git tags and ci-service CI |
 | foundry-react-app-dev | React/Vite app dev on Foundry: CORS, OAuth, IHub MCP, AI SDK patterns |
 | memory-retrieval | Retrieval routing across Knowledge, Memory, qmd, and sessions with sessions last |

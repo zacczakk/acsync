@@ -14,7 +14,7 @@ function seedMCPTargets(fakeHome: string): void {
   const targets: Array<{ target: TargetName; seedFile: string }> = [
     { target: 'claude-code', seedFile: join(SEEDS_ROOT, 'claude/mcp.json') },
     { target: 'opencode', seedFile: join(SEEDS_ROOT, 'opencode/mcp.jsonc') },
-    { target: 'gemini', seedFile: join(SEEDS_ROOT, 'gemini/mcp.json') },
+    { target: 'antigravity', seedFile: join(SEEDS_ROOT, 'antigravity/mcp.json') },
     { target: 'codex', seedFile: join(SEEDS_ROOT, 'codex/mcp.toml') },
   ];
 
@@ -30,11 +30,11 @@ function seedMCPTargets(fakeHome: string): void {
 const GOLDEN_PATHS: Record<TargetName, string> = {
   'claude-code': join(FIXTURE_ROOT, 'claude/mcp/settings.json'),
   opencode: join(FIXTURE_ROOT, 'opencode/mcp/opencode.jsonc'),
-  gemini: join(FIXTURE_ROOT, 'gemini/mcp/settings.json'),
+  antigravity: join(FIXTURE_ROOT, 'antigravity/mcp/settings.json'),
   codex: join(FIXTURE_ROOT, 'codex/mcp/mcp_servers.toml'),
 };
 
-const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'gemini', 'codex'];
+const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'antigravity', 'codex'];
 
 describe('push MCP E2E', () => {
   test('pushes MCP to all 4 targets, matches goldens, codex includes stdio+HTTP, idempotent, stale removal', async () => {
@@ -64,7 +64,7 @@ describe('push MCP E2E', () => {
     expect(codexContent).toContain('tavily');
 
     // --- Non-canonical "existing-server" removed by push ---
-    for (const target of ['claude-code', 'opencode', 'gemini'] as TargetName[]) {
+    for (const target of ['claude-code', 'opencode', 'antigravity'] as TargetName[]) {
       const adapter = createAdapter(target, fakeHome);
       const content = readFileSync(adapter.getPaths().getMCPConfigPath(), 'utf-8');
       expect(content).not.toContain('existing-server');

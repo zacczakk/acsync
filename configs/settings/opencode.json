@@ -35,6 +35,7 @@
       "~/.config/opencode/get-shit-done/templates/*": "allow",
       "~/.mcporter/**": "allow",
       "~/.agent-browser/**": "allow",
+      "~/.agents/**": "allow",
       "~/.config/oe/**": "allow",
       "/private/tmp/**": "allow",
       "/tmp/**": "allow",
@@ -137,6 +138,16 @@
         "apiKey": "does-not-matter"
       },
       "models": {
+        "claude-opus-4-8": {
+          "name": "Claude Opus 4.8",
+          "options": { "toolStreaming": false },
+          "modalities": { "input": ["image", "text"], "output": ["text"] },
+          "variants": {
+            "low": { "thinking": { "type": "adaptive" }, "effort": "low" },
+            "medium": { "thinking": { "type": "adaptive" }, "effort": "medium" },
+            "high": { "thinking": { "type": "adaptive" }, "effort": "high" }
+          }
+        },
         "claude-opus-4-6": {
           "name": "Claude Opus 4.6",
           "options": { "toolStreaming": false },

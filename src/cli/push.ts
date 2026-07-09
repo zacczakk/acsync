@@ -271,7 +271,7 @@ Examples:
   metronome push -t claude --type commands Push commands to Claude Code only
   metronome push --force --delete          Full sync: push all + clean stale`)
   .option('--json', 'Machine-readable JSON output')
-  .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
+  .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, antigravity, codex, opencode', collect, [] as string[])
   .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings, plugins, hooks', collect, [] as string[])
   .option('--dry-run', 'Show execution plan without writing')
   .option('--force', 'Skip confirmation prompt')

@@ -14,21 +14,21 @@ describe('EnvVarTransformer.transform', () => {
     expect(EnvVarTransformer.transform('{env:API_KEY}', 'opencode', 'claude-code')).toBe('${API_KEY}');
   });
 
-  it('gemini → opencode: converts ${VAR} to {env:VAR}', () => {
-    expect(EnvVarTransformer.transform('${SECRET}', 'gemini', 'opencode')).toBe('{env:SECRET}');
+  it('antigravity → opencode: converts ${VAR} to {env:VAR}', () => {
+    expect(EnvVarTransformer.transform('${SECRET}', 'antigravity', 'opencode')).toBe('{env:SECRET}');
   });
 
-  it('opencode → gemini: converts {env:VAR} to ${VAR}', () => {
-    expect(EnvVarTransformer.transform('{env:SECRET}', 'opencode', 'gemini')).toBe('${SECRET}');
+  it('opencode → antigravity: converts {env:VAR} to ${VAR}', () => {
+    expect(EnvVarTransformer.transform('{env:SECRET}', 'opencode', 'antigravity')).toBe('${SECRET}');
   });
 
   it('claude-code → codex: strips ${} wrapper', () => {
     expect(EnvVarTransformer.transform('${MY_VAR}', 'claude-code', 'codex')).toBe('MY_VAR');
   });
 
-  it('identity: gemini format matches claude-code', () => {
+  it('identity: antigravity format matches claude-code', () => {
     const val = 'Bearer ${TOKEN}';
-    expect(EnvVarTransformer.transform(val, 'gemini', 'claude-code')).toBe(val);
+    expect(EnvVarTransformer.transform(val, 'antigravity', 'claude-code')).toBe(val);
   });
 });
 

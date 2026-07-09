@@ -13,7 +13,7 @@ const DESCRIPTION = `Agent Config Sync — single source of truth for AI coding 
 Manages canonical configs in configs/ and syncs them to 4 CLI targets:
   claude-code  (~/.claude/)
   opencode     (~/.config/opencode/)
-  gemini       (~/.gemini/)
+  antigravity  (~/.gemini/antigravity-cli/)
   codex        (~/.codex/)
 
 Synced item types:

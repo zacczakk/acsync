@@ -11,23 +11,23 @@ import type {
   AdapterCapabilities,
 } from '../types';
 
-export class GeminiAdapter extends BaseAdapter {
+export class AntigravityAdapter extends BaseAdapter {
   constructor(homeDir?: string) {
-    super('gemini', 'Gemini', homeDir);
+    super('antigravity', 'Antigravity', homeDir);
   }
 
   getCapabilities(): AdapterCapabilities {
     return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: false, plugins: false, hooks: false };
   }
 
-  /** Gemini commands are TOML files: my-plan.toml → my-plan */
+  /** Antigravity commands are TOML files: my-plan.toml → my-plan */
   protected override commandNameFromFile(filename: string): string | null {
     if (!filename.endsWith('.toml')) return null;
     return filename.slice(0, -5);
   }
 
   renderCommand(item: CanonicalItem): RenderedFile {
-    // Gemini commands: TOML with literal multiline string (''') for prompt.
+    // Antigravity commands: TOML with literal multiline string (''') for prompt.
     // Literal strings treat backslashes as-is — no escape interpretation.
     // Triple-quoted basic strings (""") interpret \U, \n, etc., which breaks
     // content containing paths like C:\Users.
@@ -44,8 +44,8 @@ export class GeminiAdapter extends BaseAdapter {
   }
 
   renderAgent(item: CanonicalItem): RenderedFile {
-    // Gemini agents: markdown with portable frontmatter plus kind: local
-    // Model is stripped — Gemini uses its own model routing, not provider-prefixed IDs
+    // Antigravity agents: markdown with portable frontmatter plus kind: local
+    // Model is stripped — Antigravity uses its own model routing, not provider-prefixed IDs
     const metadata = this.normalizeAgentMetadata(item);
     delete metadata.model;
     metadata.kind = 'local';
@@ -71,7 +71,7 @@ export class GeminiAdapter extends BaseAdapter {
   }
 
   renderMCPServers(servers: MCPServer[], existingContent?: string): string {
-    const filtered = servers.filter((s) => !s.disabledFor?.includes('gemini'));
+    const filtered = servers.filter((s) => !s.disabledFor?.includes('antigravity'));
     const excluded = filtered
       .filter((server) => server.enabled === false)
       .map((server) => server.name);
@@ -113,7 +113,7 @@ export class GeminiAdapter extends BaseAdapter {
 
   override getRenderedServerNames(servers: MCPServer[]): string[] {
     return servers
-      .filter((s) => !s.disabledFor?.includes('gemini'))
+      .filter((s) => !s.disabledFor?.includes('antigravity'))
       .map((s) => s.name);
   }
 

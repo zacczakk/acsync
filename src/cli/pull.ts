@@ -610,7 +610,7 @@ Examples:
   metronome pull -s all                    Pull from all targets, deduplicate
   metronome pull -s opencode --force       Pull from OpenCode, overwrite existing
   metronome pull -s claude --dry-run       Preview what would be pulled`)
-  .requiredOption('-s, --source <target>', 'Source target: all, claude, gemini, codex, opencode')
+  .requiredOption('-s, --source <target>', 'Source target: all, claude, antigravity, codex, opencode')
   .option('--json', 'Machine-readable JSON output')
   .option('--force', 'Overwrite existing canonical items')
   .option('--dry-run', 'Show what would be pulled without writing')

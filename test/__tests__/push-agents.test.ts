@@ -12,7 +12,7 @@ function targetPaths(fakeHome: string) {
   return {
     claude: join(fakeHome, '.claude', 'agents'),
     opencode: join(fakeHome, '.config', 'opencode', 'agents'),
-    gemini: join(fakeHome, '.gemini', 'agents'),
+    antigravity: join(fakeHome, '.gemini', 'antigravity-cli', 'skills'),
     codex: join(fakeHome, '.codex', 'agents'),
   };
 }
@@ -39,10 +39,10 @@ describe('push-agents E2E', () => {
     const opencodeGolden = readFileSync(join(FIXTURE_ROOT, 'opencode', 'agents', 'test-agent.md'), 'utf-8');
     expect(opencodePushed).toBe(opencodeGolden);
 
-    // Gemini: test-agent.md
-    const geminiPushed = readFileSync(join(paths.gemini, 'test-agent.md'), 'utf-8');
-    const geminiGolden = readFileSync(join(FIXTURE_ROOT, 'gemini', 'agents', 'test-agent.md'), 'utf-8');
-    expect(geminiPushed).toBe(geminiGolden);
+    // Antigravity: test-agent.md
+    const antigravityPushed = readFileSync(join(paths.antigravity, 'test-agent.md'), 'utf-8');
+    const antigravityGolden = readFileSync(join(FIXTURE_ROOT, 'antigravity', 'skills', 'test-agent.md'), 'utf-8');
+    expect(antigravityPushed).toBe(antigravityGolden);
 
     // Codex: test-agent.toml
     const codexPushed = readFileSync(join(paths.codex, 'test-agent.toml'), 'utf-8');

@@ -12,7 +12,7 @@ function targetPaths(fakeHome: string) {
   return {
     claude: join(fakeHome, '.claude', 'commands'),
     opencode: join(fakeHome, '.config', 'opencode', 'command'),
-    gemini: join(fakeHome, '.gemini', 'commands'),
+    antigravity: join(fakeHome, '.gemini', 'commands'),
     codex: join(fakeHome, '.codex', 'prompts'),
   };
 }
@@ -39,10 +39,10 @@ describe('push-commands E2E', () => {
     const opencodeGolden = readFileSync(join(FIXTURE_ROOT, 'opencode', 'commands', 'groom-docs.md'), 'utf-8');
     expect(opencodePushed).toBe(opencodeGolden);
 
-    // Gemini: groom-docs.toml
-    const geminiPushed = readFileSync(join(paths.gemini, 'groom-docs.toml'), 'utf-8');
-    const geminiGolden = readFileSync(join(FIXTURE_ROOT, 'gemini', 'commands', 'groom-docs.toml'), 'utf-8');
-    expect(geminiPushed).toBe(geminiGolden);
+    // Antigravity: groom-docs.toml
+    const antigravityPushed = readFileSync(join(paths.antigravity, 'groom-docs.toml'), 'utf-8');
+    const antigravityGolden = readFileSync(join(FIXTURE_ROOT, 'antigravity', 'commands', 'groom-docs.toml'), 'utf-8');
+    expect(antigravityPushed).toBe(antigravityGolden);
 
     // Codex: groom-docs.md (commands go to prompts/)
     const codexPushed = readFileSync(join(paths.codex, 'groom-docs.md'), 'utf-8');
@@ -64,7 +64,7 @@ describe('push-commands E2E', () => {
 
     expect(existsSync(join(paths.claude, 'caveman.md'))).toBe(false);
     expect(existsSync(join(paths.opencode, 'caveman.md'))).toBe(false);
-    expect(existsSync(join(paths.gemini, 'caveman.toml'))).toBe(false);
+    expect(existsSync(join(paths.antigravity, 'caveman.toml'))).toBe(false);
     expect(existsSync(join(paths.codex, 'caveman.md'))).toBe(false);
   }, E2E_TIMEOUT);
 

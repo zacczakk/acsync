@@ -23,7 +23,6 @@ You audit backend systems for correctness, robustness, operability, and maintain
 ## CLI Discipline
 
 - Read `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md` before using unfamiliar CLIs.
-- Use `rtk` for noisy logs, tests, and build output. If detail is missing, use `rtk proxy`.
 - Use `gh` for GitHub CI and PR context. Use `az repos` / `az pipelines` when the repo lives in Azure DevOps.
 - Use repo-native test and build commands when verification is needed.
 

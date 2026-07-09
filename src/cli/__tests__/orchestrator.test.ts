@@ -85,7 +85,7 @@ describe('runCheck', () => {
     const targets = result.diffs.map((d) => d.target);
     expect(targets).toContain('claude-code');
     expect(targets).toContain('opencode');
-    expect(targets).toContain('gemini');
+    expect(targets).toContain('antigravity');
     expect(targets).toContain('codex');
   });
 

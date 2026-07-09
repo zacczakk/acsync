@@ -24,7 +24,6 @@ You keep documentation aligned with code. Review git changes, inspect the affect
 
 - Read `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md` before using unfamiliar CLIs.
 - Run `docs-list` before broad docs work in unfamiliar repos.
-- Use `rtk` for noisy git/build/test output.
 - Use `gh` for GitHub PR/release context. Use `az repos` / `az pipelines` when the repo lives in Azure DevOps.
 - Use `committer` for docs-only commits. Never `git add .`.
 

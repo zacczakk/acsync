@@ -15,7 +15,7 @@
         "palantir-mcp",
         "start"
       ],
-      "disabled": true
+      "enabled": false
     },
     "tavily": {
       "command": "tavily-mcp",

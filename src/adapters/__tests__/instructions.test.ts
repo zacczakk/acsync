@@ -2,13 +2,13 @@ import { describe, test, expect } from 'bun:test';
 import os from 'node:os';
 import { ClaudeCodeAdapter } from '../claude-code';
 import { OpenCodeAdapter } from '../opencode';
-import { GeminiAdapter } from '../gemini';
+import { AntigravityAdapter } from '../antigravity';
 import { CodexAdapter } from '../codex';
 
 const adapters = [
   new ClaudeCodeAdapter(),
   new OpenCodeAdapter(),
-  new GeminiAdapter(),
+  new AntigravityAdapter(),
   new CodexAdapter(),
 ];
 

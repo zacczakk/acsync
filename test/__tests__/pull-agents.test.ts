@@ -17,7 +17,7 @@ function setupProjectDir(): string {
 
 /** Seed all 4 targets' agent fixtures into fakeHome */
 function plantTargetAgents(fakeHome: string): void {
-  for (const target of ['claude', 'opencode', 'gemini', 'codex']) {
+  for (const target of ['claude', 'opencode', 'antigravity', 'codex']) {
     seedTargetFixtures(fakeHome, FIXTURE_ROOT, target, 'agents');
   }
 }
@@ -50,14 +50,14 @@ describe('pull-agents E2E', () => {
     const ocBody = ocTestAgent.split('---').slice(2).join('---').trim();
     expect(ocBody).toBe(canonicalBody);
 
-    // Pull from Gemini — agents use frontmatter md (strips name, adds kind: local)
-    const geminiDir = setupProjectDir();
-    await runPull({ source: 'gemini', force: true, projectDir: geminiDir, homeDir: fakeHome });
-    const gemTestAgent = readFileSync(join(geminiDir, 'configs', 'agents', 'test-agent.md'), 'utf-8');
+    // Pull from Antigravity — agents use frontmatter md (strips name, adds kind: local)
+    const antigravityDir = setupProjectDir();
+    await runPull({ source: 'antigravity', force: true, projectDir: antigravityDir, homeDir: fakeHome });
+    const gemTestAgent = readFileSync(join(antigravityDir, 'configs', 'agents', 'test-agent.md'), 'utf-8');
     expect(gemTestAgent).toContain('description:');
     expect(gemTestAgent).toContain('allowed-tools:');
-    const gemBody = gemTestAgent.split('---').slice(2).join('---').trim();
-    expect(gemBody).toBe(canonicalBody);
+    const agyBody = gemTestAgent.split('---').slice(2).join('---').trim();
+    expect(agyBody).toBe(canonicalBody);
 
     // Pull from Codex — reverse-parses flat markdown back to frontmatter
     const codexDir = setupProjectDir();

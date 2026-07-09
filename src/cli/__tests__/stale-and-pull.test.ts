@@ -302,7 +302,7 @@ describe('validatePullSource', () => {
   test('accepts valid target names', () => {
     expect(() => validatePullSource('claude')).not.toThrow();
     expect(() => validatePullSource('opencode')).not.toThrow();
-    expect(() => validatePullSource('gemini')).not.toThrow();
+    expect(() => validatePullSource('antigravity')).not.toThrow();
     expect(() => validatePullSource('codex')).not.toThrow();
   });
 
@@ -340,7 +340,7 @@ describe('runPullAll', () => {
 
     for (const item of result.items) {
       expect(item.source).toBeDefined();
-      expect(['claude-code', 'opencode', 'gemini', 'codex']).toContain(item.source);
+      expect(['claude-code', 'opencode', 'antigravity', 'codex']).toContain(item.source);
     }
   });
 
@@ -402,7 +402,7 @@ describe('runPullAll', () => {
     expect(result.output).toContain('metronome pull --source all');
     const hasTarget = result.output.includes('claude') ||
       result.output.includes('opencode') ||
-      result.output.includes('gemini') ||
+      result.output.includes('antigravity') ||
       result.output.includes('codex');
     expect(hasTarget).toBe(true);
   });

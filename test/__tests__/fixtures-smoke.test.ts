@@ -3,7 +3,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { ClaudeCodeAdapter } from '../../src/adapters/claude-code';
 import { OpenCodeAdapter } from '../../src/adapters/opencode';
-import { GeminiAdapter } from '../../src/adapters/gemini';
+import { AntigravityAdapter } from '../../src/adapters/antigravity';
 import { CodexAdapter } from '../../src/adapters/codex';
 import { parseFrontmatter } from '../../src/formats/markdown';
 import type { CanonicalItem, TargetName } from '../../src/types';
@@ -15,7 +15,7 @@ const CANONICAL = join(FIXTURE_ROOT, 'canonical');
 const adapters: { name: TargetName; dirName: string; adapter: ToolAdapter }[] = [
   { name: 'claude-code', dirName: 'claude', adapter: new ClaudeCodeAdapter() },
   { name: 'opencode', dirName: 'opencode', adapter: new OpenCodeAdapter() },
-  { name: 'gemini', dirName: 'gemini', adapter: new GeminiAdapter() },
+  { name: 'antigravity', dirName: 'antigravity', adapter: new AntigravityAdapter() },
   { name: 'codex', dirName: 'codex', adapter: new CodexAdapter() },
 ];
 
@@ -65,9 +65,12 @@ describe('Fixture completeness', () => {
     for (const { dirName } of adapters) {
       const targetRoot = join(FIXTURE_ROOT, dirName);
       expect(existsSync(join(targetRoot, 'commands'))).toBe(true);
-      expect(existsSync(join(targetRoot, 'agents'))).toBe(true);
       expect(existsSync(join(targetRoot, 'skills'))).toBe(true);
       expect(existsSync(join(targetRoot, 'instructions'))).toBe(true);
+      // antigravity agents are in skills/, other targets have agents/
+      if (dirName !== 'antigravity') {
+        expect(existsSync(join(targetRoot, 'agents'))).toBe(true);
+      }
     }
   });
 });
@@ -82,7 +85,7 @@ describe('Golden file accuracy', () => {
   const instructionFilenames: Record<TargetName, string> = {
     'claude-code': 'CLAUDE.md',
     'opencode': 'AGENTS.md',
-    'gemini': 'AGENTS.md',
+    'antigravity': 'AGENTS.md',
     'codex': 'AGENTS.md',
   };
 
@@ -111,10 +114,12 @@ describe('Golden file accuracy', () => {
         it(`${agentName} → ${target}`, () => {
           const item = readCanonical(`agents/${agentName}.md`, agentName);
           const rendered = adapter.renderAgent(item);
+          // antigravity stores agents in skills/ dir; others use agents/
+          const agentSubdir = dirName === 'antigravity' ? 'skills' : 'agents';
           const goldenPath = join(
             FIXTURE_ROOT,
             dirName,
-            'agents',
+            agentSubdir,
             basename(rendered.relativePath),
           );
           const golden = readFileSync(goldenPath, 'utf-8');

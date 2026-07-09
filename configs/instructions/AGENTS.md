@@ -97,6 +97,7 @@ When work concludes (skip if trivial):
 - No mocks; unit or e2e.
 - Before handoff: run relevant checks. Full gate (lint/typecheck/tests/docs) for milestones, PRs, and releases.
 - CI red: `gh run list/view`, rerun, fix, push, repeat til green.
+- Waiting for CI/build/deploy: poll with `gh run view`; max 4 min per sleep interval (check → sleep ≤4 min → check → repeat).
 - Keep it observable (logs, panes, tails, MCP/browser tools).
 - Release: read release checklist if repo has one.
 - **Truncated output?** `rtk` compresses test/build output by default. Use `rtk proxy <cmd>` for unfiltered passthrough — e.g. `rtk proxy pytest tests/` for full tracebacks. See TOOLS.md → rtk.

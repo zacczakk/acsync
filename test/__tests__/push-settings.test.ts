@@ -26,7 +26,7 @@ function seedSettingsTargets(fakeHome: string): void {
 }
 
 describe('push settings E2E', () => {
-  test('pushes settings to claude + opencode + codex, matches goldens, skips gemini, idempotent', async () => {
+    test('pushes settings to claude + opencode + codex, matches goldens, skips antigravity, idempotent', async () => {
     const fakeHome = createTestHome('push-settings');
     const projectDir = createTestProject('push-settings', FIXTURE_ROOT);
     cpSync(join(process.cwd(), 'configs', 'settings', 'claude.json'), join(projectDir, 'configs', 'settings', 'claude.json'));
@@ -76,9 +76,9 @@ describe('push settings E2E', () => {
     const codexGolden = readFileSync(join(FIXTURE_ROOT, 'codex/settings/config.toml'), 'utf-8');
     expect(codexActual.trimEnd()).toBe(codexGolden.trimEnd());
 
-    // --- Gemini only: no settings capability ---
-    const geminiCaps = createAdapter('gemini').getCapabilities();
-    expect(geminiCaps.settings).toBe(false);
+    // --- Antigravity only: no settings capability ---
+    const antigravityCaps = createAdapter('antigravity').getCapabilities();
+    expect(antigravityCaps.settings).toBe(false);
     const codexCaps = createAdapter('codex').getCapabilities();
     expect(codexCaps.settings).toBe(true);
 

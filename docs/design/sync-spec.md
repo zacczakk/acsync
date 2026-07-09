@@ -24,7 +24,7 @@ read_when:
 | Claude | `~/.claude.json` | JSON | `mcpServers` | n/a |
 | Claude | `~/.claude/settings.json` | JSON | n/a | `permissions`, `env` |
 | OpenCode | `~/.config/opencode/opencode.json` | JSON | `mcp` | `provider`, `plugin`, `permission`, `model`, `instructions` |
-| Gemini | `~/.gemini/settings.json` | JSON | `mcpServers` | n/a |
+| Antigravity | `~/.gemini/antigravity-cli/settings.json` | JSON | `mcpServers` | n/a |
 | Codex | `~/.codex/config.toml` | TOML | `[mcp_servers.*]` sections | n/a |
 
 ### Managed Directories (Wholesale Copy/Render)
@@ -33,7 +33,7 @@ read_when:
 |-----|----------|--------|--------|
 | Claude | `~/.claude/commands/*.md` | `~/.claude/agents/*.md` | `~/.claude/skills/` |
 | OpenCode | `~/.config/opencode/command/*.md` | `~/.config/opencode/agents/*.md` | `~/.config/opencode/skill/` |
-| Gemini | `~/.gemini/commands/*.toml` | `~/.gemini/agents/*.md` | `~/.gemini/skills/` |
+| Antigravity | `~/.gemini/commands/*.toml` | `~/.gemini/antigravity-cli/skills/*.md` | `~/.gemini/antigravity-cli/skills/` |
 | Codex | `~/.codex/prompts/*.md` | `~/.codex/agents/*.toml` | `~/.agents/skills/` |
 
 Note the naming quirks: OpenCode uses singular `command/` and `skill/`. Codex
@@ -103,7 +103,7 @@ Rules:
 
 Note: OpenCode agent rendering is different; agents may emit target-specific metadata such as `mode: subagent`, but commands do not.
 
-#### Gemini CLI — Convert to TOML
+#### Antigravity CLI — Convert to TOML
 
 ```toml
 description = "Full CI gate..."
@@ -217,7 +217,7 @@ Rules:
 - Keep `model`, `description`, `permission`, `color`, and other supported fields.
 - Body content passed through unchanged.
 
-#### Gemini CLI — Add `kind: local`
+#### Antigravity CLI — Add `kind: local`
 
 Canonical agent frontmatter:
 ```yaml
@@ -231,7 +231,7 @@ permission:
 ---
 ```
 
-Gemini rendered agent frontmatter:
+Antigravity rendered agent frontmatter (written to `~/.gemini/antigravity-cli/skills/`):
 ```yaml
 ---
 name: planner
@@ -304,7 +304,7 @@ configs/instructions/AGENTS.md   — unified agent operating system (all CLI not
 |-----|------------|-----------------|
 | Claude | `~/.claude/CLAUDE.md` | Auto-discovered by filename |
 | OpenCode | `~/.config/opencode/AGENTS.md` | Via `instructions` array in `opencode.json` |
-| Gemini | `~/.gemini/AGENTS.md` | Via `context.fileName` setting |
+| Antigravity | `~/.gemini/antigravity-cli/AGENTS.md` | Auto-discovered by filename |
 | Codex | `~/.codex/AGENTS.md` | Auto-discovered by filename |
 
 #### Push
@@ -429,7 +429,7 @@ Rules:
 - Drop `description`, `env_vars`, `transport`, `disabled_for`.
 - Inject real secret values.
 
-#### Gemini CLI Format
+#### Antigravity CLI Format
 
 ```json
 {
@@ -532,16 +532,13 @@ Rules:
   OpenCode render. Metronome does not synthesize an OpenCode frontmatter
   `tools` map from canonical command metadata.
 
-### Gemini CLI
+### Antigravity CLI (`agy`)
 
-- **Commands in TOML**: Only CLI that uses TOML for slash commands.
+- **Commands in TOML**: Only CLI that uses TOML for slash commands (`~/.gemini/commands/*.toml`).
+- **Agents as skills**: Agents are written to `~/.gemini/antigravity-cli/skills/` (not a separate `agents/` dir).
 - **No MCP type field**: MCP entries have no `type` key.
-- **OAuth auth**: Uses `"security.auth.selectedType": "oauth-personal"`.
-- **Context file discovery**: `"context.fileName": ["AGENTS.md", "GEMINI.md"]`
-  with `discoveryMaxDirs: 200`.
+- **Config root**: `~/.gemini/antigravity-cli/` (settings, agents/skills, instructions); commands stay at `~/.gemini/commands/`.
 - **Agent frontmatter**: Add `kind: local` when rendering agents.
-- **Experimental agents**: Subagents may require
-  `experimental.enableAgents = true` in settings.
 
 ### Codex
 
@@ -721,7 +718,7 @@ preserved). Write back.
 Collapse home directory paths to `~`. Compare to canonical settings
 file.
 
-### Gemini `~/.gemini/settings.json`
+### Antigravity `~/.gemini/antigravity-cli/settings.json`
 
 **Managed keys**: `mcpServers`, `mcp.excluded`
 
@@ -729,13 +726,13 @@ Everything else is user-owned: `security`, `context`, `tools`, `theme`.
 
 Same push/pull pattern as Claude `~/.claude.json`.
 
-**HTTP MCP transport**: Gemini CLI uses `httpUrl` for streamable HTTP MCP
+**HTTP MCP transport**: Antigravity CLI uses `httpUrl` for streamable HTTP MCP
 servers. Plain `url` is reserved for SSE MCP servers.
 
-**Disable state**: metronome renders disabled canonical Gemini MCP servers in
-`mcp.excluded`. Gemini CLI's own `gemini mcp disable` command also persists
-disablement in `~/.gemini/mcp-server-enablement.json`, so pull logic needs to
-honor both sources.
+**Disable state**: metronome renders disabled canonical Antigravity MCP servers in
+`mcp.excluded`. The `agy` CLI's own disable command also persists disablement
+in `~/.gemini/antigravity-cli/mcp-server-enablement.json`, so pull logic needs
+to honor both sources.
 
 ### Codex `~/.codex/config.toml`
 

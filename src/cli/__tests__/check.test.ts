@@ -8,16 +8,16 @@ describe('collect', () => {
   });
 
   test('appends to existing array', () => {
-    const result = collect('codex', ['claude', 'gemini']);
-    expect(result).toEqual(['claude', 'gemini', 'codex']);
+    const result = collect('codex', ['claude', 'antigravity']);
+    expect(result).toEqual(['claude', 'antigravity', 'codex']);
   });
 
   test('accumulates multiple calls', () => {
     let arr: string[] = [];
     arr = collect('claude', arr);
-    arr = collect('gemini', arr);
+    arr = collect('antigravity', arr);
     arr = collect('codex', arr);
-    expect(arr).toEqual(['claude', 'gemini', 'codex']);
+    expect(arr).toEqual(['claude', 'antigravity', 'codex']);
   });
 });
 
@@ -31,8 +31,8 @@ describe('mapTargets', () => {
     expect(result).toEqual(['claude-code']);
   });
 
-  test('passes gemini through unchanged', () => {
-    expect(mapTargets(['gemini'])).toEqual(['gemini']);
+  test('passes antigravity through unchanged', () => {
+    expect(mapTargets(['antigravity'])).toEqual(['antigravity']);
   });
 
   test('passes codex through unchanged', () => {
@@ -44,8 +44,8 @@ describe('mapTargets', () => {
   });
 
   test('maps multiple targets', () => {
-    const result = mapTargets(['claude', 'opencode', 'gemini', 'codex']);
-    expect(result).toEqual(['claude-code', 'opencode', 'gemini', 'codex']);
+    const result = mapTargets(['claude', 'opencode', 'antigravity', 'codex']);
+    expect(result).toEqual(['claude-code', 'opencode', 'antigravity', 'codex']);
   });
 });
 
@@ -82,7 +82,7 @@ describe('mapTypes', () => {
 
 describe('validateTargets', () => {
   test('accepts all valid targets', () => {
-    expect(() => validateTargets(['claude', 'gemini', 'codex', 'opencode'])).not.toThrow();
+    expect(() => validateTargets(['claude', 'antigravity', 'codex', 'opencode'])).not.toThrow();
   });
 
   test('accepts empty array', () => {

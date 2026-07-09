@@ -5,7 +5,7 @@ import type { DiffResult, Operation } from '../../types';
 function makeOp(
   type: 'create' | 'update' | 'skip' | 'delete',
   name: string,
-  target: 'claude-code' | 'opencode' | 'gemini' | 'codex' = 'claude-code',
+  target: 'claude-code' | 'opencode' | 'antigravity' | 'codex' = 'claude-code',
 ): Operation {
   return {
     type,
@@ -17,7 +17,7 @@ function makeOp(
   };
 }
 
-function makeResult(target: 'claude-code' | 'opencode' | 'gemini' | 'codex', ops: Operation[]): DiffResult {
+function makeResult(target: 'claude-code' | 'opencode' | 'antigravity' | 'codex', ops: Operation[]): DiffResult {
   return {
     target,
     operations: ops,

@@ -93,7 +93,7 @@ describe('calculateDiff', () => {
     ];
     const targetHashes = new Map([['agent/planner', 'oldHash']]);
 
-    const result = calculateDiff(source, targetHashes, manifest, 'gemini');
+    const result = calculateDiff(source, targetHashes, manifest, 'antigravity');
 
     expect(result.summary.update).toBe(1);
     expect(result.operations[0].oldHash).toBe('oldHash');

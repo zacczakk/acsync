@@ -26,9 +26,9 @@ describe('push flag → SyncOptions construction', () => {
   test('multiple --target flags accumulate via collect', () => {
     let targets: string[] = [];
     targets = collect('claude', targets);
-    targets = collect('gemini', targets);
+    targets = collect('antigravity', targets);
     const mapped = mapTargets(targets);
-    expect(mapped).toEqual(['claude-code', 'gemini']);
+    expect(mapped).toEqual(['claude-code', 'antigravity']);
   });
 
   test('--type commands → mapTypes → command', () => {
@@ -59,7 +59,7 @@ describe('validateTargets for push', () => {
   });
 
   test('accepts all push-relevant targets', () => {
-    expect(() => validateTargets(['claude', 'opencode', 'gemini', 'codex'])).not.toThrow();
+    expect(() => validateTargets(['claude', 'opencode', 'antigravity', 'codex'])).not.toThrow();
   });
 });
 

@@ -12,11 +12,11 @@ const FIXTURE_ROOT = join(import.meta.dir, '../fixtures');
 const GOLDEN_PATHS: Record<TargetName, string> = {
   'claude-code': join(FIXTURE_ROOT, 'claude/instructions/CLAUDE.md'),
   opencode: join(FIXTURE_ROOT, 'opencode/instructions/AGENTS.md'),
-  gemini: join(FIXTURE_ROOT, 'gemini/instructions/AGENTS.md'),
+  antigravity: join(FIXTURE_ROOT, 'antigravity/instructions/AGENTS.md'),
   codex: join(FIXTURE_ROOT, 'codex/instructions/AGENTS.md'),
 };
 
-const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'gemini', 'codex'];
+const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'antigravity', 'codex'];
 
 describe('push instructions E2E', () => {
   test('pushes instructions to all 4 targets, matches goldens, identity passthrough, idempotent', async () => {

@@ -6,7 +6,7 @@ description: >-
   review, or audit security issues, secrets, credentials, vulnerabilities,
   auth flaws, exposed endpoints, or dependency risk, especially before release.
 mode: subagent
-model: tux/claude-opus-4-6
+model: github-copilot/gpt-5.5
 reasoningEffort: high
 textVerbosity: low
 color: '#ff6767'

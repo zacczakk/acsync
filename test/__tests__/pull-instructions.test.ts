@@ -11,7 +11,7 @@ const FIXTURE_ROOT = join(import.meta.dir, '../fixtures');
 const CANONICAL_ROOT = join(FIXTURE_ROOT, 'canonical');
 const E2E_TIMEOUT = 60_000;
 
-const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'gemini', 'codex'];
+const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'antigravity', 'codex'];
 
 /** Build a temp project dir pointing at canonical fixtures */
 function setupProjectDir(suffix: string): string {

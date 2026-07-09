@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'bun:test';
 import os from 'node:os';
 import path from 'node:path';
-import { GeminiAdapter } from '../gemini';
+import { AntigravityAdapter } from '../antigravity';
 
 const HOME = os.homedir();
 
-const adapter = new GeminiAdapter();
+const adapter = new AntigravityAdapter();
 
 const baseCommandItem = {
   name: 'my-plan',
@@ -27,7 +27,7 @@ const agentItem = {
   },
 };
 
-describe('GeminiAdapter.renderCommand', () => {
+describe('AntigravityAdapter.renderCommand', () => {
   it('outputs .toml extension in path', () => {
     const result = adapter.renderCommand(baseCommandItem);
     expect(result.relativePath).toBe(path.join(HOME, '.gemini/commands/my-plan.toml'));
@@ -87,10 +87,10 @@ describe('GeminiAdapter.renderCommand', () => {
   });
 });
 
-describe('GeminiAdapter.renderAgent', () => {
+describe('AntigravityAdapter.renderAgent', () => {
   it('produces correct agent file path (.md extension)', () => {
     const result = adapter.renderAgent(agentItem);
-    expect(result.relativePath).toBe(path.join(HOME, '.gemini/agents/my-agent.md'));
+    expect(result.relativePath).toBe(path.join(HOME, '.gemini/antigravity-cli/skills/my-agent.md'));
   });
 
   it('adds kind: local to frontmatter', () => {
@@ -113,7 +113,7 @@ describe('GeminiAdapter.renderAgent', () => {
     expect(result.content).toContain('allowed-tools');
   });
 
-  it('does not leak opencode-only fields into Gemini frontmatter', () => {
+  it('does not leak opencode-only fields into Antigravity frontmatter', () => {
     const result = adapter.renderAgent(agentItem);
     expect(result.content).not.toContain('permission:');
     expect(result.content).not.toContain('color:');
@@ -131,7 +131,7 @@ describe('GeminiAdapter.renderAgent', () => {
   });
 });
 
-describe('GeminiAdapter capabilities', () => {
+describe('AntigravityAdapter capabilities', () => {
   it('declares skills capability', () => {
     const caps = adapter.getCapabilities();
     expect(caps.skills).toBe(true);
@@ -146,11 +146,11 @@ describe('GeminiAdapter capabilities', () => {
   });
 
   it('has correct target and displayName', () => {
-    expect(adapter.target).toBe('gemini');
-    expect(adapter.displayName).toBe('Gemini');
+    expect(adapter.target).toBe('antigravity');
+    expect(adapter.displayName).toBe('Antigravity');
   });
 
-  it('resolves skills dir to ~/.gemini/skills/', () => {
-    expect(adapter.getPaths().getSkillsDir()).toBe(path.join(HOME, '.gemini/skills/'));
+  it('resolves skills dir to ~/.gemini/antigravity-cli/skills/', () => {
+    expect(adapter.getPaths().getSkillsDir()).toBe(path.join(HOME, '.gemini/antigravity-cli/skills/'));
   });
 });

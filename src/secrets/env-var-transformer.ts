@@ -1,16 +1,16 @@
 /**
  * Environment Variable Transformer
- * Converts env var syntax between claude-code, opencode, gemini, and codex formats.
+ * Converts env var syntax between claude-code, opencode, antigravity, and codex formats.
  *
  * Format reference:
- *   claude-code / gemini : ${VAR_NAME}
- *   opencode             : {env:VAR_NAME}
- *   codex                : bare VAR_NAME (strips ${} wrapper)
+ *   claude-code / antigravity : ${VAR_NAME}
+ *   opencode                  : {env:VAR_NAME}
+ *   codex                     : bare VAR_NAME (strips ${} wrapper)
  *
  * Normalizes through claude-code format as intermediate.
  */
 
-export type EnvVarFormat = 'claude-code' | 'opencode' | 'gemini' | 'codex';
+export type EnvVarFormat = 'claude-code' | 'opencode' | 'antigravity' | 'codex';
 
 export class EnvVarTransformer {
   static transform(value: unknown, from: EnvVarFormat, to: EnvVarFormat): unknown {
@@ -50,11 +50,11 @@ export class EnvVarTransformer {
     return this.fromNormalized(normalized, to);
   }
 
-  /** Convert any format → normalized ${VAR} (claude-code / gemini format) */
+  /** Convert any format → normalized ${VAR} (claude-code / antigravity format) */
   private static toNormalized(value: string, from: EnvVarFormat): string {
     switch (from) {
       case 'claude-code':
-      case 'gemini':
+      case 'antigravity':
         return value; // already normalized
 
       case 'opencode':
@@ -72,7 +72,7 @@ export class EnvVarTransformer {
   private static fromNormalized(value: string, to: EnvVarFormat): string {
     switch (to) {
       case 'claude-code':
-      case 'gemini':
+      case 'antigravity':
         return value; // already in target format
 
       case 'opencode':

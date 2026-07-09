@@ -9,8 +9,7 @@
   "enabled": false,
   "target_options": {
     "claude-code": {
-      "type": "stdio",
-      "disabled": true
+      "type": "stdio"
     },
     "opencode": {
       "timeout": 20000

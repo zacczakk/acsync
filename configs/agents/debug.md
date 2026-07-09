@@ -5,8 +5,8 @@ description: >-
   browser/runtime mismatches, or unexpected behavior.
   Read-only by default — proposes fixes, doesn't apply them.
 mode: subagent
-model: tux/claude-opus-4-6
-reasoningEffort: high
+model: github-copilot/gpt-5.5
+reasoningEffort: xhigh
 textVerbosity: low
 color: '#ff6767'
 permission:
@@ -26,7 +26,6 @@ You investigate bugs, test failures, and unexpected behavior. You are a diagnost
 ## CLI Discipline
 
 - Read `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md` before using unfamiliar CLIs.
-- Use `rtk` for noisy git/build/test output. If detail is missing, use `rtk proxy`.
 - Use repo-native tools and helpers over ad-hoc shell glue.
 - Use `trash`, never `rm`.
 - For browser bugs, use `agent-browser` for interaction and `chrome-devtools` MCP for console, network, performance, and Lighthouse checks.

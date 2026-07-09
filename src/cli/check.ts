@@ -226,8 +226,10 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
         }
 
         const rendered = adapter.renderMCPServers(mcpServers, existingContent);
-        const sourceHash = hashRendered(rendered);
-        const targetHash = await hashTargetFile(mcpPath);
+        // Extract only MCP-relevant content for drift — avoids false positives
+        // from runtime state co-located in the same file (e.g. ~/.claude.json).
+        const sourceHash = hashContent(adapter.extractMCPContent(rendered));
+        const targetHash = existingContent ? hashContent(adapter.extractMCPContent(existingContent)) : null;
 
         for (const server of mcpServers) {
           if (!renderedNames.has(server.name)) continue;
@@ -408,7 +410,7 @@ Examples:
 Exit codes: 0 = no drift, 2 = drift detected, 1 = error`)
   .option('--json', 'Machine-readable JSON output')
   .option('-v, --verbose', 'Show all items including up-to-date')
-  .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, gemini, codex, opencode', collect, [] as string[])
+  .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, antigravity, codex, opencode', collect, [] as string[])
   .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings, plugins, hooks', collect, [] as string[])
   .action(async (options: { json?: boolean; verbose?: boolean; target: string[]; type: string[] }) => {
     try {

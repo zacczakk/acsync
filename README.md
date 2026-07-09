@@ -67,7 +67,7 @@ evals/
 
 src/                         TypeScript sync engine
   cli/                       check, push, pull, diff, render, helpers commands
-  adapters/                  Per-CLI renderers (claude, opencode, gemini, codex)
+  adapters/                  Per-CLI renderers (claude, opencode, antigravity, codex)
   core/                      Diff engine, formatter, manifest tracking
   formats/                   Parsers (markdown, JSON, JSONC, TOML)
   secrets/                   .env injection/redaction

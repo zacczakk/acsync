@@ -1,8 +1,16 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "env": {
+    "GH_CA_BUNDLE": "~/.claude/cacert.pem",
     "SSL_CERT_FILE": "~/.claude/cacert.pem",
-    "NODE_EXTRA_CA_CERTS": "~/.claude/cacert.pem"
+    "NODE_EXTRA_CA_CERTS": "~/.claude/cacert.pem",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "ENABLE_LSP_TOOL": "1",
+    "ENABLE_TOOL_SEARCH": "true",
+    "DISABLE_TELEMETRY": "1",
+    "ANTHROPIC_BASE_URL": "http://127.0.0.1:18080",
+    "ANTHROPIC_AUTH_TOKEN": "managed-by-tux"
   },
   "permissions": {
     "allow": [
@@ -25,14 +33,7 @@
       "Bash(date:*)",
       "Bash(echo:*)",
       "Bash(find:*)",
-      "Bash(git status:*)",
-      "Bash(git diff:*)",
-      "Bash(git log:*)",
-      "Bash(git show:*)",
-      "Bash(git branch:*)",
-      "Bash(git remote:*)",
-      "Bash(git tag:*)",
-      "Bash(git stash list:*)",
+      "Bash(git:*)",
       "Bash(head:*)",
       "Bash(ls:*)",
       "Bash(pwd:*)",
@@ -56,23 +57,43 @@
       "Bash(trash:*)",
       "Bash(committer:*)",
       "Bash(swift build:*)",
-      "Bash(swift test:*)"
+      "Bash(swift test:*)",
+      "Bash(metronome:*)",
+      "Bash(basename:*)",
+      "Bash(xxd:*)",
+      "Bash(grep:*)",
+      "Bash(obsidian:*)",
+      "Bash(oe:*)"
     ],
     "deny": [
-      "Delete",
       "Bash(rm:*)",
       "Bash(git reset:*)",
       "Bash(git clean:*)",
-      "Bash(sudo:*)"
+      "Bash(git restore:*)",
+      "Bash(gh repo delete:*)",
+      "Bash(sudo:*)",
+      "Bash(cat *.env:*)",
+      "Bash(cat *.env.*:*)",
+      "Bash(cat */.env:*)",
+      "Bash(cat */.env.*:*)",
+      "Bash(cat ~/.zshrc_secrets:*)"
     ]
   },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true,
+    "swift-lsp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "context-mode@context-mode": true
+  },
+  "additionalDirectories": ["/tmp", "~/Vaults", "~/.agent-browser", "~/.agents", "/var/folders", "~/Downloads", "~/.config/oe"],
   "alwaysThinkingEnabled": true,
   "cleanupPeriodDays": 365,
   "teammateMode": "auto",
   "prefersReducedMotion": true,
   "sandbox": {
     "enabled": true,
-    "autoAllowBashIfSandboxed": true
+    "autoAllowBashIfSandboxed": true,
+    "excludedCommands": ["gh"]
   },
   "hooks": {
     "SessionStart": [
@@ -81,7 +102,20 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/path/to/vault-context-loader.js\""
+            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/vault-context-loader.js\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "_managed": "metronome",
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/autoformat-claude.js\"",
+            "async": true
           }
         ]
       }
@@ -89,10 +123,12 @@
     "Notification": [
       {
         "_managed": "metronome",
+        "matcher": "idle_prompt|auth_success",
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/path/to/notify-claude.js\""
+            "command": "node \"$HOME/Repos/zacczakk/metronome/configs/hooks/notify-claude.js\"",
+            "async": true
           }
         ]
       }

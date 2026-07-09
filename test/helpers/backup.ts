@@ -45,30 +45,32 @@ export function seedTargetFixtures(
   target: string,
   configType: string,
 ): void {
-  const src = join(fixtureRoot, target, configType);
+  // antigravity stores agents in skills/ dir on disk
+  const srcConfigType = (target === 'antigravity' && configType === 'agents') ? 'skills' : configType;
+  const src = join(fixtureRoot, target, srcConfigType);
   const targetDirMap: Record<string, Record<string, string>> = {
     commands: {
       claude: join(fakeHome, '.claude', 'commands'),
       opencode: join(fakeHome, '.config', 'opencode', 'command'),
-      gemini: join(fakeHome, '.gemini', 'commands'),
+      antigravity: join(fakeHome, '.gemini', 'commands'),
       codex: join(fakeHome, '.codex', 'prompts'),
     },
     agents: {
       claude: join(fakeHome, '.claude', 'agents'),
       opencode: join(fakeHome, '.config', 'opencode', 'agents'),
-      gemini: join(fakeHome, '.gemini', 'agents'),
+      antigravity: join(fakeHome, '.gemini', 'antigravity-cli', 'skills'),
       codex: join(fakeHome, '.codex', 'agents'),
     },
     skills: {
       claude: join(fakeHome, '.claude', 'skills'),
       opencode: join(fakeHome, '.config', 'opencode', 'skill'),
-      gemini: join(fakeHome, '.gemini', 'skills'),
+      antigravity: join(fakeHome, '.gemini', 'antigravity-cli', 'skills'),
       codex: join(fakeHome, '.agents', 'skills'),
     },
     instructions: {
       claude: join(fakeHome, '.claude'),
       opencode: join(fakeHome, '.config', 'opencode'),
-      gemini: join(fakeHome, '.gemini'),
+      antigravity: join(fakeHome, '.gemini', 'antigravity-cli'),
       codex: join(fakeHome, '.codex'),
     },
   };

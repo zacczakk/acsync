@@ -86,55 +86,55 @@ export class AdapterPathResolver {
 
   private rawBaseDir(): string {
     switch (this.target) {
-      case 'claude-code': return '~/.claude';
-      case 'opencode':    return '~/.config/opencode';
-      case 'gemini':      return '~/.gemini';
-      case 'codex':       return '~/.codex';
+      case 'claude-code':   return '~/.claude';
+      case 'opencode':      return '~/.config/opencode';
+      case 'antigravity':   return '~/.gemini/antigravity-cli';
+      case 'codex':         return '~/.codex';
     }
   }
 
   private rawCommandsDir(): string {
     switch (this.target) {
-      case 'claude-code': return '~/.claude/commands/';
-      case 'opencode':    return '~/.config/opencode/command/';
-      case 'gemini':      return '~/.gemini/commands/';
-      case 'codex':       return '~/.codex/prompts/';
+      case 'claude-code':   return '~/.claude/commands/';
+      case 'opencode':      return '~/.config/opencode/command/';
+      case 'antigravity':   return '~/.gemini/commands/';
+      case 'codex':         return '~/.codex/prompts/';
     }
   }
 
   private rawAgentsDir(): string {
     switch (this.target) {
-      case 'claude-code': return '~/.claude/agents/';
-      case 'opencode':    return '~/.config/opencode/agents/';
-      case 'gemini':      return '~/.gemini/agents/';
-      case 'codex':       return '~/.codex/agents/';
+      case 'claude-code':   return '~/.claude/agents/';
+      case 'opencode':      return '~/.config/opencode/agents/';
+      case 'antigravity':   return '~/.gemini/antigravity-cli/skills/';
+      case 'codex':         return '~/.codex/agents/';
     }
   }
 
   private rawMCPConfigPath(): string {
     switch (this.target) {
-      case 'claude-code': return '~/.claude.json';
-      case 'opencode':    return '~/.config/opencode/opencode.json';
-      case 'gemini':      return '~/.gemini/settings.json';
-      case 'codex':       return '~/.codex/config.toml';
+      case 'claude-code':   return '~/.claude.json';
+      case 'opencode':      return '~/.config/opencode/opencode.json';
+      case 'antigravity':   return '~/.gemini/antigravity-cli/settings.json';
+      case 'codex':         return '~/.codex/config.toml';
     }
   }
 
   private rawSettingsPath(): string {
     switch (this.target) {
-      case 'claude-code': return '~/.claude/settings.json';
-      case 'opencode':    return '~/.config/opencode/opencode.json';
-      case 'gemini':      return '~/.gemini/settings.json';
-      case 'codex':       return '~/.codex/config.toml';
+      case 'claude-code':   return '~/.claude/settings.json';
+      case 'opencode':      return '~/.config/opencode/opencode.json';
+      case 'antigravity':   return '~/.gemini/antigravity-cli/settings.json';
+      case 'codex':         return '~/.codex/config.toml';
     }
   }
 
   private rawInstructionsPath(): string {
     switch (this.target) {
-      case 'claude-code': return '~/.claude/CLAUDE.md';
-      case 'opencode':    return '~/.config/opencode/AGENTS.md';
-      case 'gemini':      return '~/.gemini/AGENTS.md';
-      case 'codex':       return '~/.codex/AGENTS.md';
+      case 'claude-code':   return '~/.claude/CLAUDE.md';
+      case 'opencode':      return '~/.config/opencode/AGENTS.md';
+      case 'antigravity':   return '~/.gemini/antigravity-cli/AGENTS.md';
+      case 'codex':         return '~/.codex/AGENTS.md';
     }
   }
 
@@ -167,12 +167,12 @@ export class AdapterPathResolver {
 
   /**
    * Convert a logical command name to a filename for the target.
-   * - gemini: .toml extension
+   * - antigravity: .toml extension
    * - others: name.md as-is
    */
   private commandFileName(name: string): string {
     switch (this.target) {
-      case 'gemini':
+      case 'antigravity':
         return `${name}.toml`;
       default:
         return `${name}.md`;
