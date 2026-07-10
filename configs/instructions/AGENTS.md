@@ -29,7 +29,8 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 
 ## Flow & Runtime
 - Use repo's package manager/runtime; no swaps w/o approval.
-- Aggressive delegation. Subagents for anything exploratory, research-heavy, or context-expensive. Main context = coordination + decisions.
+- Default to direct execution. Delegate only independent, specialist, or context-heavy work that is likely to save main-session effort; never delegate work already investigated by the main agent.
+- Quality-first session budget: target ≤35 minutes, ≤4 child sessions, one independent final review, and one focused re-review. Ask before exceeding any limit.
 - Act-and-report on scoped work with precedent. Propose-then-execute on novel work.
 - Deterministic formatting hooks when available.
 - Hangs >5 min: stop, capture logs, ask user.
@@ -95,12 +96,14 @@ When work concludes (skip if trivial):
 
 ## Build / Test
 - No mocks; unit or e2e.
-- Before handoff: run relevant checks. Full gate (lint/typecheck/tests/docs) for milestones, PRs, and releases.
+- During iteration, run the narrowest test that proves the changed behavior, then the impacted suite when shared code is affected.
+- Verification evidence remains valid while its inputs and relevant files are unchanged. Record the exact command and result; do not rerun a passing command without a relevant change or concrete evidence gap.
+- Implementers own targeted and impacted checks. Reviewers inspect code and existing evidence, then run only missing proof. The main agent owns at most one final gate.
+- Before handoff: run relevant checks. Full gate (lint/typecheck/tests/docs) only for milestones, PRs, and releases.
 - CI red: `gh run list/view`, rerun, fix, push, repeat til green.
 - Waiting for CI/build/deploy: poll with `gh run view`; max 4 min per sleep interval (check → sleep ≤4 min → check → repeat).
 - Keep it observable (logs, panes, tails, MCP/browser tools).
 - Release: read release checklist if repo has one.
-- **Truncated output?** `rtk` compresses test/build output by default. Use `rtk proxy <cmd>` for unfiltered passthrough — e.g. `rtk proxy pytest tests/` for full tracebacks. See TOOLS.md → rtk.
 
 ## Git
 - Safe by default: `git status/diff/log`. Push only when user asks.
@@ -131,5 +134,5 @@ When work concludes (skip if trivial):
   Per-project: ESLint `no-restricted-syntax` + `no-restricted-imports` to hard-ban useEffect. Deep ref: `vercel-react-best-practices` skill.
 
 ## Tools
- On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `peekaboo`, `qmd`, `obsidian`, `gh`, `bird`, `rtk`, `markitdown`.
+ On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `peekaboo`, `qmd`, `obsidian`, `gh`, `bird`, `markitdown`.
 Full catalog: `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md`. Read when you need flags, subcommands, or usage patterns for any tool above.

@@ -1,18 +1,20 @@
 ---
 description: >-
   Bug investigation and root cause analysis. Scientific method.
-  Invoke when asked to debug, investigate, diagnose, or root-cause bugs, flaky tests, CI failures,
-  browser/runtime mismatches, or unexpected behavior.
+  Use when asked to debug, investigate, diagnose, or root-cause a reproduced or
+  materially unclear bug, flaky test, CI failure, browser/runtime mismatch, or unexpected behavior.
   Read-only by default — proposes fixes, doesn't apply them.
 mode: subagent
-model: github-copilot/gpt-5.5
+model: github-copilot/gpt-5.6-sol
 reasoningEffort: xhigh
 textVerbosity: low
 color: '#ff6767'
 permission:
+  '*': deny
+  read: allow
+  glob: allow
+  grep: allow
   bash: allow
-  edit: deny
-  webfetch: deny
 ---
 
 # Debug Agent

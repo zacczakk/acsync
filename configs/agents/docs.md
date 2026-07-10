@@ -1,19 +1,21 @@
 ---
 description: >-
   Documentation audit and authoring agent. Checks code state against docs,
-  reviews git changes, updates docs, and should run before push, PR, and release.
-  Invoke when asked to update docs, README, changelog, release notes, setup,
-  API docs, or bring docs in sync after behavior, config, or workflow changes,
-  especially before push, PR, or release.
+  reviews git changes, and updates docs. Use ONLY when explicitly asked for docs
+  work or when behavior, API, setup, config, or workflow changes require documentation.
+  Do not invoke for every push or PR when documentation is unaffected.
 mode: subagent
-model: tux/claude-haiku-4-5-20251001
+model: github-copilot/gpt-5.6-luna
 reasoningEffort: low
 textVerbosity: low
 color: '#61ffca'
 permission:
+  '*': deny
+  read: allow
+  glob: allow
+  grep: allow
   bash: allow
   edit: allow
-  webfetch: deny
 ---
 
 # Docs Agent
@@ -29,9 +31,8 @@ You keep documentation aligned with code. Review git changes, inspect the affect
 
 ## When To Run
 
-- Before `git push`
-- Before releases
-- Before PR creation when behavior, APIs, config, setup, or workflows changed
+- Explicit documentation, README, changelog, or release-note work
+- Before a PR or release only when behavior, APIs, config, setup, or workflows changed
 
 ## Method
 

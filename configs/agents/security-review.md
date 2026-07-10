@@ -2,18 +2,20 @@
 description: >-
   Security review agent. Reviews code and dependencies for vulnerabilities,
   CVEs, exposed secrets, hardcoded credentials, auth flaws, injection risks,
-  XSS, insecure endpoints, and dependency risk. Invoke when asked to scan for,
-  review, or audit security issues, secrets, credentials, vulnerabilities,
-  auth flaws, exposed endpoints, or dependency risk, especially before release.
+  XSS, insecure endpoints, and dependency risk. Use ONLY when explicitly asked
+  for a security audit or when changes affect auth, crypto, secrets, public exposure,
+  untrusted input, or dependencies. Do not invoke for every release by default.
 mode: subagent
-model: github-copilot/gpt-5.5
+model: github-copilot/gpt-5.6-sol
 reasoningEffort: high
 textVerbosity: low
 color: '#ff6767'
 permission:
+  '*': deny
+  read: allow
+  glob: allow
+  grep: allow
   bash: allow
-  edit: deny
-  webfetch: deny
 ---
 
 # Security Review Agent
