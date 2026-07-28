@@ -35,9 +35,7 @@
       "~/.config/opencode/skills/*": "allow"
     }
   },
-  "plugin": [
-    "opencode-agent-browser"
-  ],
+  "plugin": [],
   "provider": {
     "throttle-tux": {
       "npm": "@ai-sdk/anthropic",

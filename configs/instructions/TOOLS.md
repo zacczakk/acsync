@@ -171,57 +171,36 @@ peekaboo mcp
 
 ## agent-browser
 
-Browser automation CLI. Auto-connects to Chrome. Rust/CDP.
+Browser automation CLI. Rust/CDP.
 
 - **Install:** `brew install agent-browser` or `npm install -g agent-browser`
-- **Skill:** `load_agent_browser_skill`
-- **Preset env:** `NATIVE=1`, `AUTO_CONNECT=1`
-- **Fallback:** headless Chromium. No SSO.
-- Reuse live sessions. Attach > restart.
-- Skill says kill/reset? Ignore. Concrete failure only.
-- Never stop/reset proactively. Chrome restart: one attach call, then `batch`.
-- `chat` for intent tasks. `batch` for deterministic sequences.
+- **Skill:** `agent-browser skills get core`
+- **Default:** `--profile Default` (`z/acc`), `--headed`; isolated auth copy. No `--native`.
+- **Live Chrome:** `--auto-connect` only on explicit request.
+- **Lightweight:** `--engine lightpanda`; unauthenticated reading only.
 
 ```bash
-agent-browser open <url>
+agent-browser --profile Default open <url> --headed
 agent-browser snapshot -i                        # interactive @refs
 agent-browser click @e2
+agent-browser snapshot -i                        # refs stale after page change
 agent-browser fill @e3 "text"
-agent-browser get text @e1
 agent-browser screenshot
-agent-browser screenshot --annotate              # labeled for vision models
-agent-browser find role button click --name Submit
-agent-browser keyboard type "text"               # no selector
 agent-browser chat "do X"                        # AI single-shot (needs AI_GATEWAY_API_KEY)
 agent-browser batch "open <url>" "snapshot -i"   # multi-step
-agent-browser tab / close
-agent-browser --session-name myapp open <url>    # persist state
-agent-browser auth save my-app --url <url>
-agent-browser auth login my-app
-agent-browser profiles
-agent-browser doctor [--fix]                     # diagnose/repair
+agent-browser close                              # task done
 ```
 
-Never close browser tabs. `agent-browser close` = session/connection only, not tabs. No access: run `agent-browser close`, tell user to grant Chrome access, wait for confirmation, then resume with ONE `agent-browser` call — no chaining. Never kill Chrome. Consent manual per restart. Viewport: `1800x1169` (Phil's logical resolution). Never use 1920x1080 — overflows screen.
-
-**Daemon + Chrome attach pattern.** If daemon is already running when you call `open --headed`, the `--headed` flag is silently ignored and the daemon tries to attach to Chrome. If Chrome hasn't granted remote-debugging access yet, this triggers a permission prompt in Chrome. A second stale prompt may appear and be unresponsive — this is a known Chrome bug when the daemon reconnects mid-session. Fix: use `--auto-connect` instead of `--headed` when a daemon session already exists. `--auto-connect` skips the headed/daemon dance and attaches directly. Pattern:
-```bash
-# correct: daemon already running
-agent-browser open <url> --auto-connect
-
-# first launch only (no daemon)
-agent-browser close; agent-browser open <url> --headed
-```
-If you hit 403 or the stale-prompt deadlock: `agent-browser close`, then reopen with `--headed` for a clean first-launch consent flow.
+Never kill/relaunch Chrome. Never close Phil's tabs. Viewport `1800x1169`, never 1920x1080. 403: stop; no retries.
 
 | Task | Tool |
 |---|---|
 | Browse/click/fill/extract | `agent-browser` |
 | Intent-driven task | `agent-browser chat` |
 | Multi-step sequence | `agent-browser batch` |
-| SSO/authenticated pages | `agent-browser` (inherits Chrome session) |
-| Safari/WebKit | `agent-browser --native` |
-| Test suites w/ assertions | `webapp-testing` skill |
+| Authenticated pages | `--profile Default` (`z/acc`) |
+| Live Chrome control | `--auto-connect`, explicit request only |
+| Test suites w/ assertions | `agent-browser` plus the repository's test runner |
 | Diagnose install | `agent-browser doctor` |
 
 ## curl.md

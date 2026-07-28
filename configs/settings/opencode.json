@@ -67,7 +67,6 @@
     }
   },
   "plugin": [
-    "opencode-agent-browser",
     "context-mode"
   ],
   "provider": {

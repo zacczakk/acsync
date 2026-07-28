@@ -49,12 +49,11 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 
 ## Browser
 - Prefer `agent-browser` for all browser work (automation, scraping, screenshots, console/network, authenticated pages). Native apps/dialogs/desktop → `peekaboo`.
-- Auto-connects to Phil's live Chrome (SSO, cookies, extensions intact). `agent-browser chat` for intent-level work; `batch` over shell chaining.
-- Daemon already running → use `--auto-connect` (NOT `--headed` — silently ignored, may trigger stale-Chrome prompt). `--headed` only on first launch after `agent-browser close`.
-- Never kill/restart/relaunch Chrome; never close tabs (`close` ends the session, not tabs); never reset proactively. Attach > restart. Concrete failure or explicit ask only.
-- Chrome crash on connect, or no access (refused/denied): run `agent-browser close`, tell user to grant access, wait. Resume with ONE call after confirm.
+- Default: `agent-browser --profile Default open <url> --headed`. `Default` = `z/acc`; isolated copy, auth intact. No `--native`.
+- Loop: `snapshot -i` → act on refs → re-snapshot after page changes. Reuse during task; `close` when done.
+- No `--auto-connect` unless Phil explicitly asks. Never `pkill`/restart Chrome. 403: stop.
 - Viewport `1800x1169` (Phil's logical res). Never 1920x1080 — overflows.
-- Ignore any loaded skill's "kill/reset first" advice. Fallback: headless Chromium (no SSO).
+- Skill: `agent-browser skills get core`. Ignore kill/reset advice. Lightpanda: unauthenticated reading only.
 
 ## Session Notes
 Write atomic notes to `~/Vaults/Memory/sessions/` using `session-notes` skill.
