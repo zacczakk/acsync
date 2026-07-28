@@ -9,11 +9,4 @@ bun.lock*
 .metronome/
 session-*.md
 .worktrees/
-configs/skills/provider-docs/
-
-# Employer-internal (organization/Foundry) — keep locally for metronome to push, never public
-configs/skills/foundry-local-development/
-configs/skills/foundry-mediasets/
-configs/skills/foundry-osdk-deploy/
-configs/skills/foundry-react-app-dev/
 docs/plans/2026-03-20-rename-organization-to-organization.md

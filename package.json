@@ -6,7 +6,8 @@
     "metronome": "./src/cli/index.ts"
   },
   "scripts": {
-    "test": "bun test"
+    "test": "bun test && bun scripts/check-public-repo.ts",
+    "check:public": "bun scripts/check-public-repo.ts"
   },
   "dependencies": {
     "@inquirer/checkbox": "^5.1.0",
