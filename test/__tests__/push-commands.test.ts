@@ -11,7 +11,7 @@ const FIXTURE_ROOT = join(import.meta.dir, '../fixtures');
 function targetPaths(fakeHome: string) {
   return {
     claude: join(fakeHome, '.claude', 'commands'),
-    opencode: join(fakeHome, '.config', 'opencode', 'command'),
+    opencode: join(fakeHome, '.config', 'opencode', 'commands'),
     antigravity: join(fakeHome, '.gemini', 'commands'),
     codex: join(fakeHome, '.codex', 'prompts'),
   };

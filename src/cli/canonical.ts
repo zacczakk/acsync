@@ -9,6 +9,7 @@ import { AntigravityAdapter } from '../adapters/antigravity';
 import { CodexAdapter } from '../adapters/codex';
 import type { ToolAdapter } from '../adapters/base';
 import type { TargetName, ItemType, CanonicalItem, CanonicalSettings, CanonicalHookConfig, MCPServer } from '../types';
+import type { SkillProjectionOperation } from '../core/skill-projection';
 
 /** Repo root — resolved from module location so metronome works from any cwd */
 export const PROJECT_ROOT = resolve(import.meta.dir, '..', '..');
@@ -37,6 +38,7 @@ export interface SyncOptions {
   projectDir?: string;          // project root (default: repo root via import.meta.dir)
   deleteStale?: boolean;        // --delete (remove stale target files)
   homeDir?: string;             // override home directory (for test isolation)
+  projectionExecutor?: (operation: SkillProjectionOperation, write: () => Promise<void>) => Promise<void>;
 }
 
 export const ALL_TARGETS: TargetName[] = ['claude-code', 'opencode', 'antigravity', 'codex'];
@@ -276,7 +278,7 @@ export async function readCanonicalSkills(
   try {
     entries = await readdir(dir);
   } catch {
-    return [];
+    throw new Error('Unable to read canonical skills root');
   }
 
   const items: CanonicalItem[] = [];

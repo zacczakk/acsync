@@ -55,7 +55,13 @@ describe('pull-skills E2E', () => {
     plantTargetSkills(fakeHome);
 
     const projectDir = setupProjectDir();
-    await runPull({ source: 'opencode', force: true, projectDir, homeDir: fakeHome });
+    await runPull({
+      source: 'opencode',
+      force: true,
+      projectDir,
+      homeDir: fakeHome,
+      onlyKeys: new Set(['skill/obsidian']),
+    });
 
     const canonicalObsidian = readFileSync(join(FIXTURE_ROOT, 'canonical', 'skills', 'obsidian', 'SKILL.md'), 'utf-8');
     const pulledObsidian = readFileSync(join(projectDir, 'configs', 'skills', 'obsidian', 'SKILL.md'), 'utf-8');

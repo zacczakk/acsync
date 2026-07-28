@@ -1,4 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { formatDiffJson, formatDiffPretty, formatPushResult, formatCheckResult, formatDryRunJson, formatDryRunPretty, formatDryRunResult } from '../formatter';
 import type { DiffResult, Operation } from '../../types';
 
@@ -253,10 +255,10 @@ describe('formatDryRunJson', () => {
   });
 
   test('includes target path in actions', () => {
-    const op = { ...makeOp('create', 'cmd1'), targetPath: '/home/user/.claude/commands/cmd1.md' };
+    const op = { ...makeOp('create', 'cmd1'), targetPath: '/tmp/user/.claude/commands/cmd1.md' };
     const results = [makeResult('claude-code', [op])];
     const parsed = JSON.parse(formatDryRunJson(results));
-    expect(parsed.actions[0].path).toBe('/home/user/.claude/commands/cmd1.md');
+    expect(parsed.actions[0].path).toBe('/tmp/user/.claude/commands/cmd1.md');
   });
 
   test('uses display target name', () => {
@@ -459,5 +461,30 @@ describe('formatDryRunResult', () => {
     const results = [makeResult('claude-code', [makeOp('create', 'x')])];
     const { output } = formatDryRunResult(results, true);
     expect(output).toContain('metronome push --dry-run');
+  });
+
+  test('serializes default and supplied home paths without changing non-home paths', () => {
+    const fakeHome = '/fake/home';
+    const results = [
+      makeResult('claude-code', [{ ...makeOp('create', 'claude-skill'), itemType: 'skill', targetPath: join(fakeHome, '.claude', 'skills', 'claude-skill') }]),
+      makeResult('opencode', [{ ...makeOp('update', 'shared-skill', 'opencode'), itemType: 'skill', targetPath: join(fakeHome, '.agents', 'skills', 'shared-skill') }]),
+      makeResult('antigravity', [{ ...makeOp('create', 'gemini-skill', 'antigravity'), itemType: 'skill', targetPath: join(fakeHome, '.gemini', 'antigravity-cli', 'skills', 'gemini-skill') }]),
+      makeResult('codex', [{ ...makeOp('delete', 'legacy-skill', 'codex'), itemType: 'skill', targetPath: join(fakeHome, '.codex', 'skills', 'legacy-skill') }]),
+      makeResult('claude-code', [{ ...makeOp('create', 'external-skill'), itemType: 'skill', targetPath: '/opt/skills/external-skill' }]),
+    ];
+
+    const suppliedHome = formatDryRunResult(results, false, fakeHome).output;
+    expect(suppliedHome).not.toContain(fakeHome);
+    expect(suppliedHome).toContain('~/.claude/skills/claude-skill');
+    expect(suppliedHome).toContain('~/.agents/skills/shared-skill');
+    expect(suppliedHome).toContain('~/.gemini/antigravity-cli/skills/gemini-skill');
+    expect(suppliedHome).toContain('~/.codex/skills/legacy-skill');
+    expect(suppliedHome).toContain('/opt/skills/external-skill');
+
+    const defaultHome = formatDryRunResult([
+      makeResult('claude-code', [{ ...makeOp('create', 'default-home'), itemType: 'skill', targetPath: join(homedir(), '.claude', 'skills', 'default-home') }]),
+    ], false).output;
+    expect(defaultHome).toContain('~/.claude/skills/default-home');
+    expect(defaultHome).not.toContain(homedir());
   });
 });

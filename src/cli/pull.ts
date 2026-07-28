@@ -10,6 +10,7 @@ import { createBackup, restoreAll, cleanupAll } from '../core/rollback';
 import { atomicWrite } from '../infra/atomic-write';
 import { createExclusionFilter } from '../infra/exclusion';
 import { stringifyFrontmatter } from '../formats/markdown';
+import { hasSkillMarker } from '../core/skill-projection';
 import { ALL_TARGETS, COMMANDS_DIR, AGENTS_DIR, SKILLS_DIR, SETTINGS_DIR, MCP_DIR, INSTRUCTIONS_DIR, PLUGINS_DIR, HOOKS_DIR, PROJECT_ROOT, createAdapter, readCanonicalSettings } from './canonical';
 import { confirm, validatePullSource } from './cli-helpers';
 import type { TargetName } from '../types';
@@ -160,8 +161,13 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
 
   const caps = adapter.getCapabilities();
   if (caps.skills) {
+    const sharedSkills = options.source === 'opencode' || options.source === 'codex';
     const skillNames = await adapter.listExistingSkillNames();
     for (const name of skillNames) {
+      // The shared root is a private source as well as a public projection.
+      // Bulk pull must never promote it into the public repository.
+      if (sharedSkills && !options.onlyKeys) continue;
+      if (await hasSkillMarker(join(paths.getSkillsDir(), name))) continue;
       if (isExcluded(name)) continue;
       if (options.onlyKeys && !options.onlyKeys.has(`skill/${name}`)) continue;
 

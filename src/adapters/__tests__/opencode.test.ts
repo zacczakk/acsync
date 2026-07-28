@@ -20,7 +20,7 @@ const baseCommandItem = {
 describe('OpenCodeAdapter.renderCommand', () => {
   it('produces correct command file path', () => {
     const result = adapter.renderCommand(baseCommandItem);
-    expect(result.relativePath).toBe(path.join(HOME, '.config/opencode/command/my-plan.md'));
+    expect(result.relativePath).toBe(path.join(HOME, '.config/opencode/commands/my-plan.md'));
   });
 
   it('keeps description in frontmatter', () => {

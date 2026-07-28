@@ -52,6 +52,12 @@ export interface DiffResult {
   mcpWarning?: MCPWarning;
 }
 
+export interface PrivateSkillDrift {
+  create: number;
+  update: number;
+  delete: number;
+}
+
 export interface ExclusionResult {
   excluded: boolean;
   reason?: string;

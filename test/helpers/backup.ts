@@ -51,7 +51,7 @@ export function seedTargetFixtures(
   const targetDirMap: Record<string, Record<string, string>> = {
     commands: {
       claude: join(fakeHome, '.claude', 'commands'),
-      opencode: join(fakeHome, '.config', 'opencode', 'command'),
+      opencode: join(fakeHome, '.config', 'opencode', 'commands'),
       antigravity: join(fakeHome, '.gemini', 'commands'),
       codex: join(fakeHome, '.codex', 'prompts'),
     },
@@ -63,7 +63,7 @@ export function seedTargetFixtures(
     },
     skills: {
       claude: join(fakeHome, '.claude', 'skills'),
-      opencode: join(fakeHome, '.config', 'opencode', 'skill'),
+      opencode: join(fakeHome, '.agents', 'skills'),
       antigravity: join(fakeHome, '.gemini', 'antigravity-cli', 'skills'),
       codex: join(fakeHome, '.agents', 'skills'),
     },
@@ -81,4 +81,3 @@ export function seedTargetFixtures(
   mkdirSync(dest, { recursive: true });
   cpSync(src, dest, { recursive: true });
 }
-

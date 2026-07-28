@@ -6,6 +6,7 @@ import { runCheck } from '../check';
 
 /** Make a per-test unique project with salted content so hashes never collide with real deployed files */
 async function setupProject(dir: string, salt: string): Promise<void> {
+  await mkdir(join(dir, 'configs', 'skills'), { recursive: true });
   const commandsDir = join(dir, 'configs', 'commands');
   await mkdir(commandsDir, { recursive: true });
 
@@ -68,6 +69,7 @@ describe('runCheck', () => {
 
   test('empty project detects stale target items as drift', async () => {
     const emptyDir = await mkdtemp(join(tmpdir(), 'orchestrator-empty-'));
+    await mkdir(join(emptyDir, 'configs', 'skills'), { recursive: true });
     const seededHome = await mkdtemp(join(tmpdir(), 'orchestrator-stale-home-'));
     await seedFakeHome(seededHome, salt);
     const result = await runCheck({ projectDir: emptyDir, homeDir: seededHome });

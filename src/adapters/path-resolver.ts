@@ -96,7 +96,7 @@ export class AdapterPathResolver {
   private rawCommandsDir(): string {
     switch (this.target) {
       case 'claude-code':   return '~/.claude/commands/';
-      case 'opencode':      return '~/.config/opencode/command/';
+      case 'opencode':      return '~/.config/opencode/commands/';
       case 'antigravity':   return '~/.gemini/commands/';
       case 'codex':         return '~/.codex/prompts/';
     }
@@ -140,7 +140,7 @@ export class AdapterPathResolver {
 
   private rawSkillsDir(): string {
     switch (this.target) {
-      case 'opencode':    return '~/.config/opencode/skill/';
+      case 'opencode':
       case 'codex':       return '~/.agents/skills/';
       // Other targets don't use skills
       default:            return path.join(this.rawBaseDir(), 'skills/');

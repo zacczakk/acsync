@@ -88,6 +88,7 @@ describe('stale detection in runCheck', () => {
   beforeEach(async () => {
     salt = makeSalt();
     tmpDir = await mkdtemp(join(tmpdir(), 'stale-test-'));
+    await mkdir(join(tmpDir, 'configs', 'skills'), { recursive: true });
     fakeHome = await mkdtemp(join(tmpdir(), 'stale-home-'));
     await seedFakeHome(fakeHome, salt);
   });
@@ -344,6 +345,16 @@ describe('runPullAll', () => {
     }
   });
 
+  test('bulk pull does not import unmarked shared skills', async () => {
+    const sharedSkill = join(fakeHome, '.agents', 'skills', 'private-canary');
+    await mkdir(sharedSkill, { recursive: true });
+    await writeFile(join(sharedSkill, 'SKILL.md'), '---\nname: private-canary\n---\n\nPrivate.\n');
+
+    const result = await runPullAll({ dryRun: true, projectDir: tmpDir, homeDir: fakeHome });
+
+    expect(result.items.some((item) => item.name === 'private-canary')).toBe(false);
+  });
+
   test('shows items from all targets that have them', async () => {
     const result = await runPullAll({
       dryRun: true,
@@ -374,7 +385,7 @@ describe('runPullAll', () => {
     expect(vercelSkills.length).toBeGreaterThan(0);
     const sources = vercelSkills.map((i) => i.source);
     expect(sources).toContain('claude-code');
-    expect(sources).toContain('opencode');
+    expect(sources).not.toContain('opencode');
   });
 
   test('JSON output includes source field', async () => {

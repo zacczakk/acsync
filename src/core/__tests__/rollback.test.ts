@@ -178,6 +178,20 @@ describe('restoreAll', () => {
     const content = await readFile(file, 'utf-8');
     expect(content).toBe('v1');
   });
+
+  test('reports a directory restore failure', async () => {
+    const missingBackup = {
+      originalPath: join(tempDir, 'directory'),
+      backupPath: join(tempDir, 'missing-directory-backup'),
+      existed: true,
+      timestamp: new Date().toISOString(),
+      directory: true,
+    };
+
+    const result = await restoreAll([missingBackup]);
+
+    expect(result.failed).toBe(1);
+  });
 });
 
 describe('cleanupAll', () => {

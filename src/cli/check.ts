@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+import { lstat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Command } from 'commander';
 import { loadManifest } from '../core/manifest';
@@ -28,13 +29,15 @@ import {
 import { mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
 import type { SyncOptions } from './canonical';
 import type { ToolAdapter } from '../adapters/base';
-import type { ItemType, MCPWarning, Operation, DiffResult } from '../types';
+import type { ItemType, MCPWarning, Operation, DiffResult, PrivateSkillDrift } from '../types';
 import type { SourceItem } from '../core/diff';
+import { hashRenderedSkillTree, hashSkillTree, hasPublicSkillMarker, historicallyOwnedSharedSkillNames, planSkillProjection, projectionNeedsUpdate } from '../core/skill-projection';
 
 export interface OrchestratorCheckResult {
   diffs: DiffResult[];
   hasDrift: boolean;
   output: string;
+  privateSkillDrift?: PrivateSkillDrift;
 }
 
 /**
@@ -97,7 +100,7 @@ async function detectStaleItems(
     const existingSkills = await adapter.listExistingSkillNames();
     for (const name of existingSkills) {
       const entry = classifyEntry(name, canonicalSkillNames, isExcluded);
-      if (entry.status === 'non-canonical') {
+      if (entry.status === 'non-canonical' && await hasPublicSkillMarker(join(paths.getSkillsDir(), name))) {
         deleteOps.push({
           type: 'delete',
           itemType: 'skill',
@@ -149,10 +152,29 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
   ]);
 
   const diffs: DiffResult[] = [];
+  const homeDir = options.homeDir ?? createAdapter('codex').getPaths().expandHome('~');
+  const historicalSharedSkills = (!options.types || options.types.includes('skill'))
+    ? await historicallyOwnedSharedSkillNames(manifest, skills.map((skill) => skill.name), join(homeDir, '.agents', 'skills'))
+    : new Set<string>();
+  const skillPlan = (!options.types || options.types.includes('skill'))
+    ? await planSkillProjection({ projectDir, homeDir, targets, publicSkillNames: skills.map((skill) => skill.name), deleteStale: options.deleteStale ?? false, historicallyOwnedPublicSkillNames: historicalSharedSkills, historicalManifest: manifest })
+    : { operations: [], privateSkills: [] };
+  const privateSkillDrift: PrivateSkillDrift = { create: 0, update: 0, delete: 0 };
+  for (const operation of skillPlan.operations) {
+    if (operation.kind === 'private' && operation.sourceDir && operation.marker && await projectionNeedsUpdate(operation.sourceDir, operation.filesystemPath, operation.marker)) {
+      const exists = await lstat(operation.filesystemPath).then(() => true).catch(() => false);
+      privateSkillDrift[exists ? 'update' : 'create']++;
+    } else if (operation.kind === 'private-delete') privateSkillDrift.delete++;
+  }
+  const skillRoots = new Set<string>();
 
   for (const target of targets) {
     const adapter = createAdapter(target, options.homeDir);
     const caps = adapter.getCapabilities();
+    const includeSkills = (!options.types || options.types.includes('skill'))
+      && caps.skills
+      && !skillRoots.has(adapter.getPaths().getSkillsDir());
+    if (includeSkills) skillRoots.add(adapter.getPaths().getSkillsDir());
     const sourceItems: SourceItem[] = [];
     const targetHashes = new Map<string, string>();
 
@@ -270,12 +292,14 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
     }
 
     // Skills
-    if (!options.types || options.types.includes('skill')) {
-      if (caps.skills) {
-        for (const item of skills) {
+    if (includeSkills) {
+      for (const item of skills) {
           const rendered = adapter.renderSkill(item);
-          const sourceHash = hashRendered(rendered.content);
-          const targetHash = await hashTargetFile(rendered.relativePath);
+          const sourceHash = hashRenderedSkillTree(rendered.content, item.supportFiles);
+          const skillDir = join(adapter.getPaths().getSkillsDir(), item.name);
+          const targetHash = await hasPublicSkillMarker(skillDir)
+            ? await hashSkillTree(skillDir)
+            : null;
           sourceItems.push({
             type: 'skill',
             name: item.name,
@@ -286,7 +310,6 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
             targetHashes.set(`skill/${item.name}`, targetHash);
           }
         }
-      }
     }
 
     // Plugins
@@ -374,10 +397,19 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
     const canonicalAgentNames = new Set(agents.map((a) => a.name));
     const canonicalSkillNames = new Set(skills.map((s) => s.name));
     const canonicalPluginNames = new Set(plugins.map((p) => p.name));
-    const staleOps = await detectStaleItems(adapter, canonicalCommandNames, canonicalAgentNames, canonicalSkillNames, canonicalPluginNames, isExcluded, options.types);
+    const staleTypes = includeSkills
+      ? options.types
+      : options.types?.filter((type) => type !== 'skill') ?? ['command', 'agent', 'mcp', 'instruction', 'plugin', 'hook', 'settings'];
+    const staleOps = await detectStaleItems(adapter, canonicalCommandNames, canonicalAgentNames, canonicalSkillNames, canonicalPluginNames, isExcluded, staleTypes);
     if (staleOps.length > 0) {
       diff.operations.push(...staleOps);
       diff.summary.delete = staleOps.length;
+    }
+
+    for (const operation of skillPlan.operations) {
+      if (operation.kind !== 'legacy-delete' || operation.target !== target) continue;
+      diff.operations.push({ type: 'delete', itemType: 'skill', name: operation.name, target, reason: 'Legacy projection superseded by shared skill root', targetPath: operation.filesystemPath });
+      diff.summary.delete++;
     }
 
     diffs.push(diff);
@@ -385,8 +417,9 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
 
   const pretty = options.pretty ?? !options.json;
   const verbose = options.verbose ?? false;
-  const { output, hasDrift } = formatCheckResult(diffs, pretty, verbose);
-  return { diffs, hasDrift, output };
+  const hasPrivateSkillDrift = privateSkillDrift.create + privateSkillDrift.update + privateSkillDrift.delete > 0;
+  const { output, hasDrift } = formatCheckResult(diffs, pretty, verbose, homeDir, hasPrivateSkillDrift ? privateSkillDrift : undefined);
+  return { diffs, hasDrift: hasDrift || hasPrivateSkillDrift, output, privateSkillDrift: hasPrivateSkillDrift ? privateSkillDrift : undefined };
 }
 
 export const checkCommand = new Command('check')

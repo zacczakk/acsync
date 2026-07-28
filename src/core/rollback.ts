@@ -1,4 +1,4 @@
-import { copyFile, unlink, mkdir, readFile } from 'node:fs/promises';
+import { copyFile, unlink, mkdir, readFile, cp, rm, lstat } from 'node:fs/promises';
 import { join, basename } from 'node:path';
 import { tmpdir } from 'node:os';
 import { atomicWrite } from '../infra/atomic-write';
@@ -11,6 +11,19 @@ export interface BackupInfo {
   backupPath: string; // empty if file didn't exist
   existed: boolean;
   timestamp: string;
+  directory?: boolean;
+}
+
+export async function createDirectoryBackup(directoryPath: string): Promise<BackupInfo> {
+  const timestamp = new Date().toISOString();
+  const exists = await lstat(directoryPath).then(() => true).catch((error: NodeJS.ErrnoException) => {
+    if (error.code === 'ENOENT') return false;
+    throw error;
+  });
+  if (!exists) return { originalPath: directoryPath, backupPath: '', existed: false, timestamp, directory: true };
+  const backupPath = join(tmpdir(), `metronome-rollback-${Date.now()}-${backupCounter++}-${basename(directoryPath)}`);
+  await cp(directoryPath, backupPath, { recursive: true });
+  return { originalPath: directoryPath, backupPath, existed: true, timestamp, directory: true };
 }
 
 export async function createBackup(filePath: string): Promise<BackupInfo> {
@@ -56,13 +69,18 @@ export async function createBackup(filePath: string): Promise<BackupInfo> {
 }
 
 export async function restoreBackup(backup: BackupInfo): Promise<void> {
+  if (backup.directory) {
+    await rm(backup.originalPath, { recursive: true, force: true });
+    if (backup.existed && backup.backupPath) {
+      await cp(backup.backupPath, backup.originalPath, { recursive: true });
+    }
+    return;
+  }
   if (!backup.existed) {
     // File was newly created — delete it
-    try {
-      await unlink(backup.originalPath);
-    } catch {
-      // Best-effort during failure recovery
-    }
+    await unlink(backup.originalPath).catch((error: NodeJS.ErrnoException) => {
+      if (error.code !== 'ENOENT') throw error;
+    });
     return;
   }
 
@@ -70,12 +88,8 @@ export async function restoreBackup(backup: BackupInfo): Promise<void> {
     return;
   }
 
-  try {
-    const backupContent = await readFile(backup.backupPath, 'utf-8');
-    await atomicWrite(backup.originalPath, backupContent);
-  } catch {
-    // Swallow errors — best-effort during failure recovery
-  }
+  const backupContent = await readFile(backup.backupPath, 'utf-8');
+  await atomicWrite(backup.originalPath, backupContent);
 }
 
 export async function cleanupBackup(backup: BackupInfo): Promise<void> {
@@ -84,7 +98,8 @@ export async function cleanupBackup(backup: BackupInfo): Promise<void> {
   }
 
   try {
-    await unlink(backup.backupPath);
+    if (backup.directory) await rm(backup.backupPath, { recursive: true, force: true });
+    else await unlink(backup.backupPath);
   } catch {
     // Swallow errors
   }
@@ -97,13 +112,15 @@ export async function restoreAll(
   let failed = 0;
 
   // Restore in reverse order (last written first)
+  let item = 0;
   for (const backup of [...backups].reverse()) {
+    item++;
     try {
-      console.error(`  Restoring: ${backup.originalPath}`);
+      console.error(`  Restoring item ${item}`);
       await restoreBackup(backup);
       restored++;
     } catch {
-      console.error(`  Failed to restore: ${backup.originalPath}`);
+      console.error(`  Failed to restore item ${item}`);
       failed++;
     }
   }

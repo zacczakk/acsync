@@ -17,6 +17,20 @@ const VARIANT_DIR_NAME: Record<Variant, string> = {
 /** UUIDv4-ish (8-4-4-4-12 hex) */
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+const DISABLED_SKILLS = new Set([
+  'dispatching-parallel-agents',
+  'doc-coauthoring',
+  'finishing-a-development-branch',
+  'receiving-code-review',
+  'requesting-code-review',
+  'skill-creator',
+  'systematic-debugging',
+  'test-driven-development',
+  'using-git-worktrees',
+  'webapp-testing',
+  'writing-skills',
+]);
+
 export interface AccountOrg {
   account: string;
   org: string;
@@ -206,7 +220,9 @@ export async function syncSkills(
   } catch {
     // missing — start fresh
   }
-  const anthropicEntries = existingManifest.skills.filter((s) => s.creatorType === 'anthropic');
+  const anthropicEntries = existingManifest.skills.filter(
+    (s) => s.creatorType === 'anthropic' && !DISABLED_SKILLS.has(s.name),
+  );
   const anthropicNames = new Set(anthropicEntries.map((s) => s.name));
 
   // Read source skills
@@ -217,6 +233,10 @@ export async function syncSkills(
   if (existsSync(skillsRoot)) {
     const present = await readdir(skillsRoot);
     for (const name of present) {
+      if (DISABLED_SKILLS.has(name)) {
+        await rm(join(skillsRoot, name), { recursive: true, force: true });
+        continue;
+      }
       if (anthropicNames.has(name)) continue;
       if (sourceNames.has(name)) continue;
       await rm(join(skillsRoot, name), { recursive: true, force: true });

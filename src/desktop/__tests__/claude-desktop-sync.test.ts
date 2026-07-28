@@ -246,6 +246,32 @@ describe('syncSkills', () => {
     expect(byName.brainstorming.creatorType).toBe('user');
   });
 
+  test('removes globally disabled skills even when Anthropic-managed', async () => {
+    const base = seedVariant('claude-3p', { withAccount: true, withAnthropicSkills: true });
+    const { configsDir } = seedSourceConfigs();
+    const root = join(base, 'local-agent-mode-sessions', 'skills-plugin', ORG, ACCOUNT);
+    const manifestPath = join(root, 'manifest.json');
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+    manifest.skills.unshift({
+      skillId: 'skill-creator',
+      name: 'skill-creator',
+      description: 'Disabled skill.',
+      creatorType: 'anthropic',
+      updatedAt: null,
+      enabled: true,
+    });
+    writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    mkdirSync(join(root, 'skills', 'skill-creator'), { recursive: true });
+    writeFileSync(join(root, 'skills', 'skill-creator', 'SKILL.md'), 'disabled\n');
+
+    await syncSkills(base, ACCOUNT, ORG, join(configsDir, 'skills'));
+
+    const synced = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+    expect(synced.skills.map((s: { name: string }) => s.name)).not.toContain('skill-creator');
+    expect(existsSync(join(root, 'skills', 'skill-creator'))).toBe(false);
+    expect(synced.skills.map((s: { name: string }) => s.name)).toContain('schedule');
+  });
+
   test('idempotent: re-running yields same manifest content', async () => {
     const base = seedVariant('claude-3p', { withAccount: true, withAnthropicSkills: true });
     const { configsDir } = seedSourceConfigs();

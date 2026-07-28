@@ -32,11 +32,11 @@ read_when:
 | CLI | Commands | Agents | Skills |
 |-----|----------|--------|--------|
 | Claude | `~/.claude/commands/*.md` | `~/.claude/agents/*.md` | `~/.claude/skills/` |
-| OpenCode | `~/.config/opencode/command/*.md` | `~/.config/opencode/agents/*.md` | `~/.config/opencode/skill/` |
+| OpenCode | `~/.config/opencode/commands/*.md` | `~/.config/opencode/agents/*.md` | `~/.agents/skills/` |
 | Antigravity | `~/.gemini/commands/*.toml` | `~/.gemini/antigravity-cli/skills/*.md` | `~/.gemini/antigravity-cli/skills/` |
 | Codex | `~/.codex/prompts/*.md` | `~/.codex/agents/*.toml` | `~/.agents/skills/` |
 
-Note the naming quirks: OpenCode uses singular `command/` and `skill/`. Codex
+OpenCode and Codex share user-authored skills through `~/.agents/skills/`. Codex
 keeps slash commands in `prompts/`, but custom subagents now live in
 `agents/`, and user-authored skills live in `$HOME/.agents/skills/`.
 

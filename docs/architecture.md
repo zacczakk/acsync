@@ -58,7 +58,6 @@ Registered in `~/.claude/settings.json` under the `hooks` key. Canonical source:
 | Script | Event | Managed by | Purpose |
 |--------|-------|------------|---------|
 | `vault-context-loader.js` | `SessionStart` | metronome | Injects IDENTITY/SOUL/USER/MEMORY into context |
-| `rtk-rewrite.sh` | `PreToolUse` (Bash) | rtk init | Rewrites bash commands to `rtk` equivalents for token compression |
 | context-mode plugin | `PreToolUse`, `PostToolUse`, `PreCompact`, `SessionStart` | context-mode marketplace | Tool-output sandboxing, session continuity, `ctx_*` MCP tools. Installed via `claude plugin install context-mode@context-mode --scope user`. Canonical: `enabledPlugins` in `configs/settings/claude.json`. |
 
 Hook scripts receive JSON on stdin (session_id, source, cwd, etc.) and communicate via exit codes + stdout JSON. See [Claude Code hooks reference](https://docs.anthropic.com/en/docs/claude-code/hooks).
@@ -73,7 +72,6 @@ Plugin source files live in `configs/plugins/` and are **deployed by `metronome 
 |--------|----------|---------|
 | `notify-opencode.ts` | `session.created`, `session.deleted`, `session.status`, `permission.asked`, `question.asked`, `session.error` | macOS alerter notifications with iTerm2 pane focus. Tracks root sessions via `session.created`/`deleted`; uses `session.status` busy→idle transitions (not `session.idle`) to avoid duplicate notifications. Idle notifications are transient (5s). Retry status surfaces retries. Permission, question, and error notifications fire for all sessions. |
 | `memory-vault-advisor.ts` | `tool.execute.after` | Advisory reminder to check Memory vault before exploratory searches (grep, glob, task/explore, tavily_search, context7). Output mutation doesn't propagate for MCP tools — known OpenCode limitation. |
-| `rtk.ts` | `tool.execute.before` | Rewrites bash/shell commands to `rtk` equivalents for token compression. Delegates to `rtk rewrite` binary. Vendored from `rtk init -g --opencode` output. |
 
 Plugins are raw `.ts` files — identity-rendered (no frontmatter, no transformation). The `"plugin"` key in `opencode.json` (npm packages) is separately managed via settings wholesale-replace.
 

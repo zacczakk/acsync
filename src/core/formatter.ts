@@ -1,5 +1,6 @@
 import pc from 'picocolors';
-import type { DiffResult, MCPWarning, Operation, TargetName } from '../types';
+import { homedir } from 'node:os';
+import type { DiffResult, MCPWarning, Operation, PrivateSkillDrift, TargetName } from '../types';
 
 export interface PushTargetResult {
   target: TargetName;
@@ -18,7 +19,16 @@ function displayTarget(target: TargetName): string {
   return target === 'claude-code' ? 'claude' : target;
 }
 
-export function formatDiffJson(results: DiffResult[], verbose = false): string {
+function tildify(homeDir: string | undefined, path: string): string {
+  const resolvedHome = homeDir ?? homedir();
+  return path === resolvedHome ? '~' : path.startsWith(`${resolvedHome}/`) ? `~/${path.slice(resolvedHome.length + 1)}` : path;
+}
+
+function privateDriftTotal(drift: PrivateSkillDrift | undefined): number {
+  return drift ? drift.create + drift.update + drift.delete : 0;
+}
+
+export function formatDiffJson(results: DiffResult[], verbose = false, homeDir?: string, privateSkillDrift?: PrivateSkillDrift): string {
   const targets: Record<
     string,
     { create: number; update: number; skip: number; delete: number; operations: Operation[]; mcpWarning?: MCPWarning }
@@ -36,7 +46,7 @@ export function formatDiffJson(results: DiffResult[], verbose = false): string {
       update: result.summary.update,
       skip: result.summary.skip,
       delete: result.summary.delete,
-      operations: ops,
+      operations: ops.map((operation) => ({ ...operation, targetPath: operation.targetPath ? tildify(homeDir, operation.targetPath) : undefined })),
     };
     if (result.mcpWarning) entry.mcpWarning = result.mcpWarning;
     targets[displayTarget(result.target)] = entry;
@@ -51,6 +61,7 @@ export function formatDiffJson(results: DiffResult[], verbose = false): string {
       {
         targets,
         summary: { totalCreate, totalUpdate, totalSkip, totalDelete },
+        ...(privateSkillDrift ? { privateSkills: privateSkillDrift } : {}),
       },
       null,
       2,
@@ -58,7 +69,7 @@ export function formatDiffJson(results: DiffResult[], verbose = false): string {
   );
 }
 
-export function formatDiffPretty(results: DiffResult[], verbose = false): string {
+export function formatDiffPretty(results: DiffResult[], verbose = false, privateSkillDrift?: PrivateSkillDrift): string {
   const lines: string[] = ['', 'metronome check', ''];
 
   let totalCreate = 0;
@@ -144,6 +155,14 @@ export function formatDiffPretty(results: DiffResult[], verbose = false): string
   } else {
     lines.push(`  Summary: ${summaryParts.join(', ')}`);
   }
+  if (privateDriftTotal(privateSkillDrift) > 0) {
+    const parts = [
+      privateSkillDrift!.create > 0 ? `${privateSkillDrift!.create} create` : '',
+      privateSkillDrift!.update > 0 ? `${privateSkillDrift!.update} update` : '',
+      privateSkillDrift!.delete > 0 ? `${privateSkillDrift!.delete} delete` : '',
+    ].filter(Boolean).join(', ');
+    lines.push(`  ${pc.dim(`Private skill projections: ${parts}.`)}`);
+  }
   lines.push('');
 
   return lines.join('\n');
@@ -205,14 +224,7 @@ export function formatPushResult(
   return lines.join('\n');
 }
 
-/** Shorten home dir paths for display */
-function tildify(p: string): string {
-  const home = process.env.HOME ?? '';
-  if (home && p.startsWith(home)) return '~' + p.slice(home.length);
-  return p;
-}
-
-export function formatDryRunJson(results: DiffResult[]): string {
+export function formatDryRunJson(results: DiffResult[], homeDir?: string, privateSkillDrift?: PrivateSkillDrift): string {
   const actions: Array<{
     action: 'create' | 'update' | 'delete';
     target: string;
@@ -231,7 +243,7 @@ export function formatDryRunJson(results: DiffResult[]): string {
         target: displayTarget(result.target),
         type: op.itemType,
         name: op.name,
-        path: op.targetPath ?? '',
+        path: op.targetPath ? tildify(homeDir, op.targetPath) : '',
       });
     }
     if (result.mcpWarning) {
@@ -249,11 +261,12 @@ export function formatDryRunJson(results: DiffResult[]): string {
     },
   };
   if (warnings.length > 0) output.warnings = warnings;
+  if (privateSkillDrift) output.privateSkills = privateSkillDrift;
 
   return JSON.stringify(output, null, 2) + '\n';
 }
 
-export function formatDryRunPretty(results: DiffResult[]): string {
+export function formatDryRunPretty(results: DiffResult[], homeDir?: string, privateSkillDrift?: PrivateSkillDrift): string {
   const lines: string[] = ['', 'metronome push --dry-run', ''];
 
   let totalCreate = 0;
@@ -280,7 +293,7 @@ export function formatDryRunPretty(results: DiffResult[]): string {
         verb = pc.dim('update');
       }
       const label = `[${op.itemType}]`.padEnd(14);
-      const path = op.targetPath ? pc.dim(tildify(op.targetPath)) : '';
+      const path = op.targetPath ? pc.dim(tildify(homeDir, op.targetPath)) : '';
       lines.push(`    ${symbol} ${label} ${op.name.padEnd(24)} ${verb}  → ${path}`);
 
       if (op.type === 'create') totalCreate++;
@@ -293,7 +306,7 @@ export function formatDryRunPretty(results: DiffResult[]): string {
       for (const name of result.mcpWarning.serverNames) {
         const label = '[mcp]'.padEnd(14);
         const path = result.operations.find((op) => op.itemType === 'mcp')?.targetPath;
-        const pathStr = path ? pc.dim(tildify(path)) : '';
+        const pathStr = path ? pc.dim(tildify(homeDir, path)) : '';
         lines.push(`    ${pc.red('−')} ${label} ${name.padEnd(24)} ${pc.dim(suffix)}  → ${pathStr}`);
       }
     }
@@ -312,22 +325,31 @@ export function formatDryRunPretty(results: DiffResult[]): string {
     lines.push(`  Would write: ${parts.join(', ')}`);
     lines.push('');
   }
+  if (privateDriftTotal(privateSkillDrift) > 0) {
+    const parts = [
+      privateSkillDrift!.create > 0 ? `${privateSkillDrift!.create} create` : '',
+      privateSkillDrift!.update > 0 ? `${privateSkillDrift!.update} update` : '',
+      privateSkillDrift!.delete > 0 ? `${privateSkillDrift!.delete} delete` : '',
+    ].filter(Boolean).join(', ');
+    lines.push(`  ${pc.dim(`Private skill projections: ${parts}.`)}`);
+    lines.push('');
+  }
 
   return lines.join('\n');
 }
 
-export function formatDryRunResult(results: DiffResult[], pretty: boolean): CheckResult {
+export function formatDryRunResult(results: DiffResult[], pretty: boolean, homeDir?: string, privateSkillDrift?: PrivateSkillDrift): CheckResult {
   const hasDrift = results.some(
     (r) => r.summary.create > 0 || r.summary.update > 0 || r.summary.delete > 0,
   );
-  const output = pretty ? formatDryRunPretty(results) : formatDryRunJson(results);
-  return { output, hasDrift };
+  const output = pretty ? formatDryRunPretty(results, homeDir, privateSkillDrift) : formatDryRunJson(results, homeDir, privateSkillDrift);
+  return { output, hasDrift: hasDrift || privateDriftTotal(privateSkillDrift) > 0 };
 }
 
-export function formatCheckResult(results: DiffResult[], pretty: boolean, verbose = false): CheckResult {
+export function formatCheckResult(results: DiffResult[], pretty: boolean, verbose = false, homeDir?: string, privateSkillDrift?: PrivateSkillDrift): CheckResult {
   const hasDrift = results.some(
     (r) => r.summary.create > 0 || r.summary.update > 0 || r.summary.delete > 0,
   );
-  const output = pretty ? formatDiffPretty(results, verbose) : formatDiffJson(results, verbose);
-  return { output, hasDrift };
+  const output = pretty ? formatDiffPretty(results, verbose, privateSkillDrift) : formatDiffJson(results, verbose, homeDir, privateSkillDrift);
+  return { output, hasDrift: hasDrift || privateDriftTotal(privateSkillDrift) > 0 };
 }
