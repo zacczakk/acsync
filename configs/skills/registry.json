@@ -9,18 +9,9 @@
       "skills": {
         "docx": { "sync": "auto" },
         "frontend-design": { "sync": "auto" },
-        "mcp-builder": { "sync": "auto" },
         "pdf": { "sync": "auto" },
         "pptx": { "sync": "auto" },
         "xlsx": { "sync": "auto" }
-      }
-    },
-    "vercel": {
-      "repo": "https://github.com/vercel-labs/agent-skills.git",
-      "basePath": "skills",
-      "skills": {
-        "react-best-practices": { "localName": "vercel-react-best-practices", "sync": "manual", "note": "AGENTS.md moved to references/rules.md to prevent 3373-line auto-injection" },
-        "web-design-guidelines": { "sync": "auto" }
       }
     },
     "kepano": {
@@ -34,13 +25,6 @@
         "obsidian-bases": { "sync": "auto" }
       }
     },
-    "jakubkrehel": {
-      "repo": "https://github.com/jakubkrehel/make-interfaces-feel-better.git",
-      "basePath": "skills",
-      "skills": {
-        "make-interfaces-feel-better": { "sync": "manual" }
-      }
-    },
     "cursor": {
       "repo": "https://github.com/cursor/plugins.git",
       "basePath": "cursor-team-kit/skills",
@@ -52,11 +36,6 @@
       "repo": "https://github.com/obra/superpowers.git",
       "basePath": "skills",
       "skills": {
-        "brainstorming": { "sync": "auto" },
-        "executing-plans": { "sync": "manual" },
-        "subagent-driven-development": { "sync": "manual" },
-        "using-superpowers": { "sync": "manual" },
-        "verification-before-completion": { "sync": "auto" },
         "writing-plans": { "sync": "manual" }
       }
     },
@@ -64,8 +43,8 @@
       "repo": "https://github.com/mattpocock/skills.git",
       "basePath": "skills/engineering",
       "skills": {
-        "diagnosing-bugs": { "sync": "manual" },
-        "tdd": { "sync": "manual" }
+        "diagnosing-bugs": { "sync": "auto" },
+        "tdd": { "sync": "auto" }
       }
     }
   }

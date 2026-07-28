@@ -130,7 +130,7 @@ When work concludes (skip if trivial):
   3. Event handlers — user action = handler, not flag→effect relay
   4. `useMountEffect` — mount-only external sync; the one escape hatch (`@/hooks/use-mount-effect`)
   5. Key remounting — `<Component key={id} />` for clean state reset
-  Per-project: ESLint `no-restricted-syntax` + `no-restricted-imports` to hard-ban useEffect. Deep ref: `vercel-react-best-practices` skill.
+  Per-project: ESLint `no-restricted-syntax` + `no-restricted-imports` to hard-ban useEffect.
 
 ## Tools
  On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `peekaboo`, `qmd`, `obsidian`, `gh`, `bird`, `markitdown`.

@@ -99,8 +99,8 @@ describe('upstream skill registry', () => {
       repo: 'https://github.com/mattpocock/skills.git',
       basePath: 'skills/engineering',
       skills: {
-        'diagnosing-bugs': { sync: 'manual' },
-        tdd: { sync: 'manual' },
+        'diagnosing-bugs': { sync: 'auto' },
+        tdd: { sync: 'auto' },
       },
     });
   });

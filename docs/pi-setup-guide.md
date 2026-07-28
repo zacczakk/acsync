@@ -444,7 +444,7 @@ or the repo `docs/terminal-setup.md`).
 ## 7. Skills — port them directly
 
 Pi implements the **agentskills.io** spec — the *same* `SKILL.md` format as OpenCode
-and Claude Code. Your ~47 metronome skills are **directly portable**.
+and Claude Code. Metronome skills are **directly portable**.
 
 - Copy `configs/skills/<name>/` → `~/.pi/agent/skills/<name>/`.
 - Discovery order: `~/.pi/agent/skills/`, `~/.agents/skills/`, `.pi/skills/` (after
@@ -453,11 +453,8 @@ and Claude Code. Your ~47 metronome skills are **directly portable**.
   read on demand. `/skill:name` force-loads.
 
 **Caveat:** skills that call harness-specific syntax (OpenCode slash commands, Claude
-Code `@`-mentions, `TodoWrite`) won't be fully portable. metronome already ships a Pi
-action-mapping at
-[`configs/skills/using-superpowers/references/pi-tools.md`](../configs/skills/using-superpowers/references/pi-tools.md)
-— subagent actions → `pi-subagents`, todo actions → `TODO.md`/task extension. Audit
-each skill's tool references before relying on it.
+Code `@`-mentions, `TodoWrite`) won't be fully portable. Audit each skill's tool
+references before relying on it.
 
 ---
 

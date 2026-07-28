@@ -1,6 +1,6 @@
 ---
 name: interface-design
-description: Use when designing or revising a public interface, module seam, API contract, adapter boundary, state model, or other hard-to-change shape where alternatives should be compared.
+description: Use for explicit design of expensive-to-reverse public interfaces, API contracts, adapter boundaries, schemas, or state models with multiple callers. Do not invoke for routine internal helpers or ordinary implementation work.
 ---
 
 # Interface Design
@@ -37,7 +37,7 @@ Do not use for small internal helpers where the interface is obvious and cheap t
    - likely callers
    - invariants and error modes
    - what should sit behind the seam
-2. Dispatch 3+ subagents in parallel, each with a different design constraint:
+2. Generate at least three materially different alternatives. Use parallel subagents only when the boundary is complex enough that independent perspectives justify the coordination cost:
    - Minimal interface: 1-3 entry points, maximum leverage.
    - Flexible interface: supports extension and varied callers.
    - Common-case interface: optimizes the dominant caller path.
