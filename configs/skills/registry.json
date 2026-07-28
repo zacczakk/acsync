@@ -7,14 +7,11 @@
       "repo": "https://github.com/anthropics/skills.git",
       "basePath": "skills",
       "skills": {
-        "doc-coauthoring": { "sync": "auto" },
         "docx": { "sync": "auto" },
         "frontend-design": { "sync": "auto" },
         "mcp-builder": { "sync": "auto" },
         "pdf": { "sync": "auto" },
         "pptx": { "sync": "auto" },
-        "skill-creator": { "sync": "auto" },
-        "webapp-testing": { "sync": "manual" },
         "xlsx": { "sync": "auto" }
       }
     },
@@ -30,7 +27,7 @@
       "repo": "https://github.com/kepano/obsidian-skills.git",
       "basePath": "skills",
       "skills": {
-        "obsidian-cli": { "sync": "auto" },
+        "obsidian-cli": { "sync": "manual", "note": "Locally guarded: the executable launches the Electron app; never use for routine retrieval" },
         "defuddle": { "localName": "obsidian-defuddle", "sync": "auto" },
         "obsidian-markdown": { "sync": "auto" },
         "json-canvas": { "localName": "obsidian-json-canvas", "sync": "auto" },
@@ -56,19 +53,19 @@
       "basePath": "skills",
       "skills": {
         "brainstorming": { "sync": "auto" },
-        "dispatching-parallel-agents": { "sync": "auto" },
-        "executing-plans": { "sync": "auto" },
-        "finishing-a-development-branch": { "sync": "auto" },
-        "receiving-code-review": { "sync": "auto" },
-        "requesting-code-review": { "sync": "auto" },
-        "subagent-driven-development": { "sync": "auto" },
-        "systematic-debugging": { "sync": "auto" },
-        "test-driven-development": { "sync": "auto" },
-        "using-git-worktrees": { "sync": "auto" },
-        "using-superpowers": { "sync": "auto" },
+        "executing-plans": { "sync": "manual" },
+        "subagent-driven-development": { "sync": "manual" },
+        "using-superpowers": { "sync": "manual" },
         "verification-before-completion": { "sync": "auto" },
-        "writing-plans": { "sync": "auto" },
-        "writing-skills": { "sync": "auto" }
+        "writing-plans": { "sync": "manual" }
+      }
+    },
+    "mattpocock": {
+      "repo": "https://github.com/mattpocock/skills.git",
+      "basePath": "skills/engineering",
+      "skills": {
+        "diagnosing-bugs": { "sync": "manual" },
+        "tdd": { "sync": "manual" }
       }
     }
   }

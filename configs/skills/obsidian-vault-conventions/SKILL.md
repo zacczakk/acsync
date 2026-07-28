@@ -141,7 +141,7 @@ people.md (index)
 - **Frontmatter required.** Every note must have YAML frontmatter (see schema below).
 - **`parent:` is required.** Every leaf points to its folder parent or collection note.
 - **Descriptive kebab-case filenames.** Session notes use `YYYY-MM-DD-{title}.md` prefix.
-- **Filesystem writes for code content.** Shell eats backticks in `obsidian create`. Write directly to `~/Vaults/Memory/{folder}/{name}.md` for notes with inline code.
+- **Filesystem writes.** Write directly to `~/Vaults/Memory/{folder}/{name}.md`.
 - **Distill, don't transcribe.** Future agents should get the point in 30 seconds.
 - **One note per topic.** Multiple unrelated learnings = multiple files.
 - **No body wikilinks between leaves.** Only parent/collection notes link down to children. Leaf body text: plain references, no `[[wikilinks]]`.
@@ -202,9 +202,9 @@ These apply to any agent using this skill. No explicit command needed.
 When starting work in a git repo, auto-orient without being asked:
 
 1. Detect repo: `basename $(git rev-parse --show-toplevel 2>/dev/null)`
-2. Check for project note: `obsidian vault=Memory files folder=projects`
+2. Check `~/Vaults/Memory/projects/` for a matching project note.
 3. If found, read frontmatter + first sections.
-4. Check for recent session note: `obsidian vault=Memory files folder=sessions` — read the most recent one matching this repo.
+4. Search `~/Vaults/Memory/sessions/` for the most recent matching session note.
 5. **Stop at 2 reads.** Follow links on-demand only.
 
 ### On session end
@@ -223,36 +223,28 @@ When Memory vault has no subdirectories, guide through creating them. If inside 
 
 ## Token Budget Rules
 
-1. **CLI before file reads.** Use `obsidian vault=Memory search` and `files` to target reads. Don't bulk-read.
+1. **Search before file reads.** Use `rg` or `qmd` to target reads. Don't bulk-read.
 2. **Session start: at most 2 reads.** Project note + recent session note. Nothing else.
 3. **Summary scan before full read.** `rg '^summary:.*topic' ~/Vaults/Memory/ --glob '*.md' -i` before opening any file.
-4. **List before read.** `obsidian vault=Memory files folder=projects` before reading individual files.
+4. **Locate before read.** Search filenames or summaries before reading individual files.
 5. **Follow links on-demand.** Never traverse the full graph.
 6. **Write concisely.** Bullet points, links, tags — no prose when bullets suffice.
 
-## CLI Usage
+## Vault Tooling
 
-All vault operations go through the `obsidian` CLI. **Always specify `vault=Knowledge` or `vault=Memory` in every call.**
+Use filesystem tools for reads and writes, `rg` for exact search, and `qmd` for semantic Memory lookup. Do not invoke the `obsidian` executable for routine vault work; it launches the Electron app and can disrupt the open instance.
 
 ```bash
-# Knowledge
-obsidian vault=Knowledge search:context query="term"
-obsidian vault=Knowledge move path="02_backlog/item.md" to="07_knowledge"
-obsidian vault=Knowledge task path="02_backlog/item.md" line=N done
-
-# Memory
-obsidian vault=Memory search:context query="topic"
-obsidian vault=Memory links file="note-name"
-obsidian vault=Memory backlinks file="note-name"
+rg "term" ~/Vaults/Knowledge/ --glob '*.md'
+rg '^summary:.*topic' ~/Vaults/Memory/ --glob '*.md' -i
+qmd query "topic" -c memory
 ```
-
-Load the `obsidian-cli` skill for full syntax.
 
 ## Gotchas
 
-1. **Backticks in `content=` eaten by shell.** For notes with inline code, write directly to filesystem (`~/Vaults/Memory/{folder}/{name}.md`) instead of `obsidian create`.
+1. **Obsidian CLI is app automation.** Do not use it for routine retrieval or note management. Load `obsidian-cli` only for explicit app/plugin/theme operations.
 
-2. **Always specify vault.** Omitting `vault=` errors or targets the wrong vault.
+2. **Write directly to the selected vault path.** Confirm `Knowledge` versus `Memory` before modifying a note.
 
 3. **Both vaults require frontmatter.** Knowledge vault notes require `type`, `parent`, `created`, `summary`. Memory vault notes require `type`, `parent`, `summary`, `created`. The old "no frontmatter in Knowledge" convention is obsolete.
 
@@ -310,7 +302,7 @@ Chronological entries.
 
 | Skill | Load when |
 |-------|-----------|
-| `obsidian-cli` | Full CLI syntax, common commands, plugin dev |
+| `obsidian-cli` | Explicit Obsidian app, plugin, or theme automation only |
 | `obsidian-markdown` | Writing Obsidian Flavored Markdown (wikilinks, callouts, embeds, etc.) |
 | `obsidian-bases` | Creating/editing `.base` files (database views, filters, formulas) |
 | `obsidian-json-canvas` | Creating/editing `.canvas` files (visual canvases, flowcharts, mind maps) |

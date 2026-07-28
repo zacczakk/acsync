@@ -297,9 +297,7 @@ Release notes are the public face of the release. They deserve real effort.
 - `@release` agent — can handle execution of Steps 5-8 if dispatched
 
 **Called after:**
-- `finishing-a-development-branch` — when the user chooses to release
 - `executing-plans` / `subagent-driven-development` — milestone releases
 
 **Pairs with:**
 - `verification-before-completion` — the build/test gate is this skill's application of that principle
-- `requesting-code-review` — review before release, not after

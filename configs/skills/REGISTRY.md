@@ -8,18 +8,15 @@ Machine-readable companion: `registry.json` (consumed by `scripts/sync-upstream-
 - **auto** — nightly workflow pulls upstream changes, overwrites local copy
 - **manual** — nightly workflow flags upstream diffs in summary report, does not overwrite
 
-## Remote: anthropics/skills (9)
+## Remote: anthropics/skills (6)
 
 | Skill | Upstream Name | Local Name | Customized | Sync |
 |-------|--------------|------------|------------|------|
-| doc-coauthoring | doc-coauthoring | doc-coauthoring | No | auto |
 | docx | docx | docx | No | auto |
 | frontend-design | frontend-design | frontend-design | Minor (attribution) | auto |
 | mcp-builder | mcp-builder | mcp-builder | No | auto |
 | pdf | pdf | pdf | No | auto |
 | pptx | pptx | pptx | No | auto |
-| skill-creator | skill-creator | skill-creator | No | auto |
-| webapp-testing | webapp-testing | webapp-testing | Yes (agent-browser section) | manual |
 | xlsx | xlsx | xlsx | No | auto |
 
 ## Remote: vercel-labs/agent-skills (2)
@@ -33,30 +30,29 @@ Machine-readable companion: `registry.json` (consumed by `scripts/sync-upstream-
 
 | Skill | Upstream Name | Local Name | Customized | Sync |
 |-------|--------------|------------|------------|------|
-| obsidian-cli | obsidian-cli | obsidian-cli | No | auto |
+| obsidian-cli | obsidian-cli | obsidian-cli | Yes (app-safety guard) | manual |
 | defuddle | defuddle | obsidian-defuddle | Renamed | auto |
 | obsidian-markdown | obsidian-markdown | obsidian-markdown | No | auto |
 | json-canvas | json-canvas | obsidian-json-canvas | Renamed | auto |
 | obsidian-bases | obsidian-bases | obsidian-bases | No | auto |
 
-## Remote: obra/superpowers (14)
+## Remote: obra/superpowers (6)
 
 | Skill | Upstream Name | Local Name | Customized | Sync |
 |-------|--------------|------------|------------|------|
 | brainstorming | brainstorming | brainstorming | No | auto |
-| dispatching-parallel-agents | dispatching-parallel-agents | dispatching-parallel-agents | No | auto |
-| executing-plans | executing-plans | executing-plans | No | auto |
-| finishing-a-development-branch | finishing-a-development-branch | finishing-a-development-branch | No | auto |
-| receiving-code-review | receiving-code-review | receiving-code-review | No | auto |
-| requesting-code-review | requesting-code-review | requesting-code-review | No | auto |
-| subagent-driven-development | subagent-driven-development | subagent-driven-development | No | auto |
-| systematic-debugging | systematic-debugging | systematic-debugging | No | auto |
-| test-driven-development | test-driven-development | test-driven-development | No | auto |
-| using-git-worktrees | using-git-worktrees | using-git-worktrees | No | auto |
-| using-superpowers | using-superpowers | using-superpowers | No | auto |
+| executing-plans | executing-plans | executing-plans | Yes (removed skill references) | manual |
+| subagent-driven-development | subagent-driven-development | subagent-driven-development | Yes (local verify/TDD routing) | manual |
+| using-superpowers | using-superpowers | using-superpowers | Yes (diagnosing-bugs routing) | manual |
 | verification-before-completion | verification-before-completion | verification-before-completion | No | auto |
-| writing-plans | writing-plans | writing-plans | No | auto |
-| writing-skills | writing-skills | writing-skills | No | auto |
+| writing-plans | writing-plans | writing-plans | Yes (worktree consent guard) | manual |
+
+## Remote: mattpocock/skills (2)
+
+| Skill | Upstream Name | Local Name | Customized | Sync |
+|-------|--------------|------------|------------|------|
+| diagnosing-bugs | diagnosing-bugs | diagnosing-bugs | Yes (removed unavailable architecture skill handoff) | manual |
+| tdd | tdd | tdd | Yes (removed unavailable code-review handoff) | manual |
 
 ## Remote: cursor/plugins (1)
 
@@ -74,17 +70,16 @@ Machine-readable companion: `registry.json` (consumed by `scripts/sync-upstream-
 
 `oe-*` skills from `organization/project` are project-specific. Add them locally per project as needed — not tracked here.
 
-## Custom (10)
+## Custom (9)
 
 | Skill | Description |
 |-------|-------------|
-| foundry-local-development | Local dev tooling for Foundry projects: MCP servers, .mcp.json → opencode.json translation, Maestro/Hawk binary wiring |
-| foundry-mediasets | Foundry Media Set REST API v2: upload, download, list, transform, transactions, Ontology references |
-| foundry-osdk-deploy | Release/deploy Foundry OSDK React apps via git tags and ci-service CI |
-| foundry-react-app-dev | React/Vite app dev on Foundry: CORS, OAuth, IHub MCP, AI SDK patterns |
+| agent-brief | Durable implementation brief for autonomous agent handoff |
+| design-critique | UI hierarchy, cognitive load, and anti-slop review |
+| grill-with-docs | Requirements and implementation stress-testing against project docs |
+| interface-design | Public interface and hard-to-change boundary design |
 | memory-retrieval | Retrieval routing across Knowledge, Memory, qmd, and sessions with sessions last |
 | obsidian-vault-conventions | Vault layout, lifecycle, naming conventions |
 | release | Release orchestration: version bumps, changelog, docs, CI gates, PII scan, tagging |
 | session-notes | Atomic session note capture templates |
 | screenshot-workflow | Screenshot asset pipeline (macOS) |
-| provider-docs | provider platform documentation for organization's data & analytics ecosystem |

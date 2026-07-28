@@ -1,5 +1,5 @@
 ---
-summary: Skills catalog — all 37 on-demand skills with sources, triggers, and trimming notes.
+summary: Skills catalog and portfolio guidance for 36 active globally synced skills.
 read_when:
   - Adding or modifying skills
   - Reviewing what's available
@@ -8,19 +8,26 @@ read_when:
 
 # Skills Catalog
 
-37 skills in `configs/skills/`, synced to all targets via `metronome push`.
+36 active skills in `configs/skills/`, synced to all targets via `metronome push`.
 Skills load on-demand when the agent's task matches the skill description.
+
+The current portfolio is intentionally under review. See [Skill Portfolio Review](skill-portfolio-review-2026-07-10.md) for ranked cuts and reduction candidates.
 
 ## Sources
 
 | Source | Repo | Count | Notes |
 |---|---|---|---|
-| Custom | this repo | 12 | Obsidian (6), design (2), workflow (4) |
-| Impeccable | `~/Repos/oss/impeccable` | 1 | frontend-design inspiration only; canonical skill now trimmed and owned locally |
-| Anthropic | `~/Repos/oss/anthropic-skills` | 8 | Adopted as-is (upstream-only) |
-| Superpowers | `~/Repos/oss/superpowers` | 2 | Trimmed to telegraphic style on adoption |
+| Custom | this repo | 13 | Foundry, vault, design, and workflow skills |
+| Anthropic | `anthropics/skills` | 6 | File-format and MCP skills |
+| Superpowers | `obra/superpowers` | 6 | Four locally adapted skills are manual-sync |
+| Matt Pocock | `mattpocock/skills` | 2 | `diagnosing-bugs` and `tdd`, locally adapted and manual-sync |
+| Kepano | `kepano/obsidian-skills` | 5 | `obsidian-cli` is manually synced due to local app-safety guard |
+| Vercel | `vercel-labs/agent-skills` | 2 | React reference manual; design guidelines auto |
+| Other upstreams | Cursor and jakubkrehel | 2 | Manual sync |
 
-## Inventory
+## Selected Inventory
+
+The tables below are a trigger-oriented overview, not an exhaustive registry. Source counts above and `configs/skills/*/SKILL.md` are authoritative.
 
 ### Custom Skills
 
@@ -29,7 +36,7 @@ Skills load on-demand when the agent's task matches the skill description.
 | `memory-retrieval` | Memory/Knowledge/qmd/session lookup before broad repo search or multi-file reads | — |
 | `obsidian-markdown` | Working with .md files in Obsidian, wikilinks, callouts | — |
 | `obsidian-json-canvas` | Working with .canvas files, mind maps, flowcharts | — |
-| `obsidian-cli` | Vault reads/writes, note management, plugin dev | — |
+| `obsidian-cli` | Explicit Obsidian app, plugin, or theme automation | — |
 | `obsidian-defuddle` | Extracting clean markdown from web pages | — |
 | `obsidian-bases` | Creating .base files, database views, filters | — |
 | `obsidian-vault-conventions` | Vault layout, folder lifecycle, naming conventions | — |
@@ -39,25 +46,23 @@ Skills load on-demand when the agent's task matches the skill description.
 | `screenshot-workflow` | "Use a screenshot" or replacing/optimizing image assets | 13 |
 | `session-notes` | Writing atomic session notes to Memory vault (decisions, discoveries, checkpoints) | — |
 
-### Anthropic Skills (upstream, not trimmed)
+### Anthropic Skills
 
 | Skill | Trigger | Support files |
 |---|---|---|
-| `webapp-testing` | Testing local web apps with Playwright | scripts/, examples/ |
-| `skill-creator` | Creating, evaluating, benchmarking skills | agents/, scripts/, eval-viewer/, references/ |
 | `mcp-builder` | Building MCP servers (Python FastMCP / Node SDK) | reference/, scripts/ |
-| `doc-coauthoring` | Co-authoring documentation, specs, proposals | — |
 | `docx` | Creating/editing/reading Word documents | scripts/ |
 | `pdf` | PDF processing (read, create, merge, OCR) | forms.md, reference.md, scripts/ |
 | `pptx` | Creating/editing PowerPoint presentations | editing.md, pptxgenjs.md, scripts/ |
 | `xlsx` | Creating/editing/cleaning spreadsheets | scripts/ |
 
-### Superpowers Skills (trimmed)
+### Superpowers Skills
 
-| Skill | Trigger | Original → Trimmed |
+| Skill | Trigger | Status |
 |---|---|---|
-| `brainstorming` | Before creating features, building components, adding functionality | 96 → 38 lines |
-| `test-driven-development` | Implementing features or bugfixes (test-first workflow) | 371 → 73 lines (+ 53-line anti-patterns ref) |
+| `brainstorming` | Before creating features, building components, adding functionality | Upstream auto-sync; removal/narrowing recommended |
+| `diagnosing-bugs` | Hard bugs and performance regressions | Matt Pocock replacement for `systematic-debugging`; manual-sync |
+| `tdd` | Explicit test-first requests and red-green-refactor | Matt Pocock replacement for `test-driven-development`; manual-sync |
 
 ### Impeccable Skill (pbakaus/impeccable, Apache 2.0)
 
