@@ -50,7 +50,7 @@ metronome pull -s claude            # pull from Claude to canonical
 configs/
   commands/*.md              Slash commands (7)
   agents/                    Agent definitions (2)
-  skills/                    Skill directories (34, with upstream sync)
+  skills/                    Skill directories (36 active, with upstream sync)
   plugins/*.ts               OpenCode plugins (3, identity-rendered)
   mcp/*.json                 MCP server definitions (6)
   settings/*.json            Settings definitions (claude, opencode, token-tracker)

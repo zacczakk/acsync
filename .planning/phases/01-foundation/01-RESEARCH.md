@@ -261,7 +261,7 @@ function createExclusionFilter(patterns: string[]): (name: string) => boolean {
 - **`JSON.parse()` for JSONC files:** Use `jsonc-parser` exclusively. `JSON.parse` silently strips comments.
 - **Exclusion logic per-module:** Single `isExcluded()` function, imported everywhere. No inline glob checks.
 - **Mutable sort for hashing:** Use `Array.prototype.sort()` with `localeCompare` — deterministic. Don't rely on filesystem order.
-- **Hardcoded backup path:** Read from config or compute from `os.homedir()`. Never inline `"/Users/.../backups/"`.
+- **Hardcoded backup path:** Read from config or compute from `os.homedir()`. Never inline an absolute home-directory backup path.
 
 ## Don't Hand-Roll
 
@@ -281,7 +281,7 @@ function createExclusionFilter(patterns: string[]): (name: string) => boolean {
 ### Pitfall 1: Temp File on Different Filesystem Breaks Atomic Rename
 
 **What goes wrong:** Writing temp file to `/tmp/` and renaming to `~/.config/opencode/` fails because `rename()` across filesystems is not atomic — it becomes copy+delete.
-**Why it happens:** macOS `/tmp` → `/private/tmp` is a different mount point from `/Users/`.
+**Why it happens:** macOS `/tmp` → `/private/tmp` is a different mount point from a user home directory.
 **How to avoid:** Always create temp file in the **same directory** as the target: `${targetPath}.tmp.${pid}`.
 **Warning signs:** `EXDEV` error from `rename()`. Or: rename "succeeds" but is actually copy+delete (non-atomic).
 

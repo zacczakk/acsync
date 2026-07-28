@@ -8,6 +8,7 @@ read_when:
 
 ## Unreleased
 
+- **Skill portfolio reduction** — removed eleven overlapping workflow skills, blocked them from upstream resync, and replaced Superpowers debugging/TDD with manually synced Matt Pocock `diagnosing-bugs` and `tdd`
 - **Claude palantir MCP allowlist** — added `mcp__palantir-mcp` to managed Claude Code always-allowed tools
 - **Claude context-mode MCP allowlist** — added `mcp__context-mode` to managed Claude Code always-allowed tools
 - **Claude maestro MCP allowlist** — added `mcp__maestro-mcp` to managed Claude Code always-allowed tools

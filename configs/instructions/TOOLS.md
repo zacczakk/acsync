@@ -284,43 +284,25 @@ tmux kill-session -t codex-shell  # Kill session
 
 ## obsidian
 
-CLI for Obsidian vault operations. **Required for all vault reads/writes** — no raw file I/O.
+Electron app CLI for explicit Obsidian app, plugin, and theme automation. Invoking it launches an app process.
 
 - **Vaults:** `Knowledge` (personal notes, projects, docs) and `Memory` (agent operational memory).
 - **Location:** `~/Vaults/` (symlinks to iCloud vaults).
-- **Rule:** Specify vault in every call: `vault=Knowledge` or `vault=Memory`.
+- **Rule:** Never use for routine vault reads, searches, or note management. Use filesystem tools, `rg`, and `qmd`.
+- **App safety:** Explicit user request only; one command at a time; no parallel calls, retries, lock removal, kill, or restart.
 - **Full guide:** `~/Vaults/AGENTS.md`
 
-### Subcommands
+### Explicit app operations
 
 | Command | Purpose |
 |---------|---------|
-| `obsidian vault=V files [folder=F]` | List files (optionally scoped to folder) |
-| `obsidian vault=V read path="..."` | Read note content |
-| `obsidian vault=V search query="..."` | Search vault |
-| `obsidian vault=V search:context query="..."` | Search with surrounding context |
-| `obsidian vault=V create path="..." content="..."` | Create note |
-| `obsidian vault=V append path="..." content="..."` | Append to note |
-| `obsidian vault=V move path="..." to="folder"` | Move note (Knowledge only) |
-| `obsidian vault=V delete path="..."` | Delete note |
-| `obsidian vault=V task path="..." line=N done` | Mark task complete (Knowledge only) |
-| `obsidian vault=V tasks [todo] [path="..."]` | List tasks (Knowledge only) |
+| `obsidian plugin:reload id=...` | Reload a plugin during development |
+| `obsidian dev:errors` | Inspect app errors |
+| `obsidian dev:screenshot path=...` | Capture the app UI |
+| `obsidian dev:dom selector=...` | Inspect the app DOM |
+| `obsidian eval code=...` | Evaluate code in the app context |
 
-### Quick ref
-```bash
-# Knowledge vault
-obsidian vault=Knowledge files folder=01_inbox
-obsidian vault=Knowledge read path="02_backlog/note.md"
-obsidian vault=Knowledge search query="term"
-obsidian vault=Knowledge create path="02_backlog/item.md" content="..."
-obsidian vault=Knowledge task path="02_backlog/item.md" line=3 done
-obsidian vault=Knowledge move path="03_active/project.md" to="04_archive"
-
-# Memory vault
-obsidian vault=Memory files
-obsidian vault=Memory search:context query="topic"
-obsidian vault=Memory create path="descriptive-name.md" content="..."
-```
+For vault content: Read/Glob/Grep for discovery and reads, apply_patch for edits, and `trash` for confirmed deletes.
 
 ## qmd
 
@@ -402,14 +384,14 @@ qmd multi-get "qmd://memory/tools/*"
 qmd update && qmd embed
 ```
 
-### When to use qmd vs obsidian search
+### When to use qmd vs filesystem search
 
 | Use case | Tool |
 |----------|------|
 | Semantic/fuzzy recall ("things related to X") | `qmd query` |
-| Exact keyword match in vault | `obsidian vault=Memory search query="..."` |
-| Read/write/create notes | `obsidian` CLI |
-| Discovery before deep read | `qmd query --files` then `obsidian read` |
+| Exact keyword match in vault | `rg` or Grep under `~/Vaults/` |
+| Read/write/create notes | Filesystem Read and apply_patch |
+| Discovery before deep read | `qmd query --files`, then direct file read |
 
 ## sessions
 
@@ -480,11 +462,11 @@ sessions export --force --source claude
 sessions stats
 ```
 
-### When to use sessions vs qmd vs obsidian
+### When to use sessions vs qmd vs filesystem search
 
 | Use case | Tool |
 |----------|------|
-| Curated knowledge/patterns | `qmd query -c memory` or `obsidian vault=Memory search` |
+| Curated knowledge/patterns | `qmd query -c memory` or `rg` under `~/Vaults/Memory/` |
 | "Did we do X before?" / past session recall | `sessions search` or `sessions find` |
 | Full session transcript | `sessions read <id>` |
 | Broad semantic discovery across sessions | `sessions find` |
@@ -509,71 +491,6 @@ bird mentions [-n count]               # Find tweets mentioning @clawdbot
 bird whoami                            # Show logged-in account
 bird check                             # Show credential sources
 ```
-
-## rtk
-
-Token compression proxy. Intercepts bash commands and compresses output before it reaches the LLM context window. 60–90% token reduction on git, build, test, and search output. <10ms overhead.
-
-- **Install:** `brew install rtk`
-- **Config:** `~/Library/Application Support/rtk/config.toml` (macOS)
-- **Telemetry:** Disabled via config.toml (`[telemetry] enabled = false`).
-- **Hook (Claude Code):** `~/.claude/hooks/rtk-rewrite.sh` — PreToolUse hook rewrites `git status` → `rtk git status` transparently. Owned by `rtk init`, registered by metronome.
-- **Hook (OpenCode):** `configs/plugins/rtk.ts` — plugin deployed by `metronome push`.
-- **Limitation:** Only intercepts bash tool calls. Native Read/Grep/Glob tools are not compressed.
-
-### Commands
-
-| Command | Purpose |
-|---------|---------|
-| `rtk gain` | Show token savings summary |
-| `rtk gain --history` | Historical savings |
-| `rtk graph` | Visual savings graph |
-| `rtk discover` | Find commands not yet compressed |
-| `rtk init --show` | Show current hook configuration |
-| `rtk rewrite "<cmd>"` | Test rewrite logic for a command |
-
-### `rtk proxy` — unfiltered passthrough
-
-Runs a command **without compression** but still tracks usage. Use when rtk's filter drops output you need (failure details, stack traces, verbose logs).
-
-```bash
-rtk proxy pytest tests/                     # Full pytest output, untruncated
-rtk proxy pytest tests/ -v --tb=long        # Verbose + long tracebacks
-rtk proxy -u pytest tests/                  # Ultra-compact ASCII icons
-rtk proxy --skip-env pytest tests/          # Skip SKIP_ENV_VALIDATION injection
-```
-
-**Flags:**
-
-| Flag | Purpose |
-|------|---------|
-| `-v` / `-vv` / `-vvv` | Verbosity (rtk-level, not the child command) |
-| `-u, --ultra-compact` | ASCII icons + inline format (Level 2 compression) |
-| `--skip-env` | Set `SKIP_ENV_VALIDATION=1` for child (useful for Next.js, tsc, lint) |
-
-**When to use `rtk proxy` vs `rtk pytest`:**
-- `rtk pytest` — compressed summary; good for CI / green runs
-- `rtk proxy pytest` — full raw output; use when failures are truncated or details are missing
-
-### `rtk pytest` — compressed test runner
-
-```bash
-rtk pytest tests/                      # Failures + summary only
-rtk pytest tests/ -v                   # With test names
-rtk pytest tests/foo.py::test_bar      # Single test
-```
-
-### Config tuning
-
-```toml
-# ~/Library/Application Support/rtk/config.toml (macOS)
-[hooks]
-exclude_commands = ["curl"]  # Skip rewriting — curl passes through raw
-```
-
-### Rewritten command families
-
-git, gh, cargo, go, npm, pnpm, bun, pytest, ruff, mypy, pip, uv, tsc, eslint, prettier, playwright, prisma, docker, kubectl, curl, cat, rg, grep, ls, tree, find, diff, head, aws, psql.
 
 ## Supply Chain Defense
 

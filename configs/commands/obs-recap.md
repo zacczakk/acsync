@@ -27,7 +27,7 @@ User input: $ARGUMENTS
 
 3. **Discover related Memory notes:**
    - Extract 2-3 key terms from the session (repo name, main topic, tools used).
-   - Search: `obsidian vault=Memory search query="{term}"` for each.
+   - Search summaries and note text with `rg "{term}" ~/Vaults/Memory/ --glob '*.md'` for each.
    - From matches, pick up to 2 notes that are genuine dependencies (not just keyword overlap).
    - Build `related:` list: `[[sessions]]` first (folder parent), then discovered deps. Max 3 entries.
 
@@ -71,7 +71,7 @@ User input: $ARGUMENTS
 
 ## Rules
 
-- Write via filesystem (absolute path `~/Vaults/Memory/sessions/`), not `obsidian create`.
+- Write via filesystem at the absolute path `~/Vaults/Memory/sessions/`.
 - Skip empty sections entirely.
 - Keep total note under 80 lines.
 - Frontmatter `projects`: repo name or project slug from MEMORY.md.

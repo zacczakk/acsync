@@ -1,4 +1,5 @@
 {
+  "$schema": "https://opencode.ai/config.json",
   "instructions": [
     "~/.config/opencode/AGENTS.md",
     "~/Vaults/Memory/SOUL.md",
@@ -31,7 +32,6 @@
       "~/Vaults/Memory/system/grooming-reports/*": "allow",
       "~/Repos/**": "allow",
       "~/.config/opencode/agents/*": "allow",
-      "~/.config/opencode/skill/**": "allow",
       "~/.config/opencode/get-shit-done/templates/*": "allow",
       "~/.mcporter/**": "allow",
       "~/.agent-browser/**": "allow",
@@ -51,7 +51,6 @@
       "~/.zsh_secrets": "deny",
       "~/.config/opencode/agents/*": "allow",
       "~/.config/opencode/commands/*": "allow",
-      "~/.config/opencode/skill/**": "allow",
       "~/.agents/**": "allow",
       "~/Downloads/**": "allow"
     },
@@ -63,7 +62,10 @@
   },
   "agent": {
     "explore": {
-      "model": "tux/claude-haiku-4-5-20251001"
+      "model": "github-copilot/gpt-5.6-luna",
+      "options": {
+        "reasoningEffort": "low"
+      }
     }
   },
   "plugin": [
@@ -175,6 +177,19 @@
             "low": { "thinking": { "type": "adaptive" }, "effort": "low" },
             "medium": { "thinking": { "type": "adaptive" }, "effort": "medium" },
             "high": { "thinking": { "type": "adaptive" }, "effort": "high" }
+          }
+        },
+        "gpt-5.5": {
+          "name": "GPT-5.5",
+          "provider": { "npm": "@ai-sdk/openai" },
+          "reasoning": true,
+          "modalities": { "input": ["image", "text"], "output": ["text"] },
+          "variants": {
+            "none": { "reasoningEffort": "none" },
+            "low": { "reasoningEffort": "low" },
+            "medium": { "reasoningEffort": "medium" },
+            "high": { "reasoningEffort": "high" },
+            "xhigh": { "reasoningEffort": "xhigh" }
           }
         }
       }

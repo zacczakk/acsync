@@ -20,7 +20,8 @@ const EXPLORATORY_TOOLS = new Set([
 
 const ADVISORY =
   "\n<system-reminder>Check Memory vault first: " +
-  '`qmd query "..." -c memory` (semantic) or `obsidian search --vault Memory "..."` (structured). ' +
+  '`rg \'^summary:.*topic\' ~/Vaults/Memory/ --glob \'*.md\' -i` (summary scan) or ' +
+  '`qmd query "..." -c memory` (semantic). Read the winning file directly; do not launch the Obsidian app CLI. ' +
   "If no match, fall back to session history: " +
   '`sessions search "..."` (keyword, FTS5) or `sessions find "..."` (semantic, qmd -c sessions). ' +
   "`sessions list` is always live; `search`/`find` need periodic `sessions export`.</system-reminder>"

@@ -48,7 +48,7 @@ Using discovered content, extract:
 ### Phase 3: Write
 
 1. **Check idempotency:**
-   - `obsidian vault=Memory files folder=projects` — check if `{repo-name}.md` exists.
+   - Check whether `~/Vaults/Memory/projects/{repo-name}.md` exists.
    - If exists, read it. If it's already populated (has ## Architecture section with real content), **skip and report** — don't overwrite manual work.
    - If exists but is a skeleton (no real content beyond headings), **replace**.
    - If doesn't exist, **create**.
@@ -113,7 +113,7 @@ Analyzed: {repo-name}
 
 ## Rules
 
-- Write via filesystem (absolute path `~/Vaults/Memory/projects/`), not `obsidian create` — backticks in content are eaten by the shell.
+- Write via filesystem at the absolute path `~/Vaults/Memory/projects/`.
 - Frontmatter required. Extra fields beyond base schema: `repo`, `language`, `framework`, `status`.
 - Idempotent — never overwrite populated notes. Skip and report.
 - Be concise — bullet points over prose. Future agents should orient in 60 seconds.

@@ -26,7 +26,7 @@ User input: $ARGUMENTS
 
 For each content folder (`02_backlog/`, `03_active/`, `06_docs/`, `07_knowledge/`):
 
-a. List all notes: `obsidian vault=Knowledge files folder={folder}`
+a. List all notes under `~/Vaults/Knowledge/{folder}` with filesystem tools.
 
 b. For each note (skip index and sub-index files):
    1. Read the note — find the `See also:` line.
@@ -90,7 +90,7 @@ If nothing to fix: "All parent links are current."
 ## Rules
 
 - Fix parent links only. Do NOT add dependency links, body wikilinks, or new content.
-- Knowledge vault: use `obsidian` CLI for reads/writes. No frontmatter.
+- Knowledge vault: use filesystem tools for reads/writes. Frontmatter required.
 - Memory vault: use filesystem for writes (backtick safety). Frontmatter required.
 - Do NOT delete or move any notes. Only update link metadata.
 - Do NOT create new notes. Only fix existing parent references and index listings.

@@ -39,8 +39,8 @@ the scaffolding will be the ready-to-`cp` "what".
 > guide (§1–§12) is reference material that stands on its own.
 
 ```bash
-# 1. Install (Node >= 22.19.0)
-npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+# 1. Install (Node >= 22.19.0; pi runs on Node even when installed via bun)
+bun add -g --ignore-scripts @earendil-works/pi-coding-agent
 pi --version
 
 # 2. Seed config from metronome scaffolding  [requires configs/pi/ — see prerequisite]
@@ -110,14 +110,19 @@ OpenCode plugins do **not** — they get rebuilt (skills/CLIs) or rewired
 ## 2. Install & identity
 
 ```bash
-# Recommended
-npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+# Recommended (Bun-first house default)
+bun add -g --ignore-scripts @earendil-works/pi-coding-agent
 # Alternatives
+npm install -g --ignore-scripts @earendil-works/pi-coding-agent
 curl -fsSL https://pi.dev/install.sh | sh
-bun add -g @earendil-works/pi-coding-agent
 ```
 
-- **Binary:** `pi`. **Runtime:** Node ≥ 22.19.0 (Bun works for global install).
+- **Binary:** `pi`. **Runtime:** Node ≥ 22.19.0 — `pi` runs on Node regardless of
+  installer; `bun add -g` is the installer, not the runtime.
+- `--ignore-scripts` disables dependency lifecycle scripts at install (both `bun add`
+  and `npm install` honor it). Pi requires no install scripts for a normal global
+  install; keep the flag for supply-chain hygiene (§9 notes Pi later fetches unsigned
+  `fd`/`rg` at *runtime* — a separate concern the flag does not cover).
 - **Namespace:** `@earendil-works/*` is canonical. `@mariozechner/*` is deprecated but
   still resolves — do not use it in new configs.
 - **Package management** (Pi's own unified system — extensions/skills/prompts/themes):
@@ -128,7 +133,7 @@ bun add -g @earendil-works/pi-coding-agent
   pi list ; pi update --all ; pi remove npm:<pkg> ; pi config
   /reload                             # hot-reload extensions/skills/prompts, no restart
   ```
-- **Telemetry off** (recommended for corp/organization context): `PI_TELEMETRY=0`,
+- **Telemetry off:** `PI_TELEMETRY=0`,
   `PI_OFFLINE=1` (disables all startup network ops), `PI_SKIP_VERSION_CHECK=1`, or
   `enableInstallTelemetry: false` in settings.
 
@@ -201,17 +206,17 @@ also includes `deepseek`, `mistral`, `groq`, `cerebras`, `xai`, `nvidia`, `zai`,
 **OAuth subscription providers** (via `/login`, no API key): Anthropic Claude
 Pro/Max, OpenAI Codex (ChatGPT Plus/Pro), GitHub Copilot, Google Cloud Code Assist.
 
-### Custom providers (Bedrock / Azure / Foundry / corp gateway)
+### Custom providers (Bedrock / Azure / OpenAI-compatible gateways)
 
 AWS Bedrock and Azure OpenAI are supported via native env vars (above) — no custom
-model file needed for standard deployments. For an OpenAI-compatible corporate gateway
-(the OpenCode `provider-*` pattern), define models in `models.json`:
+model file needed for standard deployments. For another OpenAI-compatible gateway,
+define models in `models.json`:
 
 ```json
 [
   {
-    "id": "gpt-5.1", "name": "GPT-5.1 (provider)",
-    "api": "openai-completions", "provider": "provider-openai",
+    "id": "gpt-5.1", "name": "GPT-5.1 (Gateway)",
+    "api": "openai-completions", "provider": "custom-openai",
     "baseUrl": "https://<gateway>/openai", "reasoning": true, "input": ["text"],
     "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
     "contextWindow": 400000, "maxTokens": 128000
@@ -223,7 +228,7 @@ model file needed for standard deployments. For an OpenAI-compatible corporate g
 For dynamic/proxy providers (e.g. the Cursor gRPC fork analog), register at startup in
 an extension: `pi.registerProvider("name", { baseUrl, apiKey: "$ENV", api, models })`.
 You can also override just the `baseUrl` of a built-in provider — useful for pointing
-`anthropic` at a network proxy.
+`anthropic` at a compatible proxy.
 
 ### The instruction stack (this is how you carry your agent identity)
 
@@ -306,12 +311,11 @@ Pi packages bundle extensions + skills + prompts + themes. Discover at
 |---|---|
 | `@narumitw/pi-statusline` | Rich footer: model, git, ctx%, tokens, cost, clock. Presets `tokyo-night` (powerline `░▒▓`) / `classic` via `PI_STATUSLINE_PRESET`. |
 | `@narumitw/pi-plan-mode` | Codex-style read-only planning mode (OpenCode plan-mode analog). |
-| `@narumitw/pi-retry` | Auto-retry on provider errors (corp-gateway flakiness insurance). |
+| `@narumitw/pi-retry` | Auto-retry on transient provider errors. |
 | `@narumitw/pi-goal` | `/goal` loop until verifiably done. |
 | `@narumitw/pi-btw` | `/btw` side-question without polluting main context. |
 | `pi-smart-compact` | Verification-oriented deterministic compaction. |
 | `@narumitw/pi-caffeinate` | Prevents sleep during long autonomous runs. |
-| `MasuRii/pi-rtk-optimizer` (189★) | RTK command rewriting + tool-output compaction — direct analog of your OpenCode `rtk.ts` plugin. |
 
 ### Tier 3 — power workflows (per-project)
 
@@ -480,14 +484,14 @@ host configs. Run `pi-mcp-adapter init` to auto-detect and import. Per-server:
 
 ---
 
-## 9. Security posture (read before organization/shared repos)
+## 9. Security posture
 
 Per the agent-safehouse analysis (Pi v0.52.9): **no built-in sandbox — `bash` runs
 with full user permissions, unrestricted filesystem/network, and Pi auto-downloads
 `fd`/`rg` from GitHub over HTTPS without signature verification.** Extensions can
 register arbitrary tools and run code at install time (trust-at-install model).
 
-Mitigations, in order of preference for the organization/Foundry context:
+Mitigations, in order of preference:
 - `defaultProjectTrust: "ask"` (scaffold default) — never auto-trust unknown repos.
 - Opt-in sandbox extension for tool isolation. The safehouse report references
   `@anthropic-ai/sandbox-runtime`; the confirmed-installable community route is
@@ -495,11 +499,9 @@ Mitigations, in order of preference for the organization/Foundry context:
 - Container isolation (Docker) or `rivet agent-os` (WASM/V8 isolates; supports Pi) for
   untrusted work — your vault already tracks rivet as the sandbox runtime.
 - Pin extension versions; review third-party source.
-- **organization cert bundle:** export `NODE_EXTRA_CA_CERTS=~/.ssh/cacert.pem` (and, if a
-  provider still fails TLS, `SSL_CERT_FILE=~/.ssh/cacert.pem`) in your shell profile
-  *before* `pi install` or any provider call — Pi's outbound to providers/npm/GitHub
-  must route through the corporate bundle. Per the vault TLS runbook, `~/.ssh/cacert.pem`
-  is the source of truth; a TLS failure means cert/proxy misconfig, not a Pi bug.
+- For a gateway using a private certificate authority, set `NODE_EXTRA_CA_CERTS` to
+  your organization's CA bundle before `pi install` or provider calls. Diagnose TLS
+  failures as certificate or proxy configuration issues before disabling verification.
 
 ---
 
@@ -576,11 +578,11 @@ flow needs the `configs/pi/` scaffolding, which is a separate follow-up).
 ## 12. Migration checklist (OpenCode → Pi)
 
 - [ ] Install Pi, confirm `pi --version`, disable telemetry.
-- [ ] Set `NODE_EXTRA_CA_CERTS=~/.ssh/cacert.pem` before any install/provider call (organization).
+- [ ] If required, set `NODE_EXTRA_CA_CERTS` to the trusted CA bundle before installs or provider calls.
 - [ ] Author `~/.pi/agent/` config by hand per §3–§8 (or `cp` from `configs/pi/` once
       that scaffolding exists — currently a follow-up deliverable, see §0).
-- [ ] `/login` your primary provider (or export env keys); add `models.json` for the
-      corp gateway if needed. Note: `auth.json` is written only by `/login`/env — it is
+- [ ] `/login` your primary provider (or export env keys); add `models.json` for a
+      custom gateway if needed. Note: `auth.json` is written only by `/login`/env — it is
       **not** metronome-synced and `metronome push` will not touch it.
 - [ ] Port `AGENTS.md` + `APPEND_SYSTEM.md` (SOUL/voice).
 - [ ] Copy skills (loop-copy preserving `<name>/` dirs, §7); audit each for
@@ -590,7 +592,7 @@ flow needs the `configs/pi/` scaffolding, which is a separate follow-up).
 - [ ] Install `@narumitw/pi-lsp` (the one real gap) + statusline.
 - [ ] Drop `themes/north.json`, set `"theme": "north"`.
 - [ ] Rebuild OpenCode plugins as Pi extensions where still needed (read-guard →
-      `tool_call` block; notify → `session_*`; rtk → `pi-rtk-optimizer`).
+      `tool_call` block; notify → `session_*`).
 - [ ] Convert the 13 commands to prompt templates in `prompts/`.
 - [ ] Decide subagent strategy (`pi-subagents` vs tmux).
 - [ ] Security pass: `defaultProjectTrust: ask`, sandbox strategy for untrusted repos.

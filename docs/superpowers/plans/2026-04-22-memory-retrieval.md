@@ -104,8 +104,8 @@ Use `Memory` first for agent-managed operational context:
 
 | Need | Tool |
 |------|------|
-| User-authored docs/setup/reference | `obsidian vault=Knowledge search:context query="..."` |
-| Exact keyword in Memory note | `obsidian vault=Memory search:context query="..."` |
+| User-authored docs/setup/reference | `rg "..." ~/Vaults/Knowledge/ --glob '*.md'` |
+| Exact keyword in Memory note | `rg "..." ~/Vaults/Memory/ --glob '*.md'` |
 | Curated fuzzy recall about repo/tool/pattern | `qmd query "..." -c memory` |
 | Broader semantic recall across indexed vault content | `qmd query "..."` |
 | Exact phrase from old sessions | `sessions search "..."` |
@@ -118,10 +118,10 @@ Use `Memory` first for agent-managed operational context:
 qmd query "how does auth work" -c memory
 
 # Exact lookup in Memory
-obsidian vault=Memory search:context query="auth middleware"
+rg "auth middleware" ~/Vaults/Memory/ --glob '*.md'
 
 # Knowledge first for docs/setup/reference
-obsidian vault=Knowledge search:context query="Claude config"
+rg "Claude config" ~/Vaults/Knowledge/ --glob '*.md'
 
 # Only after vault lookup misses
 sessions search "auth middleware"

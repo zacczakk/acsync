@@ -461,7 +461,7 @@ Expected: PASS
 
 - [ ] **Step 4: Check formatted diff and final repo state**
 
-Run: `rtk git diff --stat && rtk git status --short`
+Run: `git diff --stat && git status --short`
 
 Expected: only the planned skill, command, fixture, test, and docs changes appear.
 

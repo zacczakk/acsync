@@ -30,7 +30,7 @@ Phase 1 (core file I/O layer). The JSONC-aware read/write must be the only path 
 ### Pitfall 2: Deep Merge Clobbers Arrays Instead of Merging Them
 
 **What goes wrong:**
-Claude `settings.json` has `permissions.allow` and `permissions.deny` arrays. A naive deep merge replaces the entire array with canonical values, destroying user-added entries (e.g., machine-local `Read(/Users/.../articles/**)` rules). lodash `_.merge` merges arrays by index position, which is equally wrong — it overwrites `array[0]` with `canonical[0]`.
+Claude `settings.json` has `permissions.allow` and `permissions.deny` arrays. A naive deep merge replaces the entire array with canonical values, destroying user-added entries (for example, machine-local read rules). lodash `_.merge` merges arrays by index position, which is equally wrong — it overwrites `array[0]` with `canonical[0]`.
 
 **Why it happens:**
 Deep merge semantics for arrays are inherently ambiguous. Libraries (lodash, deepmerge, structuredClone) each handle arrays differently. No single default is correct for all use cases. SYNC.md explicitly documents that `permissions` requires deep-merge with "canonical wins on conflict, user extras preserved."

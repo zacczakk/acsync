@@ -14,10 +14,7 @@ User input: $ARGUMENTS
 
 1. **If `$ARGUMENTS` provided:**
    - Derive a kebab-case filename from the content (use the first few meaningful words).
-    - Create the note:
-     ```
-     obsidian vault=Knowledge create path="01_inbox/{kebab-name}.md" content="# {Title}\n\n{content}"
-     ```
+    - Create `~/Vaults/Knowledge/01_inbox/{kebab-name}.md` with filesystem tools.
    - Confirm: `Note captured → 01_inbox/{kebab-name}.md`
 
 2. **If no arguments:**
@@ -27,8 +24,8 @@ User input: $ARGUMENTS
 ## Rules
 
 - No frontmatter. Just `# Title` and content.
-- Always include `vault=Knowledge` in every `obsidian` command.
-- Use `obsidian vault=Knowledge create` — not raw file I/O.
+- Never invoke the `obsidian` executable; it launches the Electron app.
+- Use apply_patch to create the note.
 - Kebab-case filenames, no date prefixes.
 - This is zero-friction capture — don't over-structure. Triage happens later via `/obs-triage`.
 - If the content is a URL, just capture it as-is. Enrichment happens during triage.
