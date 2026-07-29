@@ -7,7 +7,7 @@
     "~/Vaults/Memory/USER.md",
     "~/Vaults/Memory/MEMORY.md"
   ],
-  "model": "tux/claude-sonnet-4-6",
+  "model": "github-copilot/gpt-5.6-sol",
   "permission": {
     "*": "allow",
     "bash": {

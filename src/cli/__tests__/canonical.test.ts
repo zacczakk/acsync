@@ -32,8 +32,9 @@ describe('canonical agent routing', () => {
   test('routes OpenCode explore to Luna with low reasoning effort', () => {
     const settings = JSON.parse(
       readFileSync(join(process.cwd(), 'configs', 'settings', 'opencode.json'), 'utf8'),
-    ) as { agent?: Record<string, { model?: string; options?: { reasoningEffort?: string } }> };
+    ) as { model?: string; agent?: Record<string, { model?: string; options?: { reasoningEffort?: string } }> };
 
+    expect(settings.model).toBe('github-copilot/gpt-5.6-sol');
     expect(settings.agent?.explore).toEqual({
       model: 'github-copilot/gpt-5.6-luna',
       options: { reasoningEffort: 'low' },
