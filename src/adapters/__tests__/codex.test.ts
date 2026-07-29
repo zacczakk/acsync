@@ -12,7 +12,7 @@ const codexSettings: CanonicalSettings = {
   target: 'codex',
   keys: {
     features: {
-      codex_hooks: true,
+      hooks: true,
     },
   },
 };
@@ -174,6 +174,7 @@ describe('CodexAdapter settings', () => {
       '',
       '[features]',
       'multi_agent = true',
+      'codex_hooks = true',
       '',
     ].join('\n');
 
@@ -182,7 +183,8 @@ describe('CodexAdapter settings', () => {
     expect(result).toContain('model = "gpt-5.4"');
     expect(result).toContain('[features]');
     expect(result).toContain('multi_agent = true');
-    expect(result).toContain('codex_hooks = true');
+    expect(result).toContain('hooks = true');
+    expect(result).not.toContain('codex_hooks');
   });
 
   it('extracts only canonical TOML keys for drift comparison', () => {
@@ -197,6 +199,6 @@ describe('CodexAdapter settings', () => {
 
     const result = adapter.extractSettingsKeys(['features'], target);
 
-    expect(result).toBe('{\n  "features": {\n    "codex_hooks": true,\n    "multi_agent": true\n  }\n}\n');
+    expect(result).toBe('{\n  "features": {\n    "hooks": true,\n    "multi_agent": true\n  }\n}\n');
   });
 });

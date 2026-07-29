@@ -554,7 +554,7 @@ Rules:
   and Codex hook registration from `configs/hook-configs/codex.json` to
   `~/.codex/hooks.json`.
 - **Hooks**: Native lifecycle hooks live in `~/.codex/hooks.json` and require
-  `features.codex_hooks = true`. Metronome manages both the feature flag and
+  `features.hooks = true`. Metronome manages both the feature flag and
   the hook registration file for Codex.
 - **Permission rules**: Uses `prefix_rule()` syntax in `rules/default.rules`.
   Not managed by this sync (Codex-only manual config).

@@ -32,6 +32,23 @@ function extractEnvVarName(entry: unknown): string | undefined {
   return typeof name === 'string' ? name : undefined;
 }
 
+function normalizeDeprecatedHookFeature(features: Record<string, unknown>): Record<string, unknown> {
+  const normalized: Record<string, unknown> = {};
+  const hasCanonicalHooks = 'hooks' in features;
+
+  for (const [key, value] of Object.entries(features)) {
+    if (key === 'codex_hooks') {
+      if (!hasCanonicalHooks && typeof value === 'boolean') {
+        normalized.hooks = value;
+      }
+      continue;
+    }
+    normalized[key] = value;
+  }
+
+  return normalized;
+}
+
 export class CodexAdapter extends BaseAdapter {
   constructor(homeDir?: string) {
     super('codex', 'Codex', homeDir);
@@ -47,6 +64,10 @@ export class CodexAdapter extends BaseAdapter {
       : {};
 
     for (const [key, value] of Object.entries(settings.keys)) {
+      if (key === 'features' && isPlainObject(value) && 'hooks' in value && isPlainObject(base[key])) {
+        base[key] = normalizeDeprecatedHookFeature(base[key] as Record<string, unknown>);
+      }
+
       if (isPlainObject(value) && isPlainObject(base[key])) {
         base[key] = deepMergeObjects(base[key] as Record<string, unknown>, value as Record<string, unknown>);
       } else {
@@ -62,7 +83,9 @@ export class CodexAdapter extends BaseAdapter {
     const extracted: Record<string, unknown> = {};
     for (const key of [...canonicalKeys].sort()) {
       if (key in parsed) {
-        extracted[key] = parsed[key];
+        extracted[key] = key === 'features' && isPlainObject(parsed[key])
+          ? normalizeDeprecatedHookFeature(parsed[key] as Record<string, unknown>)
+          : parsed[key];
       }
     }
     return JSON.stringify(extracted, null, 2) + '\n';

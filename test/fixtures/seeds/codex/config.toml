@@ -3,3 +3,4 @@ approval_policy = "never"
 
 [features]
 multi_agent = true
+codex_hooks = true

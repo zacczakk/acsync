@@ -7,6 +7,13 @@ read_when:
 
 # vsync Alignment & Codex Multi-Agent Integration
 
+## Completed execution scope — 2026-07-29
+
+Codex hook-flag migration: `src/adapters/codex.ts`, its adapter tests, Codex
+settings fixtures, and hook documentation. Replace the deprecated
+`features.codex_hooks` alias with `features.hooks`; preserve user feature keys
+and normalize the legacy alias during render and pull.
+
 ## Context
 
 Full comparative review of metronome (`~/Repos/zacczakk/metronome`) vs vsync (`~/Repos/oss/vsync`) completed. vsync is an OSS tool solving the same problem (sync AI assistant configs across CLIs) with a more mature implementation. This plan captures findings and proposed actions.

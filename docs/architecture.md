@@ -96,7 +96,7 @@ source of truth; update = pull/build the fork, symlink persists.
 
 ### Codex hooks
 
-Codex supports native lifecycle hooks via `~/.codex/hooks.json` behind the `features.codex_hooks = true` flag in `~/.codex/config.toml`. Metronome manages both the TOML feature flag and the hook registration file for Codex.
+Codex supports native lifecycle hooks via `~/.codex/hooks.json` behind the `features.hooks = true` flag in `~/.codex/config.toml`. Metronome manages both the TOML feature flag and the hook registration file for Codex.
 
 | Script | Event | Managed by | Purpose |
 |--------|-------|------------|---------|
@@ -109,7 +109,7 @@ Canonical Codex hook registrations live in `configs/hook-configs/`. Hook scripts
 1. Create the script in `configs/hooks/`.
 2. **Claude Code:** Add registration entry to `~/.claude/settings.json` → `hooks` key. Use absolute path to `configs/hooks/`.
 3. **OpenCode:** Create a plugin `.ts` file in `configs/plugins/`. Run `metronome push --type plugins` to deploy. Reference shared logic from `configs/hooks/` if possible.
-4. **Codex:** Add canonical registration to `configs/hook-configs/codex.json`. Ensure Codex settings enable `features.codex_hooks = true`.
+4. **Codex:** Add canonical registration to `configs/hook-configs/codex.json`. Ensure Codex settings enable `features.hooks = true`.
 5. Restart the CLI session for hooks to take effect.
 
 ## Test Isolation
