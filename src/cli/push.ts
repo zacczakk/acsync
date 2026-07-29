@@ -192,15 +192,21 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
             if (!caps.settings) continue;
             const settings = await readCanonicalSettings(projectDir, target);
             if (!settings) continue;
-            let existingContent: string | undefined;
-            if (backup.existed) {
-              try {
-                existingContent = await readFile(backup.backupPath, 'utf-8');
-              } catch {
-                // Use no existing content
+            if (op.name.startsWith('profile:')) {
+              const profile = adapter.renderAdditionalSettings(settings).find((file) => file.relativePath === op.targetPath);
+              if (!profile) continue;
+              content = profile.content;
+            } else {
+              let existingContent: string | undefined;
+              if (backup.existed) {
+                try {
+                  existingContent = await readFile(backup.backupPath, 'utf-8');
+                } catch {
+                  // Use no existing content
+                }
               }
+              content = adapter.renderSettings(settings, existingContent);
             }
-            content = adapter.renderSettings(settings, existingContent);
           } else if (op.itemType === 'hook') {
             if (!caps.hooks) continue;
             const hooks = await readCanonicalHooks(projectDir, target);

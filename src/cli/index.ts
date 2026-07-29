@@ -7,6 +7,7 @@ import { renderCommand } from './render';
 import { diffCommand } from './diff';
 import { helpersCommand } from './helpers';
 import { syncDesktopCommand } from './sync-desktop';
+import { codexProviderCommand } from './codex-provider';
 
 const DESCRIPTION = `Agent Config Sync — single source of truth for AI coding assistant configs.
 
@@ -31,6 +32,7 @@ Typical workflow:
   metronome push --delete      Also remove stale items not in canonical
   metronome pull -s claude     Pull configs from Claude Code back to canonical
   metronome helpers -p <path>  Copy helper scripts to a repo's scripts/ dir
+  metronome codex-provider tux Switch Codex Desktop between Enterprise and Tux
 
 Exit codes:
   0  Success / no drift
@@ -50,6 +52,7 @@ program.addCommand(renderCommand);
 program.addCommand(diffCommand);
 program.addCommand(helpersCommand);
 program.addCommand(syncDesktopCommand);
+program.addCommand(codexProviderCommand);
 
 // Allow proper exit codes from subcommands (don't let Commander swallow process.exit)
 program.exitOverride();

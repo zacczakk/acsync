@@ -104,6 +104,16 @@ Codex supports native lifecycle hooks via `~/.codex/hooks.json` behind the `feat
 
 Canonical Codex hook registrations live in `configs/hook-configs/`. Hook scripts still live in `configs/hooks/` and run directly from the repo checkout via absolute path references in `hooks.json`.
 
+### Codex provider profiles
+
+`configs/settings/codex.json` may define a Metronome-only `profile_files` map.
+The Codex adapter omits that key from `config.toml` and projects each entry to
+`~/.codex/<name>.config.toml`, matching Codex 0.134+ profile layering. Select one
+with `codex --profile <name>` or `codex exec --profile <name> ...`.
+
+The base configuration remains ChatGPT Enterprise-authenticated. The `tux`
+profile selects the local Tux provider without forwarding OpenAI credentials.
+
 ### Adding a new hook
 
 1. Create the script in `configs/hooks/`.

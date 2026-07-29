@@ -309,6 +309,10 @@ export abstract class BaseAdapter implements ToolAdapter {
     return writeJson(base);
   }
 
+  renderAdditionalSettings(_settings: CanonicalSettings): RenderedFile[] {
+    return [];
+  }
+
   /**
    * Default extractSettingsKeys: pick canonical keys from target JSON,
    * return stable sorted JSON string for hash comparison.

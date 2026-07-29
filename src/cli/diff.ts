@@ -127,13 +127,19 @@ async function renderOpDiff(
     if (!caps.settings) return null;
     const settings = await readCanonicalSettings(cache.projectDir, target);
     if (!settings) return null;
-    let existingContent: string | undefined;
-    try {
-      existingContent = await readFile(op.targetPath, 'utf-8');
-    } catch {
-      // No existing file
+    if (op.name.startsWith('profile:')) {
+      const profile = adapter.renderAdditionalSettings(settings).find((file) => file.relativePath === op.targetPath);
+      if (!profile) return null;
+      rendered = profile.content;
+    } else {
+      let existingContent: string | undefined;
+      try {
+        existingContent = await readFile(op.targetPath, 'utf-8');
+      } catch {
+        // No existing file
+      }
+      rendered = adapter.renderSettings(settings, existingContent);
     }
-    rendered = adapter.renderSettings(settings, existingContent);
   } else if (op.itemType === 'hook') {
     if (!caps.hooks) return null;
     const hooks = await readCanonicalHooks(cache.projectDir, target);

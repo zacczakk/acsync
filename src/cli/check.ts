@@ -386,6 +386,14 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
           if (targetHash !== null) {
             targetHashes.set('settings/settings', targetHash);
           }
+
+          for (const profile of adapter.renderAdditionalSettings(settings)) {
+            const targetPath = profile.relativePath;
+            const name = `profile:${targetPath.split('/').at(-1)?.replace(/\.config\.toml$/, '') ?? 'unknown'}`;
+            sourceItems.push({ type: 'settings', name, hash: hashContent(profile.content), targetPath });
+            const profileHash = await hashTargetFile(targetPath);
+            if (profileHash !== null) targetHashes.set(`settings/${name}`, profileHash);
+          }
         }
       }
     }

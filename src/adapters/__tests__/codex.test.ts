@@ -201,4 +201,34 @@ describe('CodexAdapter settings', () => {
 
     expect(result).toBe('{\n  "features": {\n    "hooks": true,\n    "multi_agent": true\n  }\n}\n');
   });
+
+  it('renders named profile files separately from base settings', () => {
+    const settings = {
+      target: 'codex' as const,
+      keys: {
+        model: 'gpt-5.6-terra',
+        profile_files: {
+          tux: { model: 'gpt-5.6-luna', model_provider: 'tux' },
+        },
+      },
+    };
+
+    expect(adapter.renderSettings(settings)).not.toContain('profile_files');
+    expect(adapter.renderAdditionalSettings(settings)).toEqual([{
+      relativePath: path.join(HOME, '.codex/tux.config.toml'),
+      content: 'model = "gpt-5.6-luna"\nmodel_provider = "tux"\n\n',
+    }]);
+  });
+
+  it('removes incompatible legacy auth keys when command auth is canonical', () => {
+    const existing = '[model_providers.api]\nenv_key = "OPENAI_API_KEY"\n';
+    const settings = {
+      target: 'codex' as const,
+      keys: { model_providers: { api: { auth: { command: 'token-helper' } } } },
+    };
+
+    const result = adapter.renderSettings(settings, existing);
+    expect(result).toContain('command = "token-helper"');
+    expect(result).not.toContain('env_key');
+  });
 });

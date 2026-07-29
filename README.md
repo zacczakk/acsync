@@ -40,6 +40,8 @@ metronome diff                      # interactive diff picker (TTY) or all (pipe
 metronome diff --all                # unified diff of all drift
 metronome push --force --delete     # push all + delete stale files
 metronome pull -s claude            # pull from Claude to canonical
+metronome codex-provider tux        # switch Codex Desktop to Tux
+metronome codex-provider enterprise # switch back; OpenAI chats become visible
 ```
 
 ## Directory Layout

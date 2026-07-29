@@ -64,6 +64,7 @@ export class CodexAdapter extends BaseAdapter {
       : {};
 
     for (const [key, value] of Object.entries(settings.keys)) {
+      if (key === "profile_files") continue;
       if (key === 'features' && isPlainObject(value) && 'hooks' in value && isPlainObject(base[key])) {
         base[key] = normalizeDeprecatedHookFeature(base[key] as Record<string, unknown>);
       }
@@ -75,13 +76,32 @@ export class CodexAdapter extends BaseAdapter {
       }
     }
 
+    const providers = base.model_providers;
+    if (isPlainObject(providers)) {
+      for (const provider of Object.values(providers)) {
+        if (!isPlainObject(provider) || !isPlainObject(provider.auth)) continue;
+        delete provider.env_key;
+        delete provider.experimental_bearer_token;
+        delete provider.requires_openai_auth;
+      }
+    }
+
     return writeToml(base);
+  }
+
+  override renderAdditionalSettings(settings: CanonicalSettings): RenderedFile[] {
+    const profiles = settings.keys.profile_files;
+    if (!isPlainObject(profiles)) return [];
+    return Object.entries(profiles).map(([name, value]) => ({
+      relativePath: join(this.paths.getBaseDir(), `${name}.config.toml`),
+      content: writeToml(isPlainObject(value) ? value : {}),
+    }));
   }
 
   override extractSettingsKeys(canonicalKeys: string[], targetContent: string): string {
     const parsed = readToml<Record<string, unknown>>(targetContent);
     const extracted: Record<string, unknown> = {};
-    for (const key of [...canonicalKeys].sort()) {
+    for (const key of [...canonicalKeys].filter((key) => key !== "profile_files").sort()) {
       if (key in parsed) {
         extracted[key] = key === 'features' && isPlainObject(parsed[key])
           ? normalizeDeprecatedHookFeature(parsed[key] as Record<string, unknown>)
