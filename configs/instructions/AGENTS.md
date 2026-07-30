@@ -20,7 +20,6 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - New deps: quick health check (recent releases/commits, adoption).
 - Web: search early; prefer 2025–2026 sources. Claude: Tavily MCP; others: WebFetch + Tavily search tool. Tavily extract is legally restricted to approved domains; 403 usually means domain not approved, not MCP breakage. External/domain allowlisting needs legal approval from Andreas Jauch. `curl.md` = fallback for public docs/articles when WebFetch/Defuddle are noisy; not for GitHub repos.
 - Local docs/media: prefer `markitdown` for PDF/DOCX/PPTX/XLSX/image/audio inspection before bespoke parsing. LLM-oriented markdown, not fidelity conversion.
-- Native macOS desktop automation: prefer `peekaboo` before bespoke AppleScript/Hammerspoon work.
 - **No breadcrumbs**. Delete/move code = no residual comments. No `// moved to X`. Just remove.
 - Fix root cause, not bandaids.
 - Idiomatic, simple, maintainable. Simplest intuitive solution wins.
@@ -48,7 +47,7 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - Unrecognized changes: assume other agent; keep going; focus your changes. If it causes issues, stop + ask user.
 
 ## Browser
-- Prefer `agent-browser` for all browser work (automation, scraping, screenshots, console/network, authenticated pages). Native apps/dialogs/desktop → `peekaboo`.
+- Prefer `agent-browser` for all browser work (automation, scraping, screenshots, console/network, authenticated pages).
 - Default: `agent-browser --profile Default open <url> --headed`. `Default` = `z/acc`; isolated copy, auth intact. No `--native`.
 - Loop: `snapshot -i` → act on refs → re-snapshot after page changes. Reuse during task; `close` when done.
 - No `--auto-connect` unless Phil explicitly asks. Never `pkill`/restart Chrome. 403: stop.
@@ -91,7 +90,6 @@ When work concludes (skip if trivial):
 - Staleness: dead links / stale refs = bugs; groom docs often.
 - Context7 MCP has library documentation.
 - **Memory vault lookup:** scan `summary:` frontmatter first (`rg '^summary:.*topic' ~/Vaults/Memory/ --glob '*.md' -i`). Only read full notes when summary matches or is unclear. If Memory vault has no relevant notes, fall back to `sessions search "query"` or `sessions find "query"` for past session history. Full guide in `~/Vaults/AGENTS.md`.
-- `peekaboo` footgun: if blind/flaky, check `peekaboo permissions status` first. Needs Screen Recording + Accessibility.
 
 ## Build / Test
 - No mocks; unit or e2e.
@@ -133,5 +131,5 @@ When work concludes (skip if trivial):
   Per-project: ESLint `no-restricted-syntax` + `no-restricted-imports` to hard-ban useEffect.
 
 ## Tools
- On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `peekaboo`, `qmd`, `obsidian`, `gh`, `bird`, `markitdown`.
+ On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `qmd`, `obsidian`, `gh`, `bird`, `markitdown`.
 Full catalog: `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md`. Read when you need flags, subcommands, or usage patterns for any tool above.

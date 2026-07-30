@@ -152,23 +152,6 @@ markitdown file.docx -o file.md
 markitdown --list-plugins
 ```
 
-## peekaboo
-
-macOS desktop automation + MCP. Use for native apps, dialogs, menus, windows, screenshots, AX tree, input control.
-
-- **Install:** `brew install steipete/tap/peekaboo`
-- **MCP:** `peekaboo mcp`
-- **Use for:** Obsidian, Finder, system dialogs, native app automation beyond browser.
-- **Avoid for:** browser-only flows. Prefer `agent-browser` there.
-- **Permissions:** Screen Recording + Accessibility required.
-
-```bash
-peekaboo --version
-peekaboo permissions status
-peekaboo list apps
-peekaboo mcp
-```
-
 ## agent-browser
 
 Browser automation CLI. Rust/CDP.
