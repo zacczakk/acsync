@@ -232,3 +232,76 @@ describe('CodexAdapter settings', () => {
     expect(result).not.toContain('env_key');
   });
 });
+
+describe('CodexAdapter hooks', () => {
+  const canonical = {
+    content: JSON.stringify({
+      hooks: {
+        SessionStart: [{
+          _managed: 'metronome',
+          matcher: 'startup|resume',
+          hooks: [{ type: 'command', command: 'node vault-context-loader-codex.js' }],
+        }],
+      },
+    }),
+  };
+
+  it('preserves third-party hook groups while replacing managed groups', () => {
+    const existing = JSON.stringify({
+      hooks: {
+        Stop: [{ hooks: [{ type: 'command', command: 'muxy stop' }] }],
+        SessionStart: [{
+          _managed: 'metronome',
+          hooks: [{ type: 'command', command: 'node old-loader.js' }],
+        }],
+      },
+    });
+
+    const result = JSON.parse(adapter.renderHooks(canonical, existing));
+
+    expect(result.hooks.Stop[0].hooks[0].command).toBe('muxy stop');
+    expect(result.hooks.SessionStart).toHaveLength(1);
+    expect(result.hooks.SessionStart[0].hooks[0].command).toBe('node vault-context-loader-codex.js');
+  });
+
+  it('migrates the legacy unmarked Metronome hook without duplication', () => {
+    const existing = JSON.stringify({
+      hooks: {
+        SessionStart: [{
+          matcher: 'startup|resume',
+          hooks: [{
+            type: 'command',
+            command: 'node "$HOME/Repos/zacczakk/metronome/configs/hooks/vault-context-loader-codex.js"',
+          }],
+        }],
+      },
+    });
+
+    const result = JSON.parse(adapter.renderHooks(canonical, existing));
+
+    expect(result.hooks.SessionStart).toHaveLength(1);
+    expect(result.hooks.SessionStart[0]._managed).toBe('metronome');
+  });
+
+  it('extracts only metronome-managed groups for drift comparison', () => {
+    const target = JSON.stringify({
+      thirdPartyMetadata: { enabled: true },
+      hooks: {
+        Stop: [{ hooks: [{ type: 'command', command: 'muxy stop' }] }],
+        SessionStart: [{
+          _managed: 'metronome',
+          hooks: [{ type: 'command', command: 'node vault-context-loader-codex.js' }],
+        }],
+      },
+    });
+
+    expect(JSON.parse(adapter.extractHooks(target))).toEqual({
+      hooks: {
+        SessionStart: [{
+          _managed: 'metronome',
+          hooks: [{ type: 'command', command: 'node vault-context-loader-codex.js' }],
+        }],
+      },
+    });
+  });
+});

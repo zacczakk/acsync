@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { readdir, readFile } from 'node:fs/promises';
 import { parseFrontmatter } from '../formats/markdown';
 import { readSupportFiles } from '../infra/support-files';
-import { isPlainObject, deepMergeObjects } from './merge';
+import { isPlainObject, deepMergeObjects, mergeHooks, extractManagedHooks } from './merge';
 import type {
   CanonicalItem,
   MCPServer,
@@ -111,14 +111,32 @@ export class CodexAdapter extends BaseAdapter {
     return JSON.stringify(extracted, null, 2) + '\n';
   }
 
-  override renderHooks(hooks: { content: string }): string {
-    return hooks.content.trimEnd() + '\n';
+  override renderHooks(hooks: { content: string }, existingContent?: string): string {
+    const canonical = JSON.parse(hooks.content) as Record<string, unknown>;
+    if (!existingContent) return JSON.stringify(canonical, null, 2) + '\n';
+
+    try {
+      const existing = JSON.parse(existingContent) as Record<string, unknown>;
+      if (isPlainObject(existing.hooks) && isPlainObject(canonical.hooks)) {
+        canonical.hooks = mergeHooks(
+          existing.hooks as Record<string, Array<Record<string, unknown>>>,
+          canonical.hooks as Record<string, Array<Record<string, unknown>>>,
+        );
+      }
+      return JSON.stringify({ ...existing, ...canonical }, null, 2) + '\n';
+    } catch {
+      return JSON.stringify(canonical, null, 2) + '\n';
+    }
   }
 
   override extractHooks(targetContent: string): string {
     try {
       const parsed = JSON.parse(targetContent) as Record<string, unknown>;
-      return JSON.stringify(parsed, null, 2) + '\n';
+      return JSON.stringify({
+        hooks: isPlainObject(parsed.hooks)
+          ? extractManagedHooks(parsed.hooks as Record<string, Array<Record<string, unknown>>>)
+          : {},
+      }, null, 2) + '\n';
     } catch {
       return targetContent;
     }

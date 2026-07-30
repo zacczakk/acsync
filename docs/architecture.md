@@ -73,7 +73,7 @@ Plugin source files live in `configs/plugins/` and are **deployed by `metronome 
 | `notify-opencode.ts` | `session.created`, `session.deleted`, `session.status`, `permission.asked`, `question.asked`, `session.error` | macOS alerter notifications with iTerm2 pane focus. Tracks root sessions via `session.created`/`deleted`; uses `session.status` busy→idle transitions (not `session.idle`) to avoid duplicate notifications. Idle notifications are transient (5s). Retry status surfaces retries. Permission, question, and error notifications fire for all sessions. |
 | `memory-vault-advisor.ts` | `tool.execute.after` | Advisory reminder to check Memory vault before exploratory searches (grep, glob, task/explore, tavily_search, context7). Output mutation doesn't propagate for MCP tools — known OpenCode limitation. |
 
-Plugins are raw `.ts` files — identity-rendered (no frontmatter, no transformation). The `"plugin"` key in `opencode.json` (npm packages) is separately managed via settings wholesale-replace.
+Plugins are raw `.ts` files — identity-rendered (no frontmatter, no transformation). Stale cleanup only removes plugins recorded as Metronome-owned in the manifest; third-party files are preserved. The `"plugin"` key in `opencode.json` (npm packages) is separately managed via settings wholesale-replace.
 
 **Cursor OAuth (local fork, NOT npm, NOT metronome-copied)**: Cursor-backed
 models in OpenCode are served by a maintained fork at
@@ -96,13 +96,13 @@ source of truth; update = pull/build the fork, symlink persists.
 
 ### Codex hooks
 
-Codex supports native lifecycle hooks via `~/.codex/hooks.json` behind the `features.hooks = true` flag in `~/.codex/config.toml`. Metronome manages both the TOML feature flag and the hook registration file for Codex.
+Codex supports native lifecycle hooks via `~/.codex/hooks.json` behind the `features.hooks = true` flag in `~/.codex/config.toml`. Metronome manages the TOML feature flag and only hook groups marked with `_managed: "metronome"`; third-party groups in `hooks.json` are preserved and ignored during drift checks.
 
 | Script | Event | Managed by | Purpose |
 |--------|-------|------------|---------|
 | `vault-context-loader-codex.js` | `SessionStart` (`startup|resume`) | metronome | Injects IDENTITY/SOUL/USER/MEMORY into Codex startup context |
 
-Canonical Codex hook registrations live in `configs/hook-configs/`. Hook scripts still live in `configs/hooks/` and run directly from the repo checkout via absolute path references in `hooks.json`.
+Canonical Codex hook registrations live in `configs/hook-configs/` and must carry the Metronome ownership marker. Hook scripts still live in `configs/hooks/` and run directly from the repo checkout via absolute path references in `hooks.json`.
 
 ### Codex provider profiles
 

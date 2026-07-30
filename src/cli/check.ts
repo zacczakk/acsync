@@ -45,8 +45,8 @@ export interface OrchestratorCheckResult {
  * Returns delete operations for non-canonical, non-excluded items.
  *
  * Items matching the exclusion filter (e.g. gsd-*) are never flagged as stale.
- * Everything else not in canonical is stale — the exclusion filter is the
- * safety mechanism, not empty-canonical heuristics.
+ * Plugins additionally require prior manifest ownership so third-party files
+ * are never treated as Metronome cleanup candidates.
  */
 async function detectStaleItems(
   adapter: ToolAdapter,
@@ -54,6 +54,7 @@ async function detectStaleItems(
   canonicalAgentNames: Set<string>,
   canonicalSkillNames: Set<string>,
   canonicalPluginNames: Set<string>,
+  ownedPluginNames: Set<string>,
   isExcluded: (name: string) => boolean,
   types?: ItemType[],
 ): Promise<Operation[]> {
@@ -117,7 +118,7 @@ async function detectStaleItems(
     const existingPlugins = await adapter.listExistingPluginNames();
     for (const name of existingPlugins) {
       const entry = classifyEntry(name, canonicalPluginNames, isExcluded);
-      if (entry.status === 'non-canonical') {
+      if (entry.status === 'non-canonical' && ownedPluginNames.has(name)) {
         deleteOps.push({
           type: 'delete',
           itemType: 'plugin',
@@ -338,10 +339,19 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
       if (caps.hooks) {
         const hooks = await readCanonicalHooks(projectDir, target);
         if (hooks) {
-          const rendered = adapter.renderHooks(hooks);
           const hooksPath = adapter.getPaths().getHooksPath();
-          const sourceHash = hashRendered(rendered);
-          const targetHash = await hashTargetFile(hooksPath);
+          let existingContent: string | undefined;
+          try {
+            const file = Bun.file(hooksPath);
+            if (await file.exists()) existingContent = await file.text();
+          } catch {
+            // File missing or unreadable
+          }
+          const rendered = adapter.renderHooks(hooks, existingContent);
+          const sourceHash = hashRendered(adapter.extractHooks(rendered));
+          const targetHash = existingContent === undefined
+            ? null
+            : hashRendered(adapter.extractHooks(existingContent));
           sourceItems.push({
             type: 'hook',
             name: 'hooks',
@@ -405,10 +415,15 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
     const canonicalAgentNames = new Set(agents.map((a) => a.name));
     const canonicalSkillNames = new Set(skills.map((s) => s.name));
     const canonicalPluginNames = new Set(plugins.map((p) => p.name));
+    const ownedPluginNames = new Set(
+      Object.values(manifest.items)
+        .filter((item) => item.type === 'plugin' && target in item.targets)
+        .map((item) => item.name),
+    );
     const staleTypes = includeSkills
       ? options.types
       : options.types?.filter((type) => type !== 'skill') ?? ['command', 'agent', 'mcp', 'instruction', 'plugin', 'hook', 'settings'];
-    const staleOps = await detectStaleItems(adapter, canonicalCommandNames, canonicalAgentNames, canonicalSkillNames, canonicalPluginNames, isExcluded, staleTypes);
+    const staleOps = await detectStaleItems(adapter, canonicalCommandNames, canonicalAgentNames, canonicalSkillNames, canonicalPluginNames, ownedPluginNames, isExcluded, staleTypes);
     if (staleOps.length > 0) {
       diff.operations.push(...staleOps);
       diff.summary.delete = staleOps.length;

@@ -394,7 +394,10 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
         await mkdir(join(projectDir, INSTRUCTIONS_DIR), { recursive: true });
         await atomicWrite(item.targetPath, instrContent);
       } else if (item.type === 'hook') {
-        const hooksContent = collapseHomePaths(await readFile(paths.getHooksPath(), 'utf-8'), homeDir);
+        const hooksContent = collapseHomePaths(
+          adapter.extractHooks(await readFile(paths.getHooksPath(), 'utf-8')),
+          homeDir,
+        );
         await mkdir(join(projectDir, HOOKS_DIR), { recursive: true });
         await atomicWrite(item.targetPath, hooksContent);
       }

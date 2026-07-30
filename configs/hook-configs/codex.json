@@ -2,6 +2,7 @@
   "hooks": {
     "SessionStart": [
       {
+        "_managed": "metronome",
         "matcher": "startup|resume",
         "hooks": [
           {

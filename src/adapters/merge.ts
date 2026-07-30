@@ -41,6 +41,7 @@ type HooksObject = Record<string, HookGroup[]>;
 const STALE_METRONOME_HOOK_PATTERNS = [
   'configs/hooks/caveman-sessionstart-claude.js',
   'configs/hooks/caveman-userprompt-claude.js',
+  'configs/hooks/vault-context-loader-codex.js',
 ];
 
 function isStaleMetronomeHookGroup(group: HookGroup): boolean {

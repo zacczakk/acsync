@@ -164,6 +164,21 @@ describe('stale detection in runCheck', () => {
       expect(op.name).not.toMatch(/^gsd-/);
     }
   });
+
+  test('preserves third-party OpenCode plugins not owned by Metronome', async () => {
+    const pluginsDir = join(fakeHome, '.config', 'opencode', 'plugins');
+    await mkdir(pluginsDir, { recursive: true });
+    await writeFile(join(pluginsDir, 'third-party.ts'), 'export const ThirdParty = {}\n');
+
+    const result = await runCheck({
+      projectDir: tmpDir,
+      homeDir: fakeHome,
+      targets: ['opencode'],
+      types: ['plugin'],
+    });
+
+    expect(result.diffs[0].operations).toEqual([]);
+  });
 });
 
 describe('runPull', () => {
