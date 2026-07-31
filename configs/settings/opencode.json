@@ -23,6 +23,7 @@
       "rg * ~/.zsh_secrets": "deny",
       "rg * ~/.zshrc_secrets": "deny",
       "git push *": "ask",
+      "committer *": "allow",
       "git reset --hard *": "deny"
     },
     "external_directory": {
