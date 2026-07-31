@@ -378,11 +378,11 @@ qmd update && qmd embed
 
 ## sessions
 
-Search, browse, and export coding session history from OpenCode and Claude Code. Three-layer search: Memory vault (curated notes) → FTS5 (keyword precision) → qmd (semantic recall).
+Search, browse, and export coding session history from OpenCode, Claude Code, and Codex. Three-layer search: Memory vault (curated notes) → FTS5 (keyword precision) → qmd (semantic recall).
 
 - **Source:** `~/Repos/zacczakk/metronome/scripts/sessions`
 - **Vault:** `~/Vaults/Sessions/` (iCloud-backed symlink, Obsidian-visible)
-- **Sources:** OpenCode (`~/.local/share/opencode/opencode.db`), Claude Code (`~/.claude/projects/`)
+- **Sources:** OpenCode (`~/.local/share/opencode/opencode.db`), Claude Code (`~/.claude/projects/`), Codex (`~/.codex/sessions/`)
 - **Indexes:** FTS5 DB + export state at `~/.local/share/sessions/` (machine-local)
 - **qmd collection:** `sessions` (2,172 files, semantic + BM25)
 
@@ -402,7 +402,7 @@ Search, browse, and export coding session history from OpenCode and Claude Code.
 
 | Flag | Commands | Purpose |
 |------|----------|---------|
-| `--source opencode\|claude` | list, export, search | Filter by source |
+| `--source opencode\|claude\|codex` | list, export, search | Filter by source |
 | `--since YYYY-MM-DD` | list, export | Date filter |
 | `--limit N` | list, search, find | Max results |
 | `--project NAME` | list | Filter by project name |
@@ -425,6 +425,7 @@ Search, browse, and export coding session history from OpenCode and Claude Code.
 # Recent sessions
 sessions list --limit 10
 sessions list --source opencode --project metronome
+sessions list --source codex --project metronome
 
 # Keyword search (fast, precise)
 sessions search "iCloud migration"
