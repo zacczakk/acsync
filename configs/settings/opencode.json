@@ -132,12 +132,37 @@
         }
       }
     },
+    "foundry": {
+      "npm": "@ai-sdk/anthropic",
+      "name": "Foundry",
+      "options": {
+        "baseURL": "{env:ANTHROPIC_BASE_URL}/v1",
+        "apiKey": "{env:FOUNDRY_TOKEN}",
+        "headers": {
+          "Authorization": "Bearer {env:FOUNDRY_TOKEN}"
+        },
+        "toolStreaming": false
+      },
+      "models": {
+        "claude-opus-5-0": {
+          "name": "Claude Opus 5",
+          "options": { "toolStreaming": false },
+          "modalities": { "input": ["image", "text"], "output": ["text"] },
+          "variants": {
+            "low": { "thinking": { "type": "adaptive" }, "effort": "low" },
+            "medium": { "thinking": { "type": "adaptive" }, "effort": "medium" },
+            "high": { "thinking": { "type": "adaptive" }, "effort": "high" }
+          }
+        }
+      }
+    },
     "tux": {
       "npm": "@ai-sdk/anthropic",
       "name": "Tux",
       "options": {
         "baseURL": "http://127.0.0.1:18080/v1",
-        "apiKey": "does-not-matter"
+        "apiKey": "does-not-matter",
+        "toolStreaming": false
       },
       "models": {
         "claude-opus-4-8": {
@@ -150,8 +175,28 @@
             "high": { "thinking": { "type": "adaptive" }, "effort": "high" }
           }
         },
+        "claude-opus-4-7": {
+          "name": "Claude Opus 4.7",
+          "options": { "toolStreaming": false },
+          "modalities": { "input": ["image", "text"], "output": ["text"] },
+          "variants": {
+            "low": { "thinking": { "type": "adaptive" }, "effort": "low" },
+            "medium": { "thinking": { "type": "adaptive" }, "effort": "medium" },
+            "high": { "thinking": { "type": "adaptive" }, "effort": "high" }
+          }
+        },
         "claude-opus-4-6": {
           "name": "Claude Opus 4.6",
+          "options": { "toolStreaming": false },
+          "modalities": { "input": ["image", "text"], "output": ["text"] },
+          "variants": {
+            "low": { "thinking": { "type": "adaptive" }, "effort": "low" },
+            "medium": { "thinking": { "type": "adaptive" }, "effort": "medium" },
+            "high": { "thinking": { "type": "adaptive" }, "effort": "high" }
+          }
+        },
+        "claude-sonnet-5": {
+          "name": "Claude Sonnet 5",
           "options": { "toolStreaming": false },
           "modalities": { "input": ["image", "text"], "output": ["text"] },
           "variants": {
@@ -182,15 +227,62 @@
         },
         "gpt-5.5": {
           "name": "GPT-5.5",
+          "cost": { "input": 5, "output": 30, "cache_read": 0.5, "cache_write": 6.25 },
           "provider": { "npm": "@ai-sdk/openai" },
           "reasoning": true,
+          "options": { "reasoningSummary": null },
           "modalities": { "input": ["image", "text"], "output": ["text"] },
           "variants": {
-            "none": { "reasoningEffort": "none" },
-            "low": { "reasoningEffort": "low" },
-            "medium": { "reasoningEffort": "medium" },
-            "high": { "reasoningEffort": "high" },
-            "xhigh": { "reasoningEffort": "xhigh" }
+            "none": { "reasoningEffort": "none", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "low": { "reasoningEffort": "low", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "medium": { "reasoningEffort": "medium", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "high": { "reasoningEffort": "high", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "xhigh": { "reasoningEffort": "xhigh", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] }
+          }
+        },
+        "gpt-5.6-sol": {
+          "name": "GPT-5.6 Sol",
+          "cost": { "input": 5, "output": 30, "cache_read": 0.5, "cache_write": 6.25 },
+          "provider": { "npm": "@ai-sdk/openai" },
+          "reasoning": true,
+          "options": { "reasoningSummary": null },
+          "modalities": { "input": ["image", "text"], "output": ["text"] },
+          "variants": {
+            "none": { "reasoningEffort": "none", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "low": { "reasoningEffort": "low", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "medium": { "reasoningEffort": "medium", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "high": { "reasoningEffort": "high", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "xhigh": { "reasoningEffort": "xhigh", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] }
+          }
+        },
+        "gpt-5.6-terra": {
+          "name": "GPT-5.6 Terra",
+          "cost": { "input": 2, "output": 12, "cache_read": 0.2, "cache_write": 2.5 },
+          "provider": { "npm": "@ai-sdk/openai" },
+          "reasoning": true,
+          "options": { "reasoningSummary": null },
+          "modalities": { "input": ["image", "text"], "output": ["text"] },
+          "variants": {
+            "none": { "reasoningEffort": "none", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "low": { "reasoningEffort": "low", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "medium": { "reasoningEffort": "medium", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "high": { "reasoningEffort": "high", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "xhigh": { "reasoningEffort": "xhigh", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] }
+          }
+        },
+        "gpt-5.6-luna": {
+          "name": "GPT-5.6 Luna",
+          "cost": { "input": 0.2, "output": 1.2, "cache_read": 0.02, "cache_write": 0.25 },
+          "provider": { "npm": "@ai-sdk/openai" },
+          "reasoning": true,
+          "options": { "reasoningSummary": null },
+          "modalities": { "input": ["image", "text"], "output": ["text"] },
+          "variants": {
+            "none": { "reasoningEffort": "none", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "low": { "reasoningEffort": "low", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "medium": { "reasoningEffort": "medium", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "high": { "reasoningEffort": "high", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
+            "xhigh": { "reasoningEffort": "xhigh", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] }
           }
         }
       }
