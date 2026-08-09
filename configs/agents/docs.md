@@ -6,7 +6,7 @@ description: >-
   Do not invoke for every push or PR when documentation is unaffected.
 mode: subagent
 model: github-copilot/gpt-5.6-luna
-reasoningEffort: low
+reasoningEffort: max
 textVerbosity: low
 color: '#61ffca'
 permission:

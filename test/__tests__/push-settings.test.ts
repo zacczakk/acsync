@@ -4,6 +4,7 @@ import { join, dirname } from 'node:path';
 import { createTestHome, createTestProject } from '../helpers/backup';
 import { runPush } from '../../src/cli/push';
 import { createAdapter } from '../../src/cli/canonical';
+import { readJsonc } from '../../src/formats/jsonc';
 import type { TargetName } from '../../src/types';
 
 const FIXTURE_ROOT = join(import.meta.dir, '../fixtures');
@@ -86,5 +87,29 @@ describe('push settings E2E', () => {
     const result2 = await runPush({ projectDir, force: true, types: ['settings'], homeDir: fakeHome });
     expect(result2.hasDrift).toBe(false);
     expect(result2.written).toBe(0);
+  });
+
+  test('composes settings and MCP updates sharing the OpenCode config path', async () => {
+    const fakeHome = createTestHome('push-settings-mcp');
+    const projectDir = createTestProject('push-settings-mcp', FIXTURE_ROOT);
+    seedSettingsTargets(fakeHome);
+
+    const result = await runPush({
+      projectDir,
+      force: true,
+      targets: ['opencode'],
+      types: ['settings', 'mcp'],
+      homeDir: fakeHome,
+    });
+
+    expect(result.failed).toBe(0);
+    const opencodeAdapter = createAdapter('opencode', fakeHome);
+    const config = readJsonc<{
+      model?: string;
+      mcp?: Record<string, { enabled?: boolean }>;
+    }>(readFileSync(opencodeAdapter.getPaths().getSettingsPath(), 'utf-8'));
+
+    expect(config.model).toBe('throttle-tux/claude-opus-4-6');
+    expect(config.mcp?.['palantir-mcp']?.enabled).toBe(true);
   });
 });

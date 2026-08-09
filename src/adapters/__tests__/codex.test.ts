@@ -48,6 +48,16 @@ const agentWithOpenCodeModelOptions = {
   },
 };
 
+const fastOpenAIAgent = {
+  name: 'fast-worker',
+  content: 'Handle delegated work.\n',
+  metadata: {
+    description: 'Fast OpenAI worker',
+    model: 'openai/gpt-5.6-luna-fast',
+    reasoningEffort: 'max',
+  },
+};
+
 const agentWithoutTools = {
   name: 'simple-agent',
   content: 'Simple agent body.\n',
@@ -139,6 +149,14 @@ describe('CodexAdapter.renderAgent', () => {
     const result = adapter.renderAgent(agentWithOpenCodeModelOptions);
     expect(result.content).toContain('model_reasoning_effort = "medium"');
     expect(result.content).toContain('model_verbosity = "low"');
+  });
+
+  it('maps OpenAI fast aliases to Codex provider and service tier settings', () => {
+    const result = adapter.renderAgent(fastOpenAIAgent);
+    expect(result.content).toContain('model = "gpt-5.6-luna"');
+    expect(result.content).toContain('model_provider = "openai"');
+    expect(result.content).toContain('service_tier = "fast"');
+    expect(result.content).toContain('model_reasoning_effort = "max"');
   });
 });
 

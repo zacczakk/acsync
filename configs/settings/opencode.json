@@ -7,7 +7,7 @@
     "~/Vaults/Memory/USER.md",
     "~/Vaults/Memory/MEMORY.md"
   ],
-  "model": "github-copilot/gpt-5.6-sol",
+  "model": "tux/gpt-5.6-luna",
   "permission": {
     "*": "allow",
     "bash": {

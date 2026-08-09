@@ -7,7 +7,7 @@ description: >-
   Uses filesystem tools, qmd, sessions CLI, and ripgrep without launching the Obsidian app.
 mode: subagent
 model: github-copilot/gpt-5.6-luna
-reasoningEffort: low
+reasoningEffort: max
 textVerbosity: low
 color: '#a277ff'
 permission:

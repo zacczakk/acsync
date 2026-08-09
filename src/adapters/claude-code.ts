@@ -38,6 +38,8 @@ export class ClaudeCodeAdapter extends BaseAdapter {
   }
 
   private static readonly REASONING_EFFORT_MODEL_MAP: Record<string, string> = {
+    max: 'claude-opus-4-6',
+    xhigh: 'claude-opus-4-6',
     high: 'claude-opus-4-6',
     medium: 'sonnet',
     low: 'haiku',

@@ -20,7 +20,7 @@ read_when:
 - Claude Code: derive portable frontmatter (`name`, `description`, optional `model`, derived `allowed-tools`), copy to `~/.claude/agents/`.
 - Gemini CLI: same portable frontmatter plus `kind: local`, copy to `~/.gemini/agents/`.
 - OpenCode: pass through OpenCode-compatible frontmatter, force `mode: subagent`, copy to `~/.config/opencode/agents/`.
-- Codex: standalone TOML as `~/.codex/agents/{name}.toml` with `name`, `description`, and `developer_instructions`. `sandbox_mode` is preserved when explicit and derived as `read-only` when canonical metadata denies edits.
+- Codex: standalone TOML as `~/.codex/agents/{name}.toml` with `name`, `description`, and `developer_instructions`. `sandbox_mode` is preserved when explicit and derived as `read-only` when canonical metadata denies edits. An `openai/*-fast` model alias renders as the base model with `model_provider = "openai"` and `service_tier = "fast"`.
 
 ## Portable tool derivation
 - Non-OpenCode targets do not consume OpenCode `permission` blocks directly.

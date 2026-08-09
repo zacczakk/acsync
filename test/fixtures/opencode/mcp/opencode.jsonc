@@ -18,7 +18,7 @@
         "palantir-mcp",
         "start"
       ],
-      "enabled": false,
+      "enabled": true,
       "timeout": 20000
     },
     "tavily": {

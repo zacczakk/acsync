@@ -184,8 +184,11 @@ export class CodexAdapter extends BaseAdapter {
 
     const model = metadata.model;
     if (typeof model === 'string') {
-      // Strip provider prefix (e.g. "github-copilot/gpt-5.5" → "gpt-5.5")
-      rendered.model = model.includes('/') ? model.split('/').pop() : model;
+      const [provider, modelID] = model.includes('/') ? model.split('/', 2) : [undefined, model];
+      const fastModel = modelID.endsWith('-fast');
+      rendered.model = fastModel ? modelID.slice(0, -5) : modelID;
+      if (provider === 'openai') rendered.model_provider = 'openai';
+      if (fastModel) rendered.service_tier = 'fast';
     }
 
     if (typeof metadata.model_reasoning_effort === 'string') {
@@ -257,7 +260,9 @@ export class CodexAdapter extends BaseAdapter {
         metadata.description = parsed.description;
       }
       if (typeof parsed.model === 'string') {
-        metadata.model = parsed.model;
+        const fastSuffix = parsed.service_tier === 'fast' ? '-fast' : '';
+        const providerPrefix = parsed.model_provider === 'openai' ? 'openai/' : '';
+        metadata.model = `${providerPrefix}${parsed.model}${fastSuffix}`;
       }
       if (typeof parsed.model_reasoning_effort === 'string') {
         metadata.model_reasoning_effort = parsed.model_reasoning_effort;

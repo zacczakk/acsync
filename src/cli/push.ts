@@ -149,85 +149,72 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
       continue;
     }
 
-    const writtenPaths = new Set<string>();
+    const renderedContent = new Map<string, string>();
+    const backupsByPath = new Map<string, BackupInfo>();
 
       for (const op of writeOps) {
         if (!op.targetPath) continue;
 
-        const alreadyWritten = writtenPaths.has(op.targetPath);
-
-        if (!alreadyWritten) {
-          let content: string;
-          const backup = await createBackup(op.targetPath);
+        let backup = backupsByPath.get(op.targetPath);
+        if (!backup) {
+          backup = await createBackup(op.targetPath);
           allBackups.push(backup);
-
-          if (op.itemType === 'command') {
-            const item = commands.find((c) => c.name === op.name);
-            if (!item) continue;
-            content = adapter.renderCommand(item).content;
-          } else if (op.itemType === 'agent') {
-            const item = agents.find((a) => a.name === op.name);
-            if (!item) continue;
-            content = adapter.renderAgent(item).content;
-          } else if (op.itemType === 'mcp') {
-            let existingContent: string | undefined;
-            if (backup.existed) {
-              try {
-                existingContent = await readFile(backup.backupPath, 'utf-8');
-              } catch {
-                // Use no existing content
-              }
-            }
-            content = adapter.renderMCPServers(mcpServers, existingContent);
-          } else if (op.itemType === 'instruction') {
-            const instructionContent = await readCanonicalInstructions(projectDir);
-            if (!instructionContent) continue;
-            content = adapter.renderInstructions(instructionContent);
-          } else if (op.itemType === 'plugin') {
-            if (!caps.plugins) continue;
-            const item = plugins.find((p) => p.name === op.name);
-            if (!item) continue;
-            content = adapter.renderPlugin(item).content;
-          } else if (op.itemType === 'settings') {
-            if (!caps.settings) continue;
-            const settings = await readCanonicalSettings(projectDir, target);
-            if (!settings) continue;
-            if (op.name.startsWith('profile:')) {
-              const profile = adapter.renderAdditionalSettings(settings).find((file) => file.relativePath === op.targetPath);
-              if (!profile) continue;
-              content = profile.content;
-            } else {
-              let existingContent: string | undefined;
-              if (backup.existed) {
-                try {
-                  existingContent = await readFile(backup.backupPath, 'utf-8');
-                } catch {
-                  // Use no existing content
-                }
-              }
-              content = adapter.renderSettings(settings, existingContent);
-            }
-          } else if (op.itemType === 'hook') {
-            if (!caps.hooks) continue;
-            const hooks = await readCanonicalHooks(projectDir, target);
-            if (!hooks) continue;
-            let existingContent: string | undefined;
-            if (backup.existed) {
-              try {
-                existingContent = await readFile(backup.backupPath, 'utf-8');
-              } catch {
-                // Use no existing content
-              }
-            }
-            content = adapter.renderHooks(hooks, existingContent);
-          } else {
-            continue;
-          }
-
-          await atomicWrite(op.targetPath, content);
-          writtenPaths.add(op.targetPath);
-          totalWritten++;
+          backupsByPath.set(op.targetPath, backup);
         }
+
+        let existingContent = renderedContent.get(op.targetPath);
+        if (existingContent === undefined && backup.existed) {
+          try {
+            existingContent = await readFile(backup.backupPath, 'utf-8');
+          } catch {
+            // Use no existing content
+          }
+        }
+
+        let content: string;
+
+        if (op.itemType === 'command') {
+          const item = commands.find((c) => c.name === op.name);
+          if (!item) continue;
+          content = adapter.renderCommand(item).content;
+        } else if (op.itemType === 'agent') {
+          const item = agents.find((a) => a.name === op.name);
+          if (!item) continue;
+          content = adapter.renderAgent(item).content;
+        } else if (op.itemType === 'mcp') {
+          content = adapter.renderMCPServers(mcpServers, existingContent);
+        } else if (op.itemType === 'instruction') {
+          const instructionContent = await readCanonicalInstructions(projectDir);
+          if (!instructionContent) continue;
+          content = adapter.renderInstructions(instructionContent);
+        } else if (op.itemType === 'plugin') {
+          if (!caps.plugins) continue;
+          const item = plugins.find((p) => p.name === op.name);
+          if (!item) continue;
+          content = adapter.renderPlugin(item).content;
+        } else if (op.itemType === 'settings') {
+          if (!caps.settings) continue;
+          const settings = await readCanonicalSettings(projectDir, target);
+          if (!settings) continue;
+          if (op.name.startsWith('profile:')) {
+            const profile = adapter.renderAdditionalSettings(settings).find((file) => file.relativePath === op.targetPath);
+            if (!profile) continue;
+            content = profile.content;
+          } else {
+            content = adapter.renderSettings(settings, existingContent);
+          }
+        } else if (op.itemType === 'hook') {
+          if (!caps.hooks) continue;
+          const hooks = await readCanonicalHooks(projectDir, target);
+          if (!hooks) continue;
+          content = adapter.renderHooks(hooks, existingContent);
+        } else {
+          continue;
+        }
+
+        await atomicWrite(op.targetPath, content);
+        renderedContent.set(op.targetPath, content);
+        totalWritten++;
 
         const sourceHash = op.newHash ?? hashContent(op.targetPath);
         const targetHash = sourceHash;

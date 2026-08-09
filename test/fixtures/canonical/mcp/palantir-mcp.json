@@ -12,6 +12,7 @@
       "type": "stdio"
     },
     "opencode": {
+      "enabled": true,
       "timeout": 20000
     }
   }

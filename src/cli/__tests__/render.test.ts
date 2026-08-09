@@ -91,7 +91,7 @@ describe('render subcommand logic', () => {
       enabled: false,
       targetOptions: {
         'claude-code': { type: 'stdio' },
-        opencode: { timeout: 20000 },
+        opencode: { enabled: true, timeout: 20000 },
       },
     });
   });
@@ -115,6 +115,7 @@ describe('render subcommand logic', () => {
     expect(opencodeRendered).toContain('"tux"');
     expect(opencodeRendered).toContain('"palantir-mcp"');
     expect(opencodeRendered).toContain('"start"');
+    expect(opencodeRendered).toContain('"enabled": true');
     expect(opencodeRendered).toContain('"timeout": 20000');
     expect(opencodeRendered).not.toContain('palantir-mcp@latest');
     expect(opencodeRendered).not.toContain('FOUNDRY_TOKEN');
