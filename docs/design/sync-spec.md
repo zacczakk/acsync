@@ -23,7 +23,8 @@ read_when:
 |-----|------------|--------|---------|-------------|
 | Claude | `~/.claude.json` | JSON | `mcpServers` | n/a |
 | Claude | `~/.claude/settings.json` | JSON | n/a | `permissions`, `env` |
-| OpenCode | `~/.config/opencode/opencode.json` | JSON | `mcp` | `provider`, `plugin`, `permission`, `model`, `instructions` |
+| OpenCode V1 | `~/.config/opencode/opencode.json` | JSON | `mcp` | `provider`, `plugin`, `permission`, `model`, `instructions` |
+| OpenCode V2 | `~/.config/opencode/opencode.json` | JSON | `mcp.servers` | `providers`, `plugins`, `permissions`, `agents`, `model`, `instructions`, `websearch` |
 | Antigravity | `~/.gemini/antigravity-cli/settings.json` | JSON | `mcpServers` | n/a |
 | Codex | `~/.codex/config.toml` | TOML | `[mcp_servers.*]` sections | n/a |
 
@@ -50,6 +51,7 @@ configs/mcp/*.json                 7 MCP server definitions
 configs/settings/*.json            3 settings definitions (claude, codex, opencode)
 configs/instructions/AGENTS.md     Unified agent operating system
 configs/instructions/TOOLS.md      Tool-use reference
+configs/opencode/v2/plugins/       Native V2 profile-owned plugins
 ```
 
 ### Exclusion Rules
@@ -217,6 +219,11 @@ Rules:
 - Keep `model`, `description`, `permission`, `color`, and other supported fields.
 - Body content passed through unchanged.
 
+For the native V2 profile, Metronome additionally converts `permission` to
+ordered `permissions`, renames `bash` to `shell`, and moves provider request
+options into a generated `agent-<name>` model variant. Do not render agent
+`request.body`: current V2 retains that object but does not apply it.
+
 #### Antigravity CLI — Add `kind: local`
 
 Canonical agent frontmatter:
@@ -303,7 +310,7 @@ configs/instructions/AGENTS.md   — unified agent operating system (all CLI not
 | CLI | System File | How It's Loaded |
 |-----|------------|-----------------|
 | Claude | `~/.claude/CLAUDE.md` | Auto-discovered by filename |
-| OpenCode | `~/.config/opencode/AGENTS.md` | Via `instructions` array in `opencode.json` |
+| OpenCode | `~/.config/opencode/AGENTS.md` | Auto-discovered by filename |
 | Antigravity | `~/.gemini/antigravity-cli/AGENTS.md` | Auto-discovered by filename |
 | Codex | `~/.codex/AGENTS.md` | Auto-discovered by filename |
 
@@ -313,6 +320,54 @@ configs/instructions/AGENTS.md   — unified agent operating system (all CLI not
 2. Write content verbatim to the CLI's instruction file.
 
 No secret injection needed (these files contain no secrets).
+
+Generic V2 sync still writes `AGENTS.md` as the instruction item. OpenCode V2
+does not natively resolve the config `instructions` array, so the V2 profile
+preserves separate Memory files through the versioned
+`metronome.instructions-loader` plugin and its `session.context` hook rather
+than concatenating those files into `AGENTS.md`.
+
+### 2.4.1 OpenCode Version Switching
+
+- Canonical OpenCode settings remain V1-shaped.
+- `metronome opencode use v1` writes V1 config, agents, MCP, and plugins.
+- `metronome opencode use v2` writes native V2 equivalents and V2 plugins.
+- Generic V2 sync handles settings, agents, MCP, commands, skills, and
+  instructions. V2 plugin sync is intentionally a no-op because those files
+  are profile-owned.
+- `metronome opencode use v1|v2` persists the active profile in
+  `~/.config/opencode/migration-manifest.json`; `metronome opencode status`
+  reports it. This is separate from the top-level `metronome status` drift
+  alias.
+- Generic `check`, `push`, `pull`, `render`, and `diff` operations resolve
+  target `opencode` from that manifest and default to V1 when it is absent or
+  invalid.
+- `opencode2` forces native V2 for scripts and CI, shares paths with `opencode`,
+  is not in `ALL_TARGETS`, and cannot be combined with `opencode`.
+- Preserve unowned plugin files and Tux's V1 overlay.
+- Canonical settings include `./chatgpt-websearch` and
+  `websearch.provider: chatgpt`. V2 retains both and runtime verification
+  requires `opencode.chatgpt-websearch`; V1 rendering omits this V2-only
+  integration.
+- Record every switch and all output hashes in
+  `~/.config/opencode/migration-manifest.json`.
+- Backups live below `~/.config/opencode-backups/metronome/`.
+- V2 activation restarts the shared service because hot reload does not
+  reliably register newly deployed plugin files.
+- Failed `update-v2` activation restores the previous exact global CLI build.
+
+For a Bun installation, update V2 only through:
+
+```sh
+metronome opencode update-v2
+```
+
+Equivalent manual flow: `bun install -g --force --trust --minimum-release-age=0
+@opencode-ai/cli@next`, resolve the installed exact build with `bun pm ls -g`,
+install the same exact `@opencode-ai/plugin` build with an explicit
+`--minimum-release-age=0` override in
+`~/.config/opencode`, restart `opencode2 service`, then verify
+`opencode2 api get /api/plugin`.
 
 #### Pull
 
@@ -341,7 +396,8 @@ The canonical MCP definition schema (`configs/mcp/*.json`):
   "disabled_for": ["cli"],      // optional, per-CLI exclusion
   "target_options": {           // optional, target-specific render extras
     "claude-code": {"disabled": true},
-    "opencode": {"timeout": 20000}
+    "opencode": {"timeout": 20000},
+    "opencode2": {"timeout": 20000}
   }
 }
 ```
@@ -390,7 +446,7 @@ Rules:
   external owner such as Tux.
 - Inject real secret values (replace `${VAR}` with values from `.env`).
 
-#### OpenCode Format
+#### OpenCode V1 Format
 
 ```json
 {
@@ -427,6 +483,38 @@ Rules:
 - Rename `"env"` to `"environment"`.
 - Add `"enabled": true` (or `false` if canonical has `"enabled": false`).
 - Drop `description`, `env_vars`, `transport`, `disabled_for`.
+- Inject real secret values.
+
+#### OpenCode V2 Format
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "server-name": {
+        "type": "local",
+        "command": ["tavily-mcp"],
+        "environment": {
+          "TAVILY_API_KEY": "actual-secret-value"
+        },
+        "disabled": false,
+        "timeout": { "catalog": 20000, "execution": 20000 }
+      }
+    }
+  }
+}
+```
+
+Rules:
+- Nest servers under `mcp.servers`.
+- Use the same `local`/`remote` and command-array conventions as V1.
+- Render canonical `enabled: false` as `disabled: true` (and enabled servers
+  as `disabled: false`).
+- A numeric target timeout becomes both `timeout.catalog` and
+  `timeout.execution`.
+- Apply `disabled_for` using the `opencode2` target identity.
+- Use `target_options.opencode2` for V2-only MCP render options; V1 options
+  remain under `target_options.opencode`.
 - Inject real secret values.
 
 #### Antigravity CLI Format
@@ -511,23 +599,29 @@ Rules:
 
 ### OpenCode
 
+- **Profiles**: `opencode` follows the active profile in
+  `~/.config/opencode/migration-manifest.json` (invalid or missing means V1).
+  `opencode2` forces native V2 for scripts and CI. Both target names share
+  `~/.config/opencode/`, cannot be combined, and only `opencode` is in the
+  default all-target set.
 - **Custom providers**: network proxy providers (`provider-bedrock`,
-  `provider-foundry`) plus a **`cursor`** stub (paired with the
-  `opencode-cursor-oauth` npm plugin) for Cursor subscription access. Limits
-  and models for corporate providers live in the `provider` key of
-  `opencode.json`.
+  `provider-foundry`) and Tux's V1 overlay are authored under `provider` and
+  rendered under `providers` in V2. Preserve unrelated provider entries.
 - **Env var syntax**: OpenCode uses `{env:VAR_NAME}` template syntax in
   provider configs (distinct from `${VAR}` used elsewhere).
 - **Naming quirks**: `command/` (singular), `skill/` (singular),
   `environment` (not `env`), `local`/`remote` (not `stdio`/`http`),
   `command` as array (not string + args).
-- **Deep-merge keys**: `permission` and `tools` in `opencode.json` use deep
-  merge (user-added entries survive). All other managed keys use wholesale
-  replacement.
-- **Plugin system**: npm plugins in `opencode.json.plugin[]` are managed from
-  canonical `configs/settings/opencode.json`. Preserve user-added entries via
-  deep merge.
-- **Local plugins**: files in `~/.config/opencode/plugins/` auto-load without `opencode.json` registration. Canonical local plugins are deployed from `configs/plugins/` via `metronome push --type plugins`; do not add them to the npm `plugin[]` list unless they are actual packages.
+- **V1/V2 settings**: V1 uses `provider`, `plugin`, `permission`, and flat
+  `mcp`; V2 uses `providers`, `plugins`, ordered `permissions`, and nested
+  `mcp.servers`.
+- **ChatGPT websearch**: Canonical settings include `./chatgpt-websearch` and
+  `websearch.provider: chatgpt`. V2 retains them and runtime verification
+  requires `opencode.chatgpt-websearch`; V1 rendering omits this V2-only
+  integration.
+- **Plugin ownership**: Generic V1 sync deploys `configs/plugins/`. V2 plugin
+  files under `configs/opencode/v2/plugins/` are profile-owned and deployed by
+  `metronome opencode use v2`; generic V2 plugin sync does nothing.
 - **Command tool limits**: canonical `allowed-tools` is stripped during
   OpenCode render. Metronome does not synthesize an OpenCode frontmatter
   `tools` map from canonical command metadata.
@@ -682,41 +776,42 @@ directory paths to `~`. Compare to canonical settings file.
 
 ### OpenCode `~/.config/opencode/opencode.json`
 
-**Canonical source**: `configs/settings/opencode.json`
+**Canonical source**: `configs/settings/opencode.json` (V1-shaped).
 
-**Managed keys**: `provider`, `plugin`, `permission`, `model`,
-`instructions`
+Generic target `opencode` resolves the active profile from
+`~/.config/opencode/migration-manifest.json`; an invalid or missing manifest
+selects V1. Target `opencode2` always selects V2. Both targets share this file
+and cannot be combined; only `opencode` is in `ALL_TARGETS`.
 
-Note: `mcp` is also a managed key but is handled separately by MCP
-sync (section 2.5), not by settings sync. Do not duplicate MCP
-handling here.
+**V1 managed keys**: `provider`, `plugin`, `permission`, `model`,
+`instructions`. The canonical `./chatgpt-websearch` plugin entry and
+`websearch.provider: chatgpt` are omitted by the V1 renderer.
 
-**Deep-merge keys** (within managed): `permission`
-User-added entries survive; canonical entries overwrite matching keys.
-This preserves custom tool permissions while syncing canonical ones.
+**V2 managed keys**: `providers`, `plugins`, `permissions`, `agents`, `model`,
+`instructions`, `websearch`. V2 retains the canonical ChatGPT websearch
+settings; runtime verification requires `opencode.chatgpt-websearch`.
 
-**Wholesale-replace keys** (within managed): `provider`, `plugin`,
-`model`, `instructions`.
+Note: `mcp` is also a managed key but is handled separately by MCP sync
+(section 2.5), not by settings sync. Do not duplicate MCP handling here.
 
-**Unmanaged keys** (preserve during sync): `$schema`, and any
-user-added keys not listed above.
+V1 permission settings are deep-merged so user-added entries survive. Other
+V1 managed settings are rendered into their V1 keys. V2 converts canonical
+permissions, providers/models, agents, and plugins to native shapes; existing
+provider and external plugin entries are preserved where the renderer merges
+them. Unknown top-level keys remain user-owned.
+
+V2 plugin files under `configs/opencode/v2/plugins/` are profile-owned and are
+not deployed by generic V2 plugin sync. Activate them with
+`metronome opencode use v2`.
 
 **Secret handling**: OpenCode provider configs use runtime `{env:VAR_NAME}`
 references in canonical settings (for example `provider_OPENAI_API_KEY_PROD`,
 `ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`). These are not metronome secret
 placeholders. Leave them as-is during push and pull.
 
-**Path expansion**: Canonical uses `~` in `instructions` paths. Push
-expands `~` to the actual home directory. Pull collapses it back.
-
-**Push**: Read system file. For wholesale keys, replace value entirely
-(with secrets injected and `~` expanded). For deep-merge keys, merge
-canonical into existing (canonical wins on conflict, user extras
-preserved). Write back.
-
-**Pull**: Read system file. Extract managed keys. Redact secrets.
-Collapse home directory paths to `~`. Compare to canonical settings
-file.
+**Push/pull**: Read or write the active profile's rendered keys while
+preserving unmanaged top-level state. Generic `pull -s opencode` follows the
+same profile resolution; `pull -s opencode2` reads native V2 shapes.
 
 ### Antigravity `~/.gemini/antigravity-cli/settings.json`
 

@@ -5,7 +5,7 @@ import { Command } from 'commander';
 import pc from 'picocolors';
 import {
   PROJECT_ROOT,
-  createAdapter,
+  createTargetAdapter,
   readCanonicalCommands,
   readCanonicalAgents,
   readCanonicalMCPServers,
@@ -89,7 +89,7 @@ async function renderOpDiff(
 ): Promise<string | null> {
   if (!op.targetPath) return null;
 
-  const adapter = createAdapter(target);
+  const adapter = await createTargetAdapter(target);
   const caps = adapter.getCapabilities();
 
   let rendered: string;

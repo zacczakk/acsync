@@ -11,7 +11,7 @@ import { atomicWrite } from '../infra/atomic-write';
 import { createExclusionFilter } from '../infra/exclusion';
 import { stringifyFrontmatter } from '../formats/markdown';
 import { hasSkillMarker } from '../core/skill-projection';
-import { ALL_TARGETS, COMMANDS_DIR, AGENTS_DIR, SKILLS_DIR, SETTINGS_DIR, MCP_DIR, INSTRUCTIONS_DIR, PLUGINS_DIR, HOOKS_DIR, PROJECT_ROOT, createAdapter, readCanonicalSettings } from './canonical';
+import { ALL_TARGETS, COMMANDS_DIR, AGENTS_DIR, SKILLS_DIR, SETTINGS_DIR, MCP_DIR, INSTRUCTIONS_DIR, PLUGINS_DIR, HOOKS_DIR, PROJECT_ROOT, createTargetAdapter, readCanonicalSettings } from './canonical';
 import { confirm, validatePullSource } from './cli-helpers';
 import type { TargetName } from '../types';
 import type { BackupInfo } from '../core/rollback';
@@ -90,7 +90,7 @@ function existingSettingsFile(filePath: string): boolean {
 export async function runPull(options: PullOptions): Promise<OrchestratorPullResult> {
   const projectDir = options.projectDir ?? PROJECT_ROOT;
   const homeDir = options.homeDir ?? os.homedir();
-  const adapter = createAdapter(options.source, options.homeDir);
+  const adapter = await createTargetAdapter(options.source, options.homeDir);
   const isExcluded = createExclusionFilter();
   const paths = adapter.getPaths();
 
@@ -161,7 +161,7 @@ export async function runPull(options: PullOptions): Promise<OrchestratorPullRes
 
   const caps = adapter.getCapabilities();
   if (caps.skills) {
-    const sharedSkills = options.source === 'opencode' || options.source === 'codex';
+    const sharedSkills = options.source === 'opencode' || options.source === 'opencode2' || options.source === 'codex';
     const skillNames = await adapter.listExistingSkillNames();
     for (const name of skillNames) {
       // The shared root is a private source as well as a public projection.
@@ -619,7 +619,7 @@ Examples:
   metronome pull -s all                    Pull from all targets, deduplicate
   metronome pull -s opencode --force       Pull from OpenCode, overwrite existing
   metronome pull -s claude --dry-run       Preview what would be pulled`)
-  .requiredOption('-s, --source <target>', 'Source target: all, claude, antigravity, codex, opencode')
+  .requiredOption('-s, --source <target>', 'Source target: all, claude, antigravity, codex, opencode, opencode2')
   .option('--json', 'Machine-readable JSON output')
   .option('--force', 'Overwrite existing canonical items')
   .option('--dry-run', 'Show what would be pulled without writing')

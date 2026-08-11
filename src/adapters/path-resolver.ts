@@ -88,6 +88,7 @@ export class AdapterPathResolver {
     switch (this.target) {
       case 'claude-code':   return '~/.claude';
       case 'opencode':      return '~/.config/opencode';
+      case 'opencode2':     return '~/.config/opencode';
       case 'antigravity':   return '~/.gemini/antigravity-cli';
       case 'codex':         return '~/.codex';
     }
@@ -97,6 +98,7 @@ export class AdapterPathResolver {
     switch (this.target) {
       case 'claude-code':   return '~/.claude/commands/';
       case 'opencode':      return '~/.config/opencode/commands/';
+      case 'opencode2':     return '~/.config/opencode/commands/';
       case 'antigravity':   return '~/.gemini/commands/';
       case 'codex':         return '~/.codex/prompts/';
     }
@@ -106,6 +108,7 @@ export class AdapterPathResolver {
     switch (this.target) {
       case 'claude-code':   return '~/.claude/agents/';
       case 'opencode':      return '~/.config/opencode/agents/';
+      case 'opencode2':     return '~/.config/opencode/agents/';
       case 'antigravity':   return '~/.gemini/antigravity-cli/skills/';
       case 'codex':         return '~/.codex/agents/';
     }
@@ -115,6 +118,7 @@ export class AdapterPathResolver {
     switch (this.target) {
       case 'claude-code':   return '~/.claude.json';
       case 'opencode':      return '~/.config/opencode/opencode.json';
+      case 'opencode2':     return '~/.config/opencode/opencode.json';
       case 'antigravity':   return '~/.gemini/antigravity-cli/settings.json';
       case 'codex':         return '~/.codex/config.toml';
     }
@@ -124,6 +128,7 @@ export class AdapterPathResolver {
     switch (this.target) {
       case 'claude-code':   return '~/.claude/settings.json';
       case 'opencode':      return '~/.config/opencode/opencode.json';
+      case 'opencode2':     return '~/.config/opencode/opencode.json';
       case 'antigravity':   return '~/.gemini/antigravity-cli/settings.json';
       case 'codex':         return '~/.codex/config.toml';
     }
@@ -133,6 +138,7 @@ export class AdapterPathResolver {
     switch (this.target) {
       case 'claude-code':   return '~/.claude/CLAUDE.md';
       case 'opencode':      return '~/.config/opencode/AGENTS.md';
+      case 'opencode2':     return '~/.config/opencode/AGENTS.md';
       case 'antigravity':   return '~/.gemini/antigravity-cli/AGENTS.md';
       case 'codex':         return '~/.codex/AGENTS.md';
     }
@@ -141,6 +147,7 @@ export class AdapterPathResolver {
   private rawSkillsDir(): string {
     switch (this.target) {
       case 'opencode':
+      case 'opencode2':
       case 'codex':       return '~/.agents/skills/';
       // Other targets don't use skills
       default:            return path.join(this.rawBaseDir(), 'skills/');
@@ -150,6 +157,7 @@ export class AdapterPathResolver {
   private rawPluginsDir(): string {
     switch (this.target) {
       case 'opencode':    return '~/.config/opencode/plugins/';
+      case 'opencode2':   return '~/.config/opencode/plugins/';
       default:            return path.join(this.rawBaseDir(), 'plugins/');
     }
   }

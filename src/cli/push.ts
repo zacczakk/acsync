@@ -12,6 +12,7 @@ import {
   ALL_TARGETS,
   PROJECT_ROOT,
   createAdapter,
+  createTargetAdapter,
   hashContent,
   readCanonicalCommands,
   readCanonicalAgents,
@@ -44,6 +45,9 @@ export interface OrchestratorPushResult {
 export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPushResult> {
   const projectDir = options.projectDir ?? PROJECT_ROOT;
   const targets = options.targets && options.targets.length > 0 ? options.targets : ALL_TARGETS;
+  if (targets.includes('opencode') && targets.includes('opencode2')) {
+    throw new Error('OpenCode targets opencode and opencode2 share one installation; select only one');
+  }
   const isExcluded = createExclusionFilter();
 
   const manifest = await loadManifest(projectDir);
@@ -139,7 +143,7 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
   try {
   for (const diff of checkResult.diffs) {
     const target = diff.target;
-    const adapter = createAdapter(target, options.homeDir);
+    const adapter = await createTargetAdapter(target, options.homeDir);
     const caps = adapter.getCapabilities();
     const writeOps = diff.operations.filter((op) => (op.type === 'create' || op.type === 'update') && op.itemType !== 'skill');
     const deleteOps = diff.operations.filter((op) => op.type === 'delete' && op.itemType !== 'skill');
@@ -254,7 +258,7 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
         }
         if (operation.kind === 'public' && operation.target) {
           const item = skills.find((skill) => skill.name === operation.name);
-          if (item) await atomicWrite(join(operation.filesystemPath, 'SKILL.md'), createAdapter(operation.target, options.homeDir).renderSkill(item).content);
+          if (item) await atomicWrite(join(operation.filesystemPath, 'SKILL.md'), (await createTargetAdapter(operation.target, options.homeDir)).renderSkill(item).content);
         }
         totalWritten++;
         if (operation.kind === 'public' && operation.target) {
@@ -321,7 +325,7 @@ Examples:
   metronome push -t claude --type commands Push commands to Claude Code only
   metronome push --force --delete          Full sync: push all + clean stale`)
   .option('--json', 'Machine-readable JSON output')
-  .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, antigravity, codex, opencode', collect, [] as string[])
+  .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, antigravity, codex, opencode, opencode2', collect, [] as string[])
   .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings, plugins, hooks', collect, [] as string[])
   .option('--dry-run', 'Show execution plan without writing')
   .option('--force', 'Skip confirmation prompt')

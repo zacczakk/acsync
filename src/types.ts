@@ -70,7 +70,7 @@ export interface SyncConfig {
   };
 }
 
-export type TargetName = 'claude-code' | 'opencode' | 'antigravity' | 'codex';
+export type TargetName = 'claude-code' | 'opencode' | 'opencode2' | 'antigravity' | 'codex';
 
 export interface SupportFile {
   relativePath: string;

@@ -108,6 +108,26 @@ describe('runCheck', () => {
     expect(result.diffs[0].target).toBe('claude-code');
   });
 
+  test('renders the explicit opencode2 target with native V2 settings', async () => {
+    await mkdir(join(tmpDir, 'configs', 'settings'), { recursive: true });
+    await writeFile(join(tmpDir, 'configs', 'settings', 'opencode.json'), JSON.stringify({
+      permission: { bash: 'allow' },
+    }));
+
+    const result = await runCheck({
+      projectDir: tmpDir,
+      homeDir: fakeHome,
+      targets: ['opencode2'],
+      types: ['settings'],
+    });
+
+    expect(result.diffs).toHaveLength(1);
+    expect(result.diffs[0]?.target).toBe('opencode2');
+    const settings = result.diffs[0]?.operations.find((operation) => operation.itemType === 'settings');
+    expect(settings?.targetPath).toBe(join(fakeHome, '.config', 'opencode', 'opencode.json'));
+    expect(result.hasDrift).toBe(true);
+  });
+
   test('scopes to specific type — only command ops returned', async () => {
     const result = await runCheck({
       projectDir: tmpDir,

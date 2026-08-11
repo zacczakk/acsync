@@ -64,6 +64,12 @@ describe('selectedSkillProjectionRoots', () => {
     ]);
   });
 
+  test('deduplicates both OpenCode identities and Codex at the shared root', () => {
+    expect(selectedSkillProjectionRoots(['opencode', 'opencode2', 'codex'], home)).toEqual([
+      { target: 'opencode', root: join(home, '.agents', 'skills') },
+    ]);
+  });
+
   test('manages the shared root for either selected client', () => {
     expect(selectedSkillProjectionRoots(['codex'], home)).toEqual([
       { target: 'codex', root: join(home, '.agents', 'skills') },

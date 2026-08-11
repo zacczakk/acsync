@@ -14,6 +14,7 @@ import {
   HOOKS_DIR,
   PROJECT_ROOT,
   createAdapter,
+  createTargetAdapter,
   hashRendered,
   hashTargetFile,
   hashContent,
@@ -140,6 +141,9 @@ async function detectStaleItems(
 export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorCheckResult> {
   const projectDir = options.projectDir ?? PROJECT_ROOT;
   const targets = options.targets && options.targets.length > 0 ? options.targets : ALL_TARGETS;
+  if (targets.includes('opencode') && targets.includes('opencode2')) {
+    throw new Error('OpenCode targets opencode and opencode2 share one installation; select only one');
+  }
   const isExcluded = createExclusionFilter();
 
   const manifest = await loadManifest(projectDir);
@@ -170,7 +174,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
   const skillRoots = new Set<string>();
 
   for (const target of targets) {
-    const adapter = createAdapter(target, options.homeDir);
+    const adapter = await createTargetAdapter(target, options.homeDir);
     const caps = adapter.getCapabilities();
     const includeSkills = (!options.types || options.types.includes('skill'))
       && caps.skills
@@ -466,7 +470,7 @@ Examples:
 Exit codes: 0 = no drift, 2 = drift detected, 1 = error`)
   .option('--json', 'Machine-readable JSON output')
   .option('-v, --verbose', 'Show all items including up-to-date')
-  .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, antigravity, codex, opencode', collect, [] as string[])
+  .option('-t, --target <name>', 'Scope to specific target (repeatable): claude, antigravity, codex, opencode, opencode2', collect, [] as string[])
   .option('--type <name>', 'Scope to config type (repeatable): commands, agents, mcps, instructions, skills, settings, plugins, hooks', collect, [] as string[])
   .action(async (options: { json?: boolean; verbose?: boolean; target: string[]; type: string[] }) => {
     try {

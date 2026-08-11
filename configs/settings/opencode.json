@@ -70,8 +70,12 @@
     }
   },
   "plugin": [
-    "context-mode"
+    "context-mode",
+    "./chatgpt-websearch"
   ],
+  "websearch": {
+    "provider": "chatgpt"
+  },
   "provider": {
     "provider-bedrock": {
       "npm": "@ai-sdk/openai-compatible",
@@ -85,10 +89,12 @@
       },
       "models": {
         "eu.anthropic.claude-sonnet-4-5-20250929-v1:0": {
-          "name": "Claude Sonnet 4.5"
+          "name": "Claude Sonnet 4.5",
+          "limit": { "output": 64000 }
         },
         "eu.anthropic.claude-haiku-4-5-20251001-v1:0": {
-          "name": "Claude Haiku 4.5"
+          "name": "Claude Haiku 4.5",
+          "limit": { "output": 64000 }
         }
       }
     },
@@ -122,13 +128,16 @@
       },
       "models": {
         "claude-opus-4-6": {
-          "name": "Claude Opus 4.6"
+          "name": "Claude Opus 4.6",
+          "limit": { "output": 64000 }
         },
         "claude-sonnet-4-6": {
-          "name": "Claude Sonnet 4.6"
+          "name": "Claude Sonnet 4.6",
+          "limit": { "output": 64000 }
         },
         "claude-haiku-4-5-20251001": {
-          "name": "Claude Haiku 4.5"
+          "name": "Claude Haiku 4.5",
+          "limit": { "output": 64000 }
         }
       }
     },
@@ -146,6 +155,7 @@
       "models": {
         "claude-opus-5-0": {
           "name": "Claude Opus 5",
+          "limit": { "output": 64000 },
           "options": { "toolStreaming": false },
           "modalities": { "input": ["image", "text"], "output": ["text"] },
           "variants": {
@@ -167,6 +177,7 @@
       "models": {
         "claude-opus-4-8": {
           "name": "Claude Opus 4.8",
+          "limit": { "output": 64000 },
           "options": { "toolStreaming": false },
           "modalities": { "input": ["image", "text"], "output": ["text"] },
           "variants": {
@@ -177,6 +188,7 @@
         },
         "claude-opus-4-7": {
           "name": "Claude Opus 4.7",
+          "limit": { "output": 64000 },
           "options": { "toolStreaming": false },
           "modalities": { "input": ["image", "text"], "output": ["text"] },
           "variants": {
@@ -187,6 +199,7 @@
         },
         "claude-opus-4-6": {
           "name": "Claude Opus 4.6",
+          "limit": { "output": 64000 },
           "options": { "toolStreaming": false },
           "modalities": { "input": ["image", "text"], "output": ["text"] },
           "variants": {
@@ -197,6 +210,7 @@
         },
         "claude-sonnet-5": {
           "name": "Claude Sonnet 5",
+          "limit": { "output": 64000 },
           "options": { "toolStreaming": false },
           "modalities": { "input": ["image", "text"], "output": ["text"] },
           "variants": {
@@ -207,6 +221,7 @@
         },
         "claude-sonnet-4-6": {
           "name": "Claude Sonnet 4.6",
+          "limit": { "output": 64000 },
           "options": { "toolStreaming": false },
           "modalities": { "input": ["image", "text"], "output": ["text"] },
           "variants": {
@@ -217,6 +232,7 @@
         },
         "claude-haiku-4-5-20251001": {
           "name": "Claude Haiku 4.5",
+          "limit": { "output": 64000 },
           "options": { "toolStreaming": false },
           "modalities": { "input": ["image", "text"], "output": ["text"] },
           "variants": {

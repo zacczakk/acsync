@@ -7,7 +7,7 @@ import {
   COMMANDS_DIR,
   AGENTS_DIR,
   PROJECT_ROOT,
-  createAdapter,
+  createTargetAdapter,
   readCanonicalCommands,
   readCanonicalAgents,
   readCanonicalMCPServers,
@@ -24,7 +24,7 @@ import type { TargetName, CanonicalItem } from '../types';
 const VALID_SINGULAR_TYPES = ['command', 'agent', 'mcp', 'instruction', 'skill', 'settings', 'plugin', 'hook'] as const;
 type SingularType = (typeof VALID_SINGULAR_TYPES)[number];
 
-const VALID_TARGETS = ['claude', 'antigravity', 'codex', 'opencode'] as const;
+const VALID_TARGETS = ['claude', 'antigravity', 'codex', 'opencode', 'opencode2'] as const;
 
 function mapTarget(t: string): TargetName {
   if (t === 'claude') return 'claude-code';
@@ -73,7 +73,7 @@ Examples:
       const name = options.name;
 
       for (const target of targets) {
-        const adapter = createAdapter(target);
+        const adapter = await createTargetAdapter(target);
         const displayName = target === 'claude-code' ? 'claude' : target;
         let content: string;
 

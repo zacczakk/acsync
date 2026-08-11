@@ -23,7 +23,7 @@ The `metronome` CLI handles all sync operations programmatically:
 ```
 configs/         metronome CLI        CLI system dirs
   commands/*.md   -->  (adapters)   -->   ~/.claude/commands/
-  agents/         -->  transform    -->   ~/.config/opencode/command/
+  agents/         -->  transform    -->   ~/.config/opencode/agents/
   skills/         -->  + secrets    -->   ~/.gemini/antigravity-cli/
   mcp/*.json      -->  + merge      -->   ~/.codex/prompts/
 ```
@@ -43,6 +43,16 @@ redacts secrets, and writes back to the repo.
 
 `metronome check` renders canonical sources and diffs against system state.
 Read-only — reports drift without modifying anything.
+
+### OpenCode profiles
+
+`metronome opencode use v1|v2` activates a profile and persists it in
+`~/.config/opencode/migration-manifest.json`; `metronome opencode status` reports
+the profile. Generic `check`, `push`, `pull`, `render`, and `diff` target
+`opencode` follows that manifest and defaults to V1 when it is absent or
+invalid. `opencode2` forces native V2 for scripts and CI, shares the same paths,
+is not part of the default all-target set, and cannot be combined with
+`opencode`. The top-level `metronome status` remains the drift-check alias.
 
 ## Key Design Decisions
 
@@ -78,7 +88,8 @@ metronome/
     commands/*.md              13 slash commands (canonical)
     agents/                    2 agent definitions (canonical)
     skills/                    35 skill directories (canonical)
-    plugins/*.ts               3 OpenCode plugins (identity-rendered)
+    plugins/*.ts               3 OpenCode V1 plugins (identity-rendered)
+    opencode/v2/plugins/       Native V2 profile-owned plugins
     mcp/*.json                 6 MCP server definitions (canonical)
     settings/*.json            3 settings definitions (claude, opencode, token-tracker)
     hooks/*.js                 Hook scripts (not deployed — absolute-path refs)

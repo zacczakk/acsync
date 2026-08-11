@@ -8,12 +8,14 @@ import { diffCommand } from './diff';
 import { helpersCommand } from './helpers';
 import { syncDesktopCommand } from './sync-desktop';
 import { codexProviderCommand } from './codex-provider';
+import { opencodeVersionCommand } from './opencode-version';
 
 const DESCRIPTION = `Agent Config Sync — single source of truth for AI coding assistant configs.
 
 Manages canonical configs in configs/ and syncs them to 4 CLI targets:
   claude-code  (~/.claude/)
-  opencode     (~/.config/opencode/)
+  opencode     (~/.config/opencode/, active V1/V2 profile)
+  opencode2    (~/.config/opencode/, explicit V2 for CI/scripts)
   antigravity  (~/.gemini/antigravity-cli/)
   codex        (~/.codex/)
 
@@ -33,6 +35,7 @@ Typical workflow:
   metronome pull -s claude     Pull configs from Claude Code back to canonical
   metronome helpers -p <path>  Copy helper scripts to a repo's scripts/ dir
   metronome codex-provider tux Switch Codex Desktop between Enterprise and Tux
+  metronome opencode use v2   Activate native OpenCode V2 compatibility
 
 Exit codes:
   0  Success / no drift
@@ -53,6 +56,7 @@ program.addCommand(diffCommand);
 program.addCommand(helpersCommand);
 program.addCommand(syncDesktopCommand);
 program.addCommand(codexProviderCommand);
+program.addCommand(opencodeVersionCommand);
 
 // Allow proper exit codes from subcommands (don't let Commander swallow process.exit)
 program.exitOverride();

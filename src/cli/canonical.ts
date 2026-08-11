@@ -7,6 +7,7 @@ import { ClaudeCodeAdapter } from '../adapters/claude-code';
 import { OpenCodeAdapter } from '../adapters/opencode';
 import { AntigravityAdapter } from '../adapters/antigravity';
 import { CodexAdapter } from '../adapters/codex';
+import { getOpenCodeVersionStatus } from '../opencode/profile';
 import type { ToolAdapter } from '../adapters/base';
 import type { TargetName, ItemType, CanonicalItem, CanonicalSettings, CanonicalHookConfig, MCPServer } from '../types';
 import type { SkillProjectionOperation } from '../core/skill-projection';
@@ -47,9 +48,21 @@ export function createAdapter(target: TargetName, homeDir?: string): ToolAdapter
   switch (target) {
     case 'claude-code': return new ClaudeCodeAdapter(homeDir);
     case 'opencode':    return new OpenCodeAdapter(homeDir);
+    case 'opencode2':   return new OpenCodeAdapter(homeDir, 'v2', 'opencode2');
     case 'antigravity': return new AntigravityAdapter(homeDir);
     case 'codex':       return new CodexAdapter(homeDir);
   }
+}
+
+/** Resolve the active OpenCode profile; invalid or absent manifests remain V1-safe. */
+export async function createTargetAdapter(target: TargetName, homeDir?: string): Promise<ToolAdapter> {
+  if (target === 'opencode2') return new OpenCodeAdapter(homeDir, 'v2', 'opencode2');
+  if (target === 'opencode') {
+    const home = homeDir ?? createAdapter('codex').getPaths().expandHome('~');
+    const status = await getOpenCodeVersionStatus(home);
+    return new OpenCodeAdapter(homeDir, status?.active ?? 'v1');
+  }
+  return createAdapter(target, homeDir);
 }
 
 export function hashContent(content: string): string {
@@ -195,6 +208,7 @@ export async function readCanonicalInstructions(
 function settingsFileName(target: TargetName): string {
   switch (target) {
     case 'claude-code': return 'claude.json';
+    case 'opencode2': return 'opencode.json';
     default:            return `${target}.json`;
   }
 }

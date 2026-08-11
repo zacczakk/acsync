@@ -1,7 +1,7 @@
 import { createInterface } from 'node:readline';
 import type { TargetName, ItemType } from '../types';
 
-const VALID_TARGETS = ['claude', 'antigravity', 'codex', 'opencode'] as const;
+const VALID_TARGETS = ['claude', 'antigravity', 'codex', 'opencode', 'opencode2'] as const;
 const VALID_TYPES = ['commands', 'agents', 'mcps', 'instructions', 'skills', 'settings', 'plugins', 'hooks'] as const;
 
 type UserTarget = (typeof VALID_TARGETS)[number];
@@ -25,6 +25,9 @@ export function collect(value: string, previous: string[]): string[] {
 
 /** Validate user-facing target names */
 export function validateTargets(targets: string[]): void {
+  if (targets.includes('opencode') && targets.includes('opencode2')) {
+    throw new Error('OpenCode targets opencode and opencode2 share one installation; select only one');
+  }
   for (const t of targets) {
     if (!VALID_TARGETS.includes(t as UserTarget)) {
       throw new Error(

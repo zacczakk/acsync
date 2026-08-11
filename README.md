@@ -53,7 +53,8 @@ configs/
   commands/*.md              Slash commands (7)
   agents/                    Agent definitions (2)
   skills/                    Skill directories (36 active, with upstream sync)
-  plugins/*.ts               OpenCode plugins (3, identity-rendered)
+  plugins/*.ts               OpenCode V1 plugins (3, identity-rendered)
+  opencode/v2/plugins/       OpenCode V2 profile-owned plugins
   mcp/*.json                 MCP server definitions (6)
   settings/*.json            Settings definitions (claude, opencode, token-tracker)
   hooks/*.js                 Hook scripts (absolute-path refs, not deployed)
@@ -96,6 +97,52 @@ The `metronome` CLI handles all sync operations programmatically:
 - Subset-merges settings (preserves user-added keys)
 - Tracks sync state via `.metronome/manifest.json` (3-way hash comparison)
 - Atomic writes with backup/rollback on failure
+
+### OpenCode V1/V2 profiles
+
+OpenCode V1 remains the canonical authoring format. Metronome can render and
+atomically activate either runtime profile:
+
+```sh
+metronome opencode use v1
+metronome opencode use v2
+metronome opencode status
+metronome opencode update-v2
+```
+
+`metronome opencode use v1|v2` persists the active profile in
+`~/.config/opencode/migration-manifest.json`. `metronome opencode status` reports
+that profile; it is unrelated to `metronome status`, which remains the drift
+check alias.
+
+For generic `check`, `push`, `pull`, `render`, and `diff` operations, target
+`opencode` reads that manifest and follows the active profile. An absent or
+invalid manifest safely defaults to V1. Use `opencode2` to force native V2 in
+scripts and CI (`metronome check -t opencode2`,
+`metronome push -t opencode2 --force`). Both names resolve the same
+`~/.config/opencode/` paths and cannot be combined. `opencode2` is intentionally
+not in the default `ALL_TARGETS` list.
+
+Generic V2 sync covers settings, agents, MCP, commands, skills, and
+instructions. V2 plugin files are profile-owned and deployed by
+`metronome opencode use v2`; generic V2 plugin sync intentionally does nothing.
+
+Canonical `configs/settings/opencode.json` includes `./chatgpt-websearch` and
+`websearch.provider: chatgpt`. V2 retains both, and runtime verification
+requires the `opencode.chatgpt-websearch` plugin. V1 rendering omits this
+V2-only integration.
+
+Every switch creates a complete compatibility backup under
+`~/.config/opencode-backups/metronome/` and appends hashes, plugin status, SDK
+version, and the restore source to
+`~/.config/opencode/migration-manifest.json`. V2 activation restarts the shared
+service because OpenCode hot reload does not reliably register newly deployed
+plugin files. `update-v2` refreshes the Bun-installed `@opencode-ai/cli@next`,
+pins the local plugin SDK to the exact resolved build, restarts the V2 service,
+and verifies the plugin API. Failed activation restores the previous exact
+global CLI build.
+
+Profile switches use atomic writes with rollback on failure.
 
 ## Helper Scripts
 

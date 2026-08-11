@@ -4,7 +4,7 @@ CLI tools on `$PATH`. Sources: `~/Repos/zacczakk/metronome/scripts/` and `~/Repo
 
 ## metronome
 
-Agent Config Sync CLI. Canonical configs sync to AI CLI targets (`claude`, `opencode`, `gemini`, `codex`).
+Agent Config Sync CLI. Canonical configs sync to AI CLI targets (`claude`, `opencode`, `opencode2`, `gemini`, `codex`).
 
 - **Source:** `~/Repos/zacczakk/metronome/src/cli/`
 - **Canonical configs:** `~/Repos/zacczakk/metronome/configs/` (commands, agents, mcp, instructions, skills, settings, plugins)
@@ -20,16 +20,25 @@ Agent Config Sync CLI. Canonical configs sync to AI CLI targets (`claude`, `open
 | `metronome diff` | Unified text diff of all drift. |
 | `metronome render` | Render single item to target format (debug). |
 | `metronome helpers` | Copy helper scripts to a target repo's `scripts/`. |
+| `metronome opencode use/status/update-v2` | Activate, inspect, or maintain the OpenCode V1/V2 profile. |
 
 ### Common flags
-- `-t, --target <name>` — Scope to target (repeatable): `claude`, `opencode`, `gemini`, `codex`
+- `-t, --target <name>` — Scope to target (repeatable): `claude`, `opencode`, `opencode2`, `gemini`, `codex`. `opencode` follows the active profile; `opencode2` is explicit native V2. They share an installation and cannot be combined.
 - `--type <name>` — Scope to config type (repeatable): `commands`, `agents`, `mcps`, `instructions`, `skills`, `settings`, `plugins`
 - `--pretty` / `--json` — Output format
 - `--dry-run` — Preview without writing (push/pull)
 - `--force` — Skip confirmation (push) or overwrite existing (pull)
 - `--delete` — Skip delete confirmation (push only)
-- `-s, --source <target>` — Required for pull: `all`, `claude`, `opencode`, `gemini`, `codex`
+- `-s, --source <target>` — Required for pull: `all`, `claude`, `opencode`, `opencode2`, `gemini`, `codex`
 - `--name <name>` + `--type <type>` — Required for render
+
+Generic `check`, `push`, `pull`, `render`, and `diff` operations resolve
+`opencode` from `~/.config/opencode/migration-manifest.json`; missing or invalid
+manifests default to V1. `opencode2` forces native V2, shares the same paths,
+is not in the default all-target set, and cannot be combined with `opencode`.
+V2 plugin files are profile-owned; generic V2 plugin sync is intentionally a
+no-op. `metronome status` is the drift check alias; use
+`metronome opencode status` for the active profile.
 
 ### Quick ref
 ```bash
@@ -37,6 +46,9 @@ metronome check --json                       # What's drifted?
 metronome diff                               # Detailed changes
 metronome push --force --delete              # Sync everything
 metronome push -t opencode --type commands   # Narrow scope
+metronome check -t opencode2                 # Explicit native V2 check
+metronome opencode use v2                    # Activate V2 profile
+metronome opencode status                    # Show active profile
 metronome pull -s claude --dry-run           # Preview reverse sync
 metronome render --type command --name gate  # Debug single item
 metronome helpers -p ~/Repos/my-project      # Copy helpers to repo

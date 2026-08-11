@@ -13,7 +13,8 @@ read_when:
   - `commands/` — Slash commands (8 .md files)
   - `agents/` — Subagent definitions (2 .md files)
   - `skills/` — Skill bundles (38 directories)
-  - `plugins/` — metronome-managed OpenCode plugins (3 .ts files, identity-rendered; the Cursor OAuth plugin is a separate external fork, see below)
+  - `plugins/` — metronome-managed OpenCode V1 plugins (3 .ts files, identity-rendered)
+  - `opencode/v2/plugins/` — profile-owned native V2 plugins
   - `mcp/` — MCP server definitions (7 .json files)
   - `settings/` — Per-CLI settings (4 .json files)
   - `hooks/` — Hook scripts (see [Hooks](#hooks) below)
@@ -66,14 +67,63 @@ Hook scripts receive JSON on stdin (session_id, source, cwd, etc.) and communica
 
 OpenCode uses a **plugin system** instead of shell hooks. Local plugins are auto-loaded from `~/.config/opencode/plugins/`. See [OpenCode plugins docs](https://opencode.ai/docs/plugins/).
 
-Plugin source files live in `configs/plugins/` and are **deployed by `metronome push`** to `~/.config/opencode/plugins/`. Only the OpenCode adapter supports plugins (`plugins: true`).
+V1 plugin source files live in `configs/plugins/` and are deployed by generic
+V1 sync to `~/.config/opencode/plugins/`. The V2 adapter reports no generic
+plugin capability: V2 plugin files are profile-owned and deployed only by
+`metronome opencode use v2`.
 
 | Plugin | Event(s) | Purpose |
 |--------|----------|---------|
-| `notify-opencode.ts` | `session.created`, `session.deleted`, `session.status`, `permission.asked`, `question.asked`, `session.error` | macOS alerter notifications with iTerm2 pane focus. Tracks root sessions via `session.created`/`deleted`; uses `session.status` busy→idle transitions (not `session.idle`) to avoid duplicate notifications. Idle notifications are transient (5s). Retry status surfaces retries. Permission, question, and error notifications fire for all sessions. |
-| `memory-vault-advisor.ts` | `tool.execute.after` | Advisory reminder to check Memory vault before exploratory searches (grep, glob, task/explore, tavily_search, context7). Output mutation doesn't propagate for MCP tools — known OpenCode limitation. |
+| `memory-vault-advisor.ts` | `tool.execute.after` | Advisory reminder to check Memory vault before exploratory searches. |
+| `read-guard.ts` | `tool.execute.after`, `tool.execute.before` | Blocks edits to existing files that have not been read in the session. |
+| `validate-commit.ts` | `tool.execute.before` | Enforces Conventional Commit messages for `git commit`. |
 
-Plugins are raw `.ts` files — identity-rendered (no frontmatter, no transformation). Stale cleanup only removes plugins recorded as Metronome-owned in the manifest; third-party files are preserved. The `"plugin"` key in `opencode.json` (npm packages) is separately managed via settings wholesale-replace.
+V1 plugins are raw `.ts` files — identity-rendered (no frontmatter, no
+transformation). Stale cleanup only removes plugins recorded as
+Metronome-owned in the manifest; third-party files are preserved. The `"plugin"`
+key in V1 `opencode.json` is separately managed via settings sync.
+
+#### V1/V2 compatibility profiles
+
+`configs/settings/opencode.json` remains V1-shaped canonical semantic input.
+`src/opencode/version-renderer.ts` emits either V1 or native V2 configuration,
+including ordered permissions, provider/model migration, MCP nesting, and
+agent-specific model variants. Per-agent `reasoningEffort` and `textVerbosity`
+become actual model variants in V2 because V2 retains but does not apply agent
+`request.body` overlays.
+
+`metronome opencode use v1|v2` owns profile activation and persists the active
+profile in `~/.config/opencode/migration-manifest.json`. Generic `check`,
+`push`, `pull`, `render`, and `diff` operations resolve target `opencode` from
+that manifest; missing or invalid manifests select V1. `opencode2` forces V2,
+uses the same paths, is excluded from `ALL_TARGETS`, and cannot be combined
+with `opencode` in one operation.
+
+The switcher backs up `opencode.json`, agents, both global plugin roots, CLI
+settings, package manifests, and lockfiles before writing. Unknown plugins and
+Tux's V1 `provider.tux` overlay are preserved. Native `providers` wins in V2,
+so Tux may continue writing its V1 integration without breaking the active V2
+catalog.
+
+Versioned V2 plugins live under `configs/opencode/v2/plugins/`. V2 ports the
+instruction loader, Memory advisor, read guard, commit validator, and Muxy
+notifications. The Muxy V2 port is global; Muxy's app-owned ancestor plugin is
+preserved because the app continuously regenerates it. Current Muxy releases
+still emit a V1 plugin load warning under V2, but the global port remains the
+active notification integration. Cursor OAuth is disabled in V2 because the
+public V2 catalog API cannot add a provider; context-mode is disabled because
+its package still exports the V1 `{ id, server }` contract. Switching back to
+V1 restores the remembered Cursor symlink target and V1 plugin files.
+
+The canonical settings file includes `./chatgpt-websearch` and
+`websearch.provider: chatgpt`. V2 retains both; V2 runtime verification requires
+`opencode.chatgpt-websearch`. V1 rendering omits this V2-only integration.
+
+Generic V2 sync handles settings, agents, MCP, commands, skills, and
+instructions. V2 preserves but does not natively resolve the config
+`instructions` array; `metronome.instructions-loader` reads the four separate
+Memory files and adds them through the supported session context hook.
+`AGENTS.md` remains excluded from that plugin because V2 discovers it natively.
 
 **Cursor OAuth (local fork, NOT npm, NOT metronome-copied)**: Cursor-backed
 models in OpenCode are served by a maintained fork at
@@ -89,10 +139,10 @@ auto-discovers it from that directory. It self-injects a static
 hook — so it is deliberately **absent from `opencode.json`'s `plugin[]` array**
 (a bare-name entry there would npm-resolve and double-load, which caused an
 EADDRINUSE port conflict). Auth borrows Cursor's OAuth tokens from the macOS
-Keychain (`cursor-agent login`). Not synced by metronome — the fork is the
-source of truth; update = pull/build the fork, symlink persists.
+Keychain (`cursor-agent login`). The fork remains the source of truth. Profile
+switching only disables/restores its symlink because the implementation is V1-only.
 
-**Context Mode (npm)**: Canonical `opencode.json` includes `context-mode` in the `plugin` array. The MCP server is managed separately via `configs/mcp/context-mode.json` (pushed to all CLIs by `metronome push --type mcps`). Together these register 11 MCP sandbox tools and wire `tool.execute.before/after` hooks for automatic tool-output sandboxing, session continuity via SQLite+FTS5, and the `ctx_execute` "think in code" pattern. Installed globally via `bun add -g context-mode`. ELv2 license (personal/internal use: fine).
+**Context Mode (npm)**: Canonical V1 `opencode.json` includes `context-mode` in the `plugin` array. It is intentionally omitted from V2 until upstream ships a native `{ id, setup }` implementation or a separately tested rewrite exists. The MCP server remains independently managed through `configs/mcp/context-mode.json`. Installed globally via `bun add -g context-mode`. ELv2 license (personal/internal use: fine).
 
 ### Codex hooks
 
@@ -118,7 +168,10 @@ profile selects the local Tux provider without forwarding OpenAI credentials.
 
 1. Create the script in `configs/hooks/`.
 2. **Claude Code:** Add registration entry to `~/.claude/settings.json` → `hooks` key. Use absolute path to `configs/hooks/`.
-3. **OpenCode:** Create a plugin `.ts` file in `configs/plugins/`. Run `metronome push --type plugins` to deploy. Reference shared logic from `configs/hooks/` if possible.
+3. **OpenCode V1:** Create a plugin `.ts` file in `configs/plugins/` and run
+   `metronome push --type plugins` to deploy. For V2, add a native plugin under
+   `configs/opencode/v2/plugins/` and activate it with `metronome opencode use v2`.
+   Reference shared logic from `configs/hooks/` if possible.
 4. **Codex:** Add canonical registration to `configs/hook-configs/codex.json`. Ensure Codex settings enable `features.hooks = true`.
 5. Restart the CLI session for hooks to take effect.
 

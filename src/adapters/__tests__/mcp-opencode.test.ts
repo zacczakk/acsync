@@ -185,3 +185,15 @@ describe('OpenCodeAdapter.renderMCPServers', () => {
     expect(adapter.removesNonCanonicalOnPush()).toBe(true);
   });
 });
+
+describe('OpenCodeAdapter V2 MCP parsing', () => {
+  test('reads native V2 server names and disabled state', () => {
+    const v2 = new OpenCodeAdapter(undefined, 'v2', 'opencode2');
+    const content = JSON.stringify({ mcp: { servers: { native: { type: 'local', command: ['tool'], disabled: true } } } });
+
+    expect(v2.parseExistingMCPServerNames(content)).toEqual(['native']);
+    expect(v2.parseMCPServers(content)).toEqual([{
+      name: 'native', transport: 'stdio', command: 'tool', args: [], enabled: false,
+    }]);
+  });
+});

@@ -175,3 +175,89 @@ describe('OpenCodeAdapter capabilities', () => {
     expect(adapter.displayName).toBe('OpenCode');
   });
 });
+
+describe('OpenCodeAdapter V2', () => {
+  it('renders native V2 settings and V2 MCP semantics', () => {
+    const v2 = new OpenCodeAdapter(undefined, 'v2', 'opencode2');
+    const settings = v2.renderSettings({
+      target: 'opencode2',
+      keys: { permission: { bash: 'allow' } },
+    });
+    const mcp = v2.renderMCPServers([{
+      name: 'native', transport: 'stdio', command: 'tool', enabled: false,
+      targetOptions: { opencode2: { timeout: 12 } },
+    }]);
+
+    expect(settings).toContain('"permissions"');
+    expect(mcp).toContain('"servers"');
+    expect(mcp).toContain('"disabled": true');
+    expect(mcp).toContain('"catalog": 12');
+  });
+
+  it('preserves native providers and configured external plugins', () => {
+    const v2 = new OpenCodeAdapter(undefined, 'v2', 'opencode2');
+    const settings = JSON.parse(v2.renderSettings({
+      target: 'opencode2',
+      keys: {
+        plugin: ['./chatgpt-websearch'],
+        websearch: { provider: 'chatgpt' },
+        provider: { canonical: { npm: '@ai-sdk/anthropic' } },
+      },
+    }, JSON.stringify({
+      plugins: ['./third-party'],
+      providers: { external: { package: 'aisdk:external' } },
+    })));
+
+    expect(settings.plugins).toEqual(['./third-party', './chatgpt-websearch']);
+    expect(settings.websearch).toEqual({ provider: 'chatgpt' });
+    expect(Object.keys(settings.providers)).toEqual(['external', 'canonical']);
+    expect(v2.getCapabilities().plugins).toBe(false);
+  });
+
+  it('preserves profile-owned agent variants during generic V2 settings sync', () => {
+    const v2 = new OpenCodeAdapter(undefined, 'v2', 'opencode2');
+    const existing = JSON.stringify({
+      providers: {
+        acme: {
+          models: {
+            model: {
+              variants: [
+                { id: 'canonical', settings: { effort: 'old' } },
+                { id: 'agent-review', settings: { effort: 'high' } },
+                { id: 'third-party', settings: { temperature: 1 } },
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    const rendered = JSON.parse(v2.renderSettings({
+      target: 'opencode2',
+      keys: {
+        provider: {
+          acme: {
+            models: {
+              model: { variants: { canonical: { effort: 'new' } } },
+            },
+          },
+        },
+      },
+    }, existing));
+
+    expect(rendered.providers.acme.models.model.variants).toEqual([
+      { id: 'canonical', settings: { effort: 'new' } },
+      { id: 'agent-review', settings: { effort: 'high' } },
+    ]);
+  });
+
+  it('uses opencode2 MCP overrides for the active V2 profile', () => {
+    const v2 = new OpenCodeAdapter(undefined, 'v2');
+    const mcp = v2.renderMCPServers([{
+      name: 'native', transport: 'stdio', command: 'tool',
+      targetOptions: { opencode: { timeout: 3 }, opencode2: { timeout: 12 } },
+    }]);
+
+    expect(mcp).toContain('"catalog": 12');
+  });
+});

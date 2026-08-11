@@ -6,6 +6,14 @@ read_when:
 
 # Changelog
 
+## 2026-08-10
+
+- Added atomic `metronome opencode use v1|v2` compatibility profiles with complete backups and an append-only migration manifest.
+- Generic OpenCode sync now follows the persisted profile; explicit `opencode2` forces V2, shares paths with `opencode`, is excluded from default all-target sync, and cannot be combined with it.
+- Added native V2 ports for separate instruction loading, Memory advice, read guarding, Conventional Commit validation, and Muxy notifications; V2 plugin files remain profile-owned.
+- Canonical OpenCode settings now include ChatGPT websearch for V2, with runtime verification for `opencode.chatgpt-websearch`; V1 rendering omits the V2-only integration.
+- Added durable Bun V2 update and exact plugin-SDK alignment through `metronome opencode update-v2`.
+
 ## Unreleased
 
 - **Skill portfolio reduction** — removed eleven overlapping workflow skills, blocked them from upstream resync, and replaced Superpowers debugging/TDD with manually synced Matt Pocock `diagnosing-bugs` and `tdd`
