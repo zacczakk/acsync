@@ -90,7 +90,7 @@ metronome/
     skills/                    35 skill directories (canonical)
     plugins/*.ts               3 OpenCode V1 plugins (identity-rendered)
     opencode/v2/plugins/       Native V2 profile-owned plugins
-    mcp/*.json                 6 MCP server definitions (canonical)
+    mcp/*.json                 9 MCP server definitions (canonical)
     settings/*.json            3 settings definitions (claude, opencode, token-tracker)
     hooks/*.js                 Hook scripts (not deployed — absolute-path refs)
     instructions/AGENTS.md     Unified agent operating system (ground truth)

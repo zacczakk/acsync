@@ -15,7 +15,7 @@ read_when:
   - `skills/` — Skill bundles (38 directories)
   - `plugins/` — metronome-managed OpenCode V1 plugins (3 .ts files, identity-rendered)
   - `opencode/v2/plugins/` — profile-owned native V2 plugins
-  - `mcp/` — MCP server definitions (7 .json files)
+  - `mcp/` — MCP server definitions (9 .json files)
   - `settings/` — Per-CLI settings (4 .json files)
   - `hooks/` — Hook scripts (see [Hooks](#hooks) below)
   - `instructions/AGENTS.md` — Unified agent operating system (ground truth)

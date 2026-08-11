@@ -39,6 +39,27 @@ describe('canonical agent routing', () => {
       options: { reasoningEffort: 'low' },
     });
   });
+
+  test('keeps all validated Tux reasoning variants for Luna and Terra', () => {
+    const settings = JSON.parse(
+      readFileSync(join(process.cwd(), 'configs', 'settings', 'opencode.json'), 'utf8'),
+    ) as {
+      provider?: {
+        tux?: {
+          models?: Record<string, {
+            options?: { reasoningEffort?: string };
+            variants?: Record<string, { reasoningEffort?: string }>;
+          }>;
+        };
+      };
+    };
+    const expected = ['none', 'low', 'medium', 'high', 'xhigh', 'max'];
+
+    for (const model of ['gpt-5.6-luna', 'gpt-5.6-terra']) {
+      expect(Object.keys(settings.provider?.tux?.models?.[model]?.variants ?? {})).toEqual(expected);
+    }
+    expect(settings.provider?.tux?.models?.['gpt-5.6-luna']?.options?.reasoningEffort).toBe('max');
+  });
 });
 
 describe('canonical vault retrieval policy', () => {

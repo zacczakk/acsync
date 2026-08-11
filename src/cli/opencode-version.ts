@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { Command } from 'commander';
 import { PROJECT_ROOT } from './canonical';
 import { getOpenCodeVersionStatus, switchOpenCodeVersion } from '../opencode/profile';
-import { alignOpenCodePluginSdk, restartAndVerifyOpenCodeV2, runCommand, updateOpenCodeV2Safely } from '../opencode/sdk';
+import { alignOpenCodePluginSdk, restartAndVerifyOpenCodeV2, runCommand, updateOpenCodeV2Safely, verifyOpenCodeV2Plugins } from '../opencode/sdk';
 import type { OpenCodeVersion } from '../opencode/version-renderer';
 
 function version(value: string): OpenCodeVersion {
@@ -34,7 +34,7 @@ opencodeVersionCommand.command('use')
         rollback: selected === 'v2' && options.alignSdk !== false && !options.dryRun
           ? () => runCommand('bun', ['install', '--frozen-lockfile'], join(homeDir, '.config', 'opencode')).then(() => undefined)
           : undefined,
-        verifyPlugins: selected === 'v2' && !options.dryRun ? () => restartAndVerifyOpenCodeV2() : undefined,
+        verifyPlugins: selected === 'v2' && !options.dryRun ? () => verifyOpenCodeV2Plugins() : undefined,
       });
       process.stdout.write(`${options.dryRun ? 'Would activate' : 'Activated'} OpenCode ${selected.toUpperCase()}\n`);
       process.stdout.write(`Backup: ${result.backupPath}\nManifest: ${result.manifestPath}\n`);

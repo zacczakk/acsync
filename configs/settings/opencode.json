@@ -247,14 +247,14 @@
           "cost": { "input": 5, "output": 30, "cache_read": 0.5, "cache_write": 6.25 },
           "provider": { "npm": "@ai-sdk/openai" },
           "reasoning": true,
-          "options": { "reasoningSummary": null },
+          "options": { "reasoningSummary": "auto" },
           "modalities": { "input": ["image", "text"], "output": ["text"] },
           "variants": {
-            "none": { "reasoningEffort": "none", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "low": { "reasoningEffort": "low", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "medium": { "reasoningEffort": "medium", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "high": { "reasoningEffort": "high", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "xhigh": { "reasoningEffort": "xhigh", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] }
+            "none": { "reasoningEffort": "none", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "low": { "reasoningEffort": "low", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "medium": { "reasoningEffort": "medium", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "high": { "reasoningEffort": "high", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "xhigh": { "reasoningEffort": "xhigh", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] }
           }
         },
         "gpt-5.6-sol": {
@@ -262,14 +262,14 @@
           "cost": { "input": 5, "output": 30, "cache_read": 0.5, "cache_write": 6.25 },
           "provider": { "npm": "@ai-sdk/openai" },
           "reasoning": true,
-          "options": { "reasoningSummary": null },
+          "options": { "reasoningSummary": "auto" },
           "modalities": { "input": ["image", "text"], "output": ["text"] },
           "variants": {
-            "none": { "reasoningEffort": "none", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "low": { "reasoningEffort": "low", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "medium": { "reasoningEffort": "medium", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "high": { "reasoningEffort": "high", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "xhigh": { "reasoningEffort": "xhigh", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] }
+            "none": { "reasoningEffort": "none", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "low": { "reasoningEffort": "low", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "medium": { "reasoningEffort": "medium", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "high": { "reasoningEffort": "high", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "xhigh": { "reasoningEffort": "xhigh", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] }
           }
         },
         "gpt-5.6-terra": {
@@ -277,14 +277,15 @@
           "cost": { "input": 2, "output": 12, "cache_read": 0.2, "cache_write": 2.5 },
           "provider": { "npm": "@ai-sdk/openai" },
           "reasoning": true,
-          "options": { "reasoningSummary": null },
+          "options": { "reasoningSummary": "auto" },
           "modalities": { "input": ["image", "text"], "output": ["text"] },
           "variants": {
-            "none": { "reasoningEffort": "none", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "low": { "reasoningEffort": "low", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "medium": { "reasoningEffort": "medium", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "high": { "reasoningEffort": "high", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "xhigh": { "reasoningEffort": "xhigh", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] }
+            "none": { "reasoningEffort": "none", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "low": { "reasoningEffort": "low", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "medium": { "reasoningEffort": "medium", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "high": { "reasoningEffort": "high", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "xhigh": { "reasoningEffort": "xhigh", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "max": { "reasoningEffort": "max", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] }
           }
         },
         "gpt-5.6-luna": {
@@ -292,14 +293,15 @@
           "cost": { "input": 0.2, "output": 1.2, "cache_read": 0.02, "cache_write": 0.25 },
           "provider": { "npm": "@ai-sdk/openai" },
           "reasoning": true,
-          "options": { "reasoningSummary": null },
+          "options": { "reasoningSummary": "auto", "reasoningEffort": "max" },
           "modalities": { "input": ["image", "text"], "output": ["text"] },
           "variants": {
-            "none": { "reasoningEffort": "none", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "low": { "reasoningEffort": "low", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "medium": { "reasoningEffort": "medium", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "high": { "reasoningEffort": "high", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] },
-            "xhigh": { "reasoningEffort": "xhigh", "reasoningSummary": null, "include": ["reasoning.encrypted_content"] }
+            "none": { "reasoningEffort": "none", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "low": { "reasoningEffort": "low", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "medium": { "reasoningEffort": "medium", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "high": { "reasoningEffort": "high", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "xhigh": { "reasoningEffort": "xhigh", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] },
+            "max": { "reasoningEffort": "max", "reasoningSummary": "auto", "include": ["reasoning.encrypted_content"] }
           }
         }
       }
