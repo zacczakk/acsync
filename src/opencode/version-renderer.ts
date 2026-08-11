@@ -295,7 +295,7 @@ export function renderOpenCodeMcp(servers: MCPServer[], version: OpenCodeVersion
     if (server.transport === 'stdio') config.command = [server.command, ...(server.args ?? [])];
     else config.url = server.url;
     if (server.env) config.environment = EnvVarTransformer.toOpenCode(server.env);
-    if (server.headers) config.headers = clone(server.headers);
+    if (server.headers) config.headers = EnvVarTransformer.toOpenCode(server.headers);
     const targetOptions = server.targetOptions?.[target];
     if (targetOptions) Object.assign(config, clone(targetOptions));
 

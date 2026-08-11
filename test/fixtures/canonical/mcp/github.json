@@ -1,0 +1,18 @@
+{
+  "description": "GitHub repositories, issues, pull requests, Actions, and code tools",
+  "transport": "http",
+  "url": "https://api.githubcopilot.com/mcp/",
+  "headers": {
+    "Authorization": "Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}"
+  },
+  "env_vars": ["GITHUB_PERSONAL_ACCESS_TOKEN"],
+  "target_options": {
+    "opencode": {
+      "oauth": false
+    },
+    "opencode2": {
+      "oauth": false,
+      "codemode": true
+    }
+  }
+}

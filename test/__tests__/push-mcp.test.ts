@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync, cpSync, mkdirSync } from 'node:fs';
+import { readFileSync, cpSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { createTestHome, createTestProject } from '../helpers/backup';
 import { runPush } from '../../src/cli/push';
@@ -8,6 +8,7 @@ import type { TargetName } from '../../src/types';
 
 const FIXTURE_ROOT = join(import.meta.dir, '../fixtures');
 const SEEDS_ROOT = join(FIXTURE_ROOT, 'seeds');
+const E2E_TIMEOUT = 60_000;
 
 /** Seed MCP files into fakeHome from seeds/ */
 function seedMCPTargets(fakeHome: string): void {
@@ -75,4 +76,52 @@ describe('push MCP E2E', () => {
     expect(result2.hasDrift).toBe(false);
     expect(result2.written).toBe(0);
   });
+
+  test('pushes native OpenCode V2 GitHub codemode configuration and is idempotent', async () => {
+    const fakeHome = createTestHome('push-mcp-opencode2');
+    const projectDir = createTestProject('push-mcp-opencode2', FIXTURE_ROOT);
+    const adapter = createAdapter('opencode2', fakeHome);
+    const mcpPath = adapter.getPaths().getMCPConfigPath();
+    mkdirSync(dirname(mcpPath), { recursive: true });
+    writeFileSync(mcpPath, JSON.stringify({
+      mcp: {
+        servers: {
+          'existing-server': { type: 'remote', url: 'https://example.com/mcp' },
+        },
+      },
+    }));
+
+    const result = await runPush({
+      projectDir,
+      targets: ['opencode2'],
+      force: true,
+      types: ['mcp'],
+      homeDir: fakeHome,
+    });
+    expect(result.failed).toBe(0);
+    expect(result.rolledBack).toBe(false);
+
+    const rendered = JSON.parse(readFileSync(mcpPath, 'utf-8')) as {
+      mcp: { servers: Record<string, Record<string, unknown>> };
+    };
+    expect(rendered.mcp.servers['existing-server']).toBeUndefined();
+    expect(rendered.mcp.servers.github).toEqual({
+      type: 'remote',
+      url: 'https://api.githubcopilot.com/mcp/',
+      headers: { Authorization: 'Bearer {env:GITHUB_PERSONAL_ACCESS_TOKEN}' },
+      oauth: false,
+      codemode: true,
+      disabled: false,
+    });
+
+    const second = await runPush({
+      projectDir,
+      targets: ['opencode2'],
+      force: true,
+      types: ['mcp'],
+      homeDir: fakeHome,
+    });
+    expect(second.hasDrift).toBe(false);
+    expect(second.written).toBe(0);
+  }, E2E_TIMEOUT);
 });

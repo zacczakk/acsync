@@ -47,7 +47,7 @@ keeps slash commands in `prompts/`, but custom subagents now live in
 configs/commands/*.md              14 slash commands
 configs/agents/                    Agent definitions (OpenCode-style frontmatter)
 configs/skills/                    38 skill directories
-configs/mcp/*.json                 7 MCP server definitions
+configs/mcp/*.json                 9 MCP server definitions
 configs/settings/*.json            3 settings definitions (claude, codex, opencode)
 configs/instructions/AGENTS.md     Unified agent operating system
 configs/instructions/TOOLS.md      Tool-use reference
@@ -389,15 +389,15 @@ The canonical MCP definition schema (`configs/mcp/*.json`):
   "command": "...",              // stdio only
   "args": ["..."],              // stdio only
   "url": "...",                 // http only
-  "headers": {"KEY": "VALUE"},  // http only
+  "headers": {"KEY": "VALUE"},  // http only; ${VAR} placeholders are canonical
   "env_vars": ["VAR"],          // validation only — not rendered
   "env": {"KEY": "${VAR}"},     // runtime env vars — stdio only
   "enabled": true|false,        // optional, default true
   "disabled_for": ["cli"],      // optional, per-CLI exclusion
   "target_options": {           // optional, target-specific render extras
     "claude-code": {"disabled": true},
-    "opencode": {"timeout": 20000},
-    "opencode2": {"timeout": 20000}
+    "opencode": {"oauth": false},
+    "opencode2": {"oauth": false, "codemode": true}
   }
 }
 ```
@@ -408,6 +408,10 @@ name appears in `disabled_for`. Exception: skill-MCP force-enable (see 2.3).
 **Target options**: `target_options` is the escape hatch for target-specific
 fields that the shared canonical schema does not model directly. Use it
 sparingly for adapter quirks where exact config shape matters.
+
+The managed GitHub MCP (`configs/mcp/github.json`) uses an
+`Authorization: Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}` header. OpenCode V1
+disables OAuth for it; OpenCode V2 also enables `codemode`.
 
 #### Claude Code Format
 
@@ -483,7 +487,9 @@ Rules:
 - Rename `"env"` to `"environment"`.
 - Add `"enabled": true` (or `false` if canonical has `"enabled": false`).
 - Drop `description`, `env_vars`, `transport`, `disabled_for`.
-- Inject real secret values.
+- Convert `${VAR}` references in `environment` and `headers` to OpenCode's
+  `{env:VAR}` runtime references; pull reverses this conversion.
+- Copy `target_options.opencode` into the server entry.
 
 #### OpenCode V2 Format
 
@@ -515,7 +521,13 @@ Rules:
 - Apply `disabled_for` using the `opencode2` target identity.
 - Use `target_options.opencode2` for V2-only MCP render options; V1 options
   remain under `target_options.opencode`.
-- Inject real secret values.
+- Convert `${VAR}` references in `environment` and `headers` to OpenCode's
+  `{env:VAR}` runtime references; pull reverses this conversion.
+- Copy `target_options.opencode2` into the server entry.
+
+**OpenCode pull**: Remote server `headers` are parsed back into the canonical
+schema. Recognized `oauth` and `codemode` fields are stored under
+`target_options` for the active target (`opencode` or `opencode2`).
 
 #### Antigravity CLI Format
 
@@ -670,6 +682,7 @@ Rules:
 | `TAVILY_API_KEY` | tavily MCP | In `env` block |
 | `provider_ENV` | tavily MCP | Set to `dev` for this key |
 | `CONTEXT7_API_KEY` | context7 MCP | In `headers` block |
+| `GITHUB_PERSONAL_ACCESS_TOKEN` | github MCP | `Authorization` header; OpenCode renders `{env:GITHUB_PERSONAL_ACCESS_TOKEN}` |
 | `provider_OPENAI_API_KEY_PROD` | OpenCode settings | Runtime `{env:...}` reference in provider options |
 
 ### Path Expansion
@@ -683,7 +696,9 @@ expanded/collapsed at the push/pull boundary:
 
 ### Push Direction (Repo to System)
 
-Replace all `${VAR_NAME}` placeholders with real values from `.env`.
+Replace all `${VAR_NAME}` placeholders with real values from `.env`, except
+OpenCode MCP `environment` and `headers`, which use `{env:VAR_NAME}` runtime
+references instead of inline values.
 Expand all `~` paths to absolute paths.
 Validate that all required vars are present and non-empty before writing.
 
@@ -712,7 +727,7 @@ Leave `{env:ANTHROPIC_BASE_URL}` and `{env:ANTHROPIC_AUTH_TOKEN}` as-is.
 
 Before any push operation:
 1. Load `.env` from repo root.
-2. Verify all 4 secret vars are present and non-empty.
+2. Verify all required secret vars are present and non-empty.
 3. For each canonical MCP server with `env_vars`, verify the referenced
    vars exist in `.env`.
 4. If any are missing, stop and list what's needed.

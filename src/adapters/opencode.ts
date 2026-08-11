@@ -121,9 +121,20 @@ export class OpenCodeAdapter extends BaseAdapter {
           }
         } else {
           server.url = cfg.url as string;
+          if (cfg.headers && typeof cfg.headers === 'object') {
+            server.headers = EnvVarTransformer.fromOpenCode(cfg.headers) as Record<string, string>;
+          }
         }
 
         if (this.version === 'v2' ? cfg.disabled === true : cfg.enabled === false) server.enabled = false;
+
+        const targetOptions: Record<string, unknown> = {};
+        for (const key of ['oauth', 'codemode']) {
+          if (key in cfg) targetOptions[key] = cfg[key];
+        }
+        if (Object.keys(targetOptions).length > 0) {
+          server.targetOptions = { [this.mcpTarget]: targetOptions };
+        }
 
         servers.push(server);
       }
@@ -201,6 +212,9 @@ export class OpenCodeAdapter extends BaseAdapter {
 
       if (server.env && Object.keys(server.env).length > 0) {
         cfg.environment = EnvVarTransformer.toOpenCode(server.env) as Record<string, string>;
+      }
+      if (server.headers && Object.keys(server.headers).length > 0) {
+        cfg.headers = EnvVarTransformer.toOpenCode(server.headers) as Record<string, string>;
       }
 
       // OpenCode natively supports enabled: false

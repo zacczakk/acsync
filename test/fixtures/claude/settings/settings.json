@@ -65,6 +65,7 @@
     "allow": [
       "mcp__context-mode",
       "mcp__context7",
+      "mcp__github",
       "mcp__maestro-mcp",
       "mcp__palantir-mcp",
       "mcp__tavily",

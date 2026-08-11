@@ -55,7 +55,7 @@ configs/
   skills/                    Skill directories (36 active, with upstream sync)
   plugins/*.ts               OpenCode V1 plugins (3, identity-rendered)
   opencode/v2/plugins/       OpenCode V2 profile-owned plugins
-  mcp/*.json                 MCP server definitions (6)
+  mcp/*.json                 MCP server definitions
   settings/*.json            Settings definitions (claude, opencode, token-tracker)
   hooks/*.js                 Hook scripts (absolute-path refs, not deployed)
   instructions/AGENTS.md     Unified agent operating system (ground truth)
@@ -165,6 +165,7 @@ Copy `.env.example` to `.env` and fill in:
 TAVILY_API_KEY=
 provider_ENV=dev
 CONTEXT7_API_KEY=
+GITHUB_PERSONAL_ACCESS_TOKEN=
 # Add your own provider keys as needed
 ```
 

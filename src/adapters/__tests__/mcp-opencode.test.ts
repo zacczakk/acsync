@@ -20,6 +20,17 @@ const httpServer: MCPServer = {
   env: { TAVILY_API_KEY: '${TAVILY_API_KEY}' },
 };
 
+const githubServer: MCPServer = {
+  name: 'github',
+  transport: 'http',
+  url: 'https://api.githubcopilot.com/mcp/',
+  headers: { Authorization: 'Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}' },
+  targetOptions: {
+    opencode: { oauth: false },
+    opencode2: { oauth: false, codemode: true },
+  },
+};
+
 describe('OpenCodeAdapter.renderMCPServers', () => {
   test('renders stdio server as local type with command array', () => {
     const result = adapter.renderMCPServers([stdioServer]);
@@ -52,6 +63,16 @@ describe('OpenCodeAdapter.renderMCPServers', () => {
     const env = mcp.tavily.environment as Record<string, string>;
 
     expect(env.TAVILY_API_KEY).toBe('{env:TAVILY_API_KEY}');
+  });
+
+  test('renders remote headers with OpenCode environment interpolation', () => {
+    const result = adapter.renderMCPServers([githubServer]);
+    const parsed = readJsonc<Record<string, unknown>>(result);
+    const mcp = parsed.mcp as Record<string, Record<string, unknown>>;
+
+    expect(mcp.github.headers).toEqual({ Authorization: 'Bearer {env:GITHUB_PERSONAL_ACCESS_TOKEN}' });
+    expect(mcp.github.oauth).toBe(false);
+    expect(mcp.github.codemode).toBeUndefined();
   });
 
   test('omits environment key when no env vars', () => {
@@ -194,6 +215,46 @@ describe('OpenCodeAdapter V2 MCP parsing', () => {
     expect(v2.parseExistingMCPServerNames(content)).toEqual(['native']);
     expect(v2.parseMCPServers(content)).toEqual([{
       name: 'native', transport: 'stdio', command: 'tool', args: [], enabled: false,
+    }]);
+  });
+
+  test('renders GitHub PAT auth and enables V2 codemode', () => {
+    const v2 = new OpenCodeAdapter(undefined, 'v2', 'opencode2');
+    const parsed = readJsonc<Record<string, unknown>>(v2.renderMCPServers([githubServer]));
+    const servers = (parsed.mcp as Record<string, unknown>).servers as Record<string, Record<string, unknown>>;
+
+    expect(servers.github).toEqual({
+      type: 'remote',
+      url: 'https://api.githubcopilot.com/mcp/',
+      headers: { Authorization: 'Bearer {env:GITHUB_PERSONAL_ACCESS_TOKEN}' },
+      oauth: false,
+      codemode: true,
+      disabled: false,
+    });
+  });
+
+  test('pulls remote headers and V2 target options into canonical form', () => {
+    const v2 = new OpenCodeAdapter(undefined, 'v2', 'opencode2');
+    const content = JSON.stringify({
+      mcp: {
+        servers: {
+          github: {
+            type: 'remote',
+            url: 'https://api.githubcopilot.com/mcp/',
+            headers: { Authorization: 'Bearer {env:GITHUB_PERSONAL_ACCESS_TOKEN}' },
+            oauth: false,
+            codemode: true,
+          },
+        },
+      },
+    });
+
+    expect(v2.parseMCPServers(content)).toEqual([{
+      name: 'github',
+      transport: 'http',
+      url: 'https://api.githubcopilot.com/mcp/',
+      headers: { Authorization: 'Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}' },
+      targetOptions: { opencode2: { oauth: false, codemode: true } },
     }]);
   });
 });
