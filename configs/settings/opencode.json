@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "autoupdate": "notify",
   "instructions": [
     "~/.config/opencode/AGENTS.md",
     "~/Vaults/Memory/SOUL.md",
