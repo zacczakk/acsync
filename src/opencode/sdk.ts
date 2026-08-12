@@ -105,7 +105,7 @@ export function parsePluginIDs(output: string): string[] {
 
 export async function restartAndVerifyOpenCodeV2(
   runner: CommandRunner = runVerificationCommand,
-  attempts = 30,
+  attempts = 60,
   intervalMs = 500,
 ): Promise<string[]> {
   try {
@@ -118,7 +118,7 @@ export async function restartAndVerifyOpenCodeV2(
 
 export async function verifyOpenCodeV2Plugins(
   runner: CommandRunner = runVerificationCommand,
-  attempts = 30,
+  attempts = 60,
   intervalMs = 500,
 ): Promise<string[]> {
   let missing = [...REQUIRED_V2_PLUGIN_IDS];

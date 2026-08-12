@@ -77,4 +77,20 @@ describe('OpenCode V2 SDK alignment', () => {
     expect(await verifyOpenCodeV2Plugins(runner, 1, 0)).toEqual(ids);
     expect(calls).toEqual(['opencode2 api get /api/plugin']);
   });
+
+  test('waits through a partial plugin catalog during service readiness', async () => {
+    const ids = [...REQUIRED_V2_PLUGIN_IDS];
+    let calls = 0;
+    const runner: CommandRunner = async (_command, args) => {
+      calls += 1;
+      return {
+        stdout: args.at(-1) === '/api/plugin'
+          ? JSON.stringify({ data: (calls < 3 ? ids.slice(0, -1) : ids).map((id) => ({ id })) })
+          : '',
+        stderr: '',
+      };
+    };
+    expect(await verifyOpenCodeV2Plugins(runner, 3, 0)).toEqual(ids);
+    expect(calls).toBe(3);
+  });
 });
