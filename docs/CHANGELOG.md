@@ -16,6 +16,8 @@ read_when:
 
 ## Unreleased
 
+- **Sessions CLI clarity** — added `sessions latest`, documented `opencode2` as
+  the OpenCode V2 source, and hint when a source name is passed as `--project`
 - **OpenCode V2 sessions** — extended `sessions` list/read/export/search/stats and FTS indexing to the native V2 database at `~/.local/share/opencode-v2/opencode/opencode.db`; `opencode2` is available as an explicit source and included in default flows when present
 - **GitHub MCP** — added a canonical PAT-authenticated remote definition; OpenCode V1/V2 render its `${VAR}` Authorization placeholder as `{env:VAR}`, disable OAuth, enable V2 `codemode`, and round-trip headers and target options on pull
 - **Skill portfolio reduction** — removed eleven overlapping workflow skills, blocked them from upstream resync, and replaced Superpowers debugging/TDD with manually synced Matt Pocock `diagnosing-bugs` and `tdd`

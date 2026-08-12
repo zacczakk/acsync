@@ -110,6 +110,17 @@ print(json.dumps({
     expect(listResult.exitCode).toBe(0);
     expect(JSON.parse(listResult.stdout.toString())[0]).toMatchObject({ source: "opencode2" });
 
+    const latestResult = Bun.spawnSync(["python3", cli, "latest", "--source", "opencode2", "--json"], { env });
+    expect(latestResult.exitCode).toBe(0);
+    expect(JSON.parse(latestResult.stdout.toString())).toHaveLength(1);
+    expect(JSON.parse(latestResult.stdout.toString())[0]).toMatchObject({ source: "opencode2" });
+
+    const sourceHintResult = Bun.spawnSync(["python3", cli, "list", "--project", "opencode2"], { env });
+    expect(sourceHintResult.exitCode).toBe(0);
+    expect(sourceHintResult.stdout.toString()).toContain(
+      "hint: 'opencode2' is a session source, not a project; use --source opencode2",
+    );
+
     const exportResult = Bun.spawnSync(["python3", cli, "export", "--no-index"], { env });
     expect(exportResult.exitCode).toBe(0);
     expect(exportResult.stdout.toString()).toContain("exported 1 opencode2 sessions");

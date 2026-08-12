@@ -403,6 +403,7 @@ Search, browse, and export coding session history from OpenCode, Claude Code, an
 | Command | Purpose | Needs export? |
 |---------|---------|:---:|
 | `sessions list` | List sessions (newest first) | No — queries source DBs live |
+| `sessions latest` | Show the newest matching session | No — queries source DBs live |
 | `sessions read <session_id>` | Read full session transcript | No — queries source DBs live |
 | `sessions stats` | Session counts, message/part totals, index size | No |
 | `sessions export` | Incremental export to vault (markdown + frontmatter) | — |
@@ -414,10 +415,10 @@ Search, browse, and export coding session history from OpenCode, Claude Code, an
 
 | Flag | Commands | Purpose |
 |------|----------|---------|
-| `--source opencode\|claude\|codex` | list, export, search | Filter by source |
-| `--since YYYY-MM-DD` | list, export | Date filter |
+| `--source opencode\|opencode2\|claude\|codex` | list, latest, export, search | Filter by session source/database; `opencode2` = OpenCode V2 |
+| `--since YYYY-MM-DD` | list, latest, export | Date filter |
 | `--limit N` | list, search, find | Max results |
-| `--project NAME` | list | Filter by project name |
+| `--project NAME` | list, latest | Filter by project directory name; not a source |
 | `--role user\|assistant` | search, read | Filter by message role |
 | `--context N` | search | Context lines around matches |
 | `--keyword` | find | Use BM25 instead of semantic |
@@ -438,6 +439,7 @@ Search, browse, and export coding session history from OpenCode, Claude Code, an
 sessions list --limit 10
 sessions list --source opencode --project metronome
 sessions list --source codex --project metronome
+sessions latest --source opencode2
 
 # Keyword search (fast, precise)
 sessions search "iCloud migration"

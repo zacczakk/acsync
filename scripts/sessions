@@ -3,6 +3,7 @@
 
 Usage:
     sessions list   [--source opencode|opencode2|claude|codex] [--since DATE] [--limit N] [--project NAME]
+    sessions latest [--source opencode|opencode2|claude|codex] [--since DATE] [--project NAME]
     sessions export [--source opencode|opencode2|claude|codex] [--since DATE] [--force]
     sessions search <query> [--source opencode|opencode2|claude|codex] [--since DATE] [--limit N] [--role user|assistant] [--context N]
     sessions read   <session_id> [--role user|assistant] [--no-tools]
@@ -47,6 +48,7 @@ CODEX_VAULT = VAULT_DIR / "codex"
 LOCAL_DATA = Path.home() / ".local" / "share" / "sessions"
 FTS_DB = LOCAL_DATA / ".sessions-fts.db"
 EXPORT_STATE = LOCAL_DATA / ".export-state.json"
+SESSION_SOURCES = ("opencode", "opencode2", "claude", "codex")
 
 
 # --- Helpers ------------------------------------------------------------------
@@ -746,6 +748,16 @@ def cmd_list(args):
 
     if not results:
         print("no sessions found")
+        if args.project in SESSION_SOURCES:
+            print(
+                f"hint: {args.project!r} is a session source, not a project; "
+                f"use --source {args.project}"
+            )
+
+
+def cmd_latest(args):
+    args.limit = 1
+    cmd_list(args)
 
 
 def cmd_export(args):
@@ -1306,15 +1318,40 @@ def main():
             "Examples:\n"
             "  sessions list\n"
             "  sessions list --limit 10 --source opencode\n"
+            "  sessions list --source opencode2 --limit 1\n"
             "  sessions list --json | jq '.[0]'\n"
             "  sessions list --since 2026-03-01 --project metronome"
         ),
     )
-    p_list.add_argument("--source", choices=["opencode", "opencode2", "claude", "codex"], help="Filter to one source")
+    p_list.add_argument(
+        "--source",
+        choices=SESSION_SOURCES,
+        help="Filter by session source/database (opencode=V1, opencode2=V2; not a project)",
+    )
     p_list.add_argument("--since", help="Date filter (YYYY-MM-DD)")
     p_list.add_argument("--limit", type=int, default=20, help="Max results (default: 20)")
-    p_list.add_argument("--project", help="Filter by project directory name")
+    p_list.add_argument("--project", help="Filter by project directory name (not a session source)")
     p_list.add_argument("--json", action="store_true", help="Output JSON array instead of formatted text")
+
+    # latest
+    p_latest = sub.add_parser(
+        "latest",
+        help="Show the newest session (queries source DBs live)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Examples:\n"
+            "  sessions latest --source opencode2\n"
+            "  sessions latest --source opencode2 --json"
+        ),
+    )
+    p_latest.add_argument(
+        "--source",
+        choices=SESSION_SOURCES,
+        help="Filter by session source/database (opencode=V1, opencode2=V2; not a project)",
+    )
+    p_latest.add_argument("--since", help="Date filter (YYYY-MM-DD)")
+    p_latest.add_argument("--project", help="Filter by project directory name (not a session source)")
+    p_latest.add_argument("--json", action="store_true", help="Output JSON array instead of formatted text")
 
     # export
     p_export = sub.add_parser(
@@ -1329,7 +1366,7 @@ def main():
             "  sessions export --source opencode --since 2026-03-01"
         ),
     )
-    p_export.add_argument("--source", choices=["opencode", "opencode2", "claude", "codex"], help="Export only one source")
+    p_export.add_argument("--source", choices=SESSION_SOURCES, help="Export only one session source/database")
     p_export.add_argument("--since", help="Date filter (YYYY-MM-DD)")
     p_export.add_argument("--force", action="store_true", help="Re-export all (ignore watermark)")
     p_export.add_argument("--no-index", action="store_true", help="Skip qmd re-indexing after export")
@@ -1349,7 +1386,7 @@ def main():
         ),
     )
     p_search.add_argument("query", help="Search query (FTS5 syntax supported)")
-    p_search.add_argument("--source", choices=["opencode", "opencode2", "claude", "codex"], help="Filter to one source")
+    p_search.add_argument("--source", choices=SESSION_SOURCES, help="Filter by session source/database")
     p_search.add_argument("--role", choices=["user", "assistant"], help="Filter by message role")
     p_search.add_argument("--limit", type=int, default=10, help="Max results (default: 10)")
     p_search.add_argument("--context", type=int, default=0, help="Context lines around matches")
@@ -1409,6 +1446,7 @@ def main():
 
     cmds = {
         "list": cmd_list,
+        "latest": cmd_latest,
         "export": cmd_export,
         "search": cmd_search,
         "read": cmd_read,

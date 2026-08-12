@@ -161,9 +161,10 @@ already up to date (SHA-256 match). Supports `--json` for machine output.
 The `sessions` helper reads OpenCode V1 from
 `~/.local/share/opencode/opencode.db` and OpenCode V2 from
 `~/.local/share/opencode-v2/opencode/opencode.db`. Use
-`sessions list --source opencode2` or `sessions export --source opencode2` to
-target V2 explicitly; default list/export/stats flows include both when the
-databases exist.
+`sessions latest --source opencode2` or `sessions list --source opencode2` to
+target V2 explicitly; `--source` selects the runtime/database, while
+`--project` filters the project directory. Default list/export/stats flows
+include both when the databases exist.
 
 ## Secrets
 
