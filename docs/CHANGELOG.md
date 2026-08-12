@@ -16,6 +16,7 @@ read_when:
 
 ## Unreleased
 
+- **OpenCode V2 sessions** — extended `sessions` list/read/export/search/stats and FTS indexing to the native V2 database at `~/.local/share/opencode-v2/opencode/opencode.db`; `opencode2` is available as an explicit source and included in default flows when present
 - **GitHub MCP** — added a canonical PAT-authenticated remote definition; OpenCode V1/V2 render its `${VAR}` Authorization placeholder as `{env:VAR}`, disable OAuth, enable V2 `codemode`, and round-trip headers and target options on pull
 - **Skill portfolio reduction** — removed eleven overlapping workflow skills, blocked them from upstream resync, and replaced Superpowers debugging/TDD with manually synced Matt Pocock `diagnosing-bugs` and `tdd`
 - **Claude palantir MCP allowlist** — added `mcp__palantir-mcp` to managed Claude Code always-allowed tools

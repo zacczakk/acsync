@@ -20,7 +20,7 @@ read_when:
   - `hooks/` — Hook scripts (see [Hooks](#hooks) below)
   - `instructions/AGENTS.md` — Unified agent operating system (ground truth)
   - `instructions/TOOLS.md` — Tool-use reference
-- **scripts/** — Helper tools on PATH (committer, ask-model, sessions, docs-list.ts, sync-upstream-skills.ts)
+- **scripts/** — Helper tools on PATH (committer, ask-model, sessions, sessions_opencode.py, docs-list.ts, sync-upstream-skills.ts)
 - **bin/** — Compiled binaries on PATH (6 MCP CLI binaries, docs-list)
 - **docs/** — Operational documentation, plans, design decisions
 - **backups/** — Pre-sync backups (gitignored)

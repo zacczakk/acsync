@@ -79,7 +79,8 @@ src/                         TypeScript sync engine
 scripts/
   committer                  Git commit helper
   ask-model                  Cross-model consultation (Claude/Codex/Gemini)
-  sessions                   Session history search/export/browse (OpenCode + Claude)
+  sessions                   Session history search/export/browse (OpenCode V1/V2 + Claude + Codex)
+  sessions_opencode.py       OpenCode V2 session database adapter
   sync-upstream-skills.ts    Upstream skill sync
   docs-list.ts               Docs catalog generator
 
@@ -156,6 +157,13 @@ metronome helpers -p . --dry-run                  # preview only
 
 Writes all files from `scripts/` into `<path>/scripts/`, skipping files
 already up to date (SHA-256 match). Supports `--json` for machine output.
+
+The `sessions` helper reads OpenCode V1 from
+`~/.local/share/opencode/opencode.db` and OpenCode V2 from
+`~/.local/share/opencode-v2/opencode/opencode.db`. Use
+`sessions list --source opencode2` or `sessions export --source opencode2` to
+target V2 explicitly; default list/export/stats flows include both when the
+databases exist.
 
 ## Secrets
 
