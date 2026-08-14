@@ -47,7 +47,7 @@ keeps slash commands in `prompts/`, but custom subagents now live in
 configs/commands/*.md              14 slash commands
 configs/agents/                    Agent definitions (OpenCode-style frontmatter)
 configs/skills/                    38 skill directories
-configs/mcp/*.json                 9 MCP server definitions
+configs/mcp/*.json                 8 MCP server definitions
 configs/settings/*.json            3 settings definitions (claude, codex, opencode)
 configs/instructions/AGENTS.md     Unified agent operating system
 configs/instructions/TOOLS.md      Tool-use reference
@@ -815,6 +815,11 @@ V1 managed settings are rendered into their V1 keys. V2 converts canonical
 permissions, providers/models, agents, and plugins to native shapes; existing
 provider and external plugin entries are preserved where the renderer merges
 them. Unknown top-level keys remain user-owned.
+
+The canonical OpenCode permission policy allows recursive access to
+`~/.config/opencode/*` and `~/.agents/**`. On macOS, temporary-directory rules
+include both `/var/folders/**` and the canonical `/private/var/folders/**`
+spelling; OpenCode2 matches the canonical path emitted by filesystem tools.
 
 V2 plugin files under `configs/opencode/v2/plugins/` are profile-owned and are
 not deployed by generic V2 plugin sync. Activate them with

@@ -33,6 +33,7 @@
       "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/**": "allow",
       "~/Vaults/Memory/system/grooming-reports/*": "allow",
       "~/Repos/**": "allow",
+      "~/.config/opencode/*": "allow",
       "~/.config/opencode/agents/*": "allow",
       "~/.config/opencode/get-shit-done/templates/*": "allow",
       "~/.mcporter/**": "allow",
@@ -42,7 +43,8 @@
       "/private/tmp/**": "allow",
       "/tmp/**": "allow",
       "~/Downloads/**": "allow",
-      "/var/folders/**": "allow"
+      "/var/folders/**": "allow",
+      "/private/var/folders/**": "allow"
     },
     "read": {
       "*": "allow",

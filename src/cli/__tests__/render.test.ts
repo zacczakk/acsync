@@ -92,6 +92,7 @@ describe('render subcommand logic', () => {
       targetOptions: {
         'claude-code': { type: 'stdio' },
         opencode: { enabled: true, timeout: 20000 },
+        opencode2: { timeout: 20000 },
       },
     });
   });
@@ -119,6 +120,10 @@ describe('render subcommand logic', () => {
     expect(opencodeRendered).toContain('"timeout": 20000');
     expect(opencodeRendered).not.toContain('palantir-mcp@latest');
     expect(opencodeRendered).not.toContain('FOUNDRY_TOKEN');
+
+    const opencodeV2Rendered = createAdapter('opencode2').renderMCPServers([palantir!]);
+    expect(opencodeV2Rendered).toContain('"catalog": 20000');
+    expect(opencodeV2Rendered).toContain('"execution": 20000');
 
     const codexRendered = createAdapter('codex').renderMCPServers([palantir!]);
     expect(codexRendered).toContain('[mcp_servers.palantir-mcp]');

@@ -32,15 +32,6 @@
       },
       "enabled": true
     },
-    "sequential-thinking": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ],
-      "enabled": false
-    },
     "peekaboo": {
       "type": "local",
       "command": [

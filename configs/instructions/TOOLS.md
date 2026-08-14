@@ -598,4 +598,3 @@ Canonical definitions in `configs/mcp/*.json`. Rendered to each CLI via `metrono
 | `github` | Claude, OpenCode, Antigravity, Codex | — | HTTP; `GITHUB_PERSONAL_ACCESS_TOKEN`; native MCP, not necessarily MCPorter |
 | `palantir-mcp` | OpenCode V1 enabled; OpenCode V2/Claude/Codex disabled; Antigravity excluded | `palantir` snapshot | Tux launcher for native config; snapshot has separate auth/config |
 | `shadcn` | OpenCode | `shadcn` | shadcn/ui |
-| `sequential-thinking` | — | `sequential-thinking` | Reasoning; native MCP disabled |

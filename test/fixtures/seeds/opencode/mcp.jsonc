@@ -5,6 +5,11 @@
       "type": "local",
       "command": ["node", "server.js"],
       "enabled": true
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "enabled": false
     }
   }
 }

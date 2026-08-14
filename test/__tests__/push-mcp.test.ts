@@ -56,6 +56,8 @@ describe('push MCP E2E', () => {
       const actual = readFileSync(mcpPath, 'utf-8');
       const golden = readFileSync(GOLDEN_PATHS[target], 'utf-8');
       expect(actual.trimEnd()).toBe(golden.trimEnd());
+      expect(actual).not.toContain('sequential-thinking');
+      expect(actual).not.toContain('@modelcontextprotocol/server-sequential-thinking');
     }
 
     // --- Codex: stdio + HTTP ---
@@ -87,6 +89,10 @@ describe('push MCP E2E', () => {
       mcp: {
         servers: {
           'existing-server': { type: 'remote', url: 'https://example.com/mcp' },
+          'sequential-thinking': {
+            type: 'local',
+            command: ['npx', '-y', '@modelcontextprotocol/server-sequential-thinking'],
+          },
         },
       },
     }));
@@ -105,6 +111,7 @@ describe('push MCP E2E', () => {
       mcp: { servers: Record<string, Record<string, unknown>> };
     };
     expect(rendered.mcp.servers['existing-server']).toBeUndefined();
+    expect(rendered.mcp.servers['sequential-thinking']).toBeUndefined();
     expect(rendered.mcp.servers.github).toEqual({
       type: 'remote',
       url: 'https://api.githubcopilot.com/mcp/',

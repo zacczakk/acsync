@@ -12,7 +12,7 @@ read_when:
 
 ## Context
 
-6 canonical MCP servers in `configs/mcp/`. 4 CLI targets with different
+Canonical MCP servers in `configs/mcp/`. 4 CLI targets with different
 transport support (Codex: stdio + HTTP). MCPorter 0.8.1 installed via `bun add -g mcporter`.
 
 ## Decision
@@ -35,7 +35,6 @@ Three access tiers, fastest first:
 | chrome-devtools     | —                     | `chrome-devtools` | daemon (keep-alive) |
 | palantir-mcp        | Claude, OC (via Tux)  | `palantir`    | ephemeral             |
 | shadcn              | —                     | `shadcn`      | ephemeral             |
-| sequential-thinking | — (disabled)          | `sequential-thinking` | ephemeral     |
 
 ## Why Three Tiers
 
@@ -62,7 +61,7 @@ Three access tiers, fastest first:
 
 ## MCPorter Config
 
-`~/.mcporter/mcporter.json` — all 6 canonical servers, no `imports` array.
+`~/.mcporter/mcporter.json` — canonical server registry, no `imports` array.
 Editor configs (Cursor, OpenCode) are intentionally excluded to avoid
 slow discovery and duplicate definitions.
 
@@ -82,7 +81,7 @@ repeated stdio calls (warm connection).
 ## File Layout
 
 ```
-~/.mcporter/mcporter.json       MCPorter server registry (all 6)
+~/.mcporter/mcporter.json       MCPorter server registry
 ~/Repos/zacczakk/metronome/bin/              Compiled binaries (on PATH)
 ~/Repos/zacczakk/metronome/scripts/          Source scripts (on PATH)
 ~/Repos/zacczakk/metronome/configs/mcp/      Canonical server definitions (metronome push)

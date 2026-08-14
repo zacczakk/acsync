@@ -3,6 +3,11 @@
     "existing-server": {
       "command": "node",
       "args": ["server.js"]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "enabled": false
     }
   }
 }

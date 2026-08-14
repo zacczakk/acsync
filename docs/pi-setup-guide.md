@@ -467,7 +467,7 @@ Two migration paths, use both:
    - Tavily MCP → `pi-web-access`
    - chrome-devtools MCP → `@narumitw/pi-chrome-devtools`
 2. **Bridge the rest** via `pi-mcp-adapter` (`~/.pi/agent/mcp.json`):
-   - context7, sequential-thinking, context-mode → keep as MCP, proxied lazily.
+   - context7, context-mode → keep as MCP, proxied lazily.
 
 `pi-mcp-adapter` reads `~/.config/mcp/mcp.json`, `~/.pi/agent/mcp.json`, `.mcp.json`,
 `.pi/mcp.json`, and can `imports:["claude-code","cursor","vscode",…]` your existing

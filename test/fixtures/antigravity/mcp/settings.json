@@ -23,13 +23,6 @@
         "provider_ENV": "dev"
       }
     },
-    "sequential-thinking": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ]
-    },
     "peekaboo": {
       "command": "peekaboo",
       "args": [
@@ -71,7 +64,6 @@
   "mcp": {
     "excluded": [
       "palantir-mcp",
-      "sequential-thinking",
       "peekaboo",
       "chrome-devtools-mcp",
       "figma"
