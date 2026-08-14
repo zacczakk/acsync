@@ -1,7 +1,11 @@
 {
   "description": "Peekaboo macOS desktop automation MCP — screen capture, AX inspection, input control, windows, menus, dialogs",
   "transport": "stdio",
-  "command": "peekaboo",
-  "args": ["mcp"],
-  "enabled": false
+  "command": "npx",
+  "args": ["-y", "@steipete/peekaboo@latest", "mcp"],
+  "enabled": false,
+  "target_options": {
+    "opencode": { "timeout": 30000 },
+    "opencode2": { "timeout": 30000 }
+  }
 }

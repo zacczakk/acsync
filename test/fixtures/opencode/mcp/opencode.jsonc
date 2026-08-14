@@ -30,15 +30,18 @@
         "TAVILY_API_KEY": "{env:TAVILY_API_KEY}",
         "provider_ENV": "dev"
       },
-      "enabled": true
+      "enabled": false
     },
     "peekaboo": {
       "type": "local",
       "command": [
-        "peekaboo",
+        "npx",
+        "-y",
+        "@steipete/peekaboo@latest",
         "mcp"
       ],
-      "enabled": false
+      "enabled": false,
+      "timeout": 30000
     },
     "context-mode": {
       "type": "local",

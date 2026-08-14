@@ -23,11 +23,14 @@
       "env": {
         "TAVILY_API_KEY": "${TAVILY_API_KEY}",
         "provider_ENV": "dev"
-      }
+      },
+      "enabled": false
     },
     "peekaboo": {
-      "command": "peekaboo",
+      "command": "npx",
       "args": [
+        "-y",
+        "@steipete/peekaboo@latest",
         "mcp"
       ],
       "enabled": false

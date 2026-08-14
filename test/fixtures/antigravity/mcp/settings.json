@@ -24,8 +24,10 @@
       }
     },
     "peekaboo": {
-      "command": "peekaboo",
+      "command": "npx",
       "args": [
+        "-y",
+        "@steipete/peekaboo@latest",
         "mcp"
       ]
     },
@@ -64,6 +66,7 @@
   "mcp": {
     "excluded": [
       "palantir-mcp",
+      "tavily",
       "peekaboo",
       "chrome-devtools-mcp",
       "figma"
