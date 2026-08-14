@@ -110,6 +110,21 @@ describe('switchOpenCodeVersion', () => {
     expect(await readFile(join(paths.homeDir, '.config', 'opencode', 'opencode.json'), 'utf8')).toBe(before);
   });
 
+  test('reports switch stages through the optional progress callback', async () => {
+    const paths = await fixture();
+    const progress: string[] = [];
+
+    await switchOpenCodeVersion({ ...paths, version: 'v1', progress: (message) => progress.push(message) });
+
+    expect(progress).toHaveLength(6);
+    expect(progress[0]).toContain('Back up current OpenCode state');
+    expect(progress[1]).toContain(' done (');
+    expect(progress[2]).toContain('Render and write OpenCode V1 profile');
+    expect(progress[3]).toContain('Render and write OpenCode V1 profile done');
+    expect(progress[4]).toContain('Record migration manifest');
+    expect(progress[5]).toContain('Record migration manifest done');
+  });
+
   test('preserves JSONC-only unrelated and Tux state', async () => {
     const paths = await fixture();
     await writeFile(join(paths.homeDir, '.config', 'opencode', 'opencode.json'), `{

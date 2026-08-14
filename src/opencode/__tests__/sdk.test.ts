@@ -1,4 +1,7 @@
 import { describe, expect, test } from 'bun:test';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { alignOpenCodePluginSdk, parseGlobalOpenCodeVersion, parsePluginIDs, REQUIRED_V2_PLUGIN_IDS, restartAndVerifyOpenCodeV2, updateOpenCodeV2, updateOpenCodeV2Safely, verifyOpenCodeV2Plugins, type CommandRunner } from '../sdk';
 
 describe('OpenCode V2 SDK alignment', () => {
@@ -14,6 +17,25 @@ describe('OpenCode V2 SDK alignment', () => {
     };
     expect(await alignOpenCodePluginSdk('/config', runner)).toBe('0.0.0-next-17098');
     expect(calls.at(-1)).toEqual(['bun', ['add', '--exact', '--minimum-release-age=0', '@opencode-ai/plugin@0.0.0-next-17098'], '/config']);
+  });
+
+  test('skips SDK installation when the exact local package is already aligned', async () => {
+    const configDir = await mkdtemp(join(tmpdir(), 'metronome-opencode-sdk-'));
+    try {
+      await mkdir(join(configDir, 'node_modules', '@opencode-ai', 'plugin'), { recursive: true });
+      await writeFile(join(configDir, 'package.json'), JSON.stringify({ dependencies: { '@opencode-ai/plugin': '0.0.0-next-17098' } }));
+      await writeFile(join(configDir, 'node_modules', '@opencode-ai', 'plugin', 'package.json'), JSON.stringify({ version: '0.0.0-next-17098' }));
+      const calls: string[] = [];
+      const runner: CommandRunner = async (command, args) => {
+        calls.push(`${command} ${args.join(' ')}`);
+        return { stdout: '@opencode-ai/cli@0.0.0-next-17098', stderr: '' };
+      };
+
+      expect(await alignOpenCodePluginSdk(configDir, runner)).toBe('0.0.0-next-17098');
+      expect(calls).toEqual(['bun pm ls -g']);
+    } finally {
+      await rm(configDir, { recursive: true, force: true });
+    }
   });
 
   test('updates the global CLI and returns its resolved build', async () => {
@@ -81,6 +103,7 @@ describe('OpenCode V2 SDK alignment', () => {
   test('waits through a partial plugin catalog during service readiness', async () => {
     const ids = [...REQUIRED_V2_PLUGIN_IDS];
     let calls = 0;
+    const progress: Array<{ attempt: number; status: string; missing: string[] }> = [];
     const runner: CommandRunner = async (_command, args) => {
       calls += 1;
       return {
@@ -90,7 +113,12 @@ describe('OpenCode V2 SDK alignment', () => {
         stderr: '',
       };
     };
-    expect(await verifyOpenCodeV2Plugins(runner, 3, 0)).toEqual(ids);
+    expect(await verifyOpenCodeV2Plugins(runner, 3, 0, (event) => progress.push({ attempt: event.attempt, status: event.status, missing: event.missing }))).toEqual(ids);
     expect(calls).toBe(3);
+    expect(progress).toEqual([
+      { attempt: 1, status: 'retrying', missing: ['opencode.chatgpt-websearch'] },
+      { attempt: 2, status: 'retrying', missing: ['opencode.chatgpt-websearch'] },
+      { attempt: 3, status: 'ready', missing: [] },
+    ]);
   });
 });

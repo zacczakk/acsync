@@ -50,6 +50,7 @@ export interface SwitchOpenCodeOptions {
   prepare?: () => Promise<void>;
   rollback?: () => Promise<void>;
   verifyPlugins?: () => Promise<string[]>;
+  progress?: (message: string) => void;
 }
 
 export interface SwitchOpenCodeResult {
@@ -61,6 +62,32 @@ export interface SwitchOpenCodeResult {
 
 function hash(content: string): string {
   return createHash('sha256').update(content).digest('hex');
+}
+
+function formatDuration(milliseconds: number): string {
+  return milliseconds < 1_000 ? `${milliseconds}ms` : `${(milliseconds / 1_000).toFixed(1)}s`;
+}
+
+async function timedStage<T>(
+  progress: ((message: string) => void) | undefined,
+  label: string,
+  operation: () => Promise<T>,
+): Promise<T> {
+  const startedAt = Date.now();
+  progress?.(`${label}...`);
+  const heartbeat = progress
+    ? setInterval(() => progress(`${label} still running (${formatDuration(Date.now() - startedAt)})`), 5_000)
+    : undefined;
+  try {
+    const result = await operation();
+    progress?.(`${label} done (${formatDuration(Date.now() - startedAt)})`);
+    return result;
+  } catch (error) {
+    progress?.(`${label} failed (${formatDuration(Date.now() - startedAt)})`);
+    throw error;
+  } finally {
+    if (heartbeat) clearInterval(heartbeat);
+  }
 }
 
 async function readJson(path: string): Promise<Record<string, unknown>> {
@@ -224,32 +251,39 @@ export async function switchOpenCodeVersion(options: SwitchOpenCodeOptions): Pro
   const backupRoot = join(options.homeDir, '.config', 'opencode-backups', 'metronome', `${timestamp}-${from}-to-${options.version}`);
   if (options.dryRun) return { version: options.version, backupPath: backupRoot, manifestPath, written: [] };
 
-  await createCompleteBackup(options.homeDir, backupRoot);
+  await timedStage(options.progress, `Back up current OpenCode state to ${backupRoot}`, () => createCompleteBackup(options.homeDir, backupRoot));
   const written: string[] = [];
   try {
-    await options.prepare?.();
-    const canonical = await readJson(join(options.projectDir, 'configs', 'settings', 'opencode.json'));
-    const existing = await readOpenCodeConfig(configPath);
-    const mcp = await readCanonicalMCPServers(options.projectDir);
-    const renderedAgents = await renderAgents(options.projectDir, options.version);
-    let rendered = renderOpenCodeSettings(canonical, options.version);
-    rendered.mcp = renderOpenCodeMcp(mcp, options.version);
-    if (options.version === 'v2') {
-      rendered = applyOpenCodeAgentVariants(rendered, renderedAgents.variants);
-      configureOpenCodeV2Plugins(rendered, existing);
+    if (options.prepare) {
+      await timedStage(options.progress, `Prepare OpenCode ${options.version.toUpperCase()} dependencies`, options.prepare);
     }
-    const merged = mergeOpenCodeSettings(existing, rendered, options.version);
-    await mkdir(join(configDir, 'agents'), { recursive: true });
-    await atomicWrite(configPath, `${JSON.stringify(merged, null, 2)}\n`);
-    written.push(configPath);
-    for (const [name, content] of renderedAgents.files) {
-      const path = join(configDir, 'agents', name);
-      await atomicWrite(path, content);
-      written.push(path);
-    }
-    await deployPlugins(options, written);
-    const cursorTarget = await switchCursorPlugin(options.homeDir, options.version, previousManifest);
-    const observedPlugins = await options.verifyPlugins?.();
+    const renderedState = await timedStage(options.progress, `Render and write OpenCode ${options.version.toUpperCase()} profile`, async () => {
+      const canonical = await readJson(join(options.projectDir, 'configs', 'settings', 'opencode.json'));
+      const existing = await readOpenCodeConfig(configPath);
+      const mcp = await readCanonicalMCPServers(options.projectDir);
+      const renderedAgents = await renderAgents(options.projectDir, options.version);
+      let rendered = renderOpenCodeSettings(canonical, options.version);
+      rendered.mcp = renderOpenCodeMcp(mcp, options.version);
+      if (options.version === 'v2') {
+        rendered = applyOpenCodeAgentVariants(rendered, renderedAgents.variants);
+        configureOpenCodeV2Plugins(rendered, existing);
+      }
+      const merged = mergeOpenCodeSettings(existing, rendered, options.version);
+      await mkdir(join(configDir, 'agents'), { recursive: true });
+      await atomicWrite(configPath, `${JSON.stringify(merged, null, 2)}\n`);
+      written.push(configPath);
+      for (const [name, content] of renderedAgents.files) {
+        const path = join(configDir, 'agents', name);
+        await atomicWrite(path, content);
+        written.push(path);
+      }
+      await deployPlugins(options, written);
+      const cursorTarget = await switchCursorPlugin(options.homeDir, options.version, previousManifest);
+      return { merged, cursorTarget };
+    });
+    const observedPlugins = options.verifyPlugins
+      ? await timedStage(options.progress, 'Verify OpenCode plugin catalog', options.verifyPlugins)
+      : undefined;
     const files: Record<string, string> = {};
     for (const path of written) files[relative(options.homeDir, path)] = hash(await readFile(path, 'utf8'));
     const sdk = await installedSdkVersion(configDir);
@@ -259,7 +293,7 @@ export async function switchOpenCodeVersion(options: SwitchOpenCodeOptions): Pro
       to: options.version,
       backup: backupRoot,
       files,
-      plugins: options.version === 'v1' ? await observeV1Plugins(options.homeDir, merged) : {
+      plugins: options.version === 'v1' ? await observeV1Plugins(options.homeDir, renderedState.merged) : {
         'metronome.instructions-loader': observedPlugins?.includes('metronome.instructions-loader') ? 'active' : 'inactive',
         'memory-vault-advisor': observedPlugins?.includes('memory-vault-advisor') ? 'active' : 'inactive',
         'metronome.read-guard': observedPlugins?.includes('metronome.read-guard') ? 'active' : 'inactive',
@@ -270,15 +304,19 @@ export async function switchOpenCodeVersion(options: SwitchOpenCodeOptions): Pro
         'context-mode': 'unsupported',
       },
       ...(sdk ? { sdk } : {}),
-      ...(cursorTarget ? { cursorTarget } : {}),
+      ...(renderedState.cursorTarget ? { cursorTarget: renderedState.cursorTarget } : {}),
     };
     const manifest: MigrationManifest = { version: 1, active: options.version, history: [...(previousManifest?.history ?? []), history] };
-    await atomicWrite(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-    written.push(manifestPath);
+    await timedStage(options.progress, 'Record migration manifest', async () => {
+      await atomicWrite(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+      written.push(manifestPath);
+    });
     return { version: options.version, backupPath: backupRoot, manifestPath, written };
   } catch (error) {
-    await restoreCompleteBackup(options.homeDir, backupRoot);
-    await options.rollback?.();
+    await timedStage(options.progress, 'Restore previous OpenCode state', async () => {
+      await restoreCompleteBackup(options.homeDir, backupRoot);
+      await options.rollback?.();
+    });
     throw error;
   }
 }

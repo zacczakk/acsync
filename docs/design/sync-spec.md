@@ -352,8 +352,9 @@ than concatenating those files into `AGENTS.md`.
 - Record every switch and all output hashes in
   `~/.config/opencode/migration-manifest.json`.
 - Backups live below `~/.config/opencode-backups/metronome/`.
-- V2 activation restarts the shared service because hot reload does not
-  reliably register newly deployed plugin files.
+- Ordinary V2 activation waits for the hot-reloaded plugin catalog without
+  restarting the shared service; `update-v2` restarts it after an SDK/CLI
+  update.
 - Failed `update-v2` activation restores the previous exact global CLI build.
 
 For a Bun installation, update V2 only through:

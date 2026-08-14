@@ -1,4 +1,6 @@
 import { spawn } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
 export interface CommandResult {
   stdout: string;
@@ -56,8 +58,32 @@ export async function installedGlobalOpenCodeVersion(runner: CommandRunner = run
 
 export async function alignOpenCodePluginSdk(configDir: string, runner: CommandRunner = runCommand): Promise<string> {
   const version = await installedGlobalOpenCodeVersion(runner);
+  const [declared, installed] = await Promise.all([
+    readPackageDependencyVersion(join(configDir, 'package.json')),
+    readPackageVersion(join(configDir, 'node_modules', '@opencode-ai', 'plugin', 'package.json')),
+  ]);
+  if (declared === version && installed === version) return version;
   await runner('bun', ['add', '--exact', '--minimum-release-age=0', `@opencode-ai/plugin@${version}`], configDir);
   return version;
+}
+
+async function readPackageVersion(path: string): Promise<string | undefined> {
+  try {
+    const parsed = JSON.parse(await readFile(path, 'utf8')) as { version?: unknown };
+    return typeof parsed.version === 'string' ? parsed.version : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+async function readPackageDependencyVersion(path: string): Promise<string | undefined> {
+  try {
+    const parsed = JSON.parse(await readFile(path, 'utf8')) as { dependencies?: Record<string, unknown> };
+    const version = parsed.dependencies?.['@opencode-ai/plugin'];
+    return typeof version === 'string' ? version : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export async function updateOpenCodeV2(_configDir: string, runner: CommandRunner = runCommand): Promise<string> {
@@ -95,6 +121,18 @@ export const REQUIRED_V2_PLUGIN_IDS = [
   'opencode.chatgpt-websearch',
 ];
 
+export interface PluginVerificationProgress {
+  attempt: number;
+  attempts: number;
+  status: 'retrying' | 'ready';
+  missing: string[];
+  attemptMs: number;
+  elapsedMs: number;
+  failure?: 'request-failed' | 'invalid-response';
+}
+
+export type PluginVerificationReporter = (progress: PluginVerificationProgress) => void;
+
 export function parsePluginIDs(output: string): string[] {
   const parsed = JSON.parse(output) as unknown;
   const entries = Array.isArray(parsed)
@@ -107,31 +145,51 @@ export async function restartAndVerifyOpenCodeV2(
   runner: CommandRunner = runVerificationCommand,
   attempts = 60,
   intervalMs = 500,
+  onProgress?: PluginVerificationReporter,
 ): Promise<string[]> {
   try {
     await runner('opencode2', ['service', 'restart']);
   } catch {
     // Restart closes its own client connection; readiness is proven by the API loop below.
   }
-  return verifyOpenCodeV2Plugins(runner, attempts, intervalMs);
+  return verifyOpenCodeV2Plugins(runner, attempts, intervalMs, onProgress);
 }
 
 export async function verifyOpenCodeV2Plugins(
   runner: CommandRunner = runVerificationCommand,
   attempts = 60,
   intervalMs = 500,
+  onProgress?: PluginVerificationReporter,
 ): Promise<string[]> {
   let missing = [...REQUIRED_V2_PLUGIN_IDS];
+  const startedAt = Date.now();
   for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const attemptStartedAt = Date.now();
+    let ids: string[] = [];
+    let failure: PluginVerificationProgress['failure'];
     try {
       const result = await runner('opencode2', ['api', 'get', '/api/plugin']);
-      const ids = parsePluginIDs(result.stdout);
-      missing = REQUIRED_V2_PLUGIN_IDS.filter((id) => !ids.includes(id));
-      if (missing.length === 0) return ids;
+      try {
+        ids = parsePluginIDs(result.stdout);
+      } catch {
+        failure = 'invalid-response';
+      }
     } catch {
-      // The managed service may be temporarily unavailable while restarting.
+      failure = 'request-failed';
     }
+    missing = REQUIRED_V2_PLUGIN_IDS.filter((id) => !ids.includes(id));
+    const ready = missing.length === 0;
+    onProgress?.({
+      attempt: attempt + 1,
+      attempts,
+      status: ready ? 'ready' : 'retrying',
+      missing,
+      attemptMs: Date.now() - attemptStartedAt,
+      elapsedMs: Date.now() - startedAt,
+      ...(failure ? { failure } : {}),
+    });
+    if (ready) return ids;
     if (attempt < attempts - 1) await new Promise((resolve) => setTimeout(resolve, intervalMs));
   }
-  throw new Error(`OpenCode V2 did not activate required plugins: ${missing.join(', ')}`);
+  throw new Error(`OpenCode V2 did not activate required plugins after ${attempts} attempt(s) in ${Date.now() - startedAt}ms: ${missing.join(', ')}. Check \`opencode2 api get /api/plugin\` and the OpenCode service logs.`);
 }

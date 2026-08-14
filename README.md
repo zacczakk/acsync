@@ -136,12 +136,17 @@ V2-only integration.
 Every switch creates a complete compatibility backup under
 `~/.config/opencode-backups/metronome/` and appends hashes, plugin status, SDK
 version, and the restore source to
-`~/.config/opencode/migration-manifest.json`. V2 activation restarts the shared
-service because OpenCode hot reload does not reliably register newly deployed
-plugin files. `update-v2` refreshes the Bun-installed `@opencode-ai/cli@next`,
-pins the local plugin SDK to the exact resolved build, restarts the V2 service,
-and verifies the plugin API. Failed activation restores the previous exact
-global CLI build.
+`~/.config/opencode/migration-manifest.json`. Ordinary `use v2` waits for the
+hot-reloaded plugin catalog without restarting the shared service; `update-v2`
+refreshes the Bun-installed `@opencode-ai/cli@next`, pins the local plugin SDK
+to the exact resolved build, restarts the V2 service because hot reload does
+not reliably register newly deployed plugin files, and verifies the plugin
+API. Failed activation restores the previous exact global CLI build.
+
+Profile switches print timed stages and plugin retry details to stderr. SDK
+alignment skips `bun add` when the global CLI, local package manifest, and
+installed `@opencode-ai/plugin` already match. Use `--no-align-sdk` to skip
+alignment explicitly; plugin readiness still runs.
 
 Profile switches use atomic writes with rollback on failure.
 
