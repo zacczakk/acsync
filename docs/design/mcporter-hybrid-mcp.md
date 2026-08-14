@@ -13,7 +13,8 @@ read_when:
 ## Context
 
 Canonical MCP servers in `configs/mcp/`. 4 CLI targets with different
-transport support (Codex: stdio + HTTP). MCPorter 0.8.1 installed via `bun add -g mcporter`.
+transport support (Codex: stdio + HTTP). MCPorter is installed globally through
+Bun and currently runs as `mcporter@0.13.6`.
 
 ## Decision
 
@@ -45,6 +46,55 @@ Three access tiers, fastest first:
 - Self-contained Bun executables — no node/bun runtime on target.
 - Generated via `mcporter generate-cli --compile`.
 - `--flag` syntax (not `key=value`): `context7 resolve-library-id --query "react" --library-name react`.
+
+### Palantir shell fallback
+
+`bin/palantir` is the full-catalog shell fallback. It is a gitignored Bun
+binary generated from the `palantir-mcp` entry in
+`~/.mcporter/mcporter.json`. The generated artifact embeds the tool schemas and
+help text, while its runtime starts the configured `npx -y palantir-mcp` server.
+
+Generate or refresh it from a directory without a Metronome `package.json` so
+mcporter records its own version in the artifact metadata:
+
+```bash
+repo="$HOME/Repos/zacczakk/metronome"
+(
+  cd /tmp
+  mcporter --config "$HOME/.mcporter/mcporter.json" generate-cli \
+    --server palantir-mcp \
+    --runtime bun \
+    --bundler bun \
+    --compile "$repo/bin/palantir"
+)
+```
+
+Build requirements:
+
+- Do not set `PALANTIR_MCP_TOOL_SEARCH=true` or pass `--tool-search` while generating.
+- Do not pass `--include-tools` or `--exclude-tools`; the shell fallback is intended to contain the complete catalog.
+- Provide `FOUNDRY_HOST` and `FOUNDRY_TOKEN` during generation. The host is resolved into the snapshot; the token remains environment interpolation and is never embedded.
+
+The PATH command is `scripts/palantir`, which delegates normal tool calls to
+`bin/palantir`, keeps root help short, and exposes focused discovery through:
+
+```bash
+palantir search-tools "run a SQL query"
+palantir run-sql-query-on-foundry-dataset --help
+```
+
+`search-tools` starts a temporary tool-search MCP session for discovery. The
+returned tool is then called through the full-catalog binary; activation is not
+shared between the two sessions.
+
+Inspect the generated artifact without contacting Foundry:
+
+```bash
+mcporter inspect-cli "$repo/bin/palantir" --json
+```
+
+The `--from` regeneration shortcut replays the embedded server definition. Use
+the explicit command above when `~/.mcporter/mcporter.json` has changed.
 
 ### MCPorter calls
 
@@ -93,11 +143,43 @@ repeated stdio calls (warm connection).
 |---|---|
 | npx cold-start latency | Daemon for chrome-devtools; binaries for discovery |
 | No tool schemas at agent startup | Binaries embed schemas; `mcporter config list` for fast discovery |
-| MCPorter version drift | `bun add -g mcporter`; rebuild binaries after upgrade |
+| MCPorter version drift | Update the Bun-global package, then regenerate every compiled binary |
 | Secret exposure | `${VAR}` interpolation from env; no plaintext in config |
+
+## Updating the Palantir CLI
+
+Check the installed and registry versions:
+
+```bash
+mcporter --version
+bun info mcporter version
+```
+
+Update the Bun-global install normally:
+
+```bash
+bun add --global mcporter@latest
+```
+
+This workspace has a seven-day Bun `minimumReleaseAge` policy. If a newly
+published release has been verified against the upstream GitHub release and npm
+metadata, bypass the age gate for this command only:
+
+```bash
+bun add --global mcporter@latest --minimum-release-age 0
+```
+
+MCPorter `0.13.6` declares Node `>=24`; use a supported Node runtime before
+relying on the installation. The current local smoke test succeeds under an
+older runtime, but that is outside the package contract.
+After updating mcporter, run the full-catalog generation command in the
+Palantir shell fallback section and verify with `inspect-cli`, `palantir --help`,
+`palantir search-tools`, and one read-only tool call.
 
 ## References
 
-- [MCPorter GitHub](https://github.com/steipete/mcporter)
-- [MCPorter Daemon Design](https://github.com/steipete/mcporter/blob/main/docs/daemon.md)
+- [MCPorter GitHub](https://github.com/openclaw/mcporter)
+- [MCPorter CLI Generator](https://github.com/openclaw/mcporter/blob/main/docs/cli-generator.md)
+- [MCPorter Daemon Design](https://github.com/openclaw/mcporter/blob/main/docs/daemon.md)
+- [Palantir MCP Tool Search](https://www.palantir.com/docs/foundry/palantir-mcp/tool-search)
 - `configs/instructions/TOOLS.md` §mcporter for agent usage

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+binary="$repo_root/bin/palantir"
+
+print_help() {
+  printf '%s\n' \
+    'palantir - Foundry shell fallback' \
+    '' \
+    'Usage:' \
+    '  palantir <tool> [options]' \
+    '  palantir search-tools "<task>"' \
+    '  palantir <tool> --help' \
+    '' \
+    'The full tool catalog is intentionally omitted from root help.' \
+    'palantir search-tools invokes MCP search_tools for focused discovery.' \
+    'Call the returned tool directly afterward.'
+}
+
+if [[ $# -eq 0 || "${1-}" == '--help' || "${1-}" == '-h' ]]; then
+  print_help
+  exit 0
+fi
+
+if [[ "$1" == 'search-tools' || "$1" == 'search_tools' ]]; then
+  shift
+  if [[ $# -eq 0 ]]; then
+    printf 'Usage: palantir search-tools "<task>"\n' >&2
+    exit 2
+  fi
+  query=$*
+  exec env PALANTIR_MCP_TOOL_SEARCH=true mcporter call \
+    palantir-mcp.search_tools "query=$query" --output json
+fi
+
+exec "$binary" "$@"

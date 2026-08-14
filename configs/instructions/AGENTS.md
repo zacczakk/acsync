@@ -30,7 +30,7 @@ Work style: telegraph; noun-phrases ok; drop grammar; min tokens.
 - For tool-specific work, use the named tool first; do not replace it with generic web search or assume it is unavailable. Read `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md` for full flags and fallback rules.
 - **Past coding sessions:** `qmd query "..." -c memory` for curated memory, then run `sessions export` when new sessions may be missing from the index, followed by `sessions search "..."` for exact history or `sessions find "..."` for semantic history. `sessions list` and `sessions read` query live source databases.
 - **GitHub:** use the loaded `github` MCP server for repository, issue, pull request, code, Actions, and review work. Use `gh` for URL-driven PR/CI operations or when MCP is unavailable. MCP auth requires `GITHUB_PERSONAL_ACCESS_TOKEN`.
-- **Palantir Foundry:** use native `palantir-mcp` when loaded and responsive; for shell calls use the `palantir` CLI, then registered MCPorter. Tux owns native Palantir auth and host wiring; do not invent env/config.
+- **Palantir Foundry:** use native `palantir-mcp` when loaded and responsive; for shell calls use the concise `palantir` facade and `palantir search-tools`, with the full-catalog binary as fallback. Tux owns native auth and host wiring; read `TOOLS.md` for generation and updates.
 - **MCP discovery:** `mcporter config list` (fast local/project registry), `mcporter config list --source import` (editor imports), then `mcporter list <server> --schema --json`. Native MCP config is separate, but MCPorter can discover imported editor definitions.
 
 ## Flow & Runtime
