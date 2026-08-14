@@ -1,4 +1,4 @@
-import type { MCPServer, TargetName } from '../types';
+import type { CanonicalItem, MCPServer, TargetName } from '../types';
 import { EnvVarTransformer } from '../secrets/env-var-transformer';
 
 export type OpenCodeVersion = 'v1' | 'v2';
@@ -212,6 +212,26 @@ export interface OpenCodeModelVariant {
   settings: Record<string, unknown>;
 }
 
+export function renderOpenCodeAgentVariants(agents: CanonicalItem[]): OpenCodeModelVariant[] {
+  const variants: OpenCodeModelVariant[] = [];
+  for (const agent of agents) {
+    const rendered = renderOpenCodeAgent({ ...agent.metadata, _agentName: agent.name }, 'v2');
+    const descriptor = rendered._modelVariant;
+    if (!isRecord(descriptor)
+      || typeof descriptor.providerID !== 'string'
+      || typeof descriptor.modelID !== 'string'
+      || typeof descriptor.id !== 'string'
+      || !isRecord(descriptor.settings)) continue;
+    variants.push({
+      providerID: descriptor.providerID,
+      modelID: descriptor.modelID,
+      id: descriptor.id,
+      settings: descriptor.settings,
+    });
+  }
+  return variants;
+}
+
 export function mergeOpenCodeSettings(
   existing: Record<string, unknown>,
   rendered: Record<string, unknown>,
@@ -296,12 +316,18 @@ export function renderOpenCodeMcp(servers: MCPServer[], version: OpenCodeVersion
     else config.url = server.url;
     if (server.env) config.environment = EnvVarTransformer.toOpenCode(server.env);
     if (server.headers) config.headers = EnvVarTransformer.toOpenCode(server.headers);
-    const targetOptions = server.targetOptions?.[target];
-    if (targetOptions) Object.assign(config, clone(targetOptions));
+    const targetOptions = server.targetOptions?.[target]
+      ? clone(server.targetOptions[target]!)
+      : {};
+    const targetEnabled = typeof targetOptions.enabled === 'boolean'
+      ? targetOptions.enabled
+      : server.enabled !== false;
+    delete targetOptions.enabled;
+    Object.assign(config, targetOptions);
 
-    if (version === 'v1') config.enabled = server.enabled !== false;
+    if (version === 'v1') config.enabled = targetEnabled;
     else {
-      config.disabled = server.enabled === false;
+      config.disabled = !targetEnabled;
       if (typeof config.timeout === 'number') config.timeout = { catalog: config.timeout, execution: config.timeout };
     }
     renderedServers[server.name] = config;

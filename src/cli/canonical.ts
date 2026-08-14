@@ -144,6 +144,12 @@ export async function readCanonicalAgents(
   return items;
 }
 
+/** Return whether an agent is intended for the selected sync target. */
+export function isCanonicalAgentForTarget(item: CanonicalItem, target: TargetName): boolean {
+  const targets = item.metadata.targets;
+  return !Array.isArray(targets) || targets.includes(target);
+}
+
 /**
  * Read canonical MCP servers from configs/mcp/*.json
  */

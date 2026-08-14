@@ -16,6 +16,7 @@ import {
   hashContent,
   readCanonicalCommands,
   readCanonicalAgents,
+  isCanonicalAgentForTarget,
   readCanonicalMCPServers,
   readCanonicalInstructions,
   readCanonicalSkills,
@@ -145,6 +146,7 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
     const target = diff.target;
     const adapter = await createTargetAdapter(target, options.homeDir);
     const caps = adapter.getCapabilities();
+    const targetAgents = agents.filter((agent) => isCanonicalAgentForTarget(agent, target));
     const writeOps = diff.operations.filter((op) => (op.type === 'create' || op.type === 'update') && op.itemType !== 'skill');
     const deleteOps = diff.operations.filter((op) => op.type === 'delete' && op.itemType !== 'skill');
 
@@ -205,7 +207,7 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
             if (!profile) continue;
             content = profile.content;
           } else {
-            content = adapter.renderSettings(settings, existingContent);
+            content = adapter.renderSettings(settings, existingContent, targetAgents);
           }
         } else if (op.itemType === 'hook') {
           if (!caps.hooks) continue;

@@ -3,7 +3,7 @@ import { stringifyFrontmatter } from '../formats/markdown';
 import { modifyJsonc, readJsonc } from '../formats/jsonc';
 import { EnvVarTransformer } from '../secrets/env-var-transformer';
 import { isPlainObject, deepMergeObjects } from './merge';
-import { configureOpenCodeV2Plugins, mergeOpenCodeSettings, preserveOpenCodeAgentVariants, renderOpenCodeAgent, renderOpenCodeMcp, renderOpenCodeSettings, type OpenCodeVersion } from '../opencode/version-renderer';
+import { applyOpenCodeAgentVariants, configureOpenCodeV2Plugins, mergeOpenCodeSettings, preserveOpenCodeAgentVariants, renderOpenCodeAgent, renderOpenCodeAgentVariants, renderOpenCodeMcp, renderOpenCodeSettings, type OpenCodeVersion } from '../opencode/version-renderer';
 import type {
   CanonicalItem,
   CanonicalSettings,
@@ -18,7 +18,7 @@ export class OpenCodeAdapter extends BaseAdapter {
   }
 
   getCapabilities(): AdapterCapabilities {
-    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: true, plugins: this.version === 'v1', hooks: false };
+    return { commands: true, agents: true, mcp: true, instructions: true, skills: true, settings: true, agentVariantsInSettings: this.version === 'v2', plugins: this.version === 'v1', hooks: false };
   }
 
   private get mcpTarget(): 'opencode' | 'opencode2' {
@@ -26,7 +26,7 @@ export class OpenCodeAdapter extends BaseAdapter {
   }
 
   /** Keys that only exist in the canonical format — strip before rendering */
-  private static readonly CANONICAL_ONLY_KEYS = new Set(['allowed-tools', 'argument-hint', 'name']);
+  private static readonly CANONICAL_ONLY_KEYS = new Set(['allowed-tools', 'argument-hint', 'name', 'targets']);
 
   renderCommand(item: CanonicalItem): RenderedFile {
     // Pass through all frontmatter except canonical-only keys
@@ -148,10 +148,11 @@ export class OpenCodeAdapter extends BaseAdapter {
   private static readonly DEEP_MERGE_KEYS = new Set(['permission']);
 
   /** OpenCode uses JSONC — override to preserve comments and $schema */
-  override renderSettings(settings: CanonicalSettings, existingContent?: string): string {
+  override renderSettings(settings: CanonicalSettings, existingContent?: string, agents: CanonicalItem[] = []): string {
     if (this.version === 'v2') {
       const existing = existingContent ? readJsonc<Record<string, unknown>>(existingContent) : {};
-      const rendered = renderOpenCodeSettings(settings.keys, 'v2');
+      let rendered = renderOpenCodeSettings(settings.keys, 'v2');
+      rendered = applyOpenCodeAgentVariants(rendered, renderOpenCodeAgentVariants(agents));
       configureOpenCodeV2Plugins(rendered, existing);
       preserveOpenCodeAgentVariants(rendered, existing);
       return JSON.stringify(mergeOpenCodeSettings(existing, rendered, 'v2'), null, 2) + '\n';

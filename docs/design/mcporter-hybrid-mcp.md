@@ -33,7 +33,7 @@ Three access tiers, fastest first:
 | context7            | All 4 CLIs            | `context7`    | `mcporter call`       |
 | tavily              | Claude, OC, Antigravity | `tavily`    | `mcporter call`       |
 | chrome-devtools     | —                     | `chrome-devtools` | daemon (keep-alive) |
-| palantir-mcp        | Claude, OC (via Tux)  | `palantir`    | ephemeral             |
+| palantir-mcp        | OC V1/V2 (via Tux)    | `palantir`    | ephemeral             |
 | shadcn              | —                     | `shadcn`      | ephemeral             |
 
 ## Why Three Tiers

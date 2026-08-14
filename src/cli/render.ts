@@ -8,6 +8,7 @@ import {
   AGENTS_DIR,
   PROJECT_ROOT,
   createTargetAdapter,
+  isCanonicalAgentForTarget,
   readCanonicalCommands,
   readCanonicalAgents,
   readCanonicalMCPServers,
@@ -82,6 +83,12 @@ Examples:
           content = adapter.renderCommand(item).content;
         } else if (itemType === 'agent') {
           const item = await readSingleCanonicalItem(projectDir, 'agents', name);
+          if (!isCanonicalAgentForTarget(item, target)) {
+            if (options.target) {
+              throw new Error(`Canonical agent "${name}" is not enabled for target "${target}"`);
+            }
+            continue;
+          }
           content = adapter.renderAgent(item).content;
         } else if (itemType === 'mcp') {
           const servers = await readCanonicalMCPServers(projectDir);

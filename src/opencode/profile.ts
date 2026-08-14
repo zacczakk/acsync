@@ -4,7 +4,7 @@ import { dirname, join, relative } from 'node:path';
 import { atomicWrite } from '../infra/atomic-write';
 import { stringifyFrontmatter } from '../formats/markdown';
 import { readJsonc } from '../formats/jsonc';
-import { readCanonicalAgents, readCanonicalMCPServers } from '../cli/canonical';
+import { isCanonicalAgentForTarget, readCanonicalAgents, readCanonicalMCPServers } from '../cli/canonical';
 import {
   applyOpenCodeAgentVariants,
   configureOpenCodeV2Plugins,
@@ -164,7 +164,9 @@ async function restoreCompleteBackup(homeDir: string, backupRoot: string): Promi
 }
 
 async function renderAgents(projectDir: string, version: OpenCodeVersion): Promise<{ files: Map<string, string>; variants: OpenCodeModelVariant[] }> {
-  const agents = await readCanonicalAgents(projectDir, () => false);
+  const target = version === 'v2' ? 'opencode2' : 'opencode';
+  const agents = (await readCanonicalAgents(projectDir, () => false))
+    .filter((agent) => isCanonicalAgentForTarget(agent, target));
   const files = new Map<string, string>();
   const variants: OpenCodeModelVariant[] = [];
   for (const agent of agents) {

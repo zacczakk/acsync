@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { existsSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { readCanonicalAgents, readCanonicalMCPServers, readCanonicalSkills } from '../canonical';
+import { isCanonicalAgentForTarget, readCanonicalAgents, readCanonicalMCPServers, readCanonicalSkills } from '../canonical';
 
 describe('canonical agent routing', () => {
   test('uses the approved GPT-5.6 tiers and reasoning efforts', async () => {
@@ -19,12 +19,34 @@ describe('canonical agent routing', () => {
       docs: ['tux/gpt-5.6-luna', 'max'],
       execute: ['tux/gpt-5.6-terra', 'low'],
       'fast-worker': ['openai/gpt-5.6-luna-fast', 'max'],
+      'foundry-sql': ['tux/gpt-5.6-luna', 'max'],
       'infra-review': ['tux/gpt-5.6-terra', 'medium'],
       release: ['tux/gpt-5.6-terra', 'low'],
       research: ['tux/gpt-5.6-luna', 'max'],
       'security-review': ['tux/gpt-5.6-sol', 'high'],
       'vault-ops': ['tux/gpt-5.6-luna', 'max'],
       verify: ['tux/gpt-5.6-terra', 'medium'],
+    });
+  });
+
+  test('limits Foundry SQL agent to OpenCode targets', async () => {
+    const agents = await readCanonicalAgents(process.cwd(), () => false);
+    const agent = agents.find(({ name }) => name === 'foundry-sql');
+
+    expect(agent?.metadata.targets).toEqual(['opencode', 'opencode2']);
+    expect(agent && isCanonicalAgentForTarget(agent, 'opencode')).toBe(true);
+    expect(agent && isCanonicalAgentForTarget(agent, 'opencode2')).toBe(true);
+    expect(agent && isCanonicalAgentForTarget(agent, 'claude-code')).toBe(false);
+    expect(agent && isCanonicalAgentForTarget(agent, 'codex')).toBe(false);
+  });
+
+  test('gives Foundry SQL agent access to the complete Palantir MCP namespace', async () => {
+    const agents = await readCanonicalAgents(process.cwd(), () => false);
+    const agent = agents.find(({ name }) => name === 'foundry-sql');
+
+    expect(agent?.metadata.permission).toMatchObject({
+      '*': 'deny',
+      'palantir-mcp_*': 'allow',
     });
   });
 

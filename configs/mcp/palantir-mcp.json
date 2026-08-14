@@ -13,10 +13,13 @@
     },
     "opencode": {
       "enabled": true,
-      "timeout": 20000
+      "timeout": 20000,
+      "codemode": false
     },
     "opencode2": {
-      "timeout": 20000
+      "enabled": true,
+      "timeout": 20000,
+      "codemode": false
     }
   }
 }

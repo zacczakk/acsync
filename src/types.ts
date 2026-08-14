@@ -127,6 +127,8 @@ export interface AdapterCapabilities {
   instructions: boolean;
   skills: boolean;
   settings: boolean;
+  /** Whether agent sync also owns generated model variants in settings. */
+  agentVariantsInSettings?: boolean;
   plugins: boolean;
   hooks: boolean;
 }

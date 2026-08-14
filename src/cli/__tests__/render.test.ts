@@ -90,9 +90,9 @@ describe('render subcommand logic', () => {
       args: ['palantir-mcp', 'start'],
       enabled: false,
       targetOptions: {
-        'claude-code': { type: 'stdio' },
-        opencode: { enabled: true, timeout: 20000 },
-        opencode2: { timeout: 20000 },
+      'claude-code': { type: 'stdio' },
+      opencode: { enabled: true, timeout: 20000, codemode: false },
+      opencode2: { enabled: true, timeout: 20000, codemode: false },
       },
     });
   });
@@ -122,6 +122,8 @@ describe('render subcommand logic', () => {
     expect(opencodeRendered).not.toContain('FOUNDRY_TOKEN');
 
     const opencodeV2Rendered = createAdapter('opencode2').renderMCPServers([palantir!]);
+    expect(opencodeV2Rendered).toContain('"disabled": false');
+    expect(opencodeV2Rendered).toContain('"codemode": false');
     expect(opencodeV2Rendered).toContain('"catalog": 20000');
     expect(opencodeV2Rendered).toContain('"execution": 20000');
 

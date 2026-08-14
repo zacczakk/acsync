@@ -581,7 +581,7 @@ Tux resolves Foundry host and keychain-backed authentication at runtime; keep
 Foundry credentials out of editor and repository config.
 
 - Prefer native `palantir-mcp` when it is loaded and responsive. For shell calls, use the compiled `palantir` CLI before MCPorter when its runtime configuration is available.
-- Canonical OpenCode V1 rendering enables it via Tux with a 20-second timeout. OpenCode V2 inherits the global disabled state unless an `enabled` override is added; the current target override only adds a 20-second timeout. Claude Code and Codex also render it disabled by default. Antigravity excludes it from its active MCP set. Local/manual config can change the effective state.
+- Canonical OpenCode V1 and V2 rendering enables it via Tux with a 20-second catalog/execution timeout and direct tool exposure. Claude Code and Codex render it disabled by default. Antigravity excludes it from its active MCP set. Local/manual config can change the effective state.
 - If native MCP is missing, disabled, or offline, use the compiled `palantir` CLI on `$PATH`: start with `palantir --help`, then invoke the needed tool directly, for example `palantir list-foundry-namespaces`.
 - `bin/palantir` is a separate mcporter-generated snapshot, not the canonical Tux launcher. Inspect it with `mcporter inspect-cli bin/palantir --json` before relying on its auth/config; the current snapshot expects `FOUNDRY_HOST` and `FOUNDRY_TOKEN`.
 - If the server is registered with MCPorter, inspect its schema first and call it with `mcporter call palantir-mcp.<tool> ...`.

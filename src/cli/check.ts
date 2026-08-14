@@ -18,6 +18,7 @@ import {
   hashRendered,
   hashTargetFile,
   hashContent,
+  isCanonicalAgentForTarget,
   readCanonicalCommands,
   readCanonicalAgents,
   readCanonicalMCPServers,
@@ -176,6 +177,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
   for (const target of targets) {
     const adapter = await createTargetAdapter(target, options.homeDir);
     const caps = adapter.getCapabilities();
+    const targetAgents = agents.filter((agent) => isCanonicalAgentForTarget(agent, target));
     const includeSkills = (!options.types || options.types.includes('skill'))
       && caps.skills
       && !skillRoots.has(adapter.getPaths().getSkillsDir());
@@ -207,7 +209,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
     // Agents
     if (!options.types || options.types.includes('agent')) {
       if (caps.agents) {
-        for (const item of agents) {
+        for (const item of targetAgents) {
           const rendered = adapter.renderAgent(item);
           const sourceHash = hashRendered(rendered.content);
           const targetHash = await hashTargetFile(rendered.relativePath);
@@ -370,8 +372,11 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
       }
     }
 
-    // Settings — hash what renderSettings would produce vs raw on-disk content
-    if (!options.types || options.types.includes('settings')) {
+    // Settings — hash what renderSettings would produce vs raw on-disk content.
+    // V2 agent files reference generated variants stored in the shared settings catalog.
+    const syncSettings = !options.types || options.types.includes('settings')
+      || (options.types.includes('agent') && caps.agentVariantsInSettings === true);
+    if (syncSettings) {
       if (caps.settings) {
         const settings = await readCanonicalSettings(projectDir, target);
         if (settings) {
@@ -388,7 +393,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
             // File missing or unreadable
           }
 
-          const rendered = adapter.renderSettings(settings, existingContent);
+          const rendered = adapter.renderSettings(settings, existingContent, targetAgents);
           const sourceHash = hashContent(rendered);
 
           sourceItems.push({
@@ -416,7 +421,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
     if (mcpWarning) diff.mcpWarning = mcpWarning;
 
     const canonicalCommandNames = new Set(commands.map((c) => c.name));
-    const canonicalAgentNames = new Set(agents.map((a) => a.name));
+    const canonicalAgentNames = new Set(targetAgents.map((a) => a.name));
     const canonicalSkillNames = new Set(skills.map((s) => s.name));
     const canonicalPluginNames = new Set(plugins.map((p) => p.name));
     const ownedPluginNames = new Set(

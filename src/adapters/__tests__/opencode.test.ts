@@ -123,6 +123,16 @@ describe('OpenCodeAdapter.renderAgent', () => {
     expect(result.content).toContain('git push *');
   });
 
+  it('strips target routing metadata from agent frontmatter', () => {
+    const item = {
+      ...agentItem,
+      metadata: { ...agentItem.metadata, targets: ['opencode', 'opencode2'] },
+    };
+    const result = adapter.renderAgent(item);
+    expect(result.content).not.toContain('targets:');
+    expect(result.content).not.toContain('opencode2');
+  });
+
   it('passes through tools in agent frontmatter', () => {
     const item = {
       ...agentItem,

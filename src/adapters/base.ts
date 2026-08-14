@@ -80,7 +80,7 @@ export interface ToolAdapter {
    * Returns the full file content ready to write. Only touches canonical keys;
    * preserves all other keys in the target file.
    */
-  renderSettings(settings: CanonicalSettings, existingContent?: string): string;
+  renderSettings(settings: CanonicalSettings, existingContent?: string, agents?: CanonicalItem[]): string;
 
   /** Render hook config for targets that support standalone hooks */
   renderHooks(hooks: CanonicalHookConfig, existingContent?: string): string;

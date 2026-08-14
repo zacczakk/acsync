@@ -233,6 +233,26 @@ describe('OpenCodeAdapter V2 MCP parsing', () => {
     });
   });
 
+  test('honors V2 target enablement without leaking V1-only enabled', () => {
+    const v2 = new OpenCodeAdapter(undefined, 'v2', 'opencode2');
+    const parsed = readJsonc<Record<string, unknown>>(v2.renderMCPServers([{
+      name: 'palantir-mcp',
+      transport: 'stdio',
+      command: 'tux',
+      args: ['palantir-mcp', 'start'],
+      enabled: false,
+      targetOptions: { opencode2: { enabled: true, codemode: false, timeout: 20_000 } },
+    }]));
+    const servers = (parsed.mcp as Record<string, unknown>).servers as Record<string, Record<string, unknown>>;
+
+    expect(servers['palantir-mcp']).toMatchObject({
+      codemode: false,
+      disabled: false,
+      timeout: { catalog: 20_000, execution: 20_000 },
+    });
+    expect(servers['palantir-mcp'].enabled).toBeUndefined();
+  });
+
   test('pulls remote headers and V2 target options into canonical form', () => {
     const v2 = new OpenCodeAdapter(undefined, 'v2', 'opencode2');
     const content = JSON.stringify({

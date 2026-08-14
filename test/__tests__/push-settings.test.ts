@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync, cpSync, mkdirSync } from 'node:fs';
+import { readFileSync, cpSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { createTestHome, createTestProject } from '../helpers/backup';
 import { runPush } from '../../src/cli/push';
@@ -111,5 +111,51 @@ describe('push settings E2E', () => {
 
     expect(config.model).toBe('throttle-tux/claude-opus-4-6');
     expect(config.mcp?.['palantir-mcp']?.enabled).toBe(true);
+  });
+
+  test('syncs V2 agent variants when pushing agents alone', async () => {
+    const fakeHome = createTestHome('push-v2-agent-variants');
+    const projectDir = createTestProject('push-v2-agent-variants', FIXTURE_ROOT);
+    rmSync(join(projectDir, 'configs', 'agents', 'simple-agent.md'));
+    writeFileSync(join(projectDir, 'configs', 'settings', 'opencode.json'), JSON.stringify({
+      provider: {
+        tux: {
+          npm: '@ai-sdk/openai',
+          models: {
+            'gpt-5.6-terra': {
+              variants: { medium: { reasoningEffort: 'medium' } },
+            },
+          },
+        },
+      },
+    }));
+    writeFileSync(join(projectDir, 'configs', 'agents', 'test-agent.md'), [
+      '---',
+      'model: tux/gpt-5.6-terra',
+      'reasoningEffort: medium',
+      'textVerbosity: low',
+      '---',
+      '',
+      'Verify.',
+      '',
+    ].join('\n'));
+
+    const result = await runPush({
+      projectDir,
+      force: true,
+      targets: ['opencode2'],
+      types: ['agent'],
+      homeDir: fakeHome,
+    });
+
+    expect(result.failed).toBe(0);
+    expect(result.written).toBe(2);
+    const config = JSON.parse(readFileSync(join(fakeHome, '.config', 'opencode', 'opencode.json'), 'utf8')) as {
+      providers: { tux: { models: { 'gpt-5.6-terra': { variants: Array<{ id: string; settings: Record<string, string> }> } } } };
+    };
+    expect(config.providers.tux.models['gpt-5.6-terra'].variants).toContainEqual({
+      id: 'agent-test-agent',
+      settings: { reasoningEffort: 'medium', textVerbosity: 'low' },
+    });
   });
 });

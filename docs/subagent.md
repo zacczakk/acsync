@@ -13,6 +13,7 @@ read_when:
 - Agent specs use OpenCode-style frontmatter as the source of truth:
   - required: `description`
   - common: `mode`, `model`, `reasoningEffort`, `textVerbosity`, `permission`, `color`
+  - optional: `targets` — target names that should receive the agent; omitted means all targets
   - body: verbatim agent instructions
 - Commands remain markdown with frontmatter plus body instructions.
 
@@ -21,7 +22,13 @@ read_when:
 - Gemini CLI: same portable frontmatter plus `kind: local`, copy to `~/.gemini/agents/`.
 - OpenCode V1: pass through OpenCode-compatible frontmatter, force `mode: subagent`, copy to `~/.config/opencode/agents/`.
 - OpenCode V2: convert `permission` to ordered `permissions`; move per-agent request options into a generated model variant, then copy to the same agents directory.
+- OpenCode V2 agent sync also updates the shared settings catalog so every generated `agent-*` variant referenced by an agent file is registered under its base model.
 - Codex: standalone TOML as `~/.codex/agents/{name}.toml` with `name`, `description`, and `developer_instructions`. `sandbox_mode` is preserved when explicit and derived as `read-only` when canonical metadata denies edits. An `openai/*-fast` model alias renders as the base model with `model_provider = "openai"` and `service_tier = "fast"`.
+
+Target-scoped agents are filtered before rendering and stale-item detection. The
+`targets` metadata is routing metadata, not agent frontmatter. Use it for
+OpenCode-only specialists such as `foundry-sql`; list both `opencode` and
+`opencode2` when the agent should survive either OpenCode profile.
 
 ## Current OpenCode routing
 - `explore`: `tux/gpt-5.6-luna` with low reasoning effort.
@@ -29,6 +36,7 @@ read_when:
 - `execute`, `release`: `tux/gpt-5.6-terra` with low reasoning effort.
 - `api-review`, `infra-review`, `verify`: `tux/gpt-5.6-terra` with medium reasoning effort.
 - `security-review`: `tux/gpt-5.6-sol` with high reasoning effort.
+- `foundry-sql`: `tux/gpt-5.6-luna` with max reasoning effort; OpenCode only.
 - `fast-worker`: `openai/gpt-5.6-luna-fast` with max reasoning effort; Tux does not advertise a fast alias.
 
 ## Portable tool derivation
