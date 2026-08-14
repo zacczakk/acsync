@@ -146,7 +146,9 @@ API. Failed activation restores the previous exact global CLI build.
 Profile switches print timed stages and plugin retry details to stderr. SDK
 alignment skips `bun add` when the global CLI, local package manifest, and
 installed `@opencode-ai/plugin` already match. Use `--no-align-sdk` to skip
-alignment explicitly; plugin readiness still runs.
+alignment explicitly; plugin readiness still runs. `update-v2` also reports
+the current and resolved global CLI builds, service restart, and exact global
+rollback if activation fails.
 
 Profile switches use atomic writes with rollback on failure.
 

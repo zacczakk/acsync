@@ -49,8 +49,24 @@ describe('OpenCode V2 SDK alignment', () => {
     expect(calls).toContain('bun install -g --force --trust --minimum-release-age=0 @opencode-ai/cli@next');
   });
 
+  test('reports update and activation stages', async () => {
+    const progress: string[] = [];
+    const runner: CommandRunner = async (_command, args) => ({
+      stdout: args[0] === 'pm' ? '@opencode-ai/cli@0.0.0-next-17100' : '',
+      stderr: '',
+    });
+
+    await updateOpenCodeV2Safely('/config', async () => undefined, runner, (message) => progress.push(message));
+
+    expect(progress[0]).toBe('Resolve current global CLI...');
+    expect(progress.some((message) => message === 'Install @opencode-ai/cli@next...')).toBe(true);
+    expect(progress.some((message) => message === 'Activate OpenCode V2 at 0.0.0-next-17100...')).toBe(true);
+    expect(progress.some((message) => message.startsWith('Activate OpenCode V2 at 0.0.0-next-17100 done'))).toBe(true);
+  });
+
   test('restores the exact global CLI build when updated profile activation fails', async () => {
     const calls: string[] = [];
+    const progress: string[] = [];
     let listed = 0;
     const runner: CommandRunner = async (command, args) => {
       calls.push(`${command} ${args.join(' ')}`);
@@ -61,8 +77,9 @@ describe('OpenCode V2 SDK alignment', () => {
       return { stdout: '', stderr: '' };
     };
 
-    await expect(updateOpenCodeV2Safely('/config', async () => { throw new Error('activation failed'); }, runner)).rejects.toThrow('activation failed');
+    await expect(updateOpenCodeV2Safely('/config', async () => { throw new Error('activation failed'); }, runner, (message) => progress.push(message))).rejects.toThrow('activation failed');
     expect(calls.at(-1)).toBe('bun install -g --force --trust --minimum-release-age=0 @opencode-ai/cli@0.0.0-next-17098');
+    expect(progress.some((message) => message === 'Restore global CLI 0.0.0-next-17098...')).toBe(true);
   });
 
   test('rejects a parseable response missing required plugins', async () => {
@@ -87,6 +104,20 @@ describe('OpenCode V2 SDK alignment', () => {
       return { stdout: JSON.stringify({ data: ids.map((id) => ({ id })) }), stderr: '' };
     };
     expect(await restartAndVerifyOpenCodeV2(runner, 1, 0)).toEqual(ids);
+  });
+
+  test('reports the service restart stage before readiness checks', async () => {
+    const ids = [...REQUIRED_V2_PLUGIN_IDS];
+    const progress: string[] = [];
+    const runner: CommandRunner = async (_command, args) => ({
+      stdout: args.at(-1) === '/api/plugin' ? JSON.stringify({ data: ids.map((id) => ({ id })) }) : '',
+      stderr: '',
+    });
+
+    await restartAndVerifyOpenCodeV2(runner, 1, 0, undefined, (message) => progress.push(message));
+
+    expect(progress[0]).toBe('Restart OpenCode V2 service...');
+    expect(progress[1]).toMatch(/^Restart OpenCode V2 service done \(\d+(\.\d+)?(ms|s)\)$/);
   });
 
   test('verifies a hot-reloaded profile without restarting the service', async () => {

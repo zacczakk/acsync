@@ -91,18 +91,17 @@ opencodeVersionCommand.command('update-v2')
       const configDir = join(homeDir, '.config', 'opencode');
       const report = progressReporter();
       process.stderr.write('OpenCode V2 update\n');
-      report('Update global @opencode-ai/cli@next');
       const resolved = await updateOpenCodeV2Safely(configDir, async () => {
         await switchOpenCodeVersion({
           version: 'v2',
           projectDir: PROJECT_ROOT,
           homeDir,
-          prepare: () => alignOpenCodePluginSdk(configDir).then(() => undefined),
+          prepare: async () => { report(`Resolved @opencode-ai/plugin to ${await alignOpenCodePluginSdk(configDir)}`); },
           rollback: () => runCommand('bun', ['install', '--frozen-lockfile'], configDir).then(() => undefined),
           progress: report,
-          verifyPlugins: () => restartAndVerifyOpenCodeV2(undefined, undefined, undefined, (progress) => report(formatVerificationProgress(progress))),
+          verifyPlugins: () => restartAndVerifyOpenCodeV2(undefined, undefined, undefined, (progress) => report(formatVerificationProgress(progress)), report),
         });
-      });
+      }, undefined, report);
       report(`Global CLI and local SDK resolved to ${resolved}`);
       process.stdout.write(`OpenCode V2 and @opencode-ai/plugin aligned at ${resolved}\n`);
     } catch (error) {

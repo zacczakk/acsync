@@ -8,6 +8,7 @@ export interface CommandResult {
 }
 
 export type CommandRunner = (command: string, args: string[], cwd?: string) => Promise<CommandResult>;
+export type OperationProgressReporter = (message: string) => void;
 
 export const runCommand: CommandRunner = (command, args, cwd) => new Promise((resolve, reject) => {
   const child = spawn(command, args, { cwd, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -67,6 +68,32 @@ export async function alignOpenCodePluginSdk(configDir: string, runner: CommandR
   return version;
 }
 
+function formatDuration(milliseconds: number): string {
+  return milliseconds < 1_000 ? `${milliseconds}ms` : `${(milliseconds / 1_000).toFixed(1)}s`;
+}
+
+async function timedStage<T>(
+  progress: OperationProgressReporter | undefined,
+  label: string,
+  operation: () => Promise<T>,
+): Promise<T> {
+  const startedAt = Date.now();
+  progress?.(`${label}...`);
+  const heartbeat = progress
+    ? setInterval(() => progress(`${label} still running (${formatDuration(Date.now() - startedAt)})`), 5_000)
+    : undefined;
+  try {
+    const result = await operation();
+    progress?.(`${label} done (${formatDuration(Date.now() - startedAt)})`);
+    return result;
+  } catch (error) {
+    progress?.(`${label} failed (${formatDuration(Date.now() - startedAt)})`);
+    throw error;
+  } finally {
+    if (heartbeat) clearInterval(heartbeat);
+  }
+}
+
 async function readPackageVersion(path: string): Promise<string | undefined> {
   try {
     const parsed = JSON.parse(await readFile(path, 'utf8')) as { version?: unknown };
@@ -95,15 +122,20 @@ export async function updateOpenCodeV2Safely(
   configDir: string,
   activate: (version: string) => Promise<void>,
   runner: CommandRunner = runCommand,
+  progress?: OperationProgressReporter,
 ): Promise<string> {
-  const previous = await installedGlobalOpenCodeVersion(runner);
+  const previous = await timedStage(progress, 'Resolve current global CLI', () => installedGlobalOpenCodeVersion(runner));
+  progress?.(`Current global CLI: ${previous}`);
   let resolved: string;
   try {
-    resolved = await updateOpenCodeV2(configDir, runner);
-    await activate(resolved);
+    resolved = await timedStage(progress, 'Install @opencode-ai/cli@next', () => updateOpenCodeV2(configDir, runner));
+    progress?.(`Resolved global CLI: ${resolved}`);
+    await timedStage(progress, `Activate OpenCode V2 at ${resolved}`, () => activate(resolved));
   } catch (error) {
     try {
-      await runner('bun', ['install', '-g', '--force', '--trust', '--minimum-release-age=0', `@opencode-ai/cli@${previous}`]);
+      await timedStage(progress, `Restore global CLI ${previous}`, async () => {
+        await runner('bun', ['install', '-g', '--force', '--trust', '--minimum-release-age=0', `@opencode-ai/cli@${previous}`]);
+      });
     } catch (rollbackError) {
       throw new AggregateError([error, rollbackError], `OpenCode V2 activation failed and global CLI ${previous} could not be restored`);
     }
@@ -146,12 +178,16 @@ export async function restartAndVerifyOpenCodeV2(
   attempts = 60,
   intervalMs = 500,
   onProgress?: PluginVerificationReporter,
+  progress?: OperationProgressReporter,
 ): Promise<string[]> {
-  try {
-    await runner('opencode2', ['service', 'restart']);
-  } catch {
-    // Restart closes its own client connection; readiness is proven by the API loop below.
-  }
+  await timedStage(progress, 'Restart OpenCode V2 service', async () => {
+    try {
+      await runner('opencode2', ['service', 'restart']);
+    } catch {
+      // Restart closes its own client connection; readiness is proven by the API loop below.
+      progress?.('Restart request closed its client connection; continuing with API readiness checks');
+    }
+  });
   return verifyOpenCodeV2Plugins(runner, attempts, intervalMs, onProgress);
 }
 
