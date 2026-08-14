@@ -6,7 +6,7 @@ description: >-
   code affects API contracts, auth, persistence, retries, jobs, or queues.
   Do not invoke solely because backend work is being handed off.
 mode: subagent
-model: github-copilot/gpt-5.6-terra
+model: tux/gpt-5.6-terra
 reasoningEffort: medium
 textVerbosity: low
 color: '#a277ff'

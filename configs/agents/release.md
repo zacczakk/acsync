@@ -5,7 +5,7 @@ description: >-
   tag, version bump, or publish flow. A standalone changelog or documentation edit
   belongs to the docs agent.
 mode: subagent
-model: github-copilot/gpt-5.6-terra
+model: tux/gpt-5.6-terra
 reasoningEffort: low
 textVerbosity: low
 color: '#61ffca'

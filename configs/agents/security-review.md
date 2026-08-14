@@ -6,7 +6,7 @@ description: >-
   for a security audit or when changes affect auth, crypto, secrets, public exposure,
   untrusted input, or dependencies. Do not invoke for every release by default.
 mode: subagent
-model: github-copilot/gpt-5.6-sol
+model: tux/gpt-5.6-sol
 reasoningEffort: high
 textVerbosity: low
 color: '#ff6767'

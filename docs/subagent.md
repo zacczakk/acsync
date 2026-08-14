@@ -23,6 +23,14 @@ read_when:
 - OpenCode V2: convert `permission` to ordered `permissions`; move per-agent request options into a generated model variant, then copy to the same agents directory.
 - Codex: standalone TOML as `~/.codex/agents/{name}.toml` with `name`, `description`, and `developer_instructions`. `sandbox_mode` is preserved when explicit and derived as `read-only` when canonical metadata denies edits. An `openai/*-fast` model alias renders as the base model with `model_provider = "openai"` and `service_tier = "fast"`.
 
+## Current OpenCode routing
+- `explore`: `tux/gpt-5.6-luna` with low reasoning effort.
+- `docs`, `research`, `vault-ops`: `tux/gpt-5.6-luna` with max reasoning effort.
+- `execute`, `release`: `tux/gpt-5.6-terra` with low reasoning effort.
+- `api-review`, `infra-review`, `verify`: `tux/gpt-5.6-terra` with medium reasoning effort.
+- `security-review`: `tux/gpt-5.6-sol` with high reasoning effort.
+- `fast-worker`: `openai/gpt-5.6-luna-fast` with max reasoning effort; Tux does not advertise a fast alias.
+
 ## Portable tool derivation
 - Non-OpenCode targets do not consume OpenCode `permission` blocks directly.
 - Adapters derive a best-effort portable `allowed-tools` list from canonical metadata:

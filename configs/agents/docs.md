@@ -5,7 +5,7 @@ description: >-
   work or when behavior, API, setup, config, or workflow changes require documentation.
   Do not invoke for every push or PR when documentation is unaffected.
 mode: subagent
-model: github-copilot/gpt-5.6-luna
+model: tux/gpt-5.6-luna
 reasoningEffort: max
 textVerbosity: low
 color: '#61ffca'

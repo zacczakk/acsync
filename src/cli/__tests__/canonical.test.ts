@@ -15,16 +15,16 @@ describe('canonical agent routing', () => {
     );
 
     expect(routing).toEqual({
-      'api-review': ['github-copilot/gpt-5.6-terra', 'medium'],
-      docs: ['github-copilot/gpt-5.6-luna', 'max'],
-      execute: ['github-copilot/gpt-5.6-terra', 'low'],
+      'api-review': ['tux/gpt-5.6-terra', 'medium'],
+      docs: ['tux/gpt-5.6-luna', 'max'],
+      execute: ['tux/gpt-5.6-terra', 'low'],
       'fast-worker': ['openai/gpt-5.6-luna-fast', 'max'],
-      'infra-review': ['github-copilot/gpt-5.6-terra', 'medium'],
-      release: ['github-copilot/gpt-5.6-terra', 'low'],
-      research: ['github-copilot/gpt-5.6-luna', 'max'],
-      'security-review': ['github-copilot/gpt-5.6-sol', 'high'],
-      'vault-ops': ['github-copilot/gpt-5.6-luna', 'max'],
-      verify: ['github-copilot/gpt-5.6-terra', 'medium'],
+      'infra-review': ['tux/gpt-5.6-terra', 'medium'],
+      release: ['tux/gpt-5.6-terra', 'low'],
+      research: ['tux/gpt-5.6-luna', 'max'],
+      'security-review': ['tux/gpt-5.6-sol', 'high'],
+      'vault-ops': ['tux/gpt-5.6-luna', 'max'],
+      verify: ['tux/gpt-5.6-terra', 'medium'],
     });
   });
 
@@ -35,7 +35,7 @@ describe('canonical agent routing', () => {
 
     expect(settings.model).toBe('tux/gpt-5.6-luna');
     expect(settings.agent?.explore).toEqual({
-      model: 'github-copilot/gpt-5.6-luna',
+      model: 'tux/gpt-5.6-luna',
       options: { reasoningEffort: 'low' },
     });
   });
