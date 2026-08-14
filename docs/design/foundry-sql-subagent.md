@@ -36,6 +36,8 @@ compact evidence brief instead of raw MCP transcripts or result tables.
    explicit columns, and a SQL/MCP row limit of 50 or lower.
 6. Report source, query shape, limits, branch/fallback, caveats, and only
    findings relevant to the parent question.
+7. Include the exact Palantir MCP calls needed to reproduce or validate the
+   findings, with complete argument objects and in execution order.
 
 The child stops and reports a precise blocker when a required RID, permission,
 or schema field is unavailable. It never broadens the task merely because the
@@ -59,9 +61,15 @@ Evidence:
 Query trail:
 - ...
 
+Reproduction calls:
+- Call 1: `<exact native palantir-mcp tool name>` with its complete JSON
+  argument object
+
 Scope and caveats:
 - ...
 ```
 
-This contract is intentionally small. The parent session receives conclusions
-and reproducibility anchors, not the exploration transcript.
+This contract is intentionally small. The parent session receives conclusions,
+exact replayable call arguments, and caveats, not the exploration transcript or
+tool response payloads. Discovery and schema calls are included when they
+supplied values used by later calls; irrelevant exploratory calls are omitted.

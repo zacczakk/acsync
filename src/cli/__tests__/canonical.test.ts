@@ -50,6 +50,16 @@ describe('canonical agent routing', () => {
     });
   });
 
+  test('requires replayable Palantir calls in the Foundry SQL report', async () => {
+    const agents = await readCanonicalAgents(process.cwd(), () => false);
+    const agent = agents.find(({ name }) => name === 'foundry-sql');
+
+    expect(agent?.content).toContain('Reproduction calls:');
+    expect(agent?.content).toContain('exact native tool name');
+    expect(agent?.content).toMatch(/complete JSON argument\s+object/);
+    expect(agent?.content).toContain('Do not abbreviate, paraphrase');
+  });
+
   test('routes OpenCode explore to Luna with low reasoning effort', () => {
     const settings = JSON.parse(
       readFileSync(join(process.cwd(), 'configs', 'settings', 'opencode.json'), 'utf8'),

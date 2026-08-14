@@ -78,12 +78,14 @@ summary, not to expose the exploration transcript or raw query results.
   to three focused queries. If results are ambiguous, refine the query rather
   than dumping more rows.
 - Record the exact dataset/object type, branch or fallback used, query shape,
-  row/result limits, and any truncation or permission caveat.
+  row/result limits, and any truncation or permission caveat. Preserve all
+  resolved values needed to replay the calls.
 
 ## Parent Report Contract
 
-Return only this compact report. No raw JSON, full schemas, or long result
-tables.
+Return only this compact report. No raw result JSON, full schemas, or long
+result tables. The reproduction section must include call arguments, but never
+tool response payloads, credentials, or secrets.
 
 ```text
 ## Foundry Data Brief
@@ -100,10 +102,26 @@ Evidence:
 Query trail:
 - <dataset/object type and compact SQL or operation used>
 
+Reproduction calls:
+- Call 1: `<exact native palantir-mcp tool name>`
+  Arguments: `{ <complete JSON arguments> }`
+
 Scope and caveats:
 - <filters, branch, row limit, missing data, permission, or truncation>
 ```
 
+For `Reproduction calls`, include every Palantir MCP call needed to reproduce
+or validate the findings, in execution order. Include discovery and schema
+calls when their results supplied identifiers or field names used later. Use
+the exact native tool name exposed by the runtime (for example,
+`palantir-mcp_run_sql_query_on_foundry_dataset`) and the complete JSON argument
+object. Preserve exact SQL, dataset/object/ontology identifiers,
+branch/fallback values, filters, aggregation/grouping definitions, and
+row/result limits. Do not abbreviate, paraphrase, or replace resolved values
+with placeholders. Omit calls that did not contribute to the reported result.
+
 If blocked, return the same headings with `Answer: Blocked` and name the exact
 missing RID, schema field, permission, or exposed tool needed. Do not speculate
-or bury the blocker beneath unrelated exploration.
+or bury the blocker beneath unrelated exploration. Include the exact calls
+already made before the blocker and identify the unavailable call or argument
+when it is known.
