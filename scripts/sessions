@@ -1405,7 +1405,7 @@ def main():
             "  sessions read ~/.claude/projects/-foo/session.jsonl"
         ),
     )
-    p_read.add_argument("session_id", help="Session ID (OpenCode V1/V2 ID) or Claude JSONL path")
+    p_read.add_argument("session_id", help="Session ID (OpenCode V1/V2, Claude, or Codex) or JSONL path")
     p_read.add_argument("--role", choices=["user", "assistant"], help="Show only one role")
     p_read.add_argument("--no-tools", action="store_true", help="Hide tool call blocks")
 
