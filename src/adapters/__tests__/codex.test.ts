@@ -220,6 +220,36 @@ describe('CodexAdapter settings', () => {
     expect(result).toBe('{\n  "features": {\n    "hooks": true,\n    "multi_agent": true\n  }\n}\n');
   });
 
+  it('compares managed settings semantically and ignores unrelated TOML keys', () => {
+    const settings: CanonicalSettings = {
+      target: 'codex',
+      keys: {
+        model: 'gpt-5.6-luna',
+        model_reasoning_effort: 'xhigh',
+        features: { hooks: true },
+      },
+    };
+    const target = [
+      "model = 'gpt-5.6-luna'",
+      "model_reasoning_effort = 'xhigh'",
+      'personality = "pragmatic"',
+      '',
+      '[features]',
+      'hooks = true',
+      'multi_agent = true',
+      '',
+    ].join('\n');
+
+    expect(adapter.extractSettingsForComparison(settings, target)).toBe(`{
+  "features": {
+    "hooks": true,
+    "multi_agent": true
+  },
+  "model": "gpt-5.6-luna",
+  "model_reasoning_effort": "xhigh"
+}\n`);
+  });
+
   it('renders named profile files separately from base settings', () => {
     const settings = {
       target: 'codex' as const,

@@ -3,7 +3,7 @@ import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { createTestHome, createTestProject } from '../../../test/helpers/backup';
-import { planSkillProjection, projectionNeedsUpdate, selectedSkillProjectionRoots } from '../skill-projection';
+import { planSkillProjection, projectionNeedsUpdate, replaceSkillTree, selectedSkillProjectionRoots, skillFiles, PUBLIC_SKILL_MARKER } from '../skill-projection';
 import type { Manifest } from '../../types';
 
 function historicalManifest(skillName: string, primaryContent: string): Manifest {
@@ -157,6 +157,35 @@ describe('selectedSkillProjectionRoots', () => {
     const plan = await planSkillProjection({ projectDir, homeDir, targets: ['codex'], publicSkillNames: ['obsidian'], deleteStale: true });
 
     expect(plan.operations.some((operation) => operation.kind === 'legacy-delete')).toBe(false);
+  });
+});
+
+describe('skillFiles', () => {
+  test('ignores generated Python cache files', async () => {
+    const root = createTestHome('projection-cache-filter');
+    mkdirSync(join(root, '__pycache__'), { recursive: true });
+    writeFileSync(join(root, '__pycache__', 'module.pyc'), 'bytecode');
+    writeFileSync(join(root, 'compiled.pyc'), 'bytecode');
+    writeFileSync(join(root, 'SKILL.md'), 'primary');
+
+    expect([...await skillFiles(root).then((files) => files.keys())]).toEqual(['SKILL.md']);
+  });
+
+  test('does not copy generated Python cache files into projections', async () => {
+    const root = createTestHome('projection-cache-copy');
+    const source = join(root, 'source');
+    const destination = join(root, 'destination');
+    mkdirSync(join(source, '__pycache__'), { recursive: true });
+    writeFileSync(join(source, 'SKILL.md'), 'primary');
+    writeFileSync(join(source, 'keep.py'), 'print("keep")\n');
+    writeFileSync(join(source, '__pycache__', 'module.pyc'), 'bytecode');
+    writeFileSync(join(source, 'compiled.pyc'), 'bytecode');
+
+    await replaceSkillTree(source, destination, PUBLIC_SKILL_MARKER);
+
+    expect(existsSync(join(destination, 'keep.py'))).toBe(true);
+    expect(existsSync(join(destination, '__pycache__'))).toBe(false);
+    expect(existsSync(join(destination, 'compiled.pyc'))).toBe(false);
   });
 });
 

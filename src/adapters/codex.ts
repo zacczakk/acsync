@@ -111,6 +111,10 @@ export class CodexAdapter extends BaseAdapter {
     return JSON.stringify(extracted, null, 2) + '\n';
   }
 
+  override extractSettingsForComparison(settings: CanonicalSettings, targetContent: string): string {
+    return this.extractSettingsKeys(Object.keys(settings.keys), targetContent);
+  }
+
   override renderHooks(hooks: { content: string }, existingContent?: string): string {
     const canonical = JSON.parse(hooks.content) as Record<string, unknown>;
     if (!existingContent) return JSON.stringify(canonical, null, 2) + '\n';

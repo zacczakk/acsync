@@ -9,6 +9,7 @@ import { helpersCommand } from './helpers';
 import { syncDesktopCommand } from './sync-desktop';
 import { codexProviderCommand } from './codex-provider';
 import { opencodeVersionCommand } from './opencode-version';
+import { CLI_VERSION } from './version';
 
 const DESCRIPTION = `Agent Config Sync — single source of truth for AI coding assistant configs.
 
@@ -45,7 +46,7 @@ Exit codes:
 const program = new Command()
   .name('metronome')
   .description(DESCRIPTION)
-  .version('1.3.2')
+  .version(CLI_VERSION)
   .showHelpAfterError(true);
 
 program.addCommand(checkCommand);

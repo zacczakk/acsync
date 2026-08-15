@@ -129,7 +129,7 @@ export class OpenCodeAdapter extends BaseAdapter {
         if (this.version === 'v2' ? cfg.disabled === true : cfg.enabled === false) server.enabled = false;
 
         const targetOptions: Record<string, unknown> = {};
-        for (const key of ['oauth', 'codemode']) {
+        for (const key of ['oauth', 'codemode', 'timeout']) {
           if (key in cfg) targetOptions[key] = cfg[key];
         }
         if (Object.keys(targetOptions).length > 0) {

@@ -95,6 +95,13 @@ export interface ToolAdapter {
    */
   extractSettingsKeys(canonicalKeys: string[], targetContent: string): string;
 
+  /**
+   * Extract the settings projection used for drift comparison.
+   * Defaults to the rendered file so target-specific adapters can opt in to
+   * semantic comparison without changing other targets.
+   */
+  extractSettingsForComparison(settings: CanonicalSettings, targetContent: string): string;
+
   /** Parse target MCP config content back to canonical MCPServer[] */
   parseMCPServers(content: string): MCPServer[];
 
@@ -328,6 +335,10 @@ export abstract class BaseAdapter implements ToolAdapter {
     return JSON.stringify(extracted, null, 2) + '\n';
   }
 
+  extractSettingsForComparison(_settings: CanonicalSettings, targetContent: string): string {
+    return targetContent;
+  }
+
   /** Default: identity — the whole file is the MCP config (no runtime state) */
   extractMCPContent(content: string): string {
     return content;
@@ -361,6 +372,13 @@ export abstract class BaseAdapter implements ToolAdapter {
 
         if (cfg.enabled === false) {
           server.enabled = false;
+        }
+
+        const targetOptions = Object.fromEntries(
+          Object.entries(cfg).filter(([key]) => !['command', 'args', 'env', 'url', 'headers', 'enabled'].includes(key)),
+        );
+        if (Object.keys(targetOptions).length > 0) {
+          server.targetOptions = { [this.target]: targetOptions };
         }
 
         servers.push(server);

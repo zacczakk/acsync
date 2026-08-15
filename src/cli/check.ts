@@ -31,9 +31,10 @@ import {
 import { mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
 import type { SyncOptions } from './canonical';
 import type { ToolAdapter } from '../adapters/base';
-import type { ItemType, MCPWarning, Operation, DiffResult, PrivateSkillDrift } from '../types';
+import type { ItemType, MCPServer, MCPWarning, Operation, DiffResult, PrivateSkillDrift } from '../types';
 import type { SourceItem } from '../core/diff';
 import { hashRenderedSkillTree, hashSkillTree, hasPublicSkillMarker, historicallyOwnedSharedSkillNames, planSkillProjection, projectionNeedsUpdate } from '../core/skill-projection';
+import { hashMCPServer } from '../core/hash';
 
 export interface OrchestratorCheckResult {
   diffs: DiffResult[];
@@ -255,13 +256,21 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
         }
 
         const rendered = adapter.renderMCPServers(mcpServers, existingContent);
-        // Extract only MCP-relevant content for drift — avoids false positives
-        // from runtime state co-located in the same file (e.g. ~/.claude.json).
-        const sourceHash = hashContent(adapter.extractMCPContent(rendered));
-        const targetHash = existingContent ? hashContent(adapter.extractMCPContent(existingContent)) : null;
+        const renderedServers = new Map(adapter.parseMCPServers(rendered).map((server) => [server.name, server]));
+        const existingServers = new Map<string, MCPServer>();
+        if (existingContent) {
+          for (const parsed of adapter.parseMCPServers(existingContent)) {
+            existingServers.set(parsed.name, parsed);
+          }
+        }
 
         for (const server of mcpServers) {
           if (!renderedNames.has(server.name)) continue;
+          const sourceHash = hashMCPServer(renderedServers.get(server.name));
+          if (sourceHash === null) {
+            throw new Error(`Unable to parse rendered MCP server "${server.name}" for ${target}`);
+          }
+          const targetHash = hashMCPServer(existingServers.get(server.name));
           sourceItems.push({
             type: 'mcp',
             name: server.name,
@@ -372,7 +381,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
       }
     }
 
-    // Settings — hash what renderSettings would produce vs raw on-disk content.
+    // Settings — hash the adapter's managed projection of rendered vs on-disk content.
     // V2 agent files reference generated variants stored in the shared settings catalog.
     const syncSettings = !options.types || options.types.includes('settings')
       || (options.types.includes('agent') && caps.agentVariantsInSettings === true);
@@ -387,14 +396,14 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
             const file = Bun.file(settingsPath);
             if (await file.exists()) {
               existingContent = await file.text();
-              targetHash = hashContent(existingContent);
+              targetHash = hashContent(adapter.extractSettingsForComparison(settings, existingContent));
             }
           } catch {
             // File missing or unreadable
           }
 
           const rendered = adapter.renderSettings(settings, existingContent, targetAgents);
-          const sourceHash = hashContent(rendered);
+          const sourceHash = hashContent(adapter.extractSettingsForComparison(settings, rendered));
 
           sourceItems.push({
             type: 'settings',

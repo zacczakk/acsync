@@ -49,6 +49,19 @@ describe('readSupportFiles', () => {
     expect(names).toContain('keep.md');
   });
 
+  test('excludes Python cache directories and bytecode files', async () => {
+    const cacheDir = join(tempDir, '__pycache__');
+    await mkdir(cacheDir, { recursive: true });
+    await writeFile(join(cacheDir, '__init__.cpython-312.pyc'), 'bytecode');
+    await writeFile(join(tempDir, 'compiled.pyc'), 'bytecode');
+    await writeFile(join(tempDir, 'keep.py'), 'print("keep")\n');
+
+    const files = await readSupportFiles(tempDir, 'SKILL.md');
+    const names = files.map((file) => file.relativePath);
+
+    expect(names).toEqual(['keep.py']);
+  });
+
   test('reads nested files with forward-slash relative paths', async () => {
     const rulesDir = join(tempDir, 'rules');
     await mkdir(rulesDir, { recursive: true });

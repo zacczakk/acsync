@@ -72,6 +72,20 @@ describe('canonical agent routing', () => {
     });
   });
 
+  test('sets Codex base to Tux Luna at xhigh reasoning', () => {
+    const settings = JSON.parse(
+      readFileSync(join(process.cwd(), 'configs', 'settings', 'codex.json'), 'utf8'),
+    ) as Record<string, unknown>;
+
+    expect(settings).toMatchObject({
+      model: 'gpt-5.6-luna',
+      model_provider: 'tux',
+      model_reasoning_effort: 'xhigh',
+      approval_policy: 'never',
+      sandbox_mode: 'workspace-write',
+    });
+  });
+
   test('keeps all validated Tux reasoning variants for Luna and Terra', () => {
     const settings = JSON.parse(
       readFileSync(join(process.cwd(), 'configs', 'settings', 'opencode.json'), 'utf8'),

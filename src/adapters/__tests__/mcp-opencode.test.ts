@@ -277,4 +277,27 @@ describe('OpenCodeAdapter V2 MCP parsing', () => {
       targetOptions: { opencode2: { oauth: false, codemode: true } },
     }]);
   });
+
+  test('preserves V2 timeout in the parsed target options', () => {
+    const v2 = new OpenCodeAdapter(undefined, 'v2', 'opencode2');
+    const content = JSON.stringify({
+      mcp: {
+        servers: {
+          peekaboo: {
+            type: 'local',
+            command: ['peekaboo'],
+            timeout: { catalog: 30_000, execution: 30_000 },
+          },
+        },
+      },
+    });
+
+    expect(v2.parseMCPServers(content)).toEqual([{
+      name: 'peekaboo',
+      transport: 'stdio',
+      command: 'peekaboo',
+      args: [],
+      targetOptions: { opencode2: { timeout: { catalog: 30_000, execution: 30_000 } } },
+    }]);
+  });
 });

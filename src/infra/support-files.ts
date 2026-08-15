@@ -16,6 +16,12 @@ export async function readSupportFiles(
   return result;
 }
 
+/** Ignore generated files that must not become part of a managed skill tree. */
+export function isIgnoredSupportPath(relativePath: string): boolean {
+  const parts = relativePath.split('/');
+  return parts.includes('.DS_Store') || parts.includes('__pycache__') || relativePath.endsWith('.pyc');
+}
+
 async function readRecursive(
   currentDir: string,
   rootDir: string,
@@ -32,6 +38,7 @@ async function readRecursive(
   for (const entry of entries) {
     const fullPath = join(currentDir, entry);
     const relativePath = relative(rootDir, fullPath).split(sep).join('/');
+    if (isIgnoredSupportPath(relativePath)) continue;
 
     // Check if directory via readdir attempt
     try {
@@ -42,7 +49,6 @@ async function readRecursive(
     } catch {
       // It's a file
       if (relativePath === exclude) continue;
-      if (entry === '.DS_Store') continue;
       const content = await readFile(fullPath, 'utf-8');
       result.push({ relativePath, content });
     }

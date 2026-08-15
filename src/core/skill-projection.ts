@@ -1,8 +1,8 @@
 import { cp, lstat, mkdir, readdir, readFile, realpath, rename, rm, writeFile } from 'node:fs/promises';
-import { basename, dirname, join } from 'node:path';
+import { basename, dirname, join, relative, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 import { parseFrontmatter } from '../formats/markdown';
-import { readSupportFiles } from '../infra/support-files';
+import { isIgnoredSupportPath, readSupportFiles } from '../infra/support-files';
 import type { CanonicalItem } from '../types';
 import type { TargetName } from '../types';
 import type { Manifest } from '../types';
@@ -208,6 +208,7 @@ export async function skillFiles(root: string): Promise<Map<string, string>> {
     for (const entry of await readdir(dir, { withFileTypes: true })) {
       if (entry.name === PUBLIC_SKILL_MARKER || entry.name === PRIVATE_SKILL_MARKER) continue;
       const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (isIgnoredSupportPath(relative)) continue;
       const path = join(dir, entry.name);
       const stat = await lstat(path);
       if (stat.isSymbolicLink()) throw new Error('Skill trees cannot contain symlinks');
@@ -359,7 +360,15 @@ export async function replaceSkillTree(source: string, destination: string, mark
   const stage = join(parent, `.${basename(destination)}.metronome-stage-${crypto.randomUUID()}`);
   const previous = join(parent, `.${basename(destination)}.metronome-previous-${crypto.randomUUID()}`);
   await mkdir(parent, { recursive: true });
-  await cp(source, stage, { recursive: true, filter: (path) => !path.endsWith(PUBLIC_SKILL_MARKER) && !path.endsWith(PRIVATE_SKILL_MARKER) });
+  await cp(source, stage, {
+    recursive: true,
+    filter: (path) => {
+      const relativePath = relative(source, path).split(sep).join('/');
+      return !path.endsWith(PUBLIC_SKILL_MARKER)
+        && !path.endsWith(PRIVATE_SKILL_MARKER)
+        && !isIgnoredSupportPath(relativePath);
+    },
+  });
   await writeFile(join(stage, marker), `${marker}\n`);
   try {
     await rename(destination, previous);
