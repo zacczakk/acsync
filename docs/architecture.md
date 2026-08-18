@@ -107,17 +107,20 @@ catalog.
 
 Versioned V2 plugins live under `configs/opencode/v2/plugins/`. V2 ports the
 instruction loader, Memory advisor, read guard, commit validator, and Muxy
-notifications. The Muxy V2 port is global; Muxy's app-owned ancestor plugin is
-preserved because the app continuously regenerates it. Current Muxy releases
-still emit a V1 plugin load warning under V2, but the global port remains the
-active notification integration. Cursor OAuth is disabled in V2 because the
+notifications. The native Muxy V2 port is deployed globally as
+`metronome-muxy-notify.js` so Muxy's app-owned `muxy-notify.js` cannot overwrite
+it; the app-owned file is preserved because Muxy continuously regenerates it.
+Current Muxy releases still emit a V1 plugin load warning under V2, but the
+Metronome port remains the active notification integration. Muxy is optional
+for V2 readiness. Cursor OAuth is disabled in V2 because the
 public V2 catalog API cannot add a provider; context-mode is disabled because
 its package still exports the V1 `{ id, server }` contract. Switching back to
 V1 restores the remembered Cursor symlink target and V1 plugin files.
 
 The canonical settings file includes `./chatgpt-websearch` and
 `websearch.provider: chatgpt`. V2 retains both; V2 runtime verification requires
-`opencode.chatgpt-websearch`. V1 rendering omits this V2-only integration.
+`opencode.chatgpt-websearch`; `metronome.muxy-notify` is optional. V1 rendering
+omits these V2-only integrations.
 
 Generic V2 sync handles settings, agents, MCP, commands, skills, and
 instructions. V2 preserves but does not natively resolve the config

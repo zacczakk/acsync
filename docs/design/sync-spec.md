@@ -347,15 +347,21 @@ than concatenating those files into `AGENTS.md`.
 - Preserve unowned plugin files and Tux's V1 overlay.
 - Canonical settings include `./chatgpt-websearch` and
   `websearch.provider: chatgpt`. V2 retains both and runtime verification
-  requires `opencode.chatgpt-websearch`; V1 rendering omits this V2-only
-  integration.
+  requires `opencode.chatgpt-websearch`; `metronome.muxy-notify` is optional
+  and never blocks activation. V1 rendering omits these V2-only integrations.
+- Deploy the native V2 Muxy port as
+  `~/.config/opencode/plugins/metronome-muxy-notify.js`; preserve Muxy's
+  app-owned `muxy-notify.js` because Muxy regenerates it.
 - Record every switch and all output hashes in
   `~/.config/opencode/migration-manifest.json`.
 - Backups live below `~/.config/opencode-backups/metronome/`.
 - Ordinary V2 activation waits for the hot-reloaded plugin catalog without
   restarting the shared service; `update-v2` restarts it after an SDK/CLI
   update.
-- Failed `update-v2` activation restores the previous exact global CLI build.
+- Failed `update-v2` activation restores and re-verifies the previous exact
+  global CLI build. The updater does not activate a next-channel result older
+  than the current build, retains the current build, and repairs
+  package/launcher mismatches with a clean exact install.
 
 For a Bun installation, update V2 only through:
 
@@ -365,10 +371,11 @@ metronome opencode update-v2
 
 Equivalent manual flow: `bun install -g --force --trust --minimum-release-age=0
 @opencode-ai/cli@next`, resolve the installed exact build with `bun pm ls -g`,
-install the same exact `@opencode-ai/plugin` build with an explicit
-`--minimum-release-age=0` override in
-`~/.config/opencode`, restart `opencode2 service`, then verify
-`opencode2 api get /api/plugin`.
+confirm it matches `opencode2 --version`, install the same exact
+`@opencode-ai/plugin` build with an explicit `--minimum-release-age=0` override
+in `~/.config/opencode`, restart `opencode2 service`, then verify
+`opencode2 api get /api/plugin`. A missing Muxy ID is a warning; the other
+required IDs must be present.
 
 #### Pull
 

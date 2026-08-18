@@ -23,6 +23,10 @@ read_when:
 - **OpenCode V2 update diagnostics** — `update-v2` now reports global CLI
   resolution/install, profile activation, service restart, verification, and
   exact global rollback stages
+- **OpenCode V2 update hardening** — refuse to activate next-channel
+  downgrades, retain the current build, repair package/launcher version drift,
+  treat Muxy readiness as optional, and deploy the native Muxy port under a
+  filename Muxy cannot overwrite
 - **Sessions CLI clarity** — added `sessions latest`, documented `opencode2` as
   the OpenCode V2 source, and hint when a source name is passed as `--project`
 - **OpenCode V2 sessions** — extended `sessions` list/read/export/search/stats and FTS indexing to the native V2 database at `~/.local/share/opencode-v2/opencode/opencode.db`; `opencode2` is available as an explicit source and included in default flows when present

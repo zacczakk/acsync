@@ -10,6 +10,8 @@ export interface CommandResult {
 export type CommandRunner = (command: string, args: string[], cwd?: string) => Promise<CommandResult>;
 export type OperationProgressReporter = (message: string) => void;
 
+const GLOBAL_CLI_PACKAGE = '@opencode-ai/cli';
+
 export const runCommand: CommandRunner = (command, args, cwd) => new Promise((resolve, reject) => {
   const child = spawn(command, args, { cwd, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
   let stdout = '';
@@ -50,11 +52,70 @@ export function parseGlobalOpenCodeVersion(output: string): string | undefined {
   return output.match(/@opencode-ai\/cli@(0\.0\.0-(?:next|beta)-[^\s]+)/)?.[1];
 }
 
+export function parseOpenCodeExecutableVersion(output: string): string | undefined {
+  return output.match(/(0\.0\.0-(?:next|beta)-[^\s]+)/)?.[1];
+}
+
+function versionParts(version: string): { channel: 'beta' | 'next'; build: number } | undefined {
+  const match = version.match(/^0\.0\.0-(beta|next)-(\d+)$/);
+  return match ? { channel: match[1] as 'beta' | 'next', build: Number(match[2]) } : undefined;
+}
+
+export function compareOpenCodeVersions(left: string, right: string): number {
+  const leftParts = versionParts(left);
+  const rightParts = versionParts(right);
+  if (!leftParts || !rightParts) return left.localeCompare(right);
+  if (leftParts.build !== rightParts.build) return leftParts.build - rightParts.build;
+  if (leftParts.channel !== rightParts.channel) return leftParts.channel === 'next' ? 1 : -1;
+  return 0;
+}
+
 export async function installedGlobalOpenCodeVersion(runner: CommandRunner = runCommand): Promise<string> {
   const result = await runner('bun', ['pm', 'ls', '-g']);
   const version = parseGlobalOpenCodeVersion(`${result.stdout}\n${result.stderr}`);
   if (!version) throw new Error('Unable to find global @opencode-ai/cli next/beta installation');
   return version;
+}
+
+export async function runningGlobalOpenCodeVersion(runner: CommandRunner = runCommand): Promise<string> {
+  const result = await runner('opencode2', ['--version']);
+  const version = parseOpenCodeExecutableVersion(`${result.stdout}\n${result.stderr}`);
+  if (!version) throw new Error('Unable to determine the version reported by the opencode2 launcher');
+  return version;
+}
+
+async function installGlobalOpenCodeVersion(version: string, runner: CommandRunner): Promise<void> {
+  await runner('bun', ['install', '-g', '--force', '--trust', '--minimum-release-age=0', `${GLOBAL_CLI_PACKAGE}@${version}`]);
+}
+
+async function verifyGlobalOpenCodeVersion(expected: string, runner: CommandRunner): Promise<void> {
+  const [installed, running] = await Promise.all([
+    installedGlobalOpenCodeVersion(runner),
+    runningGlobalOpenCodeVersion(runner),
+  ]);
+  if (installed !== expected || running !== expected) {
+    throw new Error(`Global OpenCode CLI mismatch: expected ${expected}; package ${installed}; launcher ${running}`);
+  }
+}
+
+async function ensureGlobalOpenCodeVersion(
+  expected: string,
+  runner: CommandRunner,
+  progress?: OperationProgressReporter,
+): Promise<void> {
+  try {
+    await verifyGlobalOpenCodeVersion(expected, runner);
+    return;
+  } catch (error) {
+    progress?.(`Global CLI install mismatch; repairing exact ${expected}`);
+    await runner('bun', ['remove', '-g', GLOBAL_CLI_PACKAGE]);
+    await installGlobalOpenCodeVersion(expected, runner);
+    try {
+      await verifyGlobalOpenCodeVersion(expected, runner);
+    } catch (verificationError) {
+      throw new Error(`Unable to repair global OpenCode CLI at ${expected}: ${verificationError instanceof Error ? verificationError.message : String(verificationError)}`, { cause: error });
+    }
+  }
 }
 
 export async function alignOpenCodePluginSdk(configDir: string, runner: CommandRunner = runCommand): Promise<string> {
@@ -113,9 +174,15 @@ async function readPackageDependencyVersion(path: string): Promise<string | unde
   }
 }
 
-export async function updateOpenCodeV2(_configDir: string, runner: CommandRunner = runCommand): Promise<string> {
+export async function updateOpenCodeV2(
+  _configDir: string,
+  runner: CommandRunner = runCommand,
+  progress?: OperationProgressReporter,
+): Promise<string> {
   await runner('bun', ['install', '-g', '--force', '--trust', '--minimum-release-age=0', '@opencode-ai/cli@next']);
-  return installedGlobalOpenCodeVersion(runner);
+  const version = await installedGlobalOpenCodeVersion(runner);
+  await ensureGlobalOpenCodeVersion(version, runner, progress);
+  return version;
 }
 
 export async function updateOpenCodeV2Safely(
@@ -126,16 +193,24 @@ export async function updateOpenCodeV2Safely(
 ): Promise<string> {
   const previous = await timedStage(progress, 'Resolve current global CLI', () => installedGlobalOpenCodeVersion(runner));
   progress?.(`Current global CLI: ${previous}`);
+  const restorePrevious = () => timedStage(progress, `Restore global CLI ${previous}`, async () => {
+    await installGlobalOpenCodeVersion(previous, runner);
+    await ensureGlobalOpenCodeVersion(previous, runner, progress);
+  });
   let resolved: string;
   try {
-    resolved = await timedStage(progress, 'Install @opencode-ai/cli@next', () => updateOpenCodeV2(configDir, runner));
+    resolved = await timedStage(progress, 'Install @opencode-ai/cli@next', () => updateOpenCodeV2(configDir, runner, progress));
     progress?.(`Resolved global CLI: ${resolved}`);
+    if (compareOpenCodeVersions(resolved, previous) < 0) {
+      progress?.(`Next channel returned ${resolved}; keeping current global CLI ${previous}`);
+      await restorePrevious();
+      await timedStage(progress, `Activate OpenCode V2 at ${previous}`, () => activate(previous));
+      return previous;
+    }
     await timedStage(progress, `Activate OpenCode V2 at ${resolved}`, () => activate(resolved));
   } catch (error) {
     try {
-      await timedStage(progress, `Restore global CLI ${previous}`, async () => {
-        await runner('bun', ['install', '-g', '--force', '--trust', '--minimum-release-age=0', `@opencode-ai/cli@${previous}`]);
-      });
+      await restorePrevious();
     } catch (rollbackError) {
       throw new AggregateError([error, rollbackError], `OpenCode V2 activation failed and global CLI ${previous} could not be restored`);
     }
@@ -149,9 +224,10 @@ export const REQUIRED_V2_PLUGIN_IDS = [
   'memory-vault-advisor',
   'metronome.read-guard',
   'metronome.validate-commit',
-  'metronome.muxy-notify',
   'opencode.chatgpt-websearch',
 ];
+
+export const OPTIONAL_V2_PLUGIN_IDS = ['metronome.muxy-notify'];
 
 export interface PluginVerificationProgress {
   attempt: number;
@@ -160,6 +236,7 @@ export interface PluginVerificationProgress {
   missing: string[];
   attemptMs: number;
   elapsedMs: number;
+  optionalMissing: string[];
   failure?: 'request-failed' | 'invalid-response';
 }
 
@@ -214,12 +291,14 @@ export async function verifyOpenCodeV2Plugins(
       failure = 'request-failed';
     }
     missing = REQUIRED_V2_PLUGIN_IDS.filter((id) => !ids.includes(id));
+    const optionalMissing = OPTIONAL_V2_PLUGIN_IDS.filter((id) => !ids.includes(id));
     const ready = missing.length === 0;
     onProgress?.({
       attempt: attempt + 1,
       attempts,
       status: ready ? 'ready' : 'retrying',
       missing,
+      optionalMissing,
       attemptMs: Date.now() - attemptStartedAt,
       elapsedMs: Date.now() - startedAt,
       ...(failure ? { failure } : {}),

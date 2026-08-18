@@ -15,13 +15,27 @@ function formatDuration(milliseconds: number): string {
   return milliseconds < 1_000 ? `${milliseconds}ms` : `${(milliseconds / 1_000).toFixed(1)}s`;
 }
 
-function formatVerificationProgress(progress: PluginVerificationProgress): string {
+export function formatVerificationProgress(progress: PluginVerificationProgress): string {
+  const details = [
+    progress.failure,
+    progress.missing.length > 0 ? `required missing: ${progress.missing.join(', ')}` : undefined,
+    progress.optionalMissing.length > 0 ? `optional unavailable: ${progress.optionalMissing.join(', ')}` : undefined,
+  ].filter((value): value is string => value !== undefined).join('; ');
+  const suffix = details ? `; ${details}` : '';
   if (progress.status === 'ready') {
-    return `Plugin catalog ready on attempt ${progress.attempt}/${progress.attempts} (${formatDuration(progress.attemptMs)})`;
+    return `Plugin catalog ready (${progress.attempt}/${progress.attempts}; ${formatDuration(progress.attemptMs)}${suffix})`;
   }
-  const reason = progress.failure ? `; ${progress.failure}` : '';
-  const missing = progress.missing.length > 0 ? `; missing: ${progress.missing.join(', ')}` : '';
-  return `Plugin catalog not ready, retrying ${progress.attempt}/${progress.attempts} (${formatDuration(progress.attemptMs)}${reason}${missing})`;
+  return `Plugin catalog waiting (${progress.attempt}/${progress.attempts}; ${formatDuration(progress.attemptMs)}${suffix})`;
+}
+
+export function verificationReporter(report: (message: string) => void): (progress: PluginVerificationProgress) => void {
+  let lastState = '';
+  return (progress) => {
+    const state = [progress.status, progress.failure, progress.missing.join(','), progress.optionalMissing.join(',')].join('|');
+    const periodic = progress.attempt === 1 || progress.attempt % 10 === 0 || progress.attempt === progress.attempts;
+    if (state !== lastState || periodic || progress.status === 'ready') report(formatVerificationProgress(progress));
+    lastState = state;
+  };
 }
 
 function progressReporter(): (message: string) => void {
@@ -58,7 +72,7 @@ opencodeVersionCommand.command('use')
           ? () => runCommand('bun', ['install', '--frozen-lockfile'], join(homeDir, '.config', 'opencode')).then(() => undefined)
           : undefined,
         verifyPlugins: selected === 'v2' && !options.dryRun
-          ? () => verifyOpenCodeV2Plugins(undefined, undefined, undefined, (progress) => report?.(formatVerificationProgress(progress)))
+          ? () => verifyOpenCodeV2Plugins(undefined, undefined, undefined, report ? verificationReporter(report) : undefined)
           : undefined,
       });
       process.stdout.write(`${options.dryRun ? 'Would activate' : 'Activated'} OpenCode ${selected.toUpperCase()}\n`);
@@ -99,7 +113,7 @@ opencodeVersionCommand.command('update-v2')
           prepare: async () => { report(`Resolved @opencode-ai/plugin to ${await alignOpenCodePluginSdk(configDir)}`); },
           rollback: () => runCommand('bun', ['install', '--frozen-lockfile'], configDir).then(() => undefined),
           progress: report,
-          verifyPlugins: () => restartAndVerifyOpenCodeV2(undefined, undefined, undefined, (progress) => report(formatVerificationProgress(progress)), report),
+          verifyPlugins: () => restartAndVerifyOpenCodeV2(undefined, undefined, undefined, verificationReporter(report), report),
         });
       }, undefined, report);
       report(`Global CLI and local SDK resolved to ${resolved}`);

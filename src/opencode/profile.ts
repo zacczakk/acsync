@@ -24,6 +24,8 @@ const MANAGED_GLOBAL_PLUGINS = [
   'validate-commit.ts',
 ];
 
+const V2_MUXY_PLUGIN_NAME = 'metronome-muxy-notify.js';
+
 interface ManifestHistory {
   timestamp: string;
   from: OpenCodeVersion | 'unknown';
@@ -185,18 +187,33 @@ async function deployPlugins(options: SwitchOpenCodeOptions, written: string[]):
   const sourceDir = options.version === 'v1'
     ? join(options.projectDir, 'configs', 'plugins')
     : join(options.projectDir, 'configs', 'opencode', 'v2', 'plugins');
+  const nativeMuxy = await readFile(join(options.projectDir, 'configs', 'opencode', 'v2', 'plugins', 'muxy-notify.js'), 'utf8');
   const active = options.version === 'v1'
     ? ['memory-vault-advisor.ts', 'read-guard.ts', 'validate-commit.ts']
     : MANAGED_GLOBAL_PLUGINS;
   for (const name of MANAGED_GLOBAL_PLUGINS) {
-    const target = join(globalDir, name);
+    const targetName = options.version === 'v2' && name === 'muxy-notify.js' ? V2_MUXY_PLUGIN_NAME : name;
+    const target = join(globalDir, targetName);
     if (!active.includes(name)) {
-      try { await unlink(target); } catch {}
+      if (options.version === 'v1' && name === 'muxy-notify.js') {
+        try { await unlink(join(globalDir, V2_MUXY_PLUGIN_NAME)); } catch {}
+        try {
+          if (await readFile(target, 'utf8') === nativeMuxy) await unlink(target);
+        } catch {}
+      } else {
+        try { await unlink(target); } catch {}
+      }
       continue;
     }
     const content = await readFile(join(sourceDir, name), 'utf8');
     await atomicWrite(target, content);
     written.push(target);
+    if (options.version === 'v2' && name === 'muxy-notify.js') {
+      const legacyTarget = join(globalDir, name);
+      try {
+        if (await readFile(legacyTarget, 'utf8') === content) await unlink(legacyTarget);
+      } catch {}
+    }
   }
 
 }

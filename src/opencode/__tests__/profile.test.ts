@@ -43,6 +43,7 @@ async function fixture(): Promise<{ projectDir: string; homeDir: string }> {
   await writeFile(join(projectDir, 'configs', 'opencode', 'v2', 'plugins', 'muxy-notify.js'), '// v2 muxy\n');
   await writeFile(join(homeDir, '.config', 'opencode', 'opencode.json'), JSON.stringify({ provider: { tux: { name: 'Tux overlay' } }, custom: true }));
   await writeFile(join(homeDir, '.config', 'opencode', 'plugins', 'third-party.ts'), '// preserve\n');
+  await writeFile(join(homeDir, '.config', 'opencode', 'plugins', 'muxy-notify.js'), '// external muxy v1\n');
   await writeFile(join(homeDir, '.opencode', 'plugins', 'muxy-notify.js'), '// external muxy\n');
   await writeFile(join(root, 'cursor.js'), '// cursor\n');
   await symlink(join(root, 'cursor.js'), join(homeDir, '.config', 'opencode', 'plugins', 'cursor-oauth.js'));
@@ -63,7 +64,8 @@ describe('switchOpenCodeVersion', () => {
     expect(v2.plugins).toEqual(['./chatgpt-websearch']);
     expect(v2.websearch).toEqual({ provider: 'chatgpt' });
     expect(await readFile(join(paths.homeDir, '.config', 'opencode', 'plugins', 'third-party.ts'), 'utf8')).toBe('// preserve\n');
-    expect(await readFile(join(paths.homeDir, '.config', 'opencode', 'plugins', 'muxy-notify.js'), 'utf8')).toBe('// v2 muxy\n');
+    expect(await readFile(join(paths.homeDir, '.config', 'opencode', 'plugins', 'metronome-muxy-notify.js'), 'utf8')).toBe('// v2 muxy\n');
+    expect(await readFile(join(paths.homeDir, '.config', 'opencode', 'plugins', 'muxy-notify.js'), 'utf8')).toBe('// external muxy v1\n');
     expect(await readFile(join(paths.homeDir, '.opencode', 'plugins', 'muxy-notify.js'), 'utf8')).toBe('// external muxy\n');
     expect(await Bun.file(join(paths.homeDir, '.config', 'opencode', 'plugins', 'cursor-oauth.js')).exists()).toBe(false);
     expect(await Bun.file(join(first.backupPath, '.config', 'opencode', 'plugins', 'cursor-oauth.js')).exists()).toBe(true);
@@ -76,7 +78,8 @@ describe('switchOpenCodeVersion', () => {
     expect(v1.mcp.tool.enabled).toBe(true);
     expect(v1.plugin).not.toContain('./chatgpt-websearch');
     expect(v1.websearch).toBeUndefined();
-    expect(await Bun.file(join(paths.homeDir, '.config', 'opencode', 'plugins', 'muxy-notify.js')).exists()).toBe(false);
+    expect(await Bun.file(join(paths.homeDir, '.config', 'opencode', 'plugins', 'metronome-muxy-notify.js')).exists()).toBe(false);
+    expect(await readFile(join(paths.homeDir, '.config', 'opencode', 'plugins', 'muxy-notify.js'), 'utf8')).toBe('// external muxy v1\n');
     expect(await readFile(join(paths.homeDir, '.opencode', 'plugins', 'muxy-notify.js'), 'utf8')).toBe('// external muxy\n');
     expect(await Bun.file(join(paths.homeDir, '.config', 'opencode', 'plugins', 'cursor-oauth.js')).exists()).toBe(true);
     const manifest = JSON.parse(await readFile(join(paths.homeDir, '.config', 'opencode', 'migration-manifest.json'), 'utf8'));

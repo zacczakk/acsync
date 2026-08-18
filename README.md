@@ -130,8 +130,13 @@ instructions. V2 plugin files are profile-owned and deployed by
 
 Canonical `configs/settings/opencode.json` includes `./chatgpt-websearch` and
 `websearch.provider: chatgpt`. V2 retains both, and runtime verification
-requires the `opencode.chatgpt-websearch` plugin. V1 rendering omits this
-V2-only integration.
+requires the `opencode.chatgpt-websearch` plugin. Muxy is an optional V2
+integration, so a Muxy load problem never aborts profile activation. V1
+rendering omits these V2-only integrations.
+
+The native V2 Muxy port is deployed as
+`~/.config/opencode/plugins/metronome-muxy-notify.js`; Muxy's app-owned
+`muxy-notify.js` file is left untouched because Muxy regenerates it.
 
 Every switch creates a complete compatibility backup under
 `~/.config/opencode-backups/metronome/` and appends hashes, plugin status, SDK
@@ -141,9 +146,13 @@ hot-reloaded plugin catalog without restarting the shared service; `update-v2`
 refreshes the Bun-installed `@opencode-ai/cli@next`, pins the local plugin SDK
 to the exact resolved build, restarts the V2 service because hot reload does
 not reliably register newly deployed plugin files, and verifies the plugin
-API. Failed activation restores the previous exact global CLI build.
+API. The package metadata and `opencode2 --version` must agree; older builds
+returned by the next channel are not activated; the current build is retained.
+Failed activation restores and re-verifies the previous exact global CLI build.
 
-Profile switches print timed stages and plugin retry details to stderr. SDK
+Profile switches print timed stages and compact plugin retry details to stderr.
+Required-plugin state changes are shown immediately; unchanged retries are
+periodic. Optional-plugin gaps are reported as warnings, not failures. SDK
 alignment skips `bun add` when the global CLI, local package manifest, and
 installed `@opencode-ai/plugin` already match. Use `--no-align-sdk` to skip
 alignment explicitly; plugin readiness still runs. `update-v2` also reports
