@@ -137,6 +137,8 @@ rendering omits these V2-only integrations.
 The native V2 Muxy port is deployed as
 `~/.config/opencode/plugins/metronome-muxy-notify.js`; Muxy's app-owned
 `muxy-notify.js` file is left untouched because Muxy regenerates it.
+The canonical global profile sets `autoupdate: false`; use
+`metronome opencode update-v2` for trusted, verified CLI updates.
 
 Every switch creates a complete compatibility backup under
 `~/.config/opencode-backups/metronome/` and appends hashes, plugin status, SDK
