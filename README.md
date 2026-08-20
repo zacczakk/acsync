@@ -145,11 +145,11 @@ Every switch creates a complete compatibility backup under
 version, and the restore source to
 `~/.config/opencode/migration-manifest.json`. Ordinary `use v2` waits for the
 hot-reloaded plugin catalog without restarting the shared service; `update-v2`
-refreshes the Bun-installed `@opencode-ai/cli@next`, pins the local plugin SDK
+refreshes the Bun-installed `@opencode-ai/cli@beta`, pins the local plugin SDK
 to the exact resolved build, restarts the V2 service because hot reload does
 not reliably register newly deployed plugin files, and verifies the plugin
 API. The package metadata and `opencode2 --version` must agree; older builds
-returned by the next channel are not activated; the current build is retained.
+returned by the beta channel are not activated; the current build is retained.
 Failed activation restores and re-verifies the previous exact global CLI build.
 
 Profile switches print timed stages and compact plugin retry details to stderr.

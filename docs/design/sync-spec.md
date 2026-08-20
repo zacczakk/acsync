@@ -359,7 +359,7 @@ than concatenating those files into `AGENTS.md`.
   restarting the shared service; `update-v2` restarts it after an SDK/CLI
   update.
 - Failed `update-v2` activation restores and re-verifies the previous exact
-  global CLI build. The updater does not activate a next-channel result older
+  global CLI build. The updater does not activate a beta-channel result older
   than the current build, retains the current build, and repairs
   package/launcher mismatches with a clean exact install.
 
@@ -370,7 +370,7 @@ metronome opencode update-v2
 ```
 
 Equivalent manual flow: `bun install -g --force --trust --minimum-release-age=0
-@opencode-ai/cli@next`, resolve the installed exact build with `bun pm ls -g`,
+@opencode-ai/cli@beta`, resolve the installed exact build with `bun pm ls -g`,
 confirm it matches `opencode2 --version`, install the same exact
 `@opencode-ai/plugin` build with an explicit `--minimum-release-age=0` override
 in `~/.config/opencode`, restart `opencode2 service`, then verify

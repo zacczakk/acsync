@@ -23,7 +23,7 @@ read_when:
 - **OpenCode V2 update diagnostics** — `update-v2` now reports global CLI
   resolution/install, profile activation, service restart, verification, and
   exact global rollback stages
-- **OpenCode V2 update hardening** — refuse to activate next-channel
+- **OpenCode V2 update hardening** — refuse to activate beta-channel
   downgrades, retain the current build, repair package/launcher version drift,
   treat Muxy readiness as optional, and deploy the native Muxy port under a
   filename Muxy cannot overwrite

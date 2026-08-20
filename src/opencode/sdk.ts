@@ -179,7 +179,7 @@ export async function updateOpenCodeV2(
   runner: CommandRunner = runCommand,
   progress?: OperationProgressReporter,
 ): Promise<string> {
-  await runner('bun', ['install', '-g', '--force', '--trust', '--minimum-release-age=0', '@opencode-ai/cli@next']);
+  await runner('bun', ['install', '-g', '--force', '--trust', '--minimum-release-age=0', '@opencode-ai/cli@beta']);
   const version = await installedGlobalOpenCodeVersion(runner);
   await ensureGlobalOpenCodeVersion(version, runner, progress);
   return version;
@@ -199,10 +199,10 @@ export async function updateOpenCodeV2Safely(
   });
   let resolved: string;
   try {
-    resolved = await timedStage(progress, 'Install @opencode-ai/cli@next', () => updateOpenCodeV2(configDir, runner, progress));
+    resolved = await timedStage(progress, 'Install @opencode-ai/cli@beta', () => updateOpenCodeV2(configDir, runner, progress));
     progress?.(`Resolved global CLI: ${resolved}`);
     if (compareOpenCodeVersions(resolved, previous) < 0) {
-      progress?.(`Next channel returned ${resolved}; keeping current global CLI ${previous}`);
+      progress?.(`Beta channel returned ${resolved}; keeping current global CLI ${previous}`);
       await restorePrevious();
       await timedStage(progress, `Activate OpenCode V2 at ${previous}`, () => activate(previous));
       return previous;

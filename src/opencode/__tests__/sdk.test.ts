@@ -55,12 +55,12 @@ describe('OpenCode V2 SDK alignment', () => {
     const calls: string[] = [];
     const runner: CommandRunner = async (command, args) => {
       calls.push(`${command} ${args.join(' ')}`);
-      if (args[0] === 'pm') return { stdout: '@opencode-ai/cli@0.0.0-next-17100', stderr: '' };
-      if (command === 'opencode2') return { stdout: 'opencode2 v0.0.0-next-17100', stderr: '' };
+      if (args[0] === 'pm') return { stdout: '@opencode-ai/cli@0.0.0-beta-17100', stderr: '' };
+      if (command === 'opencode2') return { stdout: 'opencode2 v0.0.0-beta-17100', stderr: '' };
       return { stdout: '', stderr: '' };
     };
-    expect(await updateOpenCodeV2('/config', runner)).toBe('0.0.0-next-17100');
-    expect(calls).toContain('bun install -g --force --trust --minimum-release-age=0 @opencode-ai/cli@next');
+    expect(await updateOpenCodeV2('/config', runner)).toBe('0.0.0-beta-17100');
+    expect(calls).toContain('bun install -g --force --trust --minimum-release-age=0 @opencode-ai/cli@beta');
   });
 
   test('repairs a launcher that disagrees with the installed package', async () => {
@@ -87,17 +87,17 @@ describe('OpenCode V2 SDK alignment', () => {
     const progress: string[] = [];
     const runner: CommandRunner = async (command, args) => ({
       stdout: args[0] === 'pm'
-        ? '@opencode-ai/cli@0.0.0-next-17100'
-        : command === 'opencode2' ? 'opencode2 v0.0.0-next-17100' : '',
+        ? '@opencode-ai/cli@0.0.0-beta-17100'
+        : command === 'opencode2' ? 'opencode2 v0.0.0-beta-17100' : '',
       stderr: '',
     });
 
     await updateOpenCodeV2Safely('/config', async () => undefined, runner, (message) => progress.push(message));
 
     expect(progress[0]).toBe('Resolve current global CLI...');
-    expect(progress.some((message) => message === 'Install @opencode-ai/cli@next...')).toBe(true);
-    expect(progress.some((message) => message === 'Activate OpenCode V2 at 0.0.0-next-17100...')).toBe(true);
-    expect(progress.some((message) => message.startsWith('Activate OpenCode V2 at 0.0.0-next-17100 done'))).toBe(true);
+    expect(progress.some((message) => message === 'Install @opencode-ai/cli@beta...')).toBe(true);
+    expect(progress.some((message) => message === 'Activate OpenCode V2 at 0.0.0-beta-17100...')).toBe(true);
+    expect(progress.some((message) => message.startsWith('Activate OpenCode V2 at 0.0.0-beta-17100 done'))).toBe(true);
   });
 
   test('restores the exact global CLI build when updated profile activation fails', async () => {
@@ -123,7 +123,7 @@ describe('OpenCode V2 SDK alignment', () => {
     expect(progress.some((message) => message === 'Restore global CLI 0.0.0-next-17098...')).toBe(true);
   });
 
-  test('keeps the current build when the next channel returns an older build', async () => {
+  test('keeps the current build when the beta channel returns an older build', async () => {
     const calls: string[] = [];
     let packageVersion = '0.0.0-beta-17595';
     let executable = '0.0.0-beta-17595';
@@ -135,7 +135,7 @@ describe('OpenCode V2 SDK alignment', () => {
       }
       if (command === 'opencode2') return { stdout: `opencode2 v${executable}`, stderr: '' };
       if (command === 'bun' && args[0] === 'install') {
-        packageVersion = args.at(-1)?.includes('next') ? '0.0.0-beta-17498' : '0.0.0-beta-17595';
+        packageVersion = args.at(-1) === '@opencode-ai/cli@beta' ? '0.0.0-beta-17498' : '0.0.0-beta-17595';
         executable = packageVersion;
       }
       return { stdout: '', stderr: '' };
