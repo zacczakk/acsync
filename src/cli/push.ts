@@ -24,7 +24,7 @@ import {
   readCanonicalPlugins,
   readCanonicalHooks,
 } from './canonical';
-import { runCheck } from './check';
+import { runCheck, staleAgentNamesForTarget } from './check';
 import { confirm, mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
 import type { SyncOptions } from './canonical';
 import type { DiffResult } from '../types';
@@ -149,6 +149,18 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
     const targetAgents = agents.filter((agent) => isCanonicalAgentForTarget(agent, target));
     const writeOps = diff.operations.filter((op) => (op.type === 'create' || op.type === 'update') && op.itemType !== 'skill');
     const deleteOps = diff.operations.filter((op) => op.type === 'delete' && op.itemType !== 'skill');
+    const canonicalAgentNames = new Set(targetAgents.map((agent) => agent.name));
+    const staleAgentNames = options.deleteStale
+      && caps.agentVariantsInSettings === true
+      && (!options.types || options.types.includes('agent'))
+      ? staleAgentNamesForTarget(
+        manifest,
+        target,
+        canonicalAgentNames,
+        deleteOps.filter((op) => op.itemType === 'agent').map((op) => op.name),
+        isExcluded,
+      )
+      : [];
 
     if (writeOps.length === 0 && deleteOps.length === 0) {
       pushResults.push({ target, operations: diff.operations, success: true });
@@ -207,7 +219,7 @@ export async function runPush(options: SyncOptions = {}): Promise<OrchestratorPu
             if (!profile) continue;
             content = profile.content;
           } else {
-            content = adapter.renderSettings(settings, existingContent, targetAgents);
+            content = adapter.renderSettings(settings, existingContent, targetAgents, staleAgentNames);
           }
         } else if (op.itemType === 'hook') {
           if (!caps.hooks) continue;

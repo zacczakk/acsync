@@ -31,7 +31,7 @@ import {
 import { mapTargets, mapTypes, collect, validateTargets, validateTypes } from './cli-helpers';
 import type { SyncOptions } from './canonical';
 import type { ToolAdapter } from '../adapters/base';
-import type { ItemType, MCPServer, MCPWarning, Operation, DiffResult, PrivateSkillDrift } from '../types';
+import type { ItemType, Manifest, MCPServer, MCPWarning, Operation, DiffResult, PrivateSkillDrift, TargetName } from '../types';
 import type { SourceItem } from '../core/diff';
 import { hashRenderedSkillTree, hashSkillTree, hasPublicSkillMarker, historicallyOwnedSharedSkillNames, planSkillProjection, projectionNeedsUpdate } from '../core/skill-projection';
 import { hashMCPServer } from '../core/hash';
@@ -137,6 +137,24 @@ async function detectStaleItems(
   return deleteOps;
 }
 
+export function staleAgentNamesForTarget(
+  manifest: Manifest,
+  target: TargetName,
+  canonicalAgentNames: Set<string>,
+  candidateNames: Iterable<string>,
+  isExcluded: (name: string) => boolean,
+): string[] {
+  const staleNames = new Set<string>();
+  for (const name of candidateNames) {
+    if (!canonicalAgentNames.has(name) && !isExcluded(name)) staleNames.add(name);
+  }
+  for (const item of Object.values(manifest.items)) {
+    if (item.type !== 'agent' || !(target in item.targets) || canonicalAgentNames.has(item.name) || isExcluded(item.name)) continue;
+    staleNames.add(item.name);
+  }
+  return [...staleNames];
+}
+
 /**
  * Run the check operation: render all canonical items, diff against targets.
  */
@@ -179,6 +197,12 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
     const adapter = await createTargetAdapter(target, options.homeDir);
     const caps = adapter.getCapabilities();
     const targetAgents = agents.filter((agent) => isCanonicalAgentForTarget(agent, target));
+    const canonicalAgentNames = new Set(targetAgents.map((agent) => agent.name));
+    const staleAgentNames = options.deleteStale
+      && caps.agentVariantsInSettings === true
+      && (!options.types || options.types.includes('agent'))
+      ? staleAgentNamesForTarget(manifest, target, canonicalAgentNames, await adapter.listExistingAgentNames(), isExcluded)
+      : [];
     const includeSkills = (!options.types || options.types.includes('skill'))
       && caps.skills
       && !skillRoots.has(adapter.getPaths().getSkillsDir());
@@ -402,7 +426,7 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
             // File missing or unreadable
           }
 
-          const rendered = adapter.renderSettings(settings, existingContent, targetAgents);
+          const rendered = adapter.renderSettings(settings, existingContent, targetAgents, staleAgentNames);
           const sourceHash = hashContent(adapter.extractSettingsForComparison(settings, rendered));
 
           sourceItems.push({
@@ -430,7 +454,6 @@ export async function runCheck(options: SyncOptions = {}): Promise<OrchestratorC
     if (mcpWarning) diff.mcpWarning = mcpWarning;
 
     const canonicalCommandNames = new Set(commands.map((c) => c.name));
-    const canonicalAgentNames = new Set(targetAgents.map((a) => a.name));
     const canonicalSkillNames = new Set(skills.map((s) => s.name));
     const canonicalPluginNames = new Set(plugins.map((p) => p.name));
     const ownedPluginNames = new Set(

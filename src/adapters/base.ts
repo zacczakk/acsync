@@ -80,7 +80,7 @@ export interface ToolAdapter {
    * Returns the full file content ready to write. Only touches canonical keys;
    * preserves all other keys in the target file.
    */
-  renderSettings(settings: CanonicalSettings, existingContent?: string, agents?: CanonicalItem[]): string;
+  renderSettings(settings: CanonicalSettings, existingContent?: string, agents?: CanonicalItem[], staleAgentNames?: string[]): string;
 
   /** Render hook config for targets that support standalone hooks */
   renderHooks(hooks: CanonicalHookConfig, existingContent?: string): string;
@@ -306,7 +306,7 @@ export abstract class BaseAdapter implements ToolAdapter {
    * Default renderSettings: deep-merge canonical keys into existing JSON.
    * Preserves all non-canonical keys in the target file.
    */
-  renderSettings(settings: CanonicalSettings, existingContent?: string): string {
+  renderSettings(settings: CanonicalSettings, existingContent?: string, _agents?: CanonicalItem[], _staleAgentNames?: string[]): string {
     const base: Record<string, unknown> = existingContent
       ? readJson<Record<string, unknown>>(existingContent)
       : {};

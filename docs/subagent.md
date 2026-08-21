@@ -23,6 +23,7 @@ read_when:
 - OpenCode V1: pass through OpenCode-compatible frontmatter, force `mode: subagent`, copy to `~/.config/opencode/agents/`.
 - OpenCode V2: convert `permission` to ordered `permissions`; move per-agent request options into a generated model variant, then copy to the same agents directory.
 - OpenCode V2 agent sync also updates the shared settings catalog so every generated `agent-*` variant referenced by an agent file is registered under its base model.
+- With `--delete`, removing a managed OpenCode agent also removes its generated V2 model variant; unrelated `agent-*` variants are preserved.
 - Codex: standalone TOML as `~/.codex/agents/{name}.toml` with `name`, `description`, and `developer_instructions`. `sandbox_mode` is preserved when explicit and derived as `read-only` when canonical metadata denies edits. An `openai/*-fast` model alias renders as the base model with `model_provider = "openai"` and `service_tier = "fast"`.
 
 Target-scoped agents are filtered before rendering and stale-item detection. The

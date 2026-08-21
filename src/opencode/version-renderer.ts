@@ -232,6 +232,27 @@ export function renderOpenCodeAgentVariants(agents: CanonicalItem[]): OpenCodeMo
   return variants;
 }
 
+export function removeOpenCodeAgentVariants(settings: Record<string, unknown>, staleAgentNames: string[]): void {
+  const staleVariantIDs = new Set(staleAgentNames.map((name) => `agent-${sanitizedAgentName(name)}`));
+  if (staleVariantIDs.size === 0) return;
+  const providers = isRecord(settings.providers) ? settings.providers : {};
+  for (const [providerID, provider] of Object.entries(providers)) {
+    if (!isRecord(provider) || !isRecord(provider.models)) continue;
+    for (const [modelID, model] of Object.entries(provider.models)) {
+      if (!isRecord(model) || !Array.isArray(model.variants)) continue;
+      model.variants = model.variants.filter((entry) => !isRecord(entry)
+        || typeof entry.id !== 'string'
+        || !staleVariantIDs.has(entry.id));
+      if (model.variants.length === 0 && Object.keys(model).every((key) => key === 'variants')) {
+        delete provider.models[modelID];
+      }
+    }
+    if (Object.keys(provider).every((key) => key === 'models') && Object.keys(provider.models).length === 0) {
+      delete providers[providerID];
+    }
+  }
+}
+
 export function mergeOpenCodeSettings(
   existing: Record<string, unknown>,
   rendered: Record<string, unknown>,
@@ -261,7 +282,12 @@ export function configureOpenCodeV2Plugins(settings: Record<string, unknown>, ex
     && !(isRecord(entry) && entry.package === './plugins/instructions-loader.ts'));
 }
 
-export function preserveOpenCodeAgentVariants(settings: Record<string, unknown>, existing: Record<string, unknown>): void {
+export function preserveOpenCodeAgentVariants(
+  settings: Record<string, unknown>,
+  existing: Record<string, unknown>,
+  staleAgentNames: string[] = [],
+): void {
+  const staleVariantIDs = new Set(staleAgentNames.map((name) => `agent-${sanitizedAgentName(name)}`));
   const renderedProviders = isRecord(settings.providers) ? settings.providers : {};
   const existingProviders = isRecord(existing.providers) ? existing.providers : {};
   for (const [providerID, renderedProviderValue] of Object.entries(renderedProviders)) {
@@ -276,7 +302,11 @@ export function preserveOpenCodeAgentVariants(settings: Record<string, unknown>,
       const renderedVariants = Array.isArray(renderedModelValue.variants) ? renderedModelValue.variants : [];
       const ids = new Set(renderedVariants.flatMap((entry) => isRecord(entry) && typeof entry.id === 'string' ? [entry.id] : []));
       const profileVariants = Array.isArray(existingModelValue.variants)
-        ? existingModelValue.variants.filter((entry) => isRecord(entry) && typeof entry.id === 'string' && entry.id.startsWith('agent-') && !ids.has(entry.id))
+        ? existingModelValue.variants.filter((entry) => isRecord(entry)
+          && typeof entry.id === 'string'
+          && entry.id.startsWith('agent-')
+          && !ids.has(entry.id)
+          && !staleVariantIDs.has(entry.id))
         : [];
       if (profileVariants.length > 0) {
         renderedModelValue.variants = [...clone(renderedVariants), ...clone(profileVariants)];

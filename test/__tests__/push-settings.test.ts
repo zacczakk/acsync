@@ -151,11 +151,40 @@ describe('push settings E2E', () => {
     expect(result.failed).toBe(0);
     expect(result.written).toBe(2);
     const config = JSON.parse(readFileSync(join(fakeHome, '.config', 'opencode', 'opencode.json'), 'utf8')) as {
-      providers: { tux: { models: { 'gpt-5.6-terra': { variants: Array<{ id: string; settings: Record<string, string> }> } } } };
+      providers: Record<string, { models: Record<string, { variants: Array<{ id: string; settings: Record<string, string> }> }> }>;
     };
     expect(config.providers.tux.models['gpt-5.6-terra'].variants).toContainEqual({
       id: 'agent-test-agent',
       settings: { reasoningEffort: 'medium', textVerbosity: 'low' },
     });
+
+    config.providers.openai = {
+      models: {
+        'gpt-5.6-luna-fast': {
+          variants: [{ id: 'agent-test-agent', settings: { reasoningEffort: 'medium', textVerbosity: 'low' } }],
+        },
+      },
+    };
+    writeFileSync(join(fakeHome, '.config', 'opencode', 'opencode.json'), JSON.stringify(config));
+
+    rmSync(join(projectDir, 'configs', 'agents', 'test-agent.md'));
+    const cleanup = await runPush({
+      projectDir,
+      force: true,
+      deleteStale: true,
+      targets: ['opencode2'],
+      types: ['agent'],
+      homeDir: fakeHome,
+    });
+
+    expect(cleanup.failed).toBe(0);
+    const cleanedConfig = JSON.parse(readFileSync(join(fakeHome, '.config', 'opencode', 'opencode.json'), 'utf8')) as {
+      providers: {
+        tux: { models: { 'gpt-5.6-terra': { variants: Array<{ id: string }> } } };
+        openai?: { models?: { 'gpt-5.6-luna-fast'?: { variants: Array<{ id: string }> } } };
+      };
+    };
+    expect(cleanedConfig.providers.tux.models['gpt-5.6-terra'].variants.map(({ id }) => id)).not.toContain('agent-test-agent');
+    expect(cleanedConfig.providers.openai?.models?.['gpt-5.6-luna-fast']).toBeUndefined();
   });
 });

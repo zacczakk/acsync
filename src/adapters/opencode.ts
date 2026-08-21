@@ -3,7 +3,7 @@ import { stringifyFrontmatter } from '../formats/markdown';
 import { modifyJsonc, readJsonc } from '../formats/jsonc';
 import { EnvVarTransformer } from '../secrets/env-var-transformer';
 import { isPlainObject, deepMergeObjects } from './merge';
-import { applyOpenCodeAgentVariants, configureOpenCodeV2Plugins, mergeOpenCodeSettings, preserveOpenCodeAgentVariants, renderOpenCodeAgent, renderOpenCodeAgentVariants, renderOpenCodeMcp, renderOpenCodeSettings, type OpenCodeVersion } from '../opencode/version-renderer';
+import { applyOpenCodeAgentVariants, configureOpenCodeV2Plugins, mergeOpenCodeSettings, preserveOpenCodeAgentVariants, removeOpenCodeAgentVariants, renderOpenCodeAgent, renderOpenCodeAgentVariants, renderOpenCodeMcp, renderOpenCodeSettings, type OpenCodeVersion } from '../opencode/version-renderer';
 import type {
   CanonicalItem,
   CanonicalSettings,
@@ -148,13 +148,19 @@ export class OpenCodeAdapter extends BaseAdapter {
   private static readonly DEEP_MERGE_KEYS = new Set(['permission']);
 
   /** OpenCode uses JSONC — override to preserve comments and $schema */
-  override renderSettings(settings: CanonicalSettings, existingContent?: string, agents: CanonicalItem[] = []): string {
+  override renderSettings(
+    settings: CanonicalSettings,
+    existingContent?: string,
+    agents: CanonicalItem[] = [],
+    staleAgentNames: string[] = [],
+  ): string {
     if (this.version === 'v2') {
       const existing = existingContent ? readJsonc<Record<string, unknown>>(existingContent) : {};
       let rendered = renderOpenCodeSettings(settings.keys, 'v2');
       rendered = applyOpenCodeAgentVariants(rendered, renderOpenCodeAgentVariants(agents));
       configureOpenCodeV2Plugins(rendered, existing);
-      preserveOpenCodeAgentVariants(rendered, existing);
+      removeOpenCodeAgentVariants(existing, staleAgentNames);
+      preserveOpenCodeAgentVariants(rendered, existing, staleAgentNames);
       return JSON.stringify(mergeOpenCodeSettings(existing, rendered, 'v2'), null, 2) + '\n';
     }
     let text = existingContent ?? '{}';
