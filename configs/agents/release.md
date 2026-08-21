@@ -5,8 +5,8 @@ description: >-
   tag, version bump, or publish flow. A standalone changelog or documentation edit
   belongs to the docs agent.
 mode: subagent
-model: tux/gpt-5.6-terra
-reasoningEffort: low
+model: tux/gpt-5.6-luna
+reasoningEffort: xhigh
 textVerbosity: low
 color: '#61ffca'
 permission:

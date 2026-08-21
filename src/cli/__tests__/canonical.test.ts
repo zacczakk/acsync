@@ -17,15 +17,14 @@ describe('canonical agent routing', () => {
     expect(routing).toEqual({
       'api-review': ['tux/gpt-5.6-terra', 'medium'],
       docs: ['tux/gpt-5.6-luna', 'max'],
-      execute: ['tux/gpt-5.6-terra', 'low'],
-      'fast-worker': ['openai/gpt-5.6-luna-fast', 'max'],
+      execute: ['tux/gpt-5.6-luna', 'max'],
       'foundry-sql': ['tux/gpt-5.6-luna', 'max'],
       'infra-review': ['tux/gpt-5.6-terra', 'medium'],
-      release: ['tux/gpt-5.6-terra', 'low'],
+      release: ['tux/gpt-5.6-luna', 'xhigh'],
       research: ['tux/gpt-5.6-luna', 'max'],
       'security-review': ['tux/gpt-5.6-sol', 'high'],
       'vault-ops': ['tux/gpt-5.6-luna', 'max'],
-      verify: ['tux/gpt-5.6-terra', 'medium'],
+      verify: ['tux/gpt-5.6-luna', 'max'],
     });
   });
 
@@ -60,7 +59,7 @@ describe('canonical agent routing', () => {
     expect(agent?.content).toContain('Do not abbreviate, paraphrase');
   });
 
-  test('routes OpenCode explore to Luna with low reasoning effort', () => {
+  test('routes OpenCode explore to Luna with max reasoning effort', () => {
     const settings = JSON.parse(
       readFileSync(join(process.cwd(), 'configs', 'settings', 'opencode.json'), 'utf8'),
     ) as { model?: string; agent?: Record<string, { model?: string; options?: { reasoningEffort?: string } }> };
@@ -68,8 +67,17 @@ describe('canonical agent routing', () => {
     expect(settings.model).toBe('tux/gpt-5.6-luna');
     expect(settings.agent?.explore).toEqual({
       model: 'tux/gpt-5.6-luna',
-      options: { reasoningEffort: 'low' },
+      options: { reasoningEffort: 'max' },
     });
+  });
+
+  test('allows webfetch for review and verification agents', async () => {
+    const agents = await readCanonicalAgents(process.cwd(), () => false);
+
+    for (const name of ['api-review', 'infra-review', 'security-review', 'verify']) {
+      const agent = agents.find((item) => item.name === name);
+      expect(agent?.metadata.permission).toMatchObject({ webfetch: 'allow' });
+    }
   });
 
   test('sets Codex base to Tux Luna at xhigh reasoning', () => {

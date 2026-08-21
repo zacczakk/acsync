@@ -5,8 +5,8 @@ description: >-
   main-session context. Do not invoke for a small change the main agent already investigated.
   Produces commit-ready code with targeted and impacted verification.
 mode: subagent
-model: tux/gpt-5.6-terra
-reasoningEffort: low
+model: tux/gpt-5.6-luna
+reasoningEffort: max
 textVerbosity: low
 color: '#61ffca'
 permission:

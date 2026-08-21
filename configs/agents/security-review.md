@@ -16,6 +16,7 @@ permission:
   glob: allow
   grep: allow
   bash: allow
+  webfetch: allow
 ---
 
 # Security Review Agent

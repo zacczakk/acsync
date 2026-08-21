@@ -11,7 +11,7 @@ read_when:
 
 - **configs/** — Canonical source for all CLI artifacts.
   - `commands/` — Slash commands (8 .md files)
-  - `agents/` — Subagent definitions (2 .md files)
+  - `agents/` — Subagent definitions (10 .md files)
   - `skills/` — Skill bundles (38 directories)
   - `plugins/` — metronome-managed OpenCode V1 plugins (3 .ts files, identity-rendered)
   - `opencode/v2/plugins/` — profile-owned native V2 plugins
