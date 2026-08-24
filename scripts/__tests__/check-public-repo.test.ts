@@ -48,6 +48,7 @@ describe('findPublicRepoLeaks', () => {
 
   test('reports personal email addresses', () => {
     expect(findPublicRepoLeaks([{ path: 'docs/example.md', content: 'Contact alice@example.com.' }])).toEqual([]);
+    expect(findPublicRepoLeaks([{ path: 'docs/example.md', content: 'noreply@anthropic.com' }])).toEqual([]);
     expect(findPublicRepoLeaks([{ path: 'docs/example.md', content: 'Contact alice@company.test.' }])).toEqual([
       { rule: 'personal-email', path: 'docs/example.md' },
     ]);
