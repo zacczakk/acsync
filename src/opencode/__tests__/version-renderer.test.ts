@@ -108,6 +108,32 @@ describe('renderOpenCodeSettings', () => {
       },
     });
   });
+
+  test('preserves explicit context and output limits for Anthropic and OpenAI models', () => {
+    const rendered = renderOpenCodeSettings({
+      provider: {
+        tux: {
+          npm: '@ai-sdk/anthropic',
+          models: {
+            claude: { limit: { context: 1000000, output: 128000 } },
+            gpt: {
+              provider: { npm: '@ai-sdk/openai' },
+              limit: { context: 1050000, output: 128000 },
+            },
+          },
+        },
+      },
+    }, 'v2');
+
+    expect(rendered.providers).toMatchObject({
+      tux: {
+        models: {
+          claude: { limit: { context: 1000000, output: 128000 } },
+          gpt: { limit: { context: 1050000, output: 128000 } },
+        },
+      },
+    });
+  });
 });
 
 describe('renderOpenCodeAgent', () => {
