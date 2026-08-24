@@ -41,7 +41,7 @@ describe('findPublicRepoLeaks', () => {
     const leaks = findPublicRepoLeaks([{ path: 'docs/example.md', content: 'Internal platform details.' }]);
 
     expect(leaks).toEqual([]);
-    expect(findPublicRepoLeaks([{ path: 'docs/example.md', content: 'organization platform details.' }])).toEqual([
+    expect(findPublicRepoLeaks([{ path: 'docs/example.md', content: 'Merck platform details.' }])).toEqual([
       { rule: 'internal-reference', path: 'docs/example.md' },
     ]);
   });

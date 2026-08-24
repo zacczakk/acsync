@@ -13,27 +13,23 @@ export interface PublicRepoLeak {
 
 const ABSOLUTE_HOME_PATH = /(?:\/Users\/[^/\s]+\/|\/home\/[^/\s]+\/|C:\\Users\\[^\\\s]+\\)/;
 const PRIVATE_CLASSIFICATION_MARKER = /(?:^|\n)private:\s*true\s*$/m;
-const INTERNAL_REFERENCE = /(?:\bmerck\b|organization\.com|\bprovider\b|project|user)/i;
+const INTERNAL_REFERENCE = /(?:\bmerck\b|merckgroup\.com|\buptimize\b|liquid-outcome-engine|user)/i;
 const PERSONAL_EMAIL = /\b[A-Z0-9._%+-]+@(?!users\.noreply\.github\.com\b|example\.(?:com|org|net)\b)[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
 const SECRET_PATTERN = /(?:BEGIN (?:RSA|EC|OPENSSH|PGP) PRIVATE KEY|gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|AKIA[0-9A-Z]{16}|\b(?:[A-Z0-9_]*(?:API_KEY|TOKEN|SECRET|PASSWORD|PASSWD))\b[ \t]*[:=][ \t]*["']?(?!\$\{|\{env:)[A-Za-z0-9._+/=-]{20,})/i;
 const SENSITIVE_CONTENT_PATTERNS = [INTERNAL_REFERENCE, PERSONAL_EMAIL, SECRET_PATTERN];
 const HISTORY_SCAN_PATTERNS = [
-  'organization',
-  'provider',
-  'project',
+  'merck',
+  'uptimize',
+  'liquid-outcome-engine',
   'user',
   'BEGIN RSA PRIVATE KEY',
   'BEGIN EC PRIVATE KEY',
   'BEGIN OPENSSH PRIVATE KEY',
   'BEGIN PGP PRIVATE KEY',
-  'ghp_',
-  'gho_',
-  'ghu_',
-  'ghs_',
-  'ghr_',
-  'github_pat_',
-  'xox',
-  'AKIA',
+  'gh[pousr]_[A-Za-z0-9_]{20,}',
+  'github_pat_[A-Za-z0-9_]{20,}',
+  'xox[baprs]-[A-Za-z0-9-]{20,}',
+  'AKIA[0-9A-Z]{16}',
 ];
 const SCANNER_FILES = new Set(['scripts/check-public-repo.ts', 'scripts/__tests__/check-public-repo.test.ts']);
 
