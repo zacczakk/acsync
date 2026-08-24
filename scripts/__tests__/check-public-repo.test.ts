@@ -44,6 +44,9 @@ describe('findPublicRepoLeaks', () => {
     expect(findPublicRepoLeaks([{ path: 'docs/example.md', content: 'Merck platform details.' }])).toEqual([
       { rule: 'internal-reference', path: 'docs/example.md' },
     ]);
+    expect(findPublicRepoLeaks([{ path: 'docs/example.md', content: 'Employee M123456.' }])).toEqual([
+      { rule: 'internal-reference', path: 'docs/example.md' },
+    ]);
   });
 
   test('reports personal email addresses', () => {
