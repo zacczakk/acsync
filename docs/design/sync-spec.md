@@ -430,8 +430,7 @@ disables OAuth for it; OpenCode V2 also enables `codemode`.
     "command": "tavily-mcp",
     "args": [],
     "env": {
-      "TAVILY_API_KEY": "actual-secret-value",
-      "provider_ENV": "dev"
+      "TAVILY_API_KEY": "actual-secret-value"
     }
   }
 }
@@ -466,8 +465,7 @@ Rules:
     "type": "local",
     "command": ["tavily-mcp"],
     "environment": {
-      "TAVILY_API_KEY": "actual-secret-value",
-      "provider_ENV": "dev"
+      "TAVILY_API_KEY": "actual-secret-value"
     },
     "enabled": true
   }
@@ -545,8 +543,7 @@ schema. Recognized `oauth` and `codemode` fields are stored under
     "command": "tavily-mcp",
     "args": [],
     "env": {
-      "TAVILY_API_KEY": "actual-secret-value",
-      "provider_ENV": "dev"
+      "TAVILY_API_KEY": "actual-secret-value"
     }
   }
 }
@@ -602,9 +599,8 @@ Rules:
 
 ### Claude Code
 
-- **WebFetch is blocked** by network proxy. All web lookups must use the
-  Tavily MCP server (`tavily-mcp`). The `CLAUDE.md` addendum in the
-  system dir enforces this.
+- **Web access** depends on the local environment. Use the Tavily MCP server
+  (`tavily-mcp`) when direct fetching is unavailable.
 - **SSL certificates**: `settings.json` injects `SSL_CERT_FILE` and
   `NODE_EXTRA_CA_CERTS` pointing to `~/.claude/cacert.pem`. Canonical uses
   `~` paths; push expands `~` to the actual home directory.
@@ -624,8 +620,7 @@ Rules:
   `opencode2` forces native V2 for scripts and CI. Both target names share
   `~/.config/opencode/`, cannot be combined, and only `opencode` is in the
   default all-target set.
-- **Custom providers**: network proxy providers (`provider-bedrock`,
-  `provider-foundry`) and Tux's V1 overlay are authored under `provider` and
+- **Custom providers**: Tux's V1 overlay is authored under `provider` and
   rendered under `providers` in V2. Preserve unrelated provider entries.
 - **Env var syntax**: OpenCode uses `{env:VAR_NAME}` template syntax in
   provider configs (distinct from `${VAR}` used elsewhere).
@@ -688,10 +683,8 @@ Rules:
 | Variable | Used By | Notes |
 |----------|---------|-------|
 | `TAVILY_API_KEY` | tavily MCP | In `env` block |
-| `provider_ENV` | tavily MCP | Set to `dev` for this key |
 | `CONTEXT7_API_KEY` | context7 MCP | In `headers` block |
 | `GITHUB_PERSONAL_ACCESS_TOKEN` | github MCP | `Authorization` header; OpenCode renders `{env:GITHUB_PERSONAL_ACCESS_TOKEN}` |
-| `provider_OPENAI_API_KEY_PROD` | OpenCode settings | Runtime `{env:...}` reference in provider options |
 
 ### Path Expansion
 
@@ -833,8 +826,8 @@ not deployed by generic V2 plugin sync. Activate them with
 `metronome opencode use v2`.
 
 **Secret handling**: OpenCode provider configs use runtime `{env:VAR_NAME}`
-references in canonical settings (for example `provider_OPENAI_API_KEY_PROD`,
-`ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`). These are not metronome secret
+references in canonical settings (for example `ANTHROPIC_BASE_URL` and
+`ANTHROPIC_AUTH_TOKEN`). These are not metronome secret
 placeholders. Leave them as-is during push and pull.
 
 **Push/pull**: Read or write the active profile's rendered keys while

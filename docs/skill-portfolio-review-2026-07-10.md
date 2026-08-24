@@ -46,7 +46,6 @@ Also deleted by user decision: `doc-coauthoring` and `skill-creator`. Registry e
 | `obsidian-vault-conventions` | Thin router to `~/Vaults/AGENTS.md`; stop duplicating the vault guide. |
 | `session-notes` | Keep; reduce templates and align required `parent`/`summary` fields. |
 | `obsidian-defuddle` | Restrict to explicit clean extraction or noisy fetch fallback. |
-| `foundry-local-development` + `foundry-react-app-dev` | Deduplicate cloning/setup; move volatile recipes into references. |
 | `vercel-react-best-practices` | Restrict to performance work or deep React review, not every React edit. |
 | `thermo-nuclear-code-quality-review` | Keep explicit-only; reduce repeated rubric text. |
 
@@ -55,9 +54,6 @@ Also deleted by user decision: `doc-coauthoring` and `skill-creator`. Registry e
 - `agent-brief`
 - `grill-with-docs`
 - `interface-design`, with optional rather than mandatory multi-agent comparison
-- `foundry-mediasets`
-- `foundry-osdk-deploy`
-- Thin `foundry-react-app-dev`
 - `docx`, `pdf`, `pptx`, `xlsx`
 - `obsidian-markdown`, `obsidian-bases`, `obsidian-json-canvas`
 - App-safe, explicit-only `obsidian-cli`
@@ -86,7 +82,7 @@ Policy now: filesystem tools and `rg` for exact retrieval, `qmd` for semantic Me
 
 ## Portfolio Hygiene
 
-- Remove empty `caveman`, `docs-update-workflow`, and `provider-docs` directories after confirming no sync logic depends on directory presence.
+- Remove empty retired skill directories after confirming no sync logic depends on directory presence.
 - Generate `docs/skills.md` counts from `configs/skills/*/SKILL.md`; its previous 37-skill catalog had drifted from 45 active skills.
 - Keep customized upstream skills on manual sync. Auto-sync currently overwrites entire directories.
 - Run skill-trigger evals before adopting Matt-derived replacements. Compare invocation correctness, redundant loads, question count, and missed verification safeguards.

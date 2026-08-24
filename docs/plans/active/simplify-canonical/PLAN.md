@@ -118,7 +118,7 @@ Review each addendum for unique content worth keeping:
 
 **claude.md** (26 lines):
 - `## Paths` — canonical/rendered paths -> updating for new structure; merge into AGENTS.md
-- `## Web Access` — "WebFetch blocked (network proxy)" -> already in AGENTS.md line 24
+- `## Web Access` — direct fetching may be unavailable -> already in AGENTS.md line 24
 - `## SSL Certificates` — `cacert.pem` path -> Claude-specific; move to AGENTS.md
 - `## MCPorter` — pointer to `## Tools` -> redundant; drop
 - `## Config Management` — generic; already in AGENTS.md -> drop
@@ -158,7 +158,7 @@ New section replacing per-CLI addendums:
 
 ### Claude Code
 - Instructions file: `~/.claude/CLAUDE.md`
-- WebFetch blocked (network proxy); use Tavily MCP (`mcp__tavily_*`).
+- Direct fetching may be unavailable; use Tavily MCP (`mcp__tavily_*`).
 - SSL: `SSL_CERT_FILE` + `NODE_EXTRA_CA_CERTS` -> `~/.claude/cacert.pem` (set in `~/.claude/settings.json` `env` key).
 
 ### OpenCode

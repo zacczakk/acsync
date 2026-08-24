@@ -47,10 +47,6 @@ Machine-readable companion: `registry.json` (consumed by `scripts/sync-upstream-
 |-------|--------------|------------|------------|------|
 | thermo-nuclear-code-quality-review | thermo-nuclear-code-quality-review | thermo-nuclear-code-quality-review | No | manual |
 
-## Project-Local Skills (not synced globally)
-
-`oe-*` skills from `organization/project` are project-specific. Add them locally per project as needed — not tracked here.
-
 ## Custom (8)
 
 | Skill | Description |

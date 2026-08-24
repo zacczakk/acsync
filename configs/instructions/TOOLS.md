@@ -595,7 +595,7 @@ Canonical definitions in `configs/mcp/*.json`. Rendered to each CLI via `metrono
 | Server | Native MCP | Binary (on PATH) | Notes |
 |--------|-----------|------------------|-------|
 | `context7` | All CLIs | `context7` | HTTP; library docs |
-| `tavily` | Claude, OpenCode, Antigravity, Codex | `tavily` | Disabled by default; `TAVILY_API_KEY`, `provider_ENV=dev`; extract is approved-domain only |
+| `tavily` | Claude, OpenCode, Antigravity, Codex | `tavily` | Disabled by default; `TAVILY_API_KEY`; extract is approved-domain only |
 | `github` | Claude, OpenCode, Antigravity, Codex | — | HTTP; `GITHUB_PERSONAL_ACCESS_TOKEN`; native MCP, not necessarily MCPorter |
 | `palantir-mcp` | OpenCode V1 enabled; OpenCode V2/Claude/Codex disabled; Antigravity excluded | `palantir` snapshot | Tux launcher for native config; snapshot has separate auth/config |
 | `peekaboo` | All CLIs | `npx -y @steipete/peekaboo@latest mcp` | Disabled by default; macOS automation; requires Screen Recording + Accessibility; OpenCode timeout 30s |

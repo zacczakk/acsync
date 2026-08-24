@@ -24,7 +24,6 @@ const stdioServer: MCPServer = {
   envVars: ['TAVILY_API_KEY'],
   env: {
     TAVILY_API_KEY: '${TAVILY_API_KEY}',
-    provider_ENV: 'dev',
   },
 };
 
@@ -63,7 +62,6 @@ describe('CodexAdapter.renderMCPServers', () => {
     const mcp = parsed.mcp_servers as Record<string, Record<string, unknown>>;
     expect(mcp.tavily.env).toEqual({
       TAVILY_API_KEY: '${TAVILY_API_KEY}',
-      provider_ENV: 'dev',
     });
   });
 
@@ -201,7 +199,6 @@ enabled = false
 
 [mcp_servers.tavily.env]
 TAVILY_API_KEY = "\${TAVILY_API_KEY}"
-provider_ENV = "dev"
 `;
 
     const [server] = adapter.parseMCPServers(content);
@@ -214,7 +211,6 @@ provider_ENV = "dev"
       envVars: ['TAVILY_API_KEY', 'REMOTE_ONLY'],
       env: {
         TAVILY_API_KEY: '${TAVILY_API_KEY}',
-        provider_ENV: 'dev',
       },
       enabled: false,
     });

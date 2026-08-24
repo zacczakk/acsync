@@ -53,7 +53,7 @@ read_when:
 - **Design tooling layer** — added design-context commands, `design-critique`, upgraded `frontend-design`, and shipped minimal design specs/plans for repeatable UI review and polish work
 - **Skill and tooling refresh** — added release, git-worktree, system-debugging, TDD, verification, and writing-plan skills; expanded TOOLS/AGENTS guidance; added eval coverage and reporting for more agent flows
 - **CLI and sync improvements** — added eval runner/reporting, `sessions` helper, `--json` support on `diff`, better non-TTY pull behavior, stronger validation/read-guard plugins, and updated MCP/settings sync behavior
-- **MCP fixes** — default Tavily MCP to `provider_ENV=dev`, preserve disabled Claude MCP servers, and keep OpenCode MCP goldens aligned with current env output
+- **MCP fixes** — preserve disabled Claude MCP servers and keep OpenCode MCP goldens aligned with current env output
 - **Docs and repo refresh** — updated README/architecture/overview, added logo assets, improved release automation docs, and continued repo-wide canonical cleanup
 
 ## v1.3.7 — 2026-02-03
@@ -64,7 +64,6 @@ read_when:
 
 - **Notification hooks overhaul** — alerter v26.5 double-dash flag fix, Stop hook with first-line summary, click-to-pane teleport via iTerm2 AppleScript, async hooks, removed dead PermissionRequest hook
 - **Hook-aware settings merge** — Claude adapter preserves user hooks during config sync
-- **provider docs skill** — router-pattern skill with on-demand chapter loading for provider platform documentation
 - **OpenCode notify plugin rewrite** — non-blocking alerter via Bun shell, double-load guard
 - **Obsidian CLI permission** — added to bash allow list
 
