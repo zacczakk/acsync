@@ -430,7 +430,8 @@ disables OAuth for it; OpenCode V2 also enables `codemode`.
     "command": "tavily-mcp",
     "args": [],
     "env": {
-      "TAVILY_API_KEY": "actual-secret-value"
+      "TAVILY_API_KEY": "actual-secret-value",
+      "UPTIMIZE_ENV": "dev"
     }
   }
 }
@@ -465,7 +466,8 @@ Rules:
     "type": "local",
     "command": ["tavily-mcp"],
     "environment": {
-      "TAVILY_API_KEY": "actual-secret-value"
+      "TAVILY_API_KEY": "actual-secret-value",
+      "UPTIMIZE_ENV": "dev"
     },
     "enabled": true
   }
@@ -543,7 +545,8 @@ schema. Recognized `oauth` and `codemode` fields are stored under
     "command": "tavily-mcp",
     "args": [],
     "env": {
-      "TAVILY_API_KEY": "actual-secret-value"
+      "TAVILY_API_KEY": "actual-secret-value",
+      "UPTIMIZE_ENV": "dev"
     }
   }
 }
@@ -683,6 +686,7 @@ Rules:
 | Variable | Used By | Notes |
 |----------|---------|-------|
 | `TAVILY_API_KEY` | tavily MCP | In `env` block |
+| `UPTIMIZE_ENV` | tavily MCP | Set to `dev` for this key |
 | `CONTEXT7_API_KEY` | context7 MCP | In `headers` block |
 | `GITHUB_PERSONAL_ACCESS_TOKEN` | github MCP | `Authorization` header; OpenCode renders `{env:GITHUB_PERSONAL_ACCESS_TOKEN}` |
 

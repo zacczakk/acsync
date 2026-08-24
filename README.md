@@ -190,6 +190,7 @@ Copy `.env.example` to `.env` and fill in:
 
 ```
 TAVILY_API_KEY=
+UPTIMIZE_ENV=dev
 CONTEXT7_API_KEY=
 GITHUB_PERSONAL_ACCESS_TOKEN=
 # Add your own provider keys as needed

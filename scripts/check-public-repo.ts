@@ -13,13 +13,12 @@ export interface PublicRepoLeak {
 
 const ABSOLUTE_HOME_PATH = /(?:\/Users\/[^/\s]+\/|\/home\/[^/\s]+\/|C:\\Users\\[^\\\s]+\\)/;
 const PRIVATE_CLASSIFICATION_MARKER = /(?:^|\n)private:\s*true\s*$/m;
-const INTERNAL_REFERENCE = /(?:\bmerck\b|merckgroup\.com|\buptimize\b|liquid-outcome-engine|\bm\d{6}\b)/i;
+const INTERNAL_REFERENCE = /(?:\bmerck\b|merckgroup\.com|liquid-outcome-engine|\bm\d{6}\b)/i;
 const PERSONAL_EMAIL = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
 const ALLOWED_EMAILS = /[A-Z0-9._%+-]+@users\.noreply\.github\.com|noreply@anthropic\.com|[A-Z0-9._%+-]+@example\.(?:com|org|net)/gi;
 const SECRET_PATTERN = /(?:BEGIN (?:RSA|EC|OPENSSH|PGP) PRIVATE KEY|gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|AKIA[0-9A-Z]{16}|\b(?:[A-Z0-9_]*(?:API_KEY|TOKEN|SECRET|PASSWORD|PASSWD))\b[ \t]*[:=][ \t]*["']?(?!\$\{|\{env:)[A-Za-z0-9._+/=-]{20,})/i;
 const HISTORY_SCAN_PATTERNS = [
   'merck',
-  'uptimize',
   'liquid-outcome-engine',
   'm[0-9]{6}',
   'BEGIN RSA PRIVATE KEY',

@@ -8,6 +8,7 @@ __pycache__/
 .DS_Store
 bun.lock*
 .metronome/
+.metronome/backups/
 session-*.md
 status-cache.json
 .worktrees/

@@ -27,7 +27,8 @@
         "tavily-mcp"
       ],
       "environment": {
-        "TAVILY_API_KEY": "{env:TAVILY_API_KEY}"
+        "TAVILY_API_KEY": "{env:TAVILY_API_KEY}",
+        "UPTIMIZE_ENV": "dev"
       },
       "enabled": false
     },
