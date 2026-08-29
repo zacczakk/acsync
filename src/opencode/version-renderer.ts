@@ -45,6 +45,12 @@ function withAnthropicOutputLimit(model: UnknownRecord, packageName: unknown): U
   return { ...model, limit };
 }
 
+function contextTierSize(modelProvider: UnknownRecord | undefined, providerPackage: unknown): number {
+  const packageName = modelProvider?.npm ?? providerPackage;
+  if (packageName === '@ai-sdk/openai' || packageName === 'aisdk:@ai-sdk/openai') return 272000;
+  return 200000;
+}
+
 function renderModel(model: unknown, providerPackage: unknown, version: OpenCodeVersion): unknown {
   if (!isRecord(model)) return clone(model);
 
@@ -80,7 +86,7 @@ function renderModel(model: unknown, providerPackage: unknown, version: OpenCode
         rendered.cost = [
           cost,
           {
-            tier: { type: 'context', size: 200000 },
+            tier: { type: 'context', size: contextTierSize(modelProvider, providerPackage) },
             input: clone(longContext.input),
             output: clone(longContext.output),
             ...(Object.keys(longCache).length > 0 ? { cache: longCache } : {}),

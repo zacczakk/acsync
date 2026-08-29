@@ -90,6 +90,7 @@ describe('renderOpenCodeSettings', () => {
           npm: '@ai-sdk/anthropic',
           models: {
             luna: {
+              provider: { npm: '@ai-sdk/openai' },
               cost: {
                 input: 0.2,
                 output: 1.2,
@@ -108,16 +109,16 @@ describe('renderOpenCodeSettings', () => {
         package: 'aisdk:@ai-sdk/anthropic',
         models: {
           luna: {
+            package: 'aisdk:@ai-sdk/openai',
             cost: [
               { input: 0.2, output: 1.2, cache: { read: 0.02, write: 0.25 } },
               {
-                tier: { type: 'context', size: 200000 },
+                tier: { type: 'context', size: 272000 },
                 input: 0.4,
                 output: 1.8,
                 cache: { read: 0.04, write: 0.5 },
               },
             ],
-            limit: { output: 64000 },
           },
         },
       },

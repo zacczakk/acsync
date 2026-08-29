@@ -16,8 +16,9 @@ read_when:
 
 ## Unreleased
 
-- **OpenCode context pricing** — added V1 `context_over_200k` costs for Tux's
-  OpenAI models and translated the legacy pricing block into a native V2 tier.
+- **OpenCode context pricing** — added legacy long-context costs for Tux's
+  OpenAI models and translated them into native V2 tiers at the OpenAI 272K
+  boundary.
 - **OpenCode profile diagnostics** — timed profile-switch stages now go to
   stderr, plugin readiness retries report missing IDs, and redundant exact SDK
   installs are skipped; corrected docs to distinguish `use v2` hot reload from
