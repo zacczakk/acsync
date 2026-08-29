@@ -83,6 +83,69 @@ describe('renderOpenCodeSettings', () => {
     expect(rendered).not.toHaveProperty('agent');
   });
 
+  test('renders legacy context pricing as a V2 context tier', () => {
+    const rendered = renderOpenCodeSettings({
+      provider: {
+        tux: {
+          npm: '@ai-sdk/anthropic',
+          models: {
+            luna: {
+              cost: {
+                input: 0.2,
+                output: 1.2,
+                cache_read: 0.02,
+                cache_write: 0.25,
+                context_over_200k: { input: 0.4, output: 1.8, cache_read: 0.04, cache_write: 0.5 },
+              },
+            },
+          },
+        },
+      },
+    }, 'v2');
+
+    expect(rendered.providers).toEqual({
+      tux: {
+        package: 'aisdk:@ai-sdk/anthropic',
+        models: {
+          luna: {
+            cost: [
+              { input: 0.2, output: 1.2, cache: { read: 0.02, write: 0.25 } },
+              {
+                tier: { type: 'context', size: 200000 },
+                input: 0.4,
+                output: 1.8,
+                cache: { read: 0.04, write: 0.5 },
+              },
+            ],
+            limit: { output: 64000 },
+          },
+        },
+      },
+    });
+  });
+
+  test('keeps legacy context pricing in V1 output', () => {
+    const settings = {
+      provider: {
+        tux: {
+          models: {
+            luna: {
+              cost: {
+                input: 0.2,
+                output: 1.2,
+                cache_read: 0.02,
+                cache_write: 0.25,
+                context_over_200k: { input: 0.4, output: 1.8, cache_read: 0.04, cache_write: 0.5 },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    expect(renderOpenCodeSettings(settings, 'v1')).toEqual(settings);
+  });
+
   test('preserves Anthropic context limits and does not invent tool capabilities', () => {
     const rendered = renderOpenCodeSettings({
       provider: { anthropic: { npm: '@ai-sdk/anthropic', models: { claude: { limit: { context: 200000 } } } } },

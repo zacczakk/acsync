@@ -45,7 +45,7 @@ function withAnthropicOutputLimit(model: UnknownRecord, packageName: unknown): U
   return { ...model, limit };
 }
 
-function renderModel(model: unknown, providerPackage: unknown): unknown {
+function renderModel(model: unknown, providerPackage: unknown, version: OpenCodeVersion): unknown {
   if (!isRecord(model)) return clone(model);
 
   const rendered: UnknownRecord = {};
@@ -64,14 +64,32 @@ function renderModel(model: unknown, providerPackage: unknown): unknown {
       rendered.variants = Object.entries(value).map(([id, settings]) => ({ id, settings: clone(settings) }));
     } else if (key === 'cost' && isRecord(value)) {
       const cost: UnknownRecord = {};
+      const longContext = isRecord(value.context_over_200k) ? value.context_over_200k : undefined;
       const cache: UnknownRecord = {};
       for (const [costKey, costValue] of Object.entries(value)) {
         if (costKey === 'cache_read') cache.read = clone(costValue);
         else if (costKey === 'cache_write') cache.write = clone(costValue);
+        else if (costKey === 'context_over_200k') continue;
         else cost[costKey] = clone(costValue);
       }
       if (Object.keys(cache).length > 0) cost.cache = cache;
-      rendered.cost = cost;
+      if (version === 'v2' && longContext) {
+        const longCache: UnknownRecord = {};
+        if (longContext.cache_read !== undefined) longCache.read = clone(longContext.cache_read);
+        if (longContext.cache_write !== undefined) longCache.write = clone(longContext.cache_write);
+        rendered.cost = [
+          cost,
+          {
+            tier: { type: 'context', size: 200000 },
+            input: clone(longContext.input),
+            output: clone(longContext.output),
+            ...(Object.keys(longCache).length > 0 ? { cache: longCache } : {}),
+          },
+        ];
+      } else {
+        if (version === 'v2') rendered.cost = cost;
+        else rendered.cost = clone(value);
+      }
     } else if (key === 'provider' && modelProvider) {
       for (const [providerKey, providerValue] of Object.entries(modelProvider)) {
         if (providerKey === 'npm') {
@@ -92,7 +110,7 @@ function renderModel(model: unknown, providerPackage: unknown): unknown {
   return withAnthropicOutputLimit(rendered, effectivePackage);
 }
 
-function renderProvider(provider: unknown): unknown {
+function renderProvider(provider: unknown, version: OpenCodeVersion): unknown {
   if (!isRecord(provider)) return clone(provider);
   const rendered: UnknownRecord = {};
   const npm = provider.npm;
@@ -109,7 +127,7 @@ function renderProvider(provider: unknown): unknown {
       if (headers !== undefined) rendered.headers = clone(headers);
     } else if (key === 'models' && isRecord(value)) {
       const models: UnknownRecord = {};
-      for (const [modelID, model] of Object.entries(value)) models[modelID] = renderModel(model, packageName);
+      for (const [modelID, model] of Object.entries(value)) models[modelID] = renderModel(model, packageName, version);
       rendered.models = models;
     } else {
       rendered[key] = clone(value);
@@ -179,7 +197,7 @@ export function renderOpenCodeSettings(settings: Record<string, unknown>, versio
     }
     else if (key === 'provider' && isRecord(value)) {
       const providers: UnknownRecord = {};
-      for (const [providerID, provider] of Object.entries(value)) providers[providerID] = renderProvider(provider);
+      for (const [providerID, provider] of Object.entries(value)) providers[providerID] = renderProvider(provider, 'v2');
       rendered.providers = providers;
     } else if (key === 'agent' && isRecord(value)) {
       const agents: UnknownRecord = {};
