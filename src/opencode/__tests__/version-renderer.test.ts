@@ -83,6 +83,39 @@ describe('renderOpenCodeSettings', () => {
     expect(rendered).not.toHaveProperty('agent');
   });
 
+  test('maps attachment metadata into V2 capabilities while preserving V1 metadata', () => {
+    const settings = {
+      provider: {
+        tux: {
+          npm: '@ai-sdk/anthropic',
+          models: {
+            luna: {
+              attachment: true,
+              modalities: { input: ['image', 'pdf', 'text'], output: ['text'] },
+            },
+          },
+        },
+      },
+    };
+
+    expect(renderOpenCodeSettings(settings, 'v1')).toEqual(settings);
+    expect(renderOpenCodeSettings(settings, 'v2')).toMatchObject({
+      providers: {
+        tux: {
+          models: {
+            luna: {
+              capabilities: {
+                attachment: true,
+                input: ['image', 'pdf', 'text'],
+                output: ['text'],
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+
   test('renders legacy context pricing as a V2 context tier', () => {
     const rendered = renderOpenCodeSettings({
       provider: {

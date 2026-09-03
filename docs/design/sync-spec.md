@@ -816,9 +816,11 @@ Note: `mcp` is also a managed key but is handled separately by MCP sync
 
 V1 permission settings are deep-merged so user-added entries survive. Other
 V1 managed settings are rendered into their V1 keys. V2 converts canonical
-permissions, providers/models, agents, and plugins to native shapes; existing
-provider and external plugin entries are preserved where the renderer merges
-them. Unknown top-level keys remain user-owned.
+permissions, providers/models, agents, and plugins to native shapes; model
+`modalities` become V2 `capabilities` and model `attachment` becomes
+`capabilities.attachment`. Existing provider and external plugin entries are
+preserved where the renderer merges them. Unknown top-level keys remain
+user-owned.
 
 The canonical OpenCode permission policy allows recursive access to
 `~/.config/opencode/*` and `~/.agents/**`. On macOS, temporary-directory rules
