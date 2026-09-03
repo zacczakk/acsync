@@ -46,7 +46,7 @@ keeps slash commands in `prompts/`, but custom subagents now live in
 ```
 configs/commands/*.md              14 slash commands
 configs/agents/                    Agent definitions (OpenCode-style frontmatter)
-configs/skills/                    38 skill directories
+configs/skills/                    28 active skill directories
 configs/mcp/*.json                 8 MCP server definitions
 configs/settings/*.json            3 settings definitions (claude, codex, opencode)
 configs/instructions/AGENTS.md     Unified agent operating system

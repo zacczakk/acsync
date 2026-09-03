@@ -141,3 +141,8 @@ When work concludes (skip if trivial):
 Read `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md` before using `sessions`, GitHub MCP, Palantir MCP, or MCPorter.
 On PATH: `trash`, `metronome`, `committer`, `docs-list`, `sessions`, `agent-browser`, `qmd`, `obsidian`, `gh`, `mcporter`, `palantir`, `bird`, `markitdown`.
 Full catalog: `~/Repos/zacczakk/metronome/configs/instructions/TOOLS.md`. Read when you need flags, subcommands, or usage patterns for any tool above.
+
+## Minimalism
+- Before code: YAGNI -> existing code -> stdlib -> native feature -> installed dependency -> one line -> minimum correct implementation.
+- Never simplify away validation, error handling, security, accessibility, calibration, or explicit requirements.
+- Mark deliberate corner cuts with `ponytail: <known ceiling>, <upgrade trigger>`.

@@ -46,6 +46,18 @@
         "diagnosing-bugs": { "sync": "auto" },
         "tdd": { "sync": "auto" }
       }
+    },
+    "ponytail": {
+      "repo": "https://github.com/DietrichGebert/ponytail.git",
+      "basePath": "skills",
+      "skills": {
+        "ponytail": { "sync": "auto" },
+        "ponytail-review": { "sync": "auto" },
+        "ponytail-audit": { "sync": "auto" },
+        "ponytail-debt": { "sync": "auto" },
+        "ponytail-gain": { "sync": "auto" },
+        "ponytail-help": { "sync": "auto" }
+      }
     }
   }
 }

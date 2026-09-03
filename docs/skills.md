@@ -1,5 +1,5 @@
 ---
-summary: Skills catalog and portfolio guidance for 22 active globally synced skills.
+summary: Skills catalog and portfolio guidance for 28 active globally synced skills.
 read_when:
   - Adding or modifying skills
   - Reviewing what's available
@@ -8,8 +8,10 @@ read_when:
 
 # Skills Catalog
 
-22 active skills in `configs/skills/`, synced to all targets via `metronome push`.
+28 active skills in `configs/skills/`, synced to all targets via `metronome push`.
 Skills load on-demand when the agent's task matches the skill description.
+Run `bun scripts/sync-upstream-skills.ts` to pull configured upstreams; `auto`
+entries overwrite their local skill trees, while `manual` entries report diffs.
 
 The current portfolio is intentionally under review. See [Skill Portfolio Review](skill-portfolio-review-2026-07-10.md) for ranked cuts and reduction candidates.
 
@@ -22,6 +24,7 @@ The current portfolio is intentionally under review. See [Skill Portfolio Review
 | Superpowers | `obra/superpowers` | 1 | `writing-plans`, locally adapted and manual-sync |
 | Matt Pocock | `mattpocock/skills` | 2 | `diagnosing-bugs` and `tdd`, auto-synced |
 | Kepano | `kepano/obsidian-skills` | 5 | `obsidian-cli` is manually synced due to local app-safety guard |
+| Ponytail | `DietrichGebert/ponytail` | 6 | Minimalism and over-engineering skills, auto-synced from upstream HEAD |
 | Other upstreams | `cursor/plugins` | 1 | Manual sync |
 
 ## Selected Inventory
@@ -59,6 +62,17 @@ The tables below are a trigger-oriented overview, not an exhaustive registry. So
 | `diagnosing-bugs` | Hard bugs and performance regressions | Matt Pocock replacement for `systematic-debugging`; auto-sync |
 | `tdd` | Explicit test-first requests and red-green-refactor | Matt Pocock replacement for `test-driven-development`; auto-sync |
 
+### Ponytail Skills
+
+| Skill | Trigger | Purpose |
+|---|---|---|
+| `ponytail` | Any coding task or explicit minimalism/YAGNI request | Simplest correct implementation with intensity levels |
+| `ponytail-review` | Review for over-engineering | Diff-focused delete list |
+| `ponytail-audit` | Audit a repository for bloat | Repo-wide complexity audit |
+| `ponytail-debt` | Find deferred `ponytail:` shortcuts | Debt ledger from deliberate simplifications |
+| `ponytail-gain` | Show Ponytail impact | Published benchmark scoreboard |
+| `ponytail-help` | Ask for Ponytail usage help | Modes, skills, and command reference |
+
 ### Impeccable Skill (pbakaus/impeccable, Apache 2.0)
 
 | Skill | Trigger | Files |
@@ -84,6 +98,7 @@ Per arXiv:2602.11988 (Gloaguen et al., "Evaluating AGENTS.md"):
 - Every skill loaded but not needed costs tokens and slightly reduces success rate
 - Upstream skills are often verbose (100-400 lines) — trim to telegraphic on adoption when customizing
 - Anthropic skills adopted as-is are upstream-only; don't modify (pull updates from source)
+- Ponytail skills are upstream-owned and auto-synced; keep local policy in canonical instructions instead of editing the imported files
 - Custom and trimmed skills are owned by us; modify freely
 
 ## Adding a New Skill

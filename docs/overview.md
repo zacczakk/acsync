@@ -87,7 +87,7 @@ metronome/
   configs/
     commands/*.md              13 slash commands (canonical)
     agents/                    10 agent definitions (canonical)
-    skills/                    35 skill directories (canonical)
+    skills/                    28 active skill directories (canonical)
     plugins/*.ts               3 OpenCode V1 plugins (identity-rendered)
     opencode/v2/plugins/       Native V2 profile-owned plugins
     mcp/*.json                 9 MCP server definitions (canonical)
