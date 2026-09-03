@@ -62,10 +62,14 @@ function renderModel(model: unknown, providerPackage: unknown, version: OpenCode
     if (key === 'options') {
       rendered.settings = clone(value);
     } else if (key === 'modalities') {
-      rendered.capabilities = isRecord(value) ? { tools: true, ...clone(value) } : clone(value);
+      const capabilities = isRecord(rendered.capabilities) ? rendered.capabilities : {};
+      rendered.capabilities = isRecord(value) ? { tools: true, ...capabilities, ...clone(value) } : clone(value);
     } else if (key === 'tool_call') {
       const capabilities = isRecord(rendered.capabilities) ? rendered.capabilities : {};
       rendered.capabilities = { ...capabilities, tools: clone(value) };
+    } else if (key === 'attachment' && version === 'v2') {
+      const capabilities = isRecord(rendered.capabilities) ? rendered.capabilities : {};
+      rendered.capabilities = { ...capabilities, attachment: clone(value) };
     } else if (key === 'variants' && isRecord(value)) {
       rendered.variants = Object.entries(value).map(([id, settings]) => ({ id, settings: clone(settings) }));
     } else if (key === 'cost' && isRecord(value)) {
