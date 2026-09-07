@@ -128,11 +128,17 @@ Generic V2 sync covers settings, agents, MCP, commands, skills, and
 instructions. V2 plugin files are profile-owned and deployed by
 `metronome opencode use v2`; generic V2 plugin sync intentionally does nothing.
 
-Canonical `configs/settings/opencode.json` includes `./chatgpt-websearch` and
-`websearch.provider: chatgpt`. V2 retains both, and runtime verification
-requires the `opencode.chatgpt-websearch` plugin. Muxy is an optional V2
-integration, so a Muxy load problem never aborts profile activation. V1
-rendering omits these V2-only integrations.
+Canonical `configs/settings/opencode.json` includes `websearch.provider:
+chatgpt`. ChatGPT websearch itself ships as a vendored, profile-owned plugin
+(`configs/opencode/v2/plugins/chatgpt-websearch.js`, deployed the same way as
+the other managed V2 plugins) rather than a `plugin` array entry — OpenCode2's
+newer betas resolve `plugin`/`plugins` array entries strictly as npm/git
+package specifiers and silently drop relative directory paths, and upstream
+`opencode-chatgpt-websearch` is unmaintained, so it's bundled into a single
+file under OpenCode2's local-plugin auto-discovery directory instead. Runtime
+verification requires the `opencode.chatgpt-websearch` plugin. Muxy is an
+optional V2 integration, so a Muxy load problem never aborts profile
+activation. V1 rendering omits these V2-only integrations.
 
 The native V2 Muxy port is deployed as
 `~/.config/opencode/plugins/metronome-muxy-notify.js`; Muxy's app-owned

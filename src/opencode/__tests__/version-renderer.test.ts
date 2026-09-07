@@ -16,14 +16,14 @@ describe('renderOpenCodeSettings', () => {
     expect(rendered).toEqual({ permission: { bash: { '*': 'allow' } }, plugin: ['context-mode'] });
   });
 
-  test('keeps ChatGPT websearch in V2 and omits the V2-only integration from V1', () => {
+  test('keeps ChatGPT websearch config in V2 and omits it from V1', () => {
     const settings = {
-      plugin: ['context-mode', './chatgpt-websearch'],
+      plugin: ['context-mode'],
       websearch: { provider: 'chatgpt' },
     };
 
     expect(renderOpenCodeSettings(settings, 'v2')).toMatchObject({
-      plugins: ['context-mode', './chatgpt-websearch'],
+      plugins: ['context-mode'],
       websearch: { provider: 'chatgpt' },
     });
     expect(renderOpenCodeSettings(settings, 'v1')).toEqual({ plugin: ['context-mode'] });

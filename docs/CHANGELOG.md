@@ -16,6 +16,13 @@ read_when:
 
 ## Unreleased
 
+- **OpenCode V2 ChatGPT websearch** — vendored the unmaintained upstream
+  `opencode-chatgpt-websearch` plugin as a bundled, profile-owned file
+  (`configs/opencode/v2/plugins/chatgpt-websearch.js`) instead of a
+  `plugin`/`plugins` array entry, since newer OpenCode2 betas resolve array
+  entries strictly as npm/git package specifiers and silently drop relative
+  directory paths, breaking `metronome opencode update-v2` plugin
+  verification
 - **OpenCode context pricing** — added legacy long-context costs for Tux's
   OpenAI models and translated them into native V2 tiers at the OpenAI 272K
   boundary.

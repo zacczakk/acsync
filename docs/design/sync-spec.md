@@ -345,10 +345,15 @@ than concatenating those files into `AGENTS.md`.
 - `opencode2` forces native V2 for scripts and CI, shares paths with `opencode`,
   is not in `ALL_TARGETS`, and cannot be combined with `opencode`.
 - Preserve unowned plugin files and Tux's V1 overlay.
-- Canonical settings include `./chatgpt-websearch` and
-  `websearch.provider: chatgpt`. V2 retains both and runtime verification
-  requires `opencode.chatgpt-websearch`; `metronome.muxy-notify` is optional
-  and never blocks activation. V1 rendering omits these V2-only integrations.
+- Canonical settings include `websearch.provider: chatgpt`. ChatGPT websearch
+  is a vendored, profile-owned plugin
+  (`configs/opencode/v2/plugins/chatgpt-websearch.js`) deployed like the other
+  managed V2 plugins, not a `plugin`/`plugins` array entry — OpenCode2's newer
+  betas resolve array entries strictly as npm/git package specifiers and
+  silently drop relative directory paths, and upstream
+  `opencode-chatgpt-websearch` is unmaintained. Runtime verification requires
+  `opencode.chatgpt-websearch`; `metronome.muxy-notify` is optional and never
+  blocks activation. V1 rendering omits these V2-only integrations.
 - Deploy the native V2 Muxy port as
   `~/.config/opencode/plugins/metronome-muxy-notify.js`; preserve Muxy's
   app-owned `muxy-notify.js` because Muxy regenerates it.
@@ -633,10 +638,14 @@ Rules:
 - **V1/V2 settings**: V1 uses `provider`, `plugin`, `permission`, and flat
   `mcp`; V2 uses `providers`, `plugins`, ordered `permissions`, and nested
   `mcp.servers`.
-- **ChatGPT websearch**: Canonical settings include `./chatgpt-websearch` and
-  `websearch.provider: chatgpt`. V2 retains them and runtime verification
-  requires `opencode.chatgpt-websearch`; V1 rendering omits this V2-only
-  integration.
+- **ChatGPT websearch**: Canonical settings include `websearch.provider:
+  chatgpt`. The plugin itself is vendored under
+  `configs/opencode/v2/plugins/chatgpt-websearch.js` (bundled from the
+  unmaintained upstream `opencode-chatgpt-websearch` package) rather than a
+  `plugin`/`plugins` array entry, since newer OpenCode2 betas resolve array
+  entries strictly as npm/git package specifiers and silently drop relative
+  directory paths. Runtime verification requires `opencode.chatgpt-websearch`;
+  V1 rendering omits this V2-only integration.
 - **Plugin ownership**: Generic V1 sync deploys `configs/plugins/`. V2 plugin
   files under `configs/opencode/v2/plugins/` are profile-owned and deployed by
   `metronome opencode use v2`; generic V2 plugin sync does nothing.
@@ -804,8 +813,8 @@ selects V1. Target `opencode2` always selects V2. Both targets share this file
 and cannot be combined; only `opencode` is in `ALL_TARGETS`.
 
 **V1 managed keys**: `provider`, `plugin`, `permission`, `model`,
-`instructions`. The canonical `./chatgpt-websearch` plugin entry and
-`websearch.provider: chatgpt` are omitted by the V1 renderer.
+`instructions`. The canonical `websearch.provider: chatgpt` is omitted by the
+V1 renderer.
 
 **V2 managed keys**: `providers`, `plugins`, `permissions`, `agents`, `model`,
 `instructions`, `websearch`. V2 retains the canonical ChatGPT websearch

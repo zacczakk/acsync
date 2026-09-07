@@ -190,7 +190,6 @@ export function renderOpenCodeAgent(metadata: Record<string, unknown>, version: 
 export function renderOpenCodeSettings(settings: Record<string, unknown>, version: OpenCodeVersion): Record<string, unknown> {
   if (version === 'v1') {
     const rendered = clone(settings);
-    if (Array.isArray(rendered.plugin)) rendered.plugin = rendered.plugin.filter((entry) => entry !== './chatgpt-websearch');
     if (isRecord(rendered.websearch) && rendered.websearch.provider === 'chatgpt') delete rendered.websearch;
     return rendered;
   }

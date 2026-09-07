@@ -86,8 +86,8 @@ describe('canonical agent routing', () => {
     ) as Record<string, unknown>;
 
     expect(settings).toMatchObject({
-      model: 'gpt-5.6-luna',
-      model_provider: 'tux',
+      model: 'gpt-5.6-terra',
+      model_provider: 'openai',
       model_reasoning_effort: 'xhigh',
       approval_policy: 'never',
       sandbox_mode: 'workspace-write',

@@ -27,7 +27,7 @@ async function fixture(): Promise<{ projectDir: string; homeDir: string }> {
   await writeFile(join(projectDir, 'configs', 'settings', 'opencode.json'), JSON.stringify({
     instructions: ['~/.config/opencode/AGENTS.md', '~/Vaults/Memory/SOUL.md'],
     permission: { bash: { '*': 'allow' } },
-    plugin: ['context-mode', './chatgpt-websearch'],
+    plugin: ['context-mode'],
     websearch: { provider: 'chatgpt' },
     provider: { acme: { npm: '@ai-sdk/anthropic', models: { claude: { name: 'Claude' } } } },
   }));
@@ -36,7 +36,7 @@ async function fixture(): Promise<{ projectDir: string; homeDir: string }> {
   for (const name of ['memory-vault-advisor.ts', 'read-guard.ts', 'validate-commit.ts']) {
     await writeFile(join(projectDir, 'configs', 'plugins', name), `// v1 ${name}\n`);
   }
-  for (const name of ['instructions-loader.ts', 'memory-vault-advisor.ts', 'read-guard.ts', 'validate-commit.ts']) {
+  for (const name of ['chatgpt-websearch.js', 'instructions-loader.ts', 'memory-vault-advisor.ts', 'read-guard.ts', 'validate-commit.ts']) {
     await writeFile(join(projectDir, 'configs', 'opencode', 'v2', 'plugins', name), `// v2 ${name}\n`);
   }
   await writeFile(join(projectDir, 'configs', 'opencode', 'v1', 'plugins', 'muxy-notify.js'), '// v1 muxy\n');
@@ -61,9 +61,10 @@ describe('switchOpenCodeVersion', () => {
     expect(v2.permissions[0]).toEqual({ action: 'shell', resource: '*', effect: 'allow' });
     expect(v2.mcp.servers.tool.disabled).toBe(false);
     expect(v2.plugins).not.toContain('context-mode');
-    expect(v2.plugins).toEqual(['./chatgpt-websearch']);
+    expect(v2.plugins).toEqual([]);
     expect(v2.websearch).toEqual({ provider: 'chatgpt' });
     expect(await readFile(join(paths.homeDir, '.config', 'opencode', 'plugins', 'third-party.ts'), 'utf8')).toBe('// preserve\n');
+    expect(await readFile(join(paths.homeDir, '.config', 'opencode', 'plugins', 'chatgpt-websearch.js'), 'utf8')).toBe('// v2 chatgpt-websearch.js\n');
     expect(await readFile(join(paths.homeDir, '.config', 'opencode', 'plugins', 'metronome-muxy-notify.js'), 'utf8')).toBe('// v2 muxy\n');
     expect(await readFile(join(paths.homeDir, '.config', 'opencode', 'plugins', 'muxy-notify.js'), 'utf8')).toBe('// external muxy v1\n');
     expect(await readFile(join(paths.homeDir, '.opencode', 'plugins', 'muxy-notify.js'), 'utf8')).toBe('// external muxy\n');
@@ -76,8 +77,9 @@ describe('switchOpenCodeVersion', () => {
     expect(v1.provider.acme.models.claude.limit).toBeUndefined();
     expect(v1.provider.tux.name).toBe('Tux overlay');
     expect(v1.mcp.tool.enabled).toBe(true);
-    expect(v1.plugin).not.toContain('./chatgpt-websearch');
+    expect(v1.plugin).toEqual(['context-mode']);
     expect(v1.websearch).toBeUndefined();
+    expect(await Bun.file(join(paths.homeDir, '.config', 'opencode', 'plugins', 'chatgpt-websearch.js')).exists()).toBe(false);
     expect(await Bun.file(join(paths.homeDir, '.config', 'opencode', 'plugins', 'metronome-muxy-notify.js')).exists()).toBe(false);
     expect(await readFile(join(paths.homeDir, '.config', 'opencode', 'plugins', 'muxy-notify.js'), 'utf8')).toBe('// external muxy v1\n');
     expect(await readFile(join(paths.homeDir, '.opencode', 'plugins', 'muxy-notify.js'), 'utf8')).toBe('// external muxy\n');

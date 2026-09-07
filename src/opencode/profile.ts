@@ -17,6 +17,7 @@ import {
 } from './version-renderer';
 
 const MANAGED_GLOBAL_PLUGINS = [
+  'chatgpt-websearch.js',
   'instructions-loader.ts',
   'memory-vault-advisor.ts',
   'muxy-notify.js',
@@ -134,7 +135,6 @@ function protectedPaths(homeDir: string): string[] {
     join(global, 'migration-manifest.json'),
     join(global, 'agents'),
     join(global, 'plugins'),
-    join(global, 'chatgpt-websearch'),
     join(global, 'package.json'),
     join(global, 'package-lock.json'),
     join(global, 'bun.lock'),

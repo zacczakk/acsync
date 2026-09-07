@@ -209,7 +209,7 @@ describe('OpenCodeAdapter V2', () => {
     const settings = JSON.parse(v2.renderSettings({
       target: 'opencode2',
       keys: {
-        plugin: ['./chatgpt-websearch'],
+        plugin: ['some-plugin'],
         websearch: { provider: 'chatgpt' },
         provider: { canonical: { npm: '@ai-sdk/anthropic' } },
       },
@@ -218,7 +218,7 @@ describe('OpenCodeAdapter V2', () => {
       providers: { external: { package: 'aisdk:external' } },
     })));
 
-    expect(settings.plugins).toEqual(['./third-party', './chatgpt-websearch']);
+    expect(settings.plugins).toEqual(['./third-party', 'some-plugin']);
     expect(settings.websearch).toEqual({ provider: 'chatgpt' });
     expect(Object.keys(settings.providers)).toEqual(['external', 'canonical']);
     expect(v2.getCapabilities().plugins).toBe(false);

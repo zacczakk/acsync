@@ -113,14 +113,18 @@ it; the app-owned file is preserved because Muxy continuously regenerates it.
 Current Muxy releases still emit a V1 plugin load warning under V2, but the
 Metronome port remains the active notification integration. Muxy is optional
 for V2 readiness. Cursor OAuth is disabled in V2 because the
-public V2 catalog API cannot add a provider; context-mode is disabled because
-its package still exports the V1 `{ id, server }` contract. Switching back to
+public V2 catalog API cannot add a provider. Switching back to
 V1 restores the remembered Cursor symlink target and V1 plugin files.
 
-The canonical settings file includes `./chatgpt-websearch` and
-`websearch.provider: chatgpt`. V2 retains both; V2 runtime verification requires
-`opencode.chatgpt-websearch`; `metronome.muxy-notify` is optional. V1 rendering
-omits these V2-only integrations.
+The canonical settings file includes `websearch.provider: chatgpt`. ChatGPT
+websearch is a vendored, profile-owned plugin
+(`configs/opencode/v2/plugins/chatgpt-websearch.js`) deployed like the other
+managed V2 plugins, not a `plugin`/`plugins` array entry: OpenCode2's newer
+betas resolve array entries strictly as npm/git package specifiers and
+silently drop relative directory paths, and upstream
+`opencode-chatgpt-websearch` is unmaintained. V2 runtime verification requires
+`opencode.chatgpt-websearch`; `metronome.muxy-notify` is optional. V1
+rendering omits these V2-only integrations.
 
 Generic V2 sync handles settings, agents, MCP, commands, skills, and
 instructions. V2 preserves but does not natively resolve the config
@@ -145,7 +149,10 @@ EADDRINUSE port conflict). Auth borrows Cursor's OAuth tokens from the macOS
 Keychain (`cursor-agent login`). The fork remains the source of truth. Profile
 switching only disables/restores its symlink because the implementation is V1-only.
 
-**Context Mode (npm)**: Canonical V1 `opencode.json` includes `context-mode` in the `plugin` array. It is intentionally omitted from V2 until upstream ships a native `{ id, setup }` implementation or a separately tested rewrite exists. The MCP server remains independently managed through `configs/mcp/context-mode.json`. Installed globally via `bun add -g context-mode`. ELv2 license (personal/internal use: fine).
+**Context Mode**: not configured for OpenCode (V1 or V2). The renderer still
+strips any `context-mode` entry it finds in an existing/external `plugin`
+array during V2 rendering, as a defensive guard against drift, but canonical
+settings do not declare it.
 
 ### Codex hooks
 
